@@ -26,7 +26,7 @@
 
 ![Architecture](https://github.com/j3rrryy/cloud_storage/blob/main/images/architecture.webp?raw=true)
 
-> ![NOTE]
+> [!NOTE]
 > Docs located at `/api/docs`, but Swagger does not support MessagePack, so use another tool to send requests with this content type
 
 ## :computer: Requirements
