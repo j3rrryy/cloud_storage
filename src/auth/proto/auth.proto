@@ -1,0 +1,111 @@
+syntax = "proto3";
+package auth;
+
+service Auth {
+  rpc Register(RegisterRequest) returns (VerificationMail);
+  rpc VerifyEmail(VerificationToken) returns (Empty);
+  rpc LogIn(LogInRequest) returns (LogInResponse);
+  rpc LogOut(AccessToken) returns (Empty);
+  rpc ResendVerificationMail(AccessToken) returns (VerificationMail);
+  rpc Auth(AccessToken) returns (AuthResponse);
+  rpc Refresh(RefreshRequest) returns (Tokens);
+  rpc SessionList(AccessToken) returns (Sessions);
+  rpc RevokeSession(RevokeSessionRequest) returns (Empty);
+  rpc Profile(AccessToken) returns (ProfileResponse);
+  rpc UpdateEmail(UpdateEmailRequest) returns (VerificationMail);
+  rpc UpdatePassword(UpdatePasswordRequest) returns (Empty);
+  rpc DeleteProfile(AccessToken) returns (UserId);
+}
+
+message AccessToken {
+  string access_token = 1;
+}
+
+message AuthResponse {
+  string user_id = 1;
+  bool verified = 2;
+}
+
+message Empty {
+}
+
+message LogInResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  string email = 3;
+  string browser = 4;
+  bool verified = 5;
+}
+
+message LogInRequest {
+  string username = 1;
+  string password = 2;
+  string user_ip = 3;
+  string user_agent = 4;
+}
+
+message ProfileResponse {
+  string user_id = 1;
+  string username = 2;
+  string email = 3;
+  bool verified = 4;
+  string registered = 5;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+  string user_ip = 2;
+  string user_agent = 3;
+}
+
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RevokeSessionRequest {
+  string access_token = 1;
+  string session_id = 2;
+}
+
+message Sessions {
+  repeated SessionInfo sessions = 1;
+}
+
+message SessionInfo {
+  string session_id = 1;
+  string user_ip = 2;
+  string browser = 3;
+  string last_accessed = 4;
+}
+
+message Tokens {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message UpdateEmailRequest {
+  string access_token = 1;
+  string new_email = 2;
+}
+
+message UpdatePasswordRequest {
+  string access_token = 1;
+  string old_password = 2;
+  string new_password = 3;
+}
+
+message UserId {
+  string user_id = 1;
+}
+
+message VerificationMail {
+  string verification_token = 1;
+  string username = 2;
+  string email = 3;
+}
+
+message VerificationToken {
+  string verification_token = 1;
+}

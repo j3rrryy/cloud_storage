@@ -1,0 +1,9 @@
+aiokafka[lz4]==0.11.0
+email-validator==2.2.0
+environs==11.0.0
+grpcio==1.66.1
+grpcio_tools==1.66.1
+litestar==2.11.0
+passlib==1.7.4
+python-multipart==0.0.9
+uvicorn[standard]==0.30.6

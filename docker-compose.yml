@@ -1,0 +1,198 @@
+volumes:
+  auth_postgres_data:
+  auth_redis_data:
+  files_postgres_data:
+  files_redis_data:
+  files_files:
+  mail_zookeper_secrets:
+  mail_zookeper_data:
+  mail_zookeper_log:
+  mail_kafka_config:
+  mail_kafka_data:
+  mail_kafka_secrets:
+
+networks:
+  main_network:
+  gateway_network:
+  auth_network:
+  files_network:
+  mail_network:
+
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    restart: always
+    working_dir: /app
+    ports:
+      - 80:80
+    volumes:
+      - ./docker/nginx/dev/:/etc/nginx/conf.d:ro
+    networks:
+      - main_network
+    links:
+      - gateway
+    depends_on:
+      - gateway
+    container_name: nginx_dev
+
+  gateway:
+    build:
+      context: ./src/gateway/
+    restart: always
+    expose:
+      - 8000
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - ./:/app/
+    networks:
+      - main_network
+      - gateway_network
+    depends_on:
+      - auth
+      - files
+      - mail
+    command: bash -c "cd ./src/gateway/ && python ./main.py"
+    container_name: gateway_dev
+
+  auth:
+    build:
+      context: ./src/auth/
+    restart: always
+    expose:
+      - 50051
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - ./:/app/
+    networks:
+      - main_network
+      - auth_network
+    depends_on:
+      - auth_postgres
+      - auth_redis
+    command: bash -c "cd ./src/auth/ && alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
+    container_name: auth_dev
+
+  auth_postgres:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data/
+    networks:
+      - auth_network
+    hostname: postgres
+    container_name: auth_postgres_dev
+
+  auth_redis:
+    image: redis:alpine
+    restart: always
+    command:
+      - redis-server
+    volumes:
+      - auth_redis_data:/data/
+      - ./docker/redis/dev/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - auth_network
+    hostname: redis
+    container_name: auth_redis_dev
+
+  files:
+    build:
+      context: ./src/files/
+    restart: always
+    expose:
+      - 50051
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - ./:/app/
+      - files_files:/app/files/
+    networks:
+      - main_network
+      - files_network
+    depends_on:
+      - files_postgres
+      - files_redis
+    command: bash -c "cd ./src/files/ && alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
+    container_name: files_dev
+
+  files_postgres:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - files_postgres_data:/var/lib/postgresql/data/
+    networks:
+      - files_network
+    hostname: postgres
+    container_name: files_postgres_dev
+
+  files_redis:
+    image: redis:alpine
+    restart: always
+    command:
+      - redis-server
+    volumes:
+      - files_redis_data:/data/
+      - ./docker/redis/dev/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - files_network
+    hostname: redis
+    container_name: files_redis_dev
+
+  mail_zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    env_file:
+      - docker/env/.env.dev
+    expose:
+      - 2181
+    volumes:
+      - mail_zookeper_secrets:/etc/zookeeper/secrets
+      - mail_zookeper_data:/var/lib/zookeeper/data
+      - mail_zookeper_log:/var/lib/zookeeper/log
+    networks:
+      - main_network
+      - mail_network
+    hostname: zookeeper
+    container_name: mail_zookeper_dev
+
+  mail_kafka:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    expose:
+      - 9092
+    env_file:
+      - docker/env/.env.dev
+    environment:
+      - KAFKA_BROKER_ID=1
+    volumes:
+      - mail_kafka_config:/mnt/shared/config
+      - mail_kafka_data:/var/lib/kafka/data
+      - mail_kafka_secrets:/etc/kafka/secrets
+    networks:
+      - mail_network
+      - main_network
+    depends_on:
+      - mail_zookeeper
+    hostname: kafka
+    container_name: mail_kafka_dev
+
+  mail:
+    build:
+      context: ./src/mail/
+    restart: always
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - ./:/app/
+    networks:
+      - mail_network
+    depends_on:
+      - mail_kafka
+    command: bash -c "cd ./src/mail/ && python ./main.py"
+    container_name: mail_dev
