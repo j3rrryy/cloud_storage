@@ -17,6 +17,8 @@
 - Microservice architecture
 - gRPC between services
 - Fast serialization with MessagePack
+- Access and refresh JWT tokens
+- Active sessions control
 - Emails with new login info
 - Main DB - PostgreSQL
 - DB for cache - Redis
