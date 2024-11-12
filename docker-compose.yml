@@ -30,8 +30,6 @@ services:
       - ./docker/nginx/dev/:/etc/nginx/conf.d:ro
     networks:
       - main_network
-    links:
-      - gateway
     depends_on:
       - gateway
     container_name: nginx_dev
