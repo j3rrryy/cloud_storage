@@ -1,5 +1,4 @@
 import logging
-from asyncio import BoundedSemaphore
 from dataclasses import dataclass
 
 from cashews import cache
@@ -11,7 +10,6 @@ __all__ = ["Config", "load_config"]
 @dataclass(slots=True)
 class AppConfig:
     logger: logging.Logger
-    semaphore: BoundedSemaphore
 
 
 @dataclass(slots=True)
@@ -25,6 +23,15 @@ class PostgresConfig:
 
 
 @dataclass(slots=True)
+class MinioConfig:
+    access_key: str
+    secret_key: str
+    host: str
+    port: str
+    bucket: str
+
+
+@dataclass(slots=True)
 class Config:
     _instance = None
 
@@ -35,6 +42,7 @@ class Config:
 
     app: AppConfig
     postgres: PostgresConfig
+    minio: MinioConfig
 
 
 def load_config() -> Config:
@@ -46,15 +54,14 @@ def load_config() -> Config:
         format="%(levelname)s [%(asctime)s] %(message)s",
     )
     cache.setup(
-        f"redis://{env("REDIS_USER")}:{env("REDIS_PASSWORD")}@" +
-        f"{env("REDIS_HOST")}:{env("REDIS_PORT")}/{env("REDIS_DB")}",
+        f"redis://{env("REDIS_USER")}:{env("REDIS_PASSWORD")}@"
+        + f"{env("REDIS_HOST")}:{env("REDIS_PORT")}/{env("REDIS_DB")}",
         client_side=True,
     )
 
     return Config(
         app=AppConfig(
             logger=logging.getLogger(),
-            semaphore=BoundedSemaphore(250),
         ),
         postgres=PostgresConfig(
             driver=env("POSTGRES_DRIVER"),
@@ -63,5 +70,12 @@ def load_config() -> Config:
             host=env("POSTGRES_HOST"),
             port=env("POSTGRES_PORT"),
             database=env("POSTGRES_DB"),
+        ),
+        minio=MinioConfig(
+            access_key=env("MINIO_ROOT_USER"),
+            secret_key=env("MINIO_ROOT_PASSWORD"),
+            host=env("MINIO_HOST"),
+            port=env("MINIO_PORT"),
+            bucket=env("MINIO_BUCKET"),
         ),
     )

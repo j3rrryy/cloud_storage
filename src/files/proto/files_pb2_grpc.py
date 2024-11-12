@@ -54,7 +54,7 @@ class FilesStub(object):
             response_deserializer=files__pb2.FileListResponse.FromString,
             _registered_method=True,
         )
-        self.DownloadFile = channel.unary_stream(
+        self.DownloadFile = channel.unary_unary(
             "/files.Files/DownloadFile",
             request_serializer=files__pb2.FileOperationRequest.SerializeToString,
             response_deserializer=files__pb2.DownloadFileResponse.FromString,
@@ -131,7 +131,7 @@ def add_FilesServicer_to_server(servicer, server):
             request_deserializer=files__pb2.AllFilesOperationRequest.FromString,
             response_serializer=files__pb2.FileListResponse.SerializeToString,
         ),
-        "DownloadFile": grpc.unary_stream_rpc_method_handler(
+        "DownloadFile": grpc.unary_unary_rpc_method_handler(
             servicer.DownloadFile,
             request_deserializer=files__pb2.FileOperationRequest.FromString,
             response_serializer=files__pb2.DownloadFileResponse.SerializeToString,
@@ -261,7 +261,7 @@ class Files(object):
         timeout=None,
         metadata=None,
     ):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             "/files.Files/DownloadFile",

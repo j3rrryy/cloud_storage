@@ -1,4 +1,4 @@
-aiofiles==24.1.0
+aiobotocore==2.15.2
 alembic==1.13.2
 asyncpg==0.29.0
 cashews==7.3.1

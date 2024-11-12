@@ -5,7 +5,7 @@ service Files {
   rpc UploadFile(stream UploadFileRequest) returns (Empty);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
   rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
-  rpc DownloadFile(FileOperationRequest) returns (stream DownloadFileResponse);
+  rpc DownloadFile(FileOperationRequest) returns (DownloadFileResponse);
   rpc DeleteFiles(FilesOperationRequest) returns (Empty);
   rpc DeleteAllFiles(AllFilesOperationRequest) returns (Empty);
 }
@@ -39,7 +39,7 @@ message FilesOperationRequest {
 }
 
 message DownloadFileResponse {
-  bytes chunk = 1;
+  string url = 1;
 }
 
 message UploadFileRequest {

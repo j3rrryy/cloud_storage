@@ -1,9 +1,9 @@
 volumes:
   auth_postgres_data:
   auth_redis_data:
+  files_minio_data:
   files_postgres_data:
   files_redis_data:
-  files_files:
   mail_zookeper_secrets:
   mail_zookeper_data:
   mail_zookeper_log:
@@ -110,15 +110,28 @@ services:
       - docker/env/.env.dev
     volumes:
       - ./:/app/
-      - files_files:/app/files/
     networks:
       - main_network
       - files_network
     depends_on:
+      - files_minio
       - files_postgres
       - files_redis
     command: bash -c "cd ./src/files/ && alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
     container_name: files_dev
+
+  files_minio:
+    image: minio/minio:latest
+    restart: always
+    env_file:
+      - docker/env/.env.dev
+    volumes:
+      - files_minio_data:/data
+    networks:
+      - main_network
+    hostname: minio
+    command: server /data
+    container_name: files_minio_dev
 
   files_postgres:
     image: postgres:alpine

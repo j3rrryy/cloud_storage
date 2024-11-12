@@ -10,3 +10,7 @@ class FileInfo(BaseStruct):
 
 class FileList(BaseStruct):
     files: tuple[FileInfo]
+
+
+class FileURL(BaseStruct):
+    url: str

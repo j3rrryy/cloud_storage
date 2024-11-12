@@ -24,13 +24,11 @@ def upgrade() -> None:
         "files",
         sa.Column("file_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("user_id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("path", sa.VARCHAR(), nullable=True),
         sa.Column("name", sa.VARCHAR(), nullable=True),
         sa.Column("size", sa.VARCHAR(), nullable=False),
         sa.Column("uploaded", sa.TIMESTAMP(), nullable=True),
         sa.PrimaryKeyConstraint("file_id"),
         sa.UniqueConstraint("file_id"),
-        sa.UniqueConstraint("path"),
     )
     # ### end Alembic commands ###
 

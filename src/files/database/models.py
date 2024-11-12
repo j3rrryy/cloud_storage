@@ -18,7 +18,6 @@ class File(Base):
         default=uuid.uuid4,
     )
     user_id = sa.Column(UUID(as_uuid=False), nullable=False)
-    path = sa.Column(sa.VARCHAR, unique=True, nullable=True)
     name = sa.Column(sa.VARCHAR, nullable=True)
     size = sa.Column(sa.VARCHAR, nullable=False)
     uploaded = sa.Column(sa.TIMESTAMP, default=datetime.now)

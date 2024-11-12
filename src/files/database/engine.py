@@ -8,7 +8,7 @@ from config import load_config
 __all__ = ["get_session"]
 
 
-def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
+def _get_sessionmaker() -> async_sessionmaker[AsyncSession]:
     config = load_config()
     postgres_url = URL.create(
         drivername=config.postgres.driver,
@@ -24,10 +24,13 @@ def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
     return sessionmaker
 
 
+_sessionmaker = _get_sessionmaker()
+
+
 def get_session(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        async with get_sessionmaker()() as session:
+        async with _sessionmaker() as session:
             result = await func(*args, **kwargs, session=session)
             return result
 

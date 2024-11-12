@@ -30,16 +30,15 @@ class FilesServicer(proto.FilesServicer):
 
     async def DownloadFile(self, request, context):
         data = self.convert_to_dict(request)
-        file_path = await self._eh(context, DBC.download_file, data)
-        chunk_generator = await self._eh(context, STC.download_file, file_path)
-
-        async for chunk in chunk_generator:
-            yield pb2.DownloadFileResponse(chunk=chunk)
+        info = await self._eh(context, DBC.file_info, data)
+        data["name"] = info["name"]
+        file_url = await self._eh(context, STC.download_file, data)
+        return pb2.DownloadFileResponse(url=file_url)
 
     async def DeleteFiles(self, request, context):
         data = self.convert_to_dict(request)
-        file_paths = await self._eh(context, DBC.delete_files, data)
-        await self._eh(context, STC.delete_files, file_paths)
+        filenames = await self._eh(context, DBC.delete_files, data)
+        await self._eh(context, STC.delete_files, filenames)
         return pb2.Empty()
 
     async def DeleteAllFiles(self, request, context):

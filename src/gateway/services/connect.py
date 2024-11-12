@@ -2,7 +2,6 @@ from typing import Any, AsyncGenerator
 
 import grpc
 from aiokafka import AIOKafkaProducer
-
 from config import load_config
 from proto import AuthStub, FilesStub
 
@@ -23,7 +22,9 @@ async def connect_auth_service() -> AsyncGenerator[Auth, Any]:
 
 async def connect_files_service() -> AsyncGenerator[Files, Any]:
     async with grpc.aio.insecure_channel(
-        config.app.files_service, compression=grpc.Compression.Deflate
+        config.app.files_service,
+        compression=grpc.Compression.Deflate,
+        options=(("grpc.max_send_message_length", 6 * 1024 * 1024),),
     ) as channel:
         stub = FilesStub(channel)
         yield Files(stub)

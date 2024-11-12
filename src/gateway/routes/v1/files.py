@@ -1,18 +1,16 @@
 from typing import Annotated
 from uuid import UUID
 
+from config import load_config
 from litestar import MediaType, Request, Router, delete, get, post
 from litestar.datastructures import UploadFile
 from litestar.di import Provide
 from litestar.enums import RequestEncodingType
 from litestar.exceptions import NotAuthorizedException
 from litestar.params import Body
-from litestar.response import Stream
-
-from config import load_config
 from schemas import files as fm
 from services import Auth, Files, connect_auth_service, connect_files_service
-from utils import chunk_generator, uploading_file_info
+from utils import chunk_generator
 
 config = load_config()
 
@@ -114,7 +112,7 @@ async def file_list(
 @get(
     "/download-file/{file_id: uuid}",
     status_code=200,
-    response_class=Stream,
+    response_model=fm.FileURL,
     dependencies={
         "auth_service": Provide(connect_auth_service),
         "files_service": Provide(connect_files_service),
@@ -125,7 +123,7 @@ async def download_file(
     request: Request,
     auth_service: Auth,
     files_service: Files,
-) -> Stream:
+) -> fm.FileURL:
     access_token = request.headers.get("Authorization")
 
     if not access_token:
@@ -140,10 +138,8 @@ async def download_file(
         "user_id": user_info["user_id"],
         "file_id": str(file_id),
     }
-    info = await files_service.file_info(request_data)
-    chunk_iterator = await files_service.download_file(request_data)
-    uploading_file_data = uploading_file_info(info["name"])
-    return Stream(chunk_iterator, **uploading_file_data)
+    file_url = await files_service.download_file(request_data)
+    return fm.FileURL(url=file_url)
 
 
 @delete(
@@ -155,7 +151,7 @@ async def download_file(
     },
 )
 async def delete_files(
-    file_id: tuple[UUID],
+    file_id: list[UUID],
     request: Request,
     auth_service: Auth,
     files_service: Files,

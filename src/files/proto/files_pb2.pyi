@@ -67,10 +67,10 @@ class FilesOperationRequest(_message.Message):
     ) -> None: ...
 
 class DownloadFileResponse(_message.Message):
-    __slots__ = ("chunk",)
-    CHUNK_FIELD_NUMBER: _ClassVar[int]
-    chunk: bytes
-    def __init__(self, chunk: _Optional[bytes] = ...) -> None: ...
+    __slots__ = ("url",)
+    URL_FIELD_NUMBER: _ClassVar[int]
+    url: str
+    def __init__(self, url: _Optional[str] = ...) -> None: ...
 
 class UploadFileRequest(_message.Message):
     __slots__ = ("user_id", "name", "chunk")

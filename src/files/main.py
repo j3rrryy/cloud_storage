@@ -19,6 +19,7 @@ async def main():
             AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),
         ),
         compression=grpc.Compression.Deflate,
+        options=(("grpc.max_receive_message_length", 6 * 1024 * 1024),),
     )
     add_FilesServicer_to_server(FilesServicer(), server)
     server.add_insecure_port("[::]:50051")

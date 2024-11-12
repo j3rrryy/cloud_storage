@@ -1,7 +1,7 @@
 from typing import AsyncGenerator, Generator
 
 from proto import files_pb2 as pb2
-from utils import ChunkStream, converted_chunks_generator
+from utils import converted_chunks_generator
 
 from .base import RPCBase
 
@@ -27,12 +27,10 @@ class Files(RPCBase):
         return (self.convert_to_dict(file) for file in files.files)
 
     @RPCBase.handle_exception
-    async def download_file(self, data: dict[str, str]) -> ChunkStream:
+    async def download_file(self, data: dict[str, str]) -> str:
         request = pb2.FileOperationRequest(**data)
-        file = self._stub.DownloadFile(request)
-        chunk_iterator = ChunkStream(file)
-        await chunk_iterator.setup()
-        return chunk_iterator
+        url = await self._stub.DownloadFile(request)
+        return url.url
 
     @RPCBase.handle_exception
     async def delete_files(self, data: dict[str, str]) -> None:
