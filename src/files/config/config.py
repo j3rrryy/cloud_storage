@@ -49,6 +49,8 @@ def load_config() -> Config:
     env = Env()
     env.read_env()
 
+    logger = logging.getLogger()
+    logger.name = "files"
     logging.basicConfig(
         level=logging.INFO,
         format="%(levelname)s [%(asctime)s] %(message)s",
@@ -61,7 +63,7 @@ def load_config() -> Config:
 
     return Config(
         app=AppConfig(
-            logger=logging.getLogger(),
+            logger=logger,
         ),
         postgres=PostgresConfig(
             driver=env("POSTGRES_DRIVER"),

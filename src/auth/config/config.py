@@ -42,22 +42,24 @@ class Config:
 def load_config() -> Config:
     env = Env()
     env.read_env()
-    private_key = Jwk.from_json(env("SECRET_KEY"))
 
+    logger = logging.getLogger()
+    logger.name = "auth"
     logging.basicConfig(
         level=logging.INFO,
         format="%(levelname)s [%(asctime)s] %(message)s",
     )
     cache.setup(
-        f"redis://{env("REDIS_USER")}:{env("REDIS_PASSWORD")}@" +
-        f"{env("REDIS_HOST")}:{env("REDIS_PORT")}/{env("REDIS_DB")}",
+        f"redis://{env("REDIS_USER")}:{env("REDIS_PASSWORD")}@"
+        + f"{env("REDIS_HOST")}:{env("REDIS_PORT")}/{env("REDIS_DB")}",
         client_side=True,
     )
+    private_key = Jwk.from_json(env("SECRET_KEY"))
 
     return Config(
         app=AppConfig(
             name=env("APP_NAME"),
-            logger=logging.getLogger(),
+            logger=logger,
             public_key=private_key.public_jwk(),
             private_key=private_key,
         ),

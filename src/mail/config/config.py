@@ -39,6 +39,8 @@ def load_config() -> Config:
     env = Env()
     env.read_env()
 
+    logger = logging.getLogger()
+    logger.name = "mail"
     logging.basicConfig(
         level=logging.INFO,
         format="%(levelname)s [%(asctime)s] %(message)s",
@@ -48,7 +50,7 @@ def load_config() -> Config:
         app=AppConfig(
             name=env("APP_NAME"),
             verification_url=env("VERIFICATION_URL"),
-            logger=logging.getLogger(),
+            logger=logger,
             kafka_service=env("KAFKA_SERVICE"),
         ),
         smtp=SMTPConfig(

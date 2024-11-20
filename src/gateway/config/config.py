@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 
 from environs import Env
@@ -34,6 +35,8 @@ def load_config() -> Config:
     env = Env()
     env.read_env()
 
+    logger = logging.getLogger()
+    logger.name = "gateway"
     cors_config = CORSConfig(
         allow_origins=env("ALLOWED_ORIGINS").split(", "),
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD", "TRACE"],

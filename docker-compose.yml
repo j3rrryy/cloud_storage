@@ -12,11 +12,12 @@ volumes:
   mail_kafka_secrets:
 
 networks:
+  nginx_network:
   main_network:
-  gateway_network:
   auth_network:
   files_network:
   mail_network:
+  kafka_network:
 
 
 services:
@@ -29,7 +30,7 @@ services:
     volumes:
       - ./docker/nginx/dev/:/etc/nginx/conf.d:ro
     networks:
-      - main_network
+      - nginx_network
     depends_on:
       - gateway
     container_name: nginx_dev
@@ -41,12 +42,12 @@ services:
     expose:
       - 8000
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - ./:/app/
     networks:
+      - nginx_network
       - main_network
-      - gateway_network
     depends_on:
       - auth
       - files
@@ -61,7 +62,7 @@ services:
     expose:
       - 50051
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - ./:/app/
     networks:
@@ -77,7 +78,7 @@ services:
     image: postgres:alpine
     restart: always
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data/
     networks:
@@ -92,7 +93,7 @@ services:
       - redis-server
     volumes:
       - auth_redis_data:/data/
-      - ./docker/redis/dev/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/redis/dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - auth_network
     hostname: redis
@@ -105,7 +106,7 @@ services:
     expose:
       - 50051
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - ./:/app/
     networks:
@@ -122,11 +123,12 @@ services:
     image: minio/minio:latest
     restart: always
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - files_minio_data:/data
     networks:
-      - main_network
+      - nginx_network
+      - files_network
     hostname: minio
     command: server /data
     container_name: files_minio_dev
@@ -135,7 +137,7 @@ services:
     image: postgres:alpine
     restart: always
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - files_postgres_data:/var/lib/postgresql/data/
     networks:
@@ -150,7 +152,7 @@ services:
       - redis-server
     volumes:
       - files_redis_data:/data/
-      - ./docker/redis/dev/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/redis/dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - files_network
     hostname: redis
@@ -159,7 +161,7 @@ services:
   mail_zookeeper:
     image: confluentinc/cp-zookeeper:latest
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     expose:
       - 2181
     volumes:
@@ -167,8 +169,7 @@ services:
       - mail_zookeper_data:/var/lib/zookeeper/data
       - mail_zookeper_log:/var/lib/zookeeper/log
     networks:
-      - main_network
-      - mail_network
+      - kafka_network
     hostname: zookeeper
     container_name: mail_zookeper_dev
 
@@ -178,7 +179,7 @@ services:
     expose:
       - 9092
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     environment:
       - KAFKA_BROKER_ID=1
     volumes:
@@ -186,8 +187,9 @@ services:
       - mail_kafka_data:/var/lib/kafka/data
       - mail_kafka_secrets:/etc/kafka/secrets
     networks:
-      - mail_network
       - main_network
+      - kafka_network
+      - mail_network
     depends_on:
       - mail_zookeeper
     hostname: kafka
@@ -198,7 +200,7 @@ services:
       context: ./src/mail/
     restart: always
     env_file:
-      - docker/env/.env.dev
+      - ./docker/env/.env.dev
     volumes:
       - ./:/app/
     networks:

@@ -26,19 +26,26 @@
 - S3 for files - MinIO
 - Message broker between Gateway and Mail service - Apache Kafka
 
+## :memo: To-Do list
+
+- Logs processing - Graylog, Elasticsearch, MongoDB
+- Metrics processing - Prometheus, Grafana
+- Сontainer orchestration - Kubernetes
+
 ![Architecture](https://github.com/j3rrryy/cloud_storage/blob/main/images/architecture.webp?raw=true)
 
 > [!NOTE]
+> API located at `/api`
 > Docs located at `/api/docs`, but Swagger does not support MessagePack, so use another tool to send requests with this content type
 
 ## :computer: Requirements
 
 - Docker
-- Kubernetes (will be available in the future)
 
 ## :hammer_and_wrench: Getting started
 
-- Copy `.env.dev` file from `examples/env/` to `docker/env/` folder fill it in
+- Copy `.env.dev` file from `examples/env/` to `docker/env/` folder and fill it in
+- Copy `redis.conf` file from `examples/redis/dev/` to `docker/redis/dev/` folder and fill it in
 
 ### :rocket: Start
 

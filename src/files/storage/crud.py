@@ -79,7 +79,7 @@ class CRUD:
             url = await client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": cls._BUCKET_NAME, "Key": OBJECT_KEY},
-                ExpiresIn=3600,
+                ExpiresIn=180,
             )
             return url
         except FileNotFoundError as exc:
