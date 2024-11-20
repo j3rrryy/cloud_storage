@@ -36,6 +36,7 @@
 
 > [!NOTE]
 > API located at `/api`
+> 
 > Docs located at `/api/docs`, but Swagger does not support MessagePack, so use another tool to send requests with this content type
 
 ## :computer: Requirements
