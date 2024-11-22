@@ -1,1 +1,1 @@
-from .connect import *
+from .connect import *  # noqa: F403

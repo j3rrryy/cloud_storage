@@ -1,1 +1,1 @@
-from .service import *
+from .service import *  # noqa: F403

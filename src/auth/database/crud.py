@@ -169,7 +169,7 @@ class CRUD:
                 ).scalar_one_or_none()
             else:
                 result = await session.get(RefreshToken, token_or_id)
-                
+
             return bool(result)
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, "Internal database error")

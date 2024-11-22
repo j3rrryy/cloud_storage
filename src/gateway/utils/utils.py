@@ -23,7 +23,7 @@ async def chunk_generator(
 
 
 async def converted_chunks_generator(
-    chunk_generator: AsyncGenerator[dict[str, str | bytes], None]
+    chunk_generator: AsyncGenerator[dict[str, str | bytes], None],
 ) -> AsyncGenerator[pb2.UploadFileRequest, None]:
     async for chunk in chunk_generator:
         request = pb2.UploadFileRequest(**chunk)
