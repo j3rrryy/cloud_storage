@@ -1,6 +1,6 @@
-import logging
 from dataclasses import dataclass
 
+import picologging as logging
 from environs import Env
 
 __all__ = ["Config", "load_config"]
@@ -39,11 +39,11 @@ def load_config() -> Config:
     env = Env()
     env.read_env()
 
-    logger = logging.getLogger()
-    logger.name = "mail"
+    logger = logging.getLogger("mail")
     logging.basicConfig(
         level=logging.INFO,
-        format="%(levelname)s [%(asctime)s] %(message)s",
+        format="mail | %(asctime)s | %(levelname)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     return Config(

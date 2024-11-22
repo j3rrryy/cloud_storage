@@ -6,6 +6,7 @@ environs==11.0.0
 grpcio==1.66.1
 grpc-accesslog==0.3.0
 grpcio_tools==1.66.1
+picologging==0.9.3
 redis==5.0.8
 sqlalchemy==2.0.34
 uvloop==0.21.0
