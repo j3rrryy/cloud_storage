@@ -10,7 +10,7 @@ config = load_config()
 app = Litestar(
     path="/api",
     debug=config.app.debug,
-    logging_config=None,
+    logging_config=config.app.litestar_logging_config,
     cors_config=config.app.cors_config,
     openapi_config=config.app.openapi_config,
 )

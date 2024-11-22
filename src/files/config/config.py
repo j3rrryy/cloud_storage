@@ -1,6 +1,6 @@
-import logging
 from dataclasses import dataclass
 
+import picologging as logging
 from cashews import cache
 from environs import Env
 
@@ -49,11 +49,11 @@ def load_config() -> Config:
     env = Env()
     env.read_env()
 
-    logger = logging.getLogger()
-    logger.name = "files"
+    logger = logging.getLogger("files")
     logging.basicConfig(
         level=logging.INFO,
-        format="%(levelname)s [%(asctime)s] %(message)s",
+        format="files | %(asctime)s | %(levelname)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
     cache.setup(
         f"redis://{env("REDIS_USER")}:{env("REDIS_PASSWORD")}@"
