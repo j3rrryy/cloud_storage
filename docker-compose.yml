@@ -44,7 +44,7 @@ services:
     env_file:
       - ./docker/env/.env.dev
     volumes:
-      - ./:/app/
+      - ./src/gateway/:/app/
     networks:
       - nginx_network
       - main_network
@@ -52,7 +52,7 @@ services:
       - auth
       - files
       - mail
-    command: bash -c "cd ./src/gateway/ && python ./main.py"
+    command: python ./main.py
     container_name: gateway_dev
 
   auth:
@@ -64,14 +64,14 @@ services:
     env_file:
       - ./docker/env/.env.dev
     volumes:
-      - ./:/app/
+      - ./src/auth/:/app/
     networks:
       - main_network
       - auth_network
     depends_on:
       - auth_postgres
       - auth_redis
-    command: bash -c "cd ./src/auth/ && alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
+    command: bash -c "alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
     container_name: auth_dev
 
   auth_postgres:
@@ -108,7 +108,7 @@ services:
     env_file:
       - ./docker/env/.env.dev
     volumes:
-      - ./:/app/
+      - ./src/files/:/app/
     networks:
       - main_network
       - files_network
@@ -116,7 +116,7 @@ services:
       - files_minio
       - files_postgres
       - files_redis
-    command: bash -c "cd ./src/files/ && alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
+    command: bash -c "alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
     container_name: files_dev
 
   files_minio:
@@ -202,10 +202,10 @@ services:
     env_file:
       - ./docker/env/.env.dev
     volumes:
-      - ./:/app/
+      - ./src/mail/:/app/
     networks:
       - mail_network
     depends_on:
       - mail_kafka
-    command: bash -c "cd ./src/mail/ && python ./main.py"
+    command: python ./main.py
     container_name: mail_dev

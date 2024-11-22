@@ -17,7 +17,7 @@ class StorageController:
     ) -> dict[str, str]:
         SIZE_NAMES = ("B", "KB", "MB", "GB")
 
-        metadata = await anext(data_iterator)
+        metadata = await anext(data_iterator)  # noqa: F821
         data = {"user_id": metadata.user_id, "name": metadata.name}
 
         file_size = await CRUD.upload_file(data_iterator, data, client)
