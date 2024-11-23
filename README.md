@@ -1,6 +1,7 @@
 # Cloud Storage
 
 <p align="center">
+  <img src="https://github.com/j3rrryy/cloud_storage/actions/workflows/main.yml/badge.svg">
   <a href="https://www.python.org/downloads/release/python-3120/">
     <img src="https://img.shields.io/badge/Python-3.12-FFD64E.svg" alt="Python 3.12">
   </a>
