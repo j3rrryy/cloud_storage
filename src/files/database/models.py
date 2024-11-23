@@ -18,12 +18,12 @@ class File(Base):
         default=uuid.uuid4,
     )
     user_id = sa.Column(UUID(as_uuid=False), nullable=False)
-    name = sa.Column(sa.VARCHAR, nullable=True)
-    size = sa.Column(sa.VARCHAR, nullable=False)
+    name = sa.Column(sa.VARCHAR, unique=True, nullable=False)
+    size = sa.Column(sa.BIGINT, nullable=True)
     uploaded = sa.Column(sa.TIMESTAMP, default=datetime.now)
 
     def __str__(self) -> str:
-        return f"<File: {self.id}>"
+        return f"<File: {self.file_id}>"
 
     def columns_to_dict(self) -> dict:
         d = {key: getattr(self, key) for key in self.__mapper__.c.keys()}

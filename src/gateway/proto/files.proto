@@ -5,7 +5,7 @@ service Files {
   rpc UploadFile(stream UploadFileRequest) returns (Empty);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
   rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
-  rpc DownloadFile(FileOperationRequest) returns (DownloadFileResponse);
+  rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
   rpc DeleteFiles(FilesOperationRequest) returns (Empty);
   rpc DeleteAllFiles(AllFilesOperationRequest) returns (Empty);
 }
@@ -20,7 +20,7 @@ message Empty {
 message FileInfoResponse {
   string file_id = 1;
   string name = 2;
-  string size = 3;
+  uint64 size = 3;
   string uploaded = 4;
 }
 
@@ -38,7 +38,7 @@ message FilesOperationRequest {
   repeated string file_ids = 2;
 }
 
-message DownloadFileResponse {
+message FileURLResponse {
   string url = 1;
 }
 

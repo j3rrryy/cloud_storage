@@ -1,7 +1,7 @@
-from logging import Logger
 from typing import Any
 
 from grpc import ServicerContext
+from picologging import Logger
 
 
 class ExceptionHandler:

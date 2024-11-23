@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from msgspec import Meta
 
@@ -29,12 +30,12 @@ class Tokens(BaseStruct):
 
 
 class Auth(BaseStruct):
-    user_id: str
+    user_id: UUID
     verified: bool = False
 
 
 class UserId(BaseStruct):
-    user_id: str
+    user_id: UUID
 
 
 class RefreshToken(BaseStruct):
@@ -42,11 +43,11 @@ class RefreshToken(BaseStruct):
 
 
 class SessionId(BaseStruct):
-    session_id: str
+    session_id: UUID
 
 
 class SessionInfo(BaseStruct):
-    session_id: str
+    session_id: UUID
     user_ip: str
     browser: str
     last_accessed: str
@@ -57,7 +58,7 @@ class SessionList(BaseStruct):
 
 
 class Profile(BaseStruct):
-    user_id: str
+    user_id: UUID
     username: str
     email: Annotated[
         str,

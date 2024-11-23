@@ -13,7 +13,7 @@ class CRUD:
     @classmethod
     async def upload_file(
         cls, chunk_iterator: AsyncIterator, data: dict[str, str], client: AioBaseClient
-    ) -> int | None:
+    ) -> int:
         OBJECT_KEY = f"{data["user_id"]}/{data["name"]}"
 
         try:
@@ -79,7 +79,7 @@ class CRUD:
             url = await client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": cls._BUCKET_NAME, "Key": OBJECT_KEY},
-                ExpiresIn=180,
+                ExpiresIn=60,
             )
             return url
         except FileNotFoundError as exc:
@@ -114,13 +114,15 @@ class CRUD:
             paginator = client.get_paginator("list_objects_v2")
 
             async for page in paginator.paginate(
-                Bucket=cls._BUCKET_NAME, Prefix=PREFIX
+                Bucket=cls._BUCKET_NAME,
+                Prefix=PREFIX,
             ):
                 if page.get("Contents", 0):
                     delete_requests = [{"Key": obj["Key"]} for obj in page["Contents"]]
 
                     await client.delete_objects(
-                        Bucket=cls._BUCKET_NAME, Delete={"Objects": delete_requests}
+                        Bucket=cls._BUCKET_NAME,
+                        Delete={"Objects": delete_requests},
                     )
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, "Internal storage error")

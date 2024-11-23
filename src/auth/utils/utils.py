@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 from datetime import timedelta
 from enum import Enum
-from logging import Logger
+from picologging import Logger
 from typing import Any
 
 import bcrypt

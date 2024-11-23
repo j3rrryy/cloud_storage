@@ -1,4 +1,3 @@
-import math
 from typing import AsyncIterator
 
 from aiobotocore.client import AioBaseClient
@@ -15,16 +14,10 @@ class StorageController:
     async def upload_file(
         cls, data_iterator: AsyncIterator, client: AioBaseClient
     ) -> dict[str, str]:
-        SIZE_NAMES = ("B", "KB", "MB", "GB")
-
         metadata = await anext(data_iterator)  # noqa: F821
         data = {"user_id": metadata.user_id, "name": metadata.name}
-
         file_size = await CRUD.upload_file(data_iterator, data, client)
-
-        i = int(math.floor(math.log(file_size, 1024)))
-        converted_size = round(file_size / 1024**i, 2)
-        data["size"] = f"{converted_size} {SIZE_NAMES[i]}"
+        data["size"] = file_size
         return data
 
     @classmethod

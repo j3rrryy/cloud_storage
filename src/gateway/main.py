@@ -13,6 +13,7 @@ app = Litestar(
     logging_config=config.app.litestar_logging_config,
     cors_config=config.app.cors_config,
     openapi_config=config.app.openapi_config,
+    request_max_body_size=None,
 )
 app.register(auth_v1)
 app.register(files_v1)

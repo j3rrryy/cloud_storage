@@ -1,16 +1,14 @@
+from uuid import UUID
+
 from .base import BaseStruct
 
 
 class FileInfo(BaseStruct):
-    file_id: str
+    file_id: UUID
     name: str
-    size: str
+    size: int
     uploaded: str
 
 
 class FileList(BaseStruct):
     files: tuple[FileInfo]
-
-
-class FileURL(BaseStruct):
-    url: str

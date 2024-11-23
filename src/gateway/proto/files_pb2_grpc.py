@@ -21,7 +21,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + f" but the generated code in files_pb2_grpc.py depends on"
+        + " but the generated code in files_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
@@ -58,7 +58,7 @@ class FilesStub(object):
         self.DownloadFile = channel.unary_unary(
             "/files.Files/DownloadFile",
             request_serializer=files__pb2.FileOperationRequest.SerializeToString,
-            response_deserializer=files__pb2.DownloadFileResponse.FromString,
+            response_deserializer=files__pb2.FileURLResponse.FromString,
             _registered_method=True,
         )
         self.DeleteFiles = channel.unary_unary(
@@ -135,7 +135,7 @@ def add_FilesServicer_to_server(servicer, server):
         "DownloadFile": grpc.unary_unary_rpc_method_handler(
             servicer.DownloadFile,
             request_deserializer=files__pb2.FileOperationRequest.FromString,
-            response_serializer=files__pb2.DownloadFileResponse.SerializeToString,
+            response_serializer=files__pb2.FileURLResponse.SerializeToString,
         ),
         "DeleteFiles": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteFiles,
@@ -267,7 +267,7 @@ class Files(object):
             target,
             "/files.Files/DownloadFile",
             files__pb2.FileOperationRequest.SerializeToString,
-            files__pb2.DownloadFileResponse.FromString,
+            files__pb2.FileURLResponse.FromString,
             options,
             channel_credentials,
             insecure,
