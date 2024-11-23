@@ -33,7 +33,7 @@ class FilesServicer(proto.FilesServicer):
         info = await self._eh(context, DBC.file_info, data)
         data["name"] = info["name"]
         file_url = await self._eh(context, STC.download_file, data)
-        return pb2.DownloadFileResponse(url=file_url)
+        return pb2.FileURLResponse(url=file_url)
 
     async def DeleteFiles(self, request, context):
         data = self.convert_to_dict(request)

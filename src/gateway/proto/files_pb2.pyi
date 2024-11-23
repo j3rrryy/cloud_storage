@@ -28,13 +28,13 @@ class FileInfoResponse(_message.Message):
     UPLOADED_FIELD_NUMBER: _ClassVar[int]
     file_id: str
     name: str
-    size: str
+    size: int
     uploaded: str
     def __init__(
         self,
         file_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
-        size: _Optional[str] = ...,
+        size: _Optional[int] = ...,
         uploaded: _Optional[str] = ...,
     ) -> None: ...
 
@@ -66,7 +66,7 @@ class FilesOperationRequest(_message.Message):
         self, user_id: _Optional[str] = ..., file_ids: _Optional[_Iterable[str]] = ...
     ) -> None: ...
 
-class DownloadFileResponse(_message.Message):
+class FileURLResponse(_message.Message):
     __slots__ = ("url",)
     URL_FIELD_NUMBER: _ClassVar[int]
     url: str

@@ -1,13 +1,15 @@
 from typing import Annotated
 from uuid import UUID
 
-from config import load_config
 from litestar import MediaType, Request, Router, delete, get, post
 from litestar.datastructures import UploadFile
 from litestar.di import Provide
 from litestar.enums import RequestEncodingType
 from litestar.exceptions import NotAuthorizedException
 from litestar.params import Body
+from litestar.response import Redirect
+
+from config import load_config
 from schemas import files as fm
 from services import Auth, Files, connect_auth_service, connect_files_service
 from utils import chunk_generator
@@ -36,7 +38,7 @@ async def upload_file(
 
     user_info = await auth_service.auth(access_token.split()[1])
 
-    if not user_info["verified"]:
+    if not user_info.get("verified", False):
         raise NotAuthorizedException(detail="Email not verified")
 
     request_data = {
@@ -69,7 +71,7 @@ async def file_info(
 
     user_info = await auth_service.auth(access_token.split()[1])
 
-    if not user_info["verified"]:
+    if not user_info.get("verified", False):
         raise NotAuthorizedException(detail="Email not verified")
 
     request_data = {
@@ -102,7 +104,7 @@ async def file_list(
 
     user_info = await auth_service.auth(access_token.split()[1])
 
-    if not user_info["verified"]:
+    if not user_info.get("verified", False):
         raise NotAuthorizedException(detail="Email not verified")
 
     files = await files_service.file_list(user_info["user_id"])
@@ -112,7 +114,7 @@ async def file_list(
 @get(
     "/download-file/{file_id: uuid}",
     status_code=200,
-    response_model=fm.FileURL,
+    response_class=Redirect,
     dependencies={
         "auth_service": Provide(connect_auth_service),
         "files_service": Provide(connect_files_service),
@@ -123,7 +125,7 @@ async def download_file(
     request: Request,
     auth_service: Auth,
     files_service: Files,
-) -> fm.FileURL:
+) -> Redirect:
     access_token = request.headers.get("Authorization")
 
     if not access_token:
@@ -131,7 +133,7 @@ async def download_file(
 
     user_info = await auth_service.auth(access_token.split()[1])
 
-    if not user_info["verified"]:
+    if not user_info.get("verified", False):
         raise NotAuthorizedException(detail="Email not verified")
 
     request_data = {
@@ -139,7 +141,7 @@ async def download_file(
         "file_id": str(file_id),
     }
     file_url = await files_service.download_file(request_data)
-    return fm.FileURL(url=file_url)
+    return Redirect(file_url)
 
 
 @delete(
@@ -163,7 +165,7 @@ async def delete_files(
 
     user_info = await auth_service.auth(access_token.split()[1])
 
-    if not user_info["verified"]:
+    if not user_info.get("verified", False):
         raise NotAuthorizedException(detail="Email not verified")
 
     request_data = {
@@ -193,7 +195,7 @@ async def delete_all_files(
 
     user_info = await auth_service.auth(access_token.split()[1])
 
-    if not user_info["verified"]:
+    if not user_info.get("verified", False):
         raise NotAuthorizedException(detail="Email not verified")
 
     await files_service.delete_all_files(user_info["user_id"])

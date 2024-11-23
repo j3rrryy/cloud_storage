@@ -20,7 +20,7 @@ _sym_db = _symbol_database.Default()
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0b\x66iles.proto\x12\x05\x66iles"+\n\x18\x41llFilesOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t"\x07\n\x05\x45mpty"Q\n\x10\x46ileInfoResponse\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\t\x12\x10\n\x08uploaded\x18\x04 \x01(\t":\n\x10\x46ileListResponse\x12&\n\x05\x66iles\x18\x01 \x03(\x0b\x32\x17.files.FileInfoResponse"8\n\x14\x46ileOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t":\n\x15\x46ilesOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ile_ids\x18\x02 \x03(\t"#\n\x14\x44ownloadFileResponse\x12\x0b\n\x03url\x18\x01 \x01(\t"A\n\x11UploadFileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05\x63hunk\x18\x03 \x01(\x0c\x32\x8d\x03\n\x05\x46iles\x12\x36\n\nUploadFile\x12\x18.files.UploadFileRequest\x1a\x0c.files.Empty(\x01\x12@\n\x08\x46ileInfo\x12\x1b.files.FileOperationRequest\x1a\x17.files.FileInfoResponse\x12\x44\n\x08\x46ileList\x12\x1f.files.AllFilesOperationRequest\x1a\x17.files.FileListResponse\x12H\n\x0c\x44ownloadFile\x12\x1b.files.FileOperationRequest\x1a\x1b.files.DownloadFileResponse\x12\x39\n\x0b\x44\x65leteFiles\x12\x1c.files.FilesOperationRequest\x1a\x0c.files.Empty\x12?\n\x0e\x44\x65leteAllFiles\x12\x1f.files.AllFilesOperationRequest\x1a\x0c.files.Emptyb\x06proto3'
+    b'\n\x0b\x66iles.proto\x12\x05\x66iles"+\n\x18\x41llFilesOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t"\x07\n\x05\x45mpty"Q\n\x10\x46ileInfoResponse\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x04\x12\x10\n\x08uploaded\x18\x04 \x01(\t":\n\x10\x46ileListResponse\x12&\n\x05\x66iles\x18\x01 \x03(\x0b\x32\x17.files.FileInfoResponse"8\n\x14\x46ileOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t":\n\x15\x46ilesOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ile_ids\x18\x02 \x03(\t"\x1e\n\x0f\x46ileURLResponse\x12\x0b\n\x03url\x18\x01 \x01(\t"A\n\x11UploadFileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05\x63hunk\x18\x03 \x01(\x0c\x32\x88\x03\n\x05\x46iles\x12\x36\n\nUploadFile\x12\x18.files.UploadFileRequest\x1a\x0c.files.Empty(\x01\x12@\n\x08\x46ileInfo\x12\x1b.files.FileOperationRequest\x1a\x17.files.FileInfoResponse\x12\x44\n\x08\x46ileList\x12\x1f.files.AllFilesOperationRequest\x1a\x17.files.FileListResponse\x12\x43\n\x0c\x44ownloadFile\x12\x1b.files.FileOperationRequest\x1a\x16.files.FileURLResponse\x12\x39\n\x0b\x44\x65leteFiles\x12\x1c.files.FilesOperationRequest\x1a\x0c.files.Empty\x12?\n\x0e\x44\x65leteAllFiles\x12\x1f.files.AllFilesOperationRequest\x1a\x0c.files.Emptyb\x06proto3'
 )
 
 _globals = globals()
@@ -40,10 +40,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_FILEOPERATIONREQUEST"]._serialized_end = 275
     _globals["_FILESOPERATIONREQUEST"]._serialized_start = 277
     _globals["_FILESOPERATIONREQUEST"]._serialized_end = 335
-    _globals["_DOWNLOADFILERESPONSE"]._serialized_start = 337
-    _globals["_DOWNLOADFILERESPONSE"]._serialized_end = 372
-    _globals["_UPLOADFILEREQUEST"]._serialized_start = 374
-    _globals["_UPLOADFILEREQUEST"]._serialized_end = 439
-    _globals["_FILES"]._serialized_start = 442
-    _globals["_FILES"]._serialized_end = 839
+    _globals["_FILEURLRESPONSE"]._serialized_start = 337
+    _globals["_FILEURLRESPONSE"]._serialized_end = 367
+    _globals["_UPLOADFILEREQUEST"]._serialized_start = 369
+    _globals["_UPLOADFILEREQUEST"]._serialized_end = 434
+    _globals["_FILES"]._serialized_start = 437
+    _globals["_FILES"]._serialized_end = 829
 # @@protoc_insertion_point(module_scope)
