@@ -15,12 +15,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Run Ruff linting and formatting
+      - name: Run Ruff linting
         uses: astral-sh/ruff-action@v1.1.1
         with:
-          args: "check --fix && ruff format ."
+          args: "check --fix"
           changed-files: "true"
 
+      - name: Run Ruff formatting
+        uses: astral-sh/ruff-action@v1.1.1
+        with:
+          args: "format"
+          changed-files: "true"
+          
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5.0.1
         with:
