@@ -16,7 +16,7 @@ async def main():
     server = grpc.aio.server(
         migration_thread_pool=futures.ThreadPoolExecutor(max_workers=10),
         interceptors=(
-            AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),  # type: ignore
+            AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),
         ),
         compression=grpc.Compression.Deflate,
     )
