@@ -1,13 +1,14 @@
 from datetime import datetime as dt
 from datetime import timedelta
 from enum import Enum
-from picologging import Logger
+from secrets import choice
 from typing import Any
 
 import bcrypt
 from grpc import ServicerContext, StatusCode
 from httpagentparser import simple_detect
 from jwskate import Jwt
+from picologging import Logger
 
 from config import Config
 from errors import UnauthenticatedError
@@ -37,13 +38,18 @@ class ExceptionHandler:
             await context.abort(status_code, details)
 
 
+def generate_reset_code() -> str:
+    return "".join(choice("0123456789") for _ in range(6))
+
+
 def generate_jwt(user_id: str, token_type: TokenTypes, config: Config) -> str:
-    if token_type == TokenTypes.ACCESS:
-        exp_time = dt.now() + timedelta(minutes=15)
-    elif token_type == TokenTypes.REFRESH:
-        exp_time = dt.now() + timedelta(days=30)
-    else:
-        exp_time = dt.now() + timedelta(days=30)
+    match token_type:
+        case TokenTypes.ACCESS:
+            exp_time = dt.now() + timedelta(minutes=15)
+        case TokenTypes.REFRESH:
+            exp_time = dt.now() + timedelta(days=30)
+        case TokenTypes.VERIFICATION:
+            exp_time = dt.now() + timedelta(days=3)
 
     claims = {
         "type": token_type.value,

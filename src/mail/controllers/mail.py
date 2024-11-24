@@ -14,3 +14,5 @@ class MailController:
                 await Mail.verification(message, smtp)
             case MailTypes.INFO:
                 await Mail.info(message, smtp)
+            case MailTypes.RESET:
+                await Mail.reset(message, smtp)

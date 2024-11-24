@@ -21,11 +21,27 @@ class AuthServicer(proto.AuthServicer):
         await self._eh(context, DBC.verify_email, request.verification_token)
         return pb2.Empty()
 
+    async def RequestResetCode(self, request, context):
+        reset_mail = await self._eh(context, DBC.request_reset_code, request.email)
+        if reset_mail:
+            return pb2.ResetCodeResponse(**reset_mail)
+
+    async def ValidateResetCode(self, request, context):
+        data = self.convert_to_dict(request)
+        is_valid = await self._eh(context, DBC.validate_reset_code, data)
+        if is_valid is not None:
+            return pb2.CodeIsValid(is_valid=is_valid)
+
+    async def ResetPassword(self, request, context):
+        data = self.convert_to_dict(request)
+        await self._eh(context, DBC.reset_password, data)
+        return pb2.Empty()
+
     async def LogIn(self, request, context):
         data = self.convert_to_dict(request)
         login_data = await self._eh(context, DBC.log_in, data)
         if login_data:
-            return pb2.LogInResponse(**login_data[0])
+            return pb2.LogInResponse(**login_data)
 
     async def LogOut(self, request, context):
         await self._eh(context, DBC.log_out, request.access_token)

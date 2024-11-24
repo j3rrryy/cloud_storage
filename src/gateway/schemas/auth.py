@@ -18,6 +18,37 @@ class Registration(BaseStruct):
     password: Annotated[str, Meta(min_length=8, max_length=30)]
 
 
+class ForgotPassword(BaseStruct):
+    email: Annotated[
+        str,
+        Meta(
+            pattern=r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$",
+            examples=["example@gmail.com"],
+        ),
+    ]
+
+
+class ResetCode(BaseStruct):
+    user_id: UUID
+    code: Annotated[
+        str,
+        Meta(
+            min_length=6,
+            max_length=6,
+            examples=["123456"],
+        ),
+    ]
+
+
+class CodeIsValid(BaseStruct):
+    is_valid: bool = False
+
+
+class ResetPassword(BaseStruct):
+    user_id: UUID
+    new_password: Annotated[str, Meta(min_length=8, max_length=30)]
+
+
 class LogIn(BaseStruct):
     username: Annotated[str, Meta(pattern=r"^\w{3,20}$")]
     password: Annotated[str, Meta(min_length=8, max_length=30)]

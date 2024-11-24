@@ -24,6 +24,18 @@ class AuthResponse(_message.Message):
     verified: bool
     def __init__(self, user_id: _Optional[str] = ..., verified: bool = ...) -> None: ...
 
+class CodeIsValid(_message.Message):
+    __slots__ = ("is_valid",)
+    IS_VALID_FIELD_NUMBER: _ClassVar[int]
+    is_valid: bool
+    def __init__(self, is_valid: bool = ...) -> None: ...
+
+class Email(_message.Message):
+    __slots__ = ("email",)
+    EMAIL_FIELD_NUMBER: _ClassVar[int]
+    email: str
+    def __init__(self, email: _Optional[str] = ...) -> None: ...
+
 class Empty(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
@@ -116,6 +128,41 @@ class RegisterRequest(_message.Message):
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
         password: _Optional[str] = ...,
+    ) -> None: ...
+
+class ResetCodeRequest(_message.Message):
+    __slots__ = ("user_id", "code")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    code: str
+    def __init__(
+        self, user_id: _Optional[str] = ..., code: _Optional[str] = ...
+    ) -> None: ...
+
+class ResetCodeResponse(_message.Message):
+    __slots__ = ("user_id", "username", "code")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    username: str
+    code: str
+    def __init__(
+        self,
+        user_id: _Optional[str] = ...,
+        username: _Optional[str] = ...,
+        code: _Optional[str] = ...,
+    ) -> None: ...
+
+class ResetPasswordRequest(_message.Message):
+    __slots__ = ("user_id", "new_password")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    NEW_PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    new_password: str
+    def __init__(
+        self, user_id: _Optional[str] = ..., new_password: _Optional[str] = ...
     ) -> None: ...
 
 class RevokeSessionRequest(_message.Message):
