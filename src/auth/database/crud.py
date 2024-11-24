@@ -1,3 +1,7 @@
+import re
+from datetime import datetime
+from uuid import UUID
+
 from grpc import StatusCode
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
@@ -10,6 +14,8 @@ from .models import AccessToken, RefreshToken, User
 
 
 class CRUD:
+    EMAIL_REGEX = re.compile(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")
+
     @classmethod
     async def register(cls, data: dict[str, str], session: AsyncSession) -> str:
         try:
@@ -39,6 +45,35 @@ class CRUD:
 
             user.verified = True
             await session.commit()
+        except UnauthenticatedError as exc:
+            await session.rollback()
+            raise exc
+        except Exception as exc:
+            await session.rollback()
+            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            raise exc
+
+    @classmethod
+    async def reset_password(cls, data: dict[str, str], session: AsyncSession) -> None:
+        try:
+            user = await session.get(User, data["user_id"])
+
+            if not user:
+                raise UnauthenticatedError(
+                    StatusCode.UNAUTHENTICATED, "Invalid credentials"
+                )
+
+            user.password = data["new_password"]
+            await session.execute(
+                delete(RefreshToken).filter(RefreshToken.user_id == user.user_id)
+            )
+            await session.commit()
+        except UnauthenticatedError as exc:
+            await session.rollback()
+            raise exc
+        except PermissionError as exc:
+            await session.rollback()
+            raise exc
         except Exception as exc:
             await session.rollback()
             exc.args = (StatusCode.INTERNAL, "Internal database error")
@@ -114,7 +149,7 @@ class CRUD:
     @classmethod
     async def session_list(
         cls, user_id: str, session: AsyncSession
-    ) -> tuple[dict[str, str]]:
+    ) -> tuple[dict[str, str | datetime]]:
         try:
             tokens = (
                 (
@@ -177,17 +212,25 @@ class CRUD:
 
     @classmethod
     async def profile(
-        cls, username_or_id: str, session: AsyncSession
-    ) -> dict[str, str]:
+        cls, username_email_id: str, session: AsyncSession
+    ) -> dict[str, str | bool | datetime]:
         try:
-            if len(username_or_id) == 36:
-                user = await session.get(User, username_or_id)
-            else:
-                user = (
-                    await session.execute(
-                        select(User).filter(User.username == username_or_id)
-                    )
-                ).scalar_one_or_none()
+            try:
+                UUID(username_email_id)
+                user = await session.get(User, username_email_id)
+            except ValueError:
+                if cls.EMAIL_REGEX.fullmatch(username_email_id):
+                    user = (
+                        await session.execute(
+                            select(User).filter(User.email == username_email_id)
+                        )
+                    ).scalar_one_or_none()
+                else:
+                    user = (
+                        await session.execute(
+                            select(User).filter(User.username == username_email_id)
+                        )
+                    ).scalar_one_or_none()
 
             if not user:
                 raise UnauthenticatedError(

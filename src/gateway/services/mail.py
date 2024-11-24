@@ -9,6 +9,9 @@ class Mail(KafkaBase):
             MailTypes.VERIFICATION.name, self.serialize_dict(verification_mail)
         )
 
+    async def request_reset_code(self, reset_mail: dict[str, str]) -> None:
+        await self._producer.send(MailTypes.RESET.name, self.serialize_dict(reset_mail))
+
     async def log_in(self, info_mail: dict[str, str]) -> None:
         await self._producer.send(MailTypes.INFO.name, self.serialize_dict(info_mail))
 

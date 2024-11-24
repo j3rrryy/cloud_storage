@@ -49,6 +49,24 @@ class AuthStub(object):
             response_deserializer=auth__pb2.Empty.FromString,
             _registered_method=True,
         )
+        self.RequestResetCode = channel.unary_unary(
+            "/auth.Auth/RequestResetCode",
+            request_serializer=auth__pb2.Email.SerializeToString,
+            response_deserializer=auth__pb2.ResetCodeResponse.FromString,
+            _registered_method=True,
+        )
+        self.ValidateResetCode = channel.unary_unary(
+            "/auth.Auth/ValidateResetCode",
+            request_serializer=auth__pb2.ResetCodeRequest.SerializeToString,
+            response_deserializer=auth__pb2.CodeIsValid.FromString,
+            _registered_method=True,
+        )
+        self.ResetPassword = channel.unary_unary(
+            "/auth.Auth/ResetPassword",
+            request_serializer=auth__pb2.ResetPasswordRequest.SerializeToString,
+            response_deserializer=auth__pb2.Empty.FromString,
+            _registered_method=True,
+        )
         self.LogIn = channel.unary_unary(
             "/auth.Auth/LogIn",
             request_serializer=auth__pb2.LogInRequest.SerializeToString,
@@ -132,6 +150,24 @@ class AuthServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def RequestResetCode(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def ValidateResetCode(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def ResetPassword(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
     def LogIn(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -209,6 +245,21 @@ def add_AuthServicer_to_server(servicer, server):
         "VerifyEmail": grpc.unary_unary_rpc_method_handler(
             servicer.VerifyEmail,
             request_deserializer=auth__pb2.VerificationToken.FromString,
+            response_serializer=auth__pb2.Empty.SerializeToString,
+        ),
+        "RequestResetCode": grpc.unary_unary_rpc_method_handler(
+            servicer.RequestResetCode,
+            request_deserializer=auth__pb2.Email.FromString,
+            response_serializer=auth__pb2.ResetCodeResponse.SerializeToString,
+        ),
+        "ValidateResetCode": grpc.unary_unary_rpc_method_handler(
+            servicer.ValidateResetCode,
+            request_deserializer=auth__pb2.ResetCodeRequest.FromString,
+            response_serializer=auth__pb2.CodeIsValid.SerializeToString,
+        ),
+        "ResetPassword": grpc.unary_unary_rpc_method_handler(
+            servicer.ResetPassword,
+            request_deserializer=auth__pb2.ResetPasswordRequest.FromString,
             response_serializer=auth__pb2.Empty.SerializeToString,
         ),
         "LogIn": grpc.unary_unary_rpc_method_handler(
@@ -326,6 +377,96 @@ class Auth(object):
             target,
             "/auth.Auth/VerifyEmail",
             auth__pb2.VerificationToken.SerializeToString,
+            auth__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def RequestResetCode(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/auth.Auth/RequestResetCode",
+            auth__pb2.Email.SerializeToString,
+            auth__pb2.ResetCodeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def ValidateResetCode(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/auth.Auth/ValidateResetCode",
+            auth__pb2.ResetCodeRequest.SerializeToString,
+            auth__pb2.CodeIsValid.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def ResetPassword(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/auth.Auth/ResetPassword",
+            auth__pb2.ResetPasswordRequest.SerializeToString,
             auth__pb2.Empty.FromString,
             options,
             channel_credentials,

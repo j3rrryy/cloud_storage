@@ -52,6 +52,64 @@ async def verify_email(
 
 
 @post(
+    "/request-reset-code",
+    status_code=200,
+    response_model=auth.UserId,
+    media_type=MediaType.MESSAGEPACK,
+    dependencies={
+        "auth_service": Provide(connect_auth_service),
+        "mail_service": Provide(connect_mail_service),
+    },
+)
+async def request_reset_code(
+    data: Annotated[
+        auth.ForgotPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
+    ],
+    auth_service: Auth,
+    mail_service: Mail,
+) -> auth.UserId:
+    reset_code = await auth_service.request_reset_code(data.email)
+    reset_code["email"] = data.email
+    user_id = reset_code["user_id"]
+    del reset_code["user_id"]
+    await mail_service.request_reset_code(reset_code)
+    return auth.UserId(user_id=user_id)
+
+
+@post(
+    "/validate-reset-code",
+    status_code=200,
+    response_model=auth.CodeIsValid,
+    media_type=MediaType.MESSAGEPACK,
+    dependencies={
+        "auth_service": Provide(connect_auth_service),
+    },
+)
+async def validate_reset_code(
+    data: Annotated[auth.ResetCode, Body(media_type=RequestEncodingType.MESSAGEPACK)],
+    auth_service: Auth,
+) -> auth.CodeIsValid:
+    is_valid = await auth_service.validate_code(data.to_dict())
+    return auth.CodeIsValid(**is_valid)
+
+
+@post(
+    "/reset-password",
+    status_code=204,
+    dependencies={
+        "auth_service": Provide(connect_auth_service),
+    },
+)
+async def reset_password(
+    data: Annotated[
+        auth.ResetPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
+    ],
+    auth_service: Auth,
+) -> None:
+    await auth_service.reset_password(data.to_dict())
+
+
+@post(
     "/log-in",
     status_code=200,
     response_model=auth.Tokens,
@@ -315,6 +373,9 @@ auth_router = Router(
     route_handlers=(
         register,
         verify_email,
+        request_reset_code,
+        validate_reset_code,
+        reset_password,
         log_in,
         log_out,
         resend_verification_mail,

@@ -79,6 +79,7 @@ class Mail:
                     <p>Hello, {message['username']}!</p>
                     <p>Please confirm your email address by clicking the button below:</p>
                     <a href="{verification_url}" class="button">Confirm Email</a>
+                    <p>This link is valid for 3 days.</p>
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
@@ -148,6 +149,79 @@ class Mail:
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
+                    <p>&copy; {date.today().year} {cls._config.app.name}. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        msg.attach(text.MIMEText(html_content, "html"))
+        await smtp.send_message(msg)
+
+    @classmethod
+    async def reset(cls, message: dict[str, str], smtp: SMTP) -> None:
+        msg = multipart.MIMEMultipart("alternative")
+        msg["Subject"] = "Reset Your Password"
+        msg["From"] = cls._config.smtp.username
+        msg["To"] = message["email"]
+
+        html_content = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Reset Your Password</title>
+            <style>
+                .email-container {{
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    text-align: center;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    margin: 0 auto;
+                    border-radius: 10px;
+                    width: 100%;
+                    max-width: 600px;
+                }}
+                .email-header {{
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 10px 0;
+                    border-radius: 5px;
+                    font-size: 24px;
+                    font-weight: bold;
+                }}
+                .email-content {{
+                    margin: 20px 0;
+                }}
+                .reset-code {{
+                    font-size: 32px;
+                    font-weight: bold;
+                    color: #4CAF50;
+                    margin: 20px 0;
+                }}
+                .email-footer {{
+                    margin-top: 30px;
+                    font-size: 12px;
+                    color: #888;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    Reset Your Password
+                </div>
+                <div class="email-content">
+                    <p>Hello, {message['username']}!</p>
+                    <p>Use the following code to reset your password:</p>
+                    <div class="reset-code">{message['code']}</div>
+                    <p>This code is valid for 10 minutes.</p>
+                </div>
+                <div class="email-footer">
+                    <p>If you didn't request this, you can safely ignore this email.</p>
                     <p>&copy; {date.today().year} {cls._config.app.name}. All rights reserved.</p>
                 </div>
             </div>

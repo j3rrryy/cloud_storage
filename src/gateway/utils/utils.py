@@ -9,6 +9,7 @@ from proto import files_pb2 as pb2
 class MailTypes(Enum):
     VERIFICATION = 0
     INFO = 1
+    RESET = 2
 
 
 async def chunk_generator(

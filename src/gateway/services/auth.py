@@ -18,6 +18,23 @@ class Auth(RPCBase):
         await self._stub.VerifyEmail(request)
 
     @RPCBase.handle_exception
+    async def request_reset_code(self, email: str) -> dict[str, str]:
+        request = pb2.Email(email=email)
+        reset_info = await self._stub.RequestResetCode(request)
+        return self.convert_to_dict(reset_info)
+
+    @RPCBase.handle_exception
+    async def validate_code(self, data: dict[str, str]) -> dict[str, bool]:
+        request = pb2.ResetCodeRequest(**data)
+        validation_info = await self._stub.ValidateResetCode(request)
+        return self.convert_to_dict(validation_info)
+
+    @RPCBase.handle_exception
+    async def reset_password(self, data: dict[str, str]) -> None:
+        request = pb2.ResetPasswordRequest(**data)
+        await self._stub.ResetPassword(request)
+
+    @RPCBase.handle_exception
     async def log_in(self, data: dict[str, str]) -> dict[str, str]:
         request = pb2.LogInRequest(**data)
         login_data = await self._stub.LogIn(request)

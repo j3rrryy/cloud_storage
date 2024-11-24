@@ -9,6 +9,7 @@ def connect_kafka_service() -> AIOKafkaConsumer:
     return AIOKafkaConsumer(
         MailTypes.VERIFICATION.name,
         MailTypes.INFO.name,
+        MailTypes.RESET.name,
         bootstrap_servers=config.app.kafka_service,
         group_id="mail",
     )

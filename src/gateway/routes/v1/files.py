@@ -19,7 +19,7 @@ config = load_config()
 
 @post(
     "/upload-file",
-    status_code=204,
+    status_code=201,
     dependencies={
         "auth_service": Provide(connect_auth_service),
         "files_service": Provide(connect_files_service),

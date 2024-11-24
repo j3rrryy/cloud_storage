@@ -4,6 +4,9 @@ package auth;
 service Auth {
   rpc Register(RegisterRequest) returns (VerificationMail);
   rpc VerifyEmail(VerificationToken) returns (Empty);
+  rpc RequestResetCode(Email) returns (ResetCodeResponse);
+  rpc ValidateResetCode(ResetCodeRequest) returns (CodeIsValid);
+  rpc ResetPassword(ResetPasswordRequest) returns (Empty);
   rpc LogIn(LogInRequest) returns (LogInResponse);
   rpc LogOut(AccessToken) returns (Empty);
   rpc ResendVerificationMail(AccessToken) returns (VerificationMail);
@@ -24,6 +27,14 @@ message AccessToken {
 message AuthResponse {
   string user_id = 1;
   bool verified = 2;
+}
+
+message CodeIsValid {
+  bool is_valid = 1;
+}
+
+message Email {
+  string email = 1;
 }
 
 message Empty {
@@ -62,6 +73,22 @@ message RegisterRequest {
   string username = 1;
   string email = 2;
   string password = 3;
+}
+
+message ResetCodeRequest {
+  string user_id = 1;
+  string code = 2;
+}
+
+message ResetCodeResponse {
+  string user_id = 1;
+  string username = 2;
+  string code = 3;
+}
+
+message ResetPasswordRequest {
+  string user_id = 1;
+  string new_password = 2;
 }
 
 message RevokeSessionRequest {

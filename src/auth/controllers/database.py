@@ -9,6 +9,7 @@ from utils import (
     TokenTypes,
     compare_passwords,
     generate_jwt,
+    generate_reset_code,
     get_hashed_password,
     validate_jwt,
 )
@@ -57,12 +58,58 @@ class DatabaseController:
 
     @classmethod
     @get_session
+    async def request_reset_code(
+        cls,
+        email: str,
+        *,
+        session: AsyncSession,
+    ) -> dict[str, str]:
+        profile = await CRUD.profile(email, session)
+        code = generate_reset_code()
+        await cache.set(f"reset-{profile["user_id"]}", code, 600)
+
+        result = {
+            "user_id": profile["user_id"],
+            "username": profile["username"],
+            "code": code,
+        }
+        return result
+
+    @classmethod
+    async def validate_reset_code(cls, data: dict[str, str]) -> bool:
+        code = await cache.get(f"reset-{data["user_id"]}")
+
+        if not code or data["code"] != code:
+            return False
+
+        await cache.set(f"reset-{data["user_id"]}", "Validated", 600)
+        return True
+
+    @classmethod
+    @get_session
+    async def reset_password(
+        cls,
+        data: dict[str, str],
+        *,
+        session: AsyncSession,
+    ) -> None:
+        code = await cache.get(f"reset-{data["user_id"]}")
+
+        if not code or code != "Validated":
+            raise PermissionError(StatusCode.PERMISSION_DENIED, "Code is not validated")
+
+        data["new_password"] = get_hashed_password(data["new_password"])
+        await CRUD.reset_password(data, session)
+        await cache.delete(f"reset-{data["user_id"]}")
+
+    @classmethod
+    @get_session
     async def log_in(
         cls,
         data: dict[str, str],
         *,
         session: AsyncSession,
-    ) -> tuple[dict[str, str], str]:
+    ) -> dict[str, str | bool]:
         profile = await CRUD.profile(data["username"], session)
         password_is_valid = compare_passwords(data["password"], profile["password"])
 
@@ -73,7 +120,9 @@ class DatabaseController:
 
         access_token = generate_jwt(profile["user_id"], TokenTypes.ACCESS, cls._config)
         refresh_token = generate_jwt(
-            profile["user_id"], TokenTypes.REFRESH, cls._config
+            profile["user_id"],
+            TokenTypes.REFRESH,
+            cls._config,
         )
 
         data["user_id"] = profile["user_id"]
@@ -91,7 +140,7 @@ class DatabaseController:
             "browser": data["browser"],
             "verified": profile["verified"],
         }
-        return login_data, profile["user_id"]
+        return login_data
 
     @classmethod
     @get_session
@@ -126,11 +175,13 @@ class DatabaseController:
 
         profile = await CRUD.profile(user_id, session)
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
-        return {
+
+        result = {
             "verification_token": verification_token,
             "username": profile["username"],
             "email": profile["email"],
         }
+        return result
 
     @classmethod
     @get_session
@@ -276,11 +327,12 @@ class DatabaseController:
         await cache.delete(f"profile-{user_id}")
 
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
-        return {
+        result = {
             "verification_token": verification_token,
             "username": username,
             "email": email,
         }
+        return result
 
     @classmethod
     @get_session
