@@ -5,7 +5,9 @@ from typing import Optional as _Optional
 from typing import Union as _Union
 
 from google.protobuf import descriptor as _descriptor
+from google.protobuf import empty_pb2 as _empty_pb2  # noqa: F401
 from google.protobuf import message as _message
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
@@ -35,10 +37,6 @@ class Email(_message.Message):
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     email: str
     def __init__(self, email: _Optional[str] = ...) -> None: ...
-
-class Empty(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
 
 class LogInResponse(_message.Message):
     __slots__ = ("access_token", "refresh_token", "email", "browser", "verified")
@@ -90,14 +88,14 @@ class ProfileResponse(_message.Message):
     username: str
     email: str
     verified: bool
-    registered: str
+    registered: _timestamp_pb2.Timestamp
     def __init__(
         self,
         user_id: _Optional[str] = ...,
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
         verified: bool = ...,
-        registered: _Optional[str] = ...,
+        registered: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
 
 class RefreshRequest(_message.Message):
@@ -192,13 +190,13 @@ class SessionInfo(_message.Message):
     session_id: str
     user_ip: str
     browser: str
-    last_accessed: str
+    last_accessed: _timestamp_pb2.Timestamp
     def __init__(
         self,
         session_id: _Optional[str] = ...,
         user_ip: _Optional[str] = ...,
         browser: _Optional[str] = ...,
-        last_accessed: _Optional[str] = ...,
+        last_accessed: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
 
 class Tokens(_message.Message):

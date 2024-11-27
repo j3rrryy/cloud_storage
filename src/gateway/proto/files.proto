@@ -1,27 +1,28 @@
 syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
 package files;
 
 service Files {
-  rpc UploadFile(stream UploadFileRequest) returns (Empty);
+  rpc UploadFile(stream UploadFileRequest) returns (google.protobuf.Empty);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
   rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
   rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
-  rpc DeleteFiles(FilesOperationRequest) returns (Empty);
-  rpc DeleteAllFiles(AllFilesOperationRequest) returns (Empty);
+  rpc DeleteFiles(FilesOperationRequest) returns (google.protobuf.Empty);
+  rpc DeleteAllFiles(AllFilesOperationRequest) returns (google.protobuf.Empty);
 }
 
 message AllFilesOperationRequest {
   string user_id = 1;
 }
 
-message Empty {
-}
-
 message FileInfoResponse {
   string file_id = 1;
   string name = 2;
   uint64 size = 3;
-  string uploaded = 4;
+  google.protobuf.Timestamp uploaded = 4;
 }
 
 message FileListResponse {

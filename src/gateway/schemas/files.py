@@ -1,3 +1,4 @@
+import datetime
 from uuid import UUID
 
 from .base import BaseStruct
@@ -7,7 +8,7 @@ class FileInfo(BaseStruct):
     file_id: UUID
     name: str
     size: int
-    uploaded: str
+    uploaded: datetime.datetime
 
 
 class FileList(BaseStruct):

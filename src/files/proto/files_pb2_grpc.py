@@ -2,6 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 
 import grpc
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 from . import files_pb2 as files__pb2
 
@@ -21,7 +22,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + " but the generated code in files_pb2_grpc.py depends on"
+        + f" but the generated code in files_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
@@ -40,7 +41,7 @@ class FilesStub(object):
         self.UploadFile = channel.stream_unary(
             "/files.Files/UploadFile",
             request_serializer=files__pb2.UploadFileRequest.SerializeToString,
-            response_deserializer=files__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.FileInfo = channel.unary_unary(
@@ -64,13 +65,13 @@ class FilesStub(object):
         self.DeleteFiles = channel.unary_unary(
             "/files.Files/DeleteFiles",
             request_serializer=files__pb2.FilesOperationRequest.SerializeToString,
-            response_deserializer=files__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.DeleteAllFiles = channel.unary_unary(
             "/files.Files/DeleteAllFiles",
             request_serializer=files__pb2.AllFilesOperationRequest.SerializeToString,
-            response_deserializer=files__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
 
@@ -120,7 +121,7 @@ def add_FilesServicer_to_server(servicer, server):
         "UploadFile": grpc.stream_unary_rpc_method_handler(
             servicer.UploadFile,
             request_deserializer=files__pb2.UploadFileRequest.FromString,
-            response_serializer=files__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "FileInfo": grpc.unary_unary_rpc_method_handler(
             servicer.FileInfo,
@@ -140,12 +141,12 @@ def add_FilesServicer_to_server(servicer, server):
         "DeleteFiles": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteFiles,
             request_deserializer=files__pb2.FilesOperationRequest.FromString,
-            response_serializer=files__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "DeleteAllFiles": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteAllFiles,
             request_deserializer=files__pb2.AllFilesOperationRequest.FromString,
-            response_serializer=files__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -177,7 +178,7 @@ class Files(object):
             target,
             "/files.Files/UploadFile",
             files__pb2.UploadFileRequest.SerializeToString,
-            files__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -297,7 +298,7 @@ class Files(object):
             target,
             "/files.Files/DeleteFiles",
             files__pb2.FilesOperationRequest.SerializeToString,
-            files__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -327,7 +328,7 @@ class Files(object):
             target,
             "/files.Files/DeleteAllFiles",
             files__pb2.AllFilesOperationRequest.SerializeToString,
-            files__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

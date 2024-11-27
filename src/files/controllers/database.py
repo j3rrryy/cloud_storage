@@ -31,7 +31,6 @@ class DatabaseController:
             return cached
 
         info = await CRUD.file_info(data["file_id"], session)
-        info["uploaded"] = info["uploaded"].strftime("%d.%m.%Y")
         del info["user_id"]
         await cache.set(f"file_info-{data["user_id"]}-{data["file_id"]}", info, 3600)
         return info
@@ -50,7 +49,6 @@ class DatabaseController:
         files = await CRUD.file_list(user_id, session)
 
         for file in files:
-            file["uploaded"] = file["uploaded"].strftime("%d.%m.%Y")
             del file["user_id"]
 
         await cache.set(f"file_list-{user_id}", files, 3600)

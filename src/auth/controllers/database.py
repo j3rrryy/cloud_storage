@@ -254,7 +254,6 @@ class DatabaseController:
 
         for token in tokens:
             token["session_id"] = token["token_id"]
-            token["last_accessed"] = token["last_accessed"].strftime("%d.%m.%Y")
             del token["refresh_token"], token["token_id"], token["user_id"]
 
         await cache.set(f"session_list-{user_id}", tokens, 3600)
@@ -301,7 +300,6 @@ class DatabaseController:
             return cached
 
         profile = await CRUD.profile(user_id, session)
-        profile["registered"] = profile["registered"].strftime("%d.%m.%Y")
         del profile["password"]
         await cache.set(f"profile-{user_id}", profile, 3600)
         return profile
