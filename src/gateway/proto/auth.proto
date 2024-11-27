@@ -1,22 +1,26 @@
 syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
 package auth;
 
 service Auth {
   rpc Register(RegisterRequest) returns (VerificationMail);
-  rpc VerifyEmail(VerificationToken) returns (Empty);
+  rpc VerifyEmail(VerificationToken) returns (google.protobuf.Empty);
   rpc RequestResetCode(Email) returns (ResetCodeResponse);
   rpc ValidateResetCode(ResetCodeRequest) returns (CodeIsValid);
-  rpc ResetPassword(ResetPasswordRequest) returns (Empty);
+  rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty);
   rpc LogIn(LogInRequest) returns (LogInResponse);
-  rpc LogOut(AccessToken) returns (Empty);
+  rpc LogOut(AccessToken) returns (google.protobuf.Empty);
   rpc ResendVerificationMail(AccessToken) returns (VerificationMail);
   rpc Auth(AccessToken) returns (AuthResponse);
   rpc Refresh(RefreshRequest) returns (Tokens);
   rpc SessionList(AccessToken) returns (Sessions);
-  rpc RevokeSession(RevokeSessionRequest) returns (Empty);
+  rpc RevokeSession(RevokeSessionRequest) returns (google.protobuf.Empty);
   rpc Profile(AccessToken) returns (ProfileResponse);
   rpc UpdateEmail(UpdateEmailRequest) returns (VerificationMail);
-  rpc UpdatePassword(UpdatePasswordRequest) returns (Empty);
+  rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
   rpc DeleteProfile(AccessToken) returns (UserId);
 }
 
@@ -35,9 +39,6 @@ message CodeIsValid {
 
 message Email {
   string email = 1;
-}
-
-message Empty {
 }
 
 message LogInResponse {
@@ -60,7 +61,7 @@ message ProfileResponse {
   string username = 2;
   string email = 3;
   bool verified = 4;
-  string registered = 5;
+  google.protobuf.Timestamp registered = 5;
 }
 
 message RefreshRequest {
@@ -104,7 +105,7 @@ message SessionInfo {
   string session_id = 1;
   string user_ip = 2;
   string browser = 3;
-  string last_accessed = 4;
+  google.protobuf.Timestamp last_accessed = 4;
 }
 
 message Tokens {

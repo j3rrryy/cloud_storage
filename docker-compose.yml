@@ -180,8 +180,6 @@ services:
       - 9092
     env_file:
       - ./docker/env/.env.dev
-    environment:
-      - KAFKA_BROKER_ID=1
     volumes:
       - mail_kafka_config:/mnt/shared/config
       - mail_kafka_data:/var/lib/kafka/data

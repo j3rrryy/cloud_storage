@@ -1,3 +1,4 @@
+import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -81,7 +82,7 @@ class SessionInfo(BaseStruct):
     session_id: UUID
     user_ip: str
     browser: str
-    last_accessed: str
+    last_accessed: datetime.datetime
 
 
 class SessionList(BaseStruct):
@@ -98,7 +99,7 @@ class Profile(BaseStruct):
             examples=["example@gmail.com"],
         ),
     ]
-    registered: str
+    registered: datetime.datetime
     verified: bool = False
 
 

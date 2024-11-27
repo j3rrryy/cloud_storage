@@ -5,7 +5,9 @@ from typing import Optional as _Optional
 from typing import Union as _Union
 
 from google.protobuf import descriptor as _descriptor
+from google.protobuf import empty_pb2 as _empty_pb2  # noqa: F401
 from google.protobuf import message as _message
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
@@ -16,10 +18,6 @@ class AllFilesOperationRequest(_message.Message):
     user_id: str
     def __init__(self, user_id: _Optional[str] = ...) -> None: ...
 
-class Empty(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
 class FileInfoResponse(_message.Message):
     __slots__ = ("file_id", "name", "size", "uploaded")
     FILE_ID_FIELD_NUMBER: _ClassVar[int]
@@ -29,13 +27,13 @@ class FileInfoResponse(_message.Message):
     file_id: str
     name: str
     size: int
-    uploaded: str
+    uploaded: _timestamp_pb2.Timestamp
     def __init__(
         self,
         file_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
         size: _Optional[int] = ...,
-        uploaded: _Optional[str] = ...,
+        uploaded: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
 
 class FileListResponse(_message.Message):

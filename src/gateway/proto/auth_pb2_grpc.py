@@ -2,6 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 
 import grpc
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 from . import auth_pb2 as auth__pb2
 
@@ -21,7 +22,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + " but the generated code in auth_pb2_grpc.py depends on"
+        + f" but the generated code in auth_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
@@ -46,7 +47,7 @@ class AuthStub(object):
         self.VerifyEmail = channel.unary_unary(
             "/auth.Auth/VerifyEmail",
             request_serializer=auth__pb2.VerificationToken.SerializeToString,
-            response_deserializer=auth__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.RequestResetCode = channel.unary_unary(
@@ -64,7 +65,7 @@ class AuthStub(object):
         self.ResetPassword = channel.unary_unary(
             "/auth.Auth/ResetPassword",
             request_serializer=auth__pb2.ResetPasswordRequest.SerializeToString,
-            response_deserializer=auth__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.LogIn = channel.unary_unary(
@@ -76,7 +77,7 @@ class AuthStub(object):
         self.LogOut = channel.unary_unary(
             "/auth.Auth/LogOut",
             request_serializer=auth__pb2.AccessToken.SerializeToString,
-            response_deserializer=auth__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.ResendVerificationMail = channel.unary_unary(
@@ -106,7 +107,7 @@ class AuthStub(object):
         self.RevokeSession = channel.unary_unary(
             "/auth.Auth/RevokeSession",
             request_serializer=auth__pb2.RevokeSessionRequest.SerializeToString,
-            response_deserializer=auth__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.Profile = channel.unary_unary(
@@ -124,7 +125,7 @@ class AuthStub(object):
         self.UpdatePassword = channel.unary_unary(
             "/auth.Auth/UpdatePassword",
             request_serializer=auth__pb2.UpdatePasswordRequest.SerializeToString,
-            response_deserializer=auth__pb2.Empty.FromString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.DeleteProfile = channel.unary_unary(
@@ -245,7 +246,7 @@ def add_AuthServicer_to_server(servicer, server):
         "VerifyEmail": grpc.unary_unary_rpc_method_handler(
             servicer.VerifyEmail,
             request_deserializer=auth__pb2.VerificationToken.FromString,
-            response_serializer=auth__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "RequestResetCode": grpc.unary_unary_rpc_method_handler(
             servicer.RequestResetCode,
@@ -260,7 +261,7 @@ def add_AuthServicer_to_server(servicer, server):
         "ResetPassword": grpc.unary_unary_rpc_method_handler(
             servicer.ResetPassword,
             request_deserializer=auth__pb2.ResetPasswordRequest.FromString,
-            response_serializer=auth__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "LogIn": grpc.unary_unary_rpc_method_handler(
             servicer.LogIn,
@@ -270,7 +271,7 @@ def add_AuthServicer_to_server(servicer, server):
         "LogOut": grpc.unary_unary_rpc_method_handler(
             servicer.LogOut,
             request_deserializer=auth__pb2.AccessToken.FromString,
-            response_serializer=auth__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "ResendVerificationMail": grpc.unary_unary_rpc_method_handler(
             servicer.ResendVerificationMail,
@@ -295,7 +296,7 @@ def add_AuthServicer_to_server(servicer, server):
         "RevokeSession": grpc.unary_unary_rpc_method_handler(
             servicer.RevokeSession,
             request_deserializer=auth__pb2.RevokeSessionRequest.FromString,
-            response_serializer=auth__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "Profile": grpc.unary_unary_rpc_method_handler(
             servicer.Profile,
@@ -310,7 +311,7 @@ def add_AuthServicer_to_server(servicer, server):
         "UpdatePassword": grpc.unary_unary_rpc_method_handler(
             servicer.UpdatePassword,
             request_deserializer=auth__pb2.UpdatePasswordRequest.FromString,
-            response_serializer=auth__pb2.Empty.SerializeToString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "DeleteProfile": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteProfile,
@@ -377,7 +378,7 @@ class Auth(object):
             target,
             "/auth.Auth/VerifyEmail",
             auth__pb2.VerificationToken.SerializeToString,
-            auth__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -467,7 +468,7 @@ class Auth(object):
             target,
             "/auth.Auth/ResetPassword",
             auth__pb2.ResetPasswordRequest.SerializeToString,
-            auth__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -527,7 +528,7 @@ class Auth(object):
             target,
             "/auth.Auth/LogOut",
             auth__pb2.AccessToken.SerializeToString,
-            auth__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -677,7 +678,7 @@ class Auth(object):
             target,
             "/auth.Auth/RevokeSession",
             auth__pb2.RevokeSessionRequest.SerializeToString,
-            auth__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -767,7 +768,7 @@ class Auth(object):
             target,
             "/auth.Auth/UpdatePassword",
             auth__pb2.UpdatePasswordRequest.SerializeToString,
-            auth__pb2.Empty.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
