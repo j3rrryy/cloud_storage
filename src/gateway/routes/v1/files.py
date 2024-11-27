@@ -5,7 +5,7 @@ from litestar import MediaType, Request, Router, delete, get, post
 from litestar.datastructures import UploadFile
 from litestar.di import Provide
 from litestar.enums import RequestEncodingType
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import NotAuthorizedException, PermissionDeniedException
 from litestar.params import Body
 from litestar.response import Redirect
 
@@ -39,7 +39,7 @@ async def upload_file(
     user_info = await auth_service.auth(access_token.split()[1])
 
     if not user_info.get("verified", False):
-        raise NotAuthorizedException(detail="Email not verified")
+        raise PermissionDeniedException(detail="Email not verified")
 
     request_data = {
         "user_id": user_info["user_id"],
@@ -72,7 +72,7 @@ async def file_info(
     user_info = await auth_service.auth(access_token.split()[1])
 
     if not user_info.get("verified", False):
-        raise NotAuthorizedException(detail="Email not verified")
+        raise PermissionDeniedException(detail="Email not verified")
 
     request_data = {
         "user_id": user_info["user_id"],
@@ -105,7 +105,7 @@ async def file_list(
     user_info = await auth_service.auth(access_token.split()[1])
 
     if not user_info.get("verified", False):
-        raise NotAuthorizedException(detail="Email not verified")
+        raise PermissionDeniedException(detail="Email not verified")
 
     files = await files_service.file_list(user_info["user_id"])
     return fm.FileList(files=tuple(fm.FileInfo(**file) for file in files))
@@ -134,7 +134,7 @@ async def download_file(
     user_info = await auth_service.auth(access_token.split()[1])
 
     if not user_info.get("verified", False):
-        raise NotAuthorizedException(detail="Email not verified")
+        raise PermissionDeniedException(detail="Email not verified")
 
     request_data = {
         "user_id": user_info["user_id"],
@@ -166,7 +166,7 @@ async def delete_files(
     user_info = await auth_service.auth(access_token.split()[1])
 
     if not user_info.get("verified", False):
-        raise NotAuthorizedException(detail="Email not verified")
+        raise PermissionDeniedException(detail="Email not verified")
 
     request_data = {
         "user_id": user_info["user_id"],
@@ -196,7 +196,7 @@ async def delete_all_files(
     user_info = await auth_service.auth(access_token.split()[1])
 
     if not user_info.get("verified", False):
-        raise NotAuthorizedException(detail="Email not verified")
+        raise PermissionDeniedException(detail="Email not verified")
 
     await files_service.delete_all_files(user_info["user_id"])
 
