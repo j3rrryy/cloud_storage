@@ -26,5 +26,7 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         workers=10,
+        limit_concurrency=1000,
+        limit_max_requests=10000,
         reload=config.app.debug,
     )
