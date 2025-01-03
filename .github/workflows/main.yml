@@ -34,3 +34,25 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5.0.1
         with:
           commit_message: "ruff: fix and apply formatting"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and push Docker images
+        run: |
+          services=("gateway" "auth" "files" "mail")
+          for service in "${services[@]}"; do
+            docker build -t ghcr.io/${{ github.repository }}:$service-latest -f ./src/$service/Dockerfile ./src/$service
+            docker push ghcr.io/${{ github.repository }}:$service-latest
+          done
