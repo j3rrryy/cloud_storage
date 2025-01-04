@@ -1,4 +1,10 @@
 .vscode/
 venv/
 __pycache__/
+/dev/.env
+/dev/redis.conf
+/prod/.env
+/prod/redis.conf
+/prod/docker-compose.cert.yml
+/prod/nginx.conf
 .DS_Store

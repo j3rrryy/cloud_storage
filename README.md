@@ -29,9 +29,9 @@
 
 ## :memo: To-Do list
 
+- Tests
 - Logs processing - Graylog, Elasticsearch, MongoDB
 - Metrics processing - Prometheus, Grafana
-- Сontainer orchestration - Kubernetes
 
 ![Architecture](https://github.com/j3rrryy/cloud_storage/blob/main/images/architecture.webp?raw=true)
 
@@ -46,21 +46,46 @@
 
 ## :hammer_and_wrench: Getting started
 
-- Copy `.env.dev` file from `examples/env/` to `docker/env/` folder and fill it in
-- Copy `redis.conf` file from `examples/redis/dev/` to `docker/redis/dev/` folder and fill it in
+- Copy `.env` file from `examples/dev/` to `dev/` folder and fill it in
+
+- **(For dev/prod)** Copy `redis.conf` file from `examples/` to `dev/` or `prod/` folder and fill it in
+
+- **(For prod)** Copy `.env` file from `examples/prod/` to `prod/` folder and fill it in
+
+- **(For prod)** Copy `nginx.conf` file from `examples/prod/` to `prod/` folder and fill it in
+
+- **(For prod)** Copy `docker-compose.cert.yml` file from `examples/prod/` to `prod/` folder and fill it in
 
 ### :rocket: Start
 
-- Run the **dev build**
+- Run the **dev ver.**
+
+  ```shell
+  docker compose -f docker-compose.dev.yml up --build -d
+  ```
+
+- Run the **prod ver.** and get a SSL certificate
+
+  - Create the directory on the server
 
     ```shell
-    docker compose up --build -d
+    mkdir -p /cloud_storage/
+    ```
+
+  - Use SCP to copy the prod files to the server
+
+    ```shell
+    scp -r ./prod/* <username>@<host>:/cloud_storage/
+    ```
+
+  - Run the deploy script
+
+    ```shell
+    bash deploy.sh
     ```
 
 ### :x: Stop
 
-- Stop the **dev build**
-
-  ```shell
-  docker compose stop
-  ```
+```shell
+docker compose -f docker-compose.<dev/prod>.yml stop
+```
