@@ -5,7 +5,7 @@
   <a href="https://www.python.org/downloads/release/python-3120/">
     <img src="https://img.shields.io/badge/Python-3.12-FFD64E.svg" alt="Python 3.12">
   </a>
-  <a href="https://github.com/j3rrryy/school_464/blob/main/LICENSE">
+  <a href="https://github.com/j3rrryy/cloud_storage/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
   </a>
   <a href="https://github.com/astral-sh/ruff">
