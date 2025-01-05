@@ -19,7 +19,7 @@ docker logs "$certbot_container"
 echo "Stopping certificate services..."
 docker compose -f docker-compose.cert.yml down
 
-echo "Starting production build..."
+echo "Starting production version..."
 docker compose -f docker-compose.prod.yml up -d
 
 echo "Scheduling tasks for certificate renewal and cleanup..."
