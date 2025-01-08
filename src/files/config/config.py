@@ -45,7 +45,7 @@ class Config:
     minio: MinioConfig
 
 
-def load_config() -> Config:
+def load_config():
     env = Env()
     env.read_env()
 

@@ -1,7 +1,8 @@
-.vscode
-.ruff_cache
-.gitignore
+**/.vscode
+**/.DS_Store
+**/.gitignore
+**/__pycache__
+**/.ruff_cache
 venv
-__pycache__
 Dockerfile
 .dockerignore
