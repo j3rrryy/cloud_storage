@@ -8,8 +8,8 @@ from services import connect_kafka_service
 async def main():
     consumer = connect_kafka_service()
     service = MailService(consumer)
-    await service.process_messages()
     load_config().app.logger.info("Server started")
+    await service.process_messages()
 
 
 if __name__ == "__main__":
