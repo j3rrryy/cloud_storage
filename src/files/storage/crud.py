@@ -14,7 +14,7 @@ class CRUD:
     async def upload_file(
         cls, chunk_iterator: AsyncIterator, data: dict[str, str], client: AioBaseClient
     ) -> int:
-        OBJECT_KEY = f"{data["user_id"]}/{data["name"]}"
+        OBJECT_KEY = f"{data['user_id']}/{data['name']}"
 
         try:
             await client.head_bucket(Bucket=cls._BUCKET_NAME)
@@ -68,7 +68,7 @@ class CRUD:
 
     @classmethod
     async def download_file(cls, data: dict[str, str], client: AioBaseClient) -> str:
-        OBJECT_KEY = f"{data["user_id"]}/{data["name"]}"
+        OBJECT_KEY = f"{data['user_id']}/{data['name']}"
 
         try:
             await client.head_object(Bucket=cls._BUCKET_NAME, Key=OBJECT_KEY)
@@ -92,7 +92,7 @@ class CRUD:
     async def delete_files(cls, data: dict[str, str], client: AioBaseClient) -> None:
         try:
             for filename in data["filenames"]:
-                OBJECT_KEY = f"{data["user_id"]}/{filename}"
+                OBJECT_KEY = f"{data['user_id']}/{filename}"
 
                 try:
                     await client.head_object(Bucket=cls._BUCKET_NAME, Key=OBJECT_KEY)

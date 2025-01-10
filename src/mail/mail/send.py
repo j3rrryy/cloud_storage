@@ -76,7 +76,7 @@ class Mail:
                     Confirm Your Email
                 </div>
                 <div class="email-content">
-                    <p>Hello, {message['username']}!</p>
+                    <p>Hello, {message["username"]}!</p>
                     <p>Please confirm your email address by clicking the button below:</p>
                     <a href="{verification_url}" class="button">Confirm Email</a>
                     <p>This link is valid for 3 days.</p>
@@ -143,9 +143,9 @@ class Mail:
                     Login Information
                 </div>
                 <div class="email-content">
-                    <p>Hello, {message['username']}!</p>
-                    <p>We noticed a login to your account from the following IP address: <strong>{message['user_ip']}</strong></p>
-                    <p>Browser: <strong>{message['browser']}</strong></p>
+                    <p>Hello, {message["username"]}!</p>
+                    <p>We noticed a login to your account from the following IP address: <strong>{message["user_ip"]}</strong></p>
+                    <p>Browser: <strong>{message["browser"]}</strong></p>
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
@@ -215,9 +215,9 @@ class Mail:
                     Reset Your Password
                 </div>
                 <div class="email-content">
-                    <p>Hello, {message['username']}!</p>
+                    <p>Hello, {message["username"]}!</p>
                     <p>Use the following code to reset your password:</p>
-                    <div class="reset-code">{message['code']}</div>
+                    <div class="reset-code">{message["code"]}</div>
                     <p>This code is valid for 10 minutes.</p>
                 </div>
                 <div class="email-footer">

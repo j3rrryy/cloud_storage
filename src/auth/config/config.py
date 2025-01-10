@@ -50,8 +50,8 @@ def load_config():
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     cache.setup(
-        f"redis://{env("REDIS_USER")}:{env("REDIS_PASSWORD")}@"
-        + f"{env("REDIS_HOST")}:{env("REDIS_PORT")}/{env("REDIS_DB")}",
+        f"redis://{env('REDIS_USER')}:{env('REDIS_PASSWORD')}@"
+        + f"{env('REDIS_HOST')}:{env('REDIS_PORT')}/{env('REDIS_DB')}",
         client_side=True,
     )
     private_key = Jwk.from_json(env("SECRET_KEY"))
