@@ -23,5 +23,8 @@ class MailService:
                     try:
                         msg = pickle.loads(message.value)
                         await MC.send_email(msg, MailTypes[message.topic], smtp)
+                        self._logger.info(
+                            f"Sent {message.topic} mail to {msg["email"]}"
+                        )
                     except Exception as exc:
                         self._logger.error(str(exc))
