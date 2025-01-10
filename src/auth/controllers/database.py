@@ -66,7 +66,7 @@ class DatabaseController:
     ) -> dict[str, str]:
         profile = await CRUD.profile(email, session)
         code = generate_reset_code()
-        await cache.set(f"reset-{profile["user_id"]}", code, 600)
+        await cache.set(f"reset-{profile['user_id']}", code, 600)
 
         result = {
             "user_id": profile["user_id"],
@@ -77,12 +77,12 @@ class DatabaseController:
 
     @classmethod
     async def validate_reset_code(cls, data: dict[str, str]) -> bool:
-        code = await cache.get(f"reset-{data["user_id"]}")
+        code = await cache.get(f"reset-{data['user_id']}")
 
         if not code or data["code"] != code:
             return False
 
-        await cache.set(f"reset-{data["user_id"]}", "Validated", 600)
+        await cache.set(f"reset-{data['user_id']}", "Validated", 600)
         return True
 
     @classmethod
@@ -93,14 +93,14 @@ class DatabaseController:
         *,
         session: AsyncSession,
     ) -> None:
-        code = await cache.get(f"reset-{data["user_id"]}")
+        code = await cache.get(f"reset-{data['user_id']}")
 
         if not code or code != "Validated":
             raise PermissionError(StatusCode.PERMISSION_DENIED, "Code is not validated")
 
         data["new_password"] = get_hashed_password(data["new_password"])
         await CRUD.reset_password(data, session)
-        await cache.delete(f"reset-{data["user_id"]}")
+        await cache.delete(f"reset-{data['user_id']}")
 
     @classmethod
     @get_session
@@ -131,7 +131,7 @@ class DatabaseController:
         data["browser"] = convert_user_agent(data["user_agent"])
         del data["username"], data["password"], data["user_agent"]
         await CRUD.log_in(data, session)
-        await cache.delete(f"session_list-{profile["user_id"]}")
+        await cache.delete(f"session_list-{profile['user_id']}")
 
         login_data = {
             "access_token": access_token,

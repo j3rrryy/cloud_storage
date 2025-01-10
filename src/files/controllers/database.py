@@ -17,7 +17,7 @@ class DatabaseController:
         session: AsyncSession,
     ) -> None:
         await CRUD.upload_file(data, session)
-        await cache.delete(f"file_list-{data["user_id"]}")
+        await cache.delete(f"file_list-{data['user_id']}")
 
     @classmethod
     @get_session
@@ -27,12 +27,12 @@ class DatabaseController:
         *,
         session: AsyncSession,
     ) -> dict[str, str]:
-        if cached := await cache.get(f"file_info-{data["user_id"]}-{data["file_id"]}"):
+        if cached := await cache.get(f"file_info-{data['user_id']}-{data['file_id']}"):
             return cached
 
         info = await CRUD.file_info(data["file_id"], session)
         del info["user_id"]
-        await cache.set(f"file_info-{data["user_id"]}-{data["file_id"]}", info, 3600)
+        await cache.set(f"file_info-{data['user_id']}-{data['file_id']}", info, 3600)
         return info
 
     @classmethod
@@ -63,9 +63,9 @@ class DatabaseController:
         session: AsyncSession,
     ) -> dict[str, str]:
         filenames = await CRUD.delete_files(data, session)
-        await cache.delete(f"file_list-{data["user_id"]}")
+        await cache.delete(f"file_list-{data['user_id']}")
         for file_id in data["file_ids"]:
-            await cache.delete(f"file_info-{data["user_id"]}-{file_id}")
+            await cache.delete(f"file_info-{data['user_id']}-{file_id}")
         return filenames
 
     @classmethod
