@@ -22,13 +22,13 @@ jobs:
       - name: Run Ruff linting
         uses: astral-sh/ruff-action@v1.1.1
         with:
-          args: "check --fix"
+          args: "check --fix --config ./ruff.toml"
           changed-files: "true"
 
       - name: Run Ruff formatting
         uses: astral-sh/ruff-action@v1.1.1
         with:
-          args: "format"
+          args: "format --config ./ruff.toml"
           changed-files: "true"
 
       - name: Commit changes
