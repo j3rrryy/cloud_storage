@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: "gateway"
+    metrics_path: "/api/metrics"
+    static_configs:
+      - targets: ["gateway:8000"]
+
+  - job_name: "auth"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["auth:8000"]
+
+  - job_name: "files"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["files:8000"]
+
+  - job_name: "mail"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["mail:8000"]

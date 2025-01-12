@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import picologging as logging
 from cashews import cache
 from environs import Env
+from uvicorn.config import LOGGING_CONFIG
 
 __all__ = ["Config", "load_config"]
 
@@ -54,6 +55,18 @@ def load_config():
         level=logging.INFO,
         format="files | %(asctime)s | %(levelname)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    LOGGING_CONFIG["formatters"]["default"].update(
+        {
+            "fmt": "files | %(asctime)s | %(levelname)s | %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    )
+    LOGGING_CONFIG["formatters"]["access"].update(
+        {
+            "fmt": "files | %(asctime)s | %(levelname)s | %(client_addr)s | %(request_line)s | %(status_code)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
     )
     cache.setup(
         f"redis://{env('REDIS_USER')}:{env('REDIS_PASSWORD')}@"

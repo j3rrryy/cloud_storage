@@ -5,6 +5,7 @@ from litestar.config.cors import CORSConfig
 from litestar.logging import LoggingConfig
 from litestar.openapi.config import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin
+from litestar.plugins.prometheus import PrometheusConfig
 from uvicorn.config import LOGGING_CONFIG
 
 __all__ = ["Config", "load_config"]
@@ -16,6 +17,7 @@ class AppConfig:
     litestar_logging_config: LoggingConfig
     cors_config: CORSConfig
     openapi_config: OpenAPIConfig
+    prometheus_config: PrometheusConfig
     auth_service: str
     files_service: str
     kafka_service: str
@@ -70,6 +72,12 @@ def load_config():
         render_plugins=(SwaggerRenderPlugin(),),
         security=[{"BearerToken": []}],
     )
+    prometheus_config = PrometheusConfig(
+        app_name=env("APP_NAME"),
+        prefix="gateway",
+        excluded_http_methods=("PUT"),
+        group_path=True,
+    )
 
     return Config(
         app=AppConfig(
@@ -77,6 +85,7 @@ def load_config():
             litestar_logging_config=litestar_logging_config,
             cors_config=cors_config,
             openapi_config=openapi_config,
+            prometheus_config=prometheus_config,
             auth_service=env("AUTH_SERVICE"),
             files_service=env("FILES_SERVICE"),
             kafka_service=env("KAFKA_SERVICE"),
