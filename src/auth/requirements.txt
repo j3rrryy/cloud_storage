@@ -3,12 +3,13 @@ asyncpg==0.30.0
 bcrypt==4.2.1
 cashews==7.4.0
 environs==14.1.0
-grpcio==1.69.0
 grpc-accesslog==0.3.0
+grpcio==1.69.0
 grpcio_tools==1.69.0
 httpagentparser==1.9.5
 jwskate==0.11.1
 picologging==0.9.3
+py-async-grpc-prometheus==0.2.0
 redis==5.2.1
 sqlalchemy==2.0.37
-uvloop==0.21.0
+uvicorn[standard]==0.34.0

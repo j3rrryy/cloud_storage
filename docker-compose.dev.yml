@@ -10,6 +10,8 @@ volumes:
   mail_kafka_config:
   mail_kafka_data:
   mail_kafka_secrets:
+  prometheus_data:
+  grafana_data:
 
 networks:
   nginx_network:
@@ -60,6 +62,7 @@ services:
     restart: always
     expose:
       - 50051
+      - 8000
     env_file:
       - ./dev/.env
     volumes:
@@ -102,6 +105,7 @@ services:
     restart: always
     expose:
       - 50051
+      - 8000
     env_file:
       - ./dev/.env
     volumes:
@@ -192,13 +196,45 @@ services:
     build:
       context: ./src/mail/
     restart: always
+    expose:
+      - 8000
     env_file:
       - ./dev/.env
     volumes:
       - ./src/mail/:/app
     networks:
+      - main_network
       - mail_network
     depends_on:
       - mail_kafka
     command: python ./main.py
     container_name: mail_dev
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    expose:
+      - 9090
+    volumes:
+      - ./dev/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - main_network
+    command: --config.file=/etc/prometheus/prometheus.yml
+    container_name: prometheus_dev
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    expose:
+      - 3000
+    env_file:
+      - ./dev/.env
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - nginx_network
+      - main_network
+    depends_on:
+      - prometheus
+    container_name: grafana_dev

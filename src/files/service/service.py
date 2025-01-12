@@ -1,3 +1,4 @@
+from google.protobuf import empty_pb2
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 
@@ -15,7 +16,7 @@ class FilesServicer(proto.FilesServicer):
     async def UploadFile(self, request_iterator, context):
         file_data = await self._eh(context, STC.upload_file, request_iterator)
         await self._eh(context, DBC.upload_file, file_data)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def FileInfo(self, request, context):
         data = self.convert_to_dict(request)
@@ -39,12 +40,12 @@ class FilesServicer(proto.FilesServicer):
         data = self.convert_to_dict(request)
         filenames = await self._eh(context, DBC.delete_files, data)
         await self._eh(context, STC.delete_files, filenames)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def DeleteAllFiles(self, request, context):
         await self._eh(context, STC.delete_all_files, request.user_id)
         await self._eh(context, DBC.delete_all_files, request.user_id)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     @staticmethod
     def convert_to_dict(data: Message) -> dict:

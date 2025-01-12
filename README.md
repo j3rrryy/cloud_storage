@@ -28,12 +28,12 @@
 - DB for cache - Redis
 - S3 for files - MinIO
 - Message broker between Gateway and Mail service - Apache Kafka
+- Monitoring - Prometheus & Grafana
 
 ## :memo: To-Do list
 
 - Tests
 - Logs processing - Graylog, Elasticsearch, MongoDB
-- Metrics processing - Prometheus, Grafana
 
 ![Architecture](https://github.com/j3rrryy/cloud_storage/blob/main/images/architecture.webp?raw=true)
 
@@ -41,6 +41,8 @@
 > API located at `/api`
 >
 > Docs located at `/api/docs`, but Swagger does not support MessagePack, so use another tool to send requests with this content type
+>
+> Grafana located at `/monitoring`
 
 ## :computer: Requirements
 

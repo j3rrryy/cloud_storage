@@ -10,6 +10,8 @@ volumes:
   mail_kafka_config:
   mail_kafka_data:
   mail_kafka_secrets:
+  prometheus_data:
+  grafana_data:
   certbot_conf:
   certbot_www:
 
@@ -63,6 +65,7 @@ services:
     restart: always
     expose:
       - 50051
+      - 8000
     env_file:
       - ./.env
     networks:
@@ -103,6 +106,7 @@ services:
     restart: always
     expose:
       - 50051
+      - 8000
     env_file:
       - ./.env
     networks:
@@ -191,11 +195,43 @@ services:
     image: ghcr.io/j3rrryy/cloud_storage:mail-latest
     pull_policy: always
     restart: always
+    expose:
+      - 8000
     env_file:
       - ./.env
     networks:
+      - main_network
       - mail_network
     depends_on:
       - mail_kafka
     command: python ./main.py
     container_name: mail_prod
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    expose:
+      - 9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - main_network
+    command: --config.file=/etc/prometheus/prometheus.yml
+    container_name: prometheus_prod
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    expose:
+      - 3000
+    env_file:
+      - ./.env
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - nginx_network
+      - main_network
+    depends_on:
+      - prometheus
+    container_name: grafana_prod

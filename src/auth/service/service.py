@@ -1,3 +1,4 @@
+from google.protobuf import empty_pb2
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 
@@ -19,7 +20,7 @@ class AuthServicer(proto.AuthServicer):
 
     async def VerifyEmail(self, request, context):
         await self._eh(context, DBC.verify_email, request.verification_token)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def RequestResetCode(self, request, context):
         reset_mail = await self._eh(context, DBC.request_reset_code, request.email)
@@ -35,7 +36,7 @@ class AuthServicer(proto.AuthServicer):
     async def ResetPassword(self, request, context):
         data = self.convert_to_dict(request)
         await self._eh(context, DBC.reset_password, data)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def LogIn(self, request, context):
         data = self.convert_to_dict(request)
@@ -45,7 +46,7 @@ class AuthServicer(proto.AuthServicer):
 
     async def LogOut(self, request, context):
         await self._eh(context, DBC.log_out, request.access_token)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def ResendVerificationMail(self, request, context):
         verification_mail = await self._eh(
@@ -75,7 +76,7 @@ class AuthServicer(proto.AuthServicer):
     async def RevokeSession(self, request, context):
         data = self.convert_to_dict(request)
         await self._eh(context, DBC.revoke_session, data)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def Profile(self, request, context):
         profile = await self._eh(context, DBC.profile, request.access_token)
@@ -91,7 +92,7 @@ class AuthServicer(proto.AuthServicer):
     async def UpdatePassword(self, request, context):
         data = self.convert_to_dict(request)
         await self._eh(context, DBC.update_password, data)
-        return pb2.Empty()
+        return empty_pb2.Empty()
 
     async def DeleteProfile(self, request, context):
         user_id = await self._eh(context, DBC.delete_profile, request.access_token)
