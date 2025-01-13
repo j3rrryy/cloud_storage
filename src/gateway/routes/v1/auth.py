@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from litestar import MediaType, Request, Router, delete, get, patch, post
 from litestar.di import Provide
@@ -73,7 +74,7 @@ async def request_reset_code(
     user_id = reset_code["user_id"]
     del reset_code["user_id"]
     await mail_service.request_reset_code(reset_code)
-    return auth.UserId(user_id=user_id)
+    return auth.UserId(user_id=UUID(user_id))
 
 
 @post(

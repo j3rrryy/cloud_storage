@@ -19,10 +19,10 @@ class User(Base):
         default=uuid4,
     )
     username = sa.Column(sa.VARCHAR, unique=True, nullable=False)
-    email = sa.Column(sa.VARCHAR, nullable=False, unique=True)
+    email = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     password = sa.Column(sa.VARCHAR, nullable=False)
-    verified = sa.Column(sa.BOOLEAN, default=False)
-    registered = sa.Column(sa.TIMESTAMP, default=datetime.now)
+    verified = sa.Column(sa.BOOLEAN, nullable=False, default=False)
+    registered = sa.Column(sa.TIMESTAMP, nullable=False, default=datetime.now)
     refresh_tokens = relationship("RefreshToken", back_populates="user")
 
     def __str__(self) -> str:
@@ -42,13 +42,15 @@ class RefreshToken(Base):
         primary_key=True,
         default=uuid4,
     )
-    refresh_token = sa.Column(sa.VARCHAR, unique=True)
+    refresh_token = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     user_id = sa.Column(
-        UUID(as_uuid=False), sa.ForeignKey(User.user_id, ondelete="CASCADE")
+        UUID(as_uuid=False),
+        sa.ForeignKey(User.user_id, ondelete="CASCADE"),
+        nullable=False,
     )
     user_ip = sa.Column(sa.VARCHAR, nullable=False)
-    browser = sa.Column(sa.VARCHAR, nullable=True)
-    last_accessed = sa.Column(sa.TIMESTAMP, default=datetime.now)
+    browser = sa.Column(sa.VARCHAR, nullable=False)
+    last_accessed = sa.Column(sa.TIMESTAMP, nullable=False, default=datetime.now)
     user = relationship(User, back_populates="refresh_tokens")
     access_tokens = relationship("AccessToken", back_populates="refresh_token_parent")
 
@@ -65,7 +67,9 @@ class AccessToken(Base):
 
     access_token = sa.Column(sa.VARCHAR, unique=True, primary_key=True)
     refresh_token = sa.Column(
-        sa.VARCHAR, sa.ForeignKey(RefreshToken.refresh_token, ondelete="CASCADE")
+        sa.VARCHAR,
+        sa.ForeignKey(RefreshToken.refresh_token, ondelete="CASCADE"),
+        nullable=False,
     )
     refresh_token_parent = relationship(RefreshToken, back_populates="access_tokens")
 

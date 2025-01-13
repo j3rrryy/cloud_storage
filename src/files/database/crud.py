@@ -60,7 +60,7 @@ class CRUD:
         cls, data: dict[str, str], session: AsyncSession
     ) -> dict[str, str]:
         try:
-            filenames = {"user_id": data["user_id"], "filenames": []}
+            files = {"user_id": data["user_id"], "files": []}
 
             for file_id in data["file_ids"]:
                 file = await session.get(File, file_id)
@@ -68,10 +68,10 @@ class CRUD:
                 if not file:
                     raise FileNotFoundError(StatusCode.NOT_FOUND, "File not found")
 
-                filenames["filenames"].append(file.name)
+                files["files"].append(file.path)
                 await session.delete(file)
             await session.commit()
-            return filenames
+            return files
         except FileNotFoundError as exc:
             await session.rollback()
             raise exc

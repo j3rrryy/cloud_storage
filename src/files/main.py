@@ -4,13 +4,14 @@ from concurrent import futures
 import grpc
 import uvloop
 from grpc_accesslog import AsyncAccessLogInterceptor, handlers
+from prometheus_client import make_asgi_app
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
     PromAsyncServerInterceptor,
 )
-from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
 from config import load_config
+from controllers import StorageController
 from proto import add_FilesServicer_to_server
 from service import FilesServicer
 
@@ -30,6 +31,7 @@ async def start_grpc_server():
     add_FilesServicer_to_server(FilesServicer(), server)
     server.add_insecure_port("[::]:50051")
 
+    await StorageController.create_bucket()
     await server.start()
     logger.info("gRPC server started")
     await server.wait_for_termination()

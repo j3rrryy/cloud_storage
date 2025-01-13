@@ -15,13 +15,9 @@ class FilesServicer(proto.FilesServicer):
 
     async def UploadFile(self, request, context):
         data = self.convert_to_dict(request)
+        await self._eh(context, DBC.upload_file, data)
         upload_url = await self._eh(context, STC.upload_file, data)
         return pb2.UploadFileResponse(url=upload_url)
-
-    async def ConfirmUpload(self, request, context):
-        data = self.convert_to_dict(request)
-        await self._eh(context, DBC.upload_file, data)
-        return empty_pb2.Empty()
 
     async def FileInfo(self, request, context):
         data = self.convert_to_dict(request)
@@ -37,14 +33,14 @@ class FilesServicer(proto.FilesServicer):
     async def DownloadFile(self, request, context):
         data = self.convert_to_dict(request)
         info = await self._eh(context, DBC.file_info, data)
-        data["name"] = info["name"]
-        file_url = await self._eh(context, STC.download_file, data)
+        info.update(data)
+        file_url = await self._eh(context, STC.download_file, info)
         return pb2.FileURLResponse(url=file_url)
 
     async def DeleteFiles(self, request, context):
         data = self.convert_to_dict(request)
-        filenames = await self._eh(context, DBC.delete_files, data)
-        await self._eh(context, STC.delete_files, filenames)
+        files = await self._eh(context, DBC.delete_files, data)
+        await self._eh(context, STC.delete_files, files)
         return empty_pb2.Empty()
 
     async def DeleteAllFiles(self, request, context):

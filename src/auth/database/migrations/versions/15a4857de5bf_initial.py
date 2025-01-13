@@ -26,8 +26,8 @@ def upgrade() -> None:
         sa.Column("username", sa.VARCHAR(), nullable=False),
         sa.Column("email", sa.VARCHAR(), nullable=False),
         sa.Column("password", sa.VARCHAR(), nullable=False),
-        sa.Column("verified", sa.BOOLEAN(), nullable=True),
-        sa.Column("registered", sa.TIMESTAMP(), nullable=True),
+        sa.Column("verified", sa.BOOLEAN(), nullable=False),
+        sa.Column("registered", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("user_id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("user_id"),
@@ -36,11 +36,11 @@ def upgrade() -> None:
     op.create_table(
         "refresh_tokens",
         sa.Column("token_id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("refresh_token", sa.VARCHAR(), nullable=True),
-        sa.Column("user_id", sa.UUID(as_uuid=False), nullable=True),
+        sa.Column("refresh_token", sa.VARCHAR(), nullable=False),
+        sa.Column("user_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("user_ip", sa.VARCHAR(), nullable=False),
-        sa.Column("browser", sa.VARCHAR(), nullable=True),
-        sa.Column("last_accessed", sa.TIMESTAMP(), nullable=True),
+        sa.Column("browser", sa.VARCHAR(), nullable=False),
+        sa.Column("last_accessed", sa.TIMESTAMP(), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.user_id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("token_id"),
         sa.UniqueConstraint("refresh_token"),
@@ -49,7 +49,7 @@ def upgrade() -> None:
     op.create_table(
         "access_tokens",
         sa.Column("access_token", sa.VARCHAR(), nullable=False),
-        sa.Column("refresh_token", sa.VARCHAR(), nullable=True),
+        sa.Column("refresh_token", sa.VARCHAR(), nullable=False),
         sa.ForeignKeyConstraint(
             ["refresh_token"], ["refresh_tokens.refresh_token"], ondelete="CASCADE"
         ),

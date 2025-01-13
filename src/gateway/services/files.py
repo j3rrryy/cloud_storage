@@ -7,15 +7,10 @@ from .base import RPCBase
 
 class Files(RPCBase):
     @RPCBase.handle_exception
-    async def upload_file(self, data: dict[str, str]) -> str:
+    async def upload_file(self, data: dict[str, str | int]) -> str:
         request = pb2.UploadFileRequest(**data)
         url = await self._stub.UploadFile(request)
         return url.url
-
-    @RPCBase.handle_exception
-    async def confirm_upload(self, data: dict[str, str | int]) -> None:
-        request = pb2.ConfirmUploadRequest(**data)
-        await self._stub.ConfirmUpload(request)
 
     @RPCBase.handle_exception
     async def file_info(self, data: dict[str, str]) -> dict[str, str]:

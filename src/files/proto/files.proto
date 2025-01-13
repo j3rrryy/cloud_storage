@@ -7,7 +7,6 @@ package files;
 
 service Files {
   rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
-  rpc ConfirmUpload(ConfirmUploadRequest) returns (google.protobuf.Empty);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
   rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
   rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
@@ -22,8 +21,9 @@ message AllFilesOperationRequest {
 message FileInfoResponse {
   string file_id = 1;
   string name = 2;
-  uint64 size = 3;
-  google.protobuf.Timestamp uploaded = 4;
+  string path = 3;
+  uint64 size = 4;
+  google.protobuf.Timestamp uploaded = 5;
 }
 
 message FileListResponse {
@@ -47,14 +47,10 @@ message FileURLResponse {
 message UploadFileRequest {
   string user_id = 1;
   string name = 2;
+  string path = 3;
+  uint64 size = 4;
 }
 
 message UploadFileResponse {
   string url = 1;
-}
-
-message ConfirmUploadRequest {
-  string user_id = 1;
-  string name = 2;
-  uint64 size = 3;
 }
