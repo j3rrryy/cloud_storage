@@ -90,7 +90,7 @@ async def validate_reset_code(
     auth_service: Auth,
 ) -> auth.CodeIsValid:
     is_valid = await auth_service.validate_code(data.to_dict())
-    return auth.CodeIsValid(**is_valid)
+    return auth.CodeIsValid(is_valid=is_valid)
 
 
 @post(

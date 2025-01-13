@@ -1,18 +1,21 @@
-from typing import AsyncGenerator, Generator
+from typing import Generator
 
 from proto import files_pb2 as pb2
-from utils import converted_chunks_generator
 
 from .base import RPCBase
 
 
 class Files(RPCBase):
     @RPCBase.handle_exception
-    async def upload_file(
-        self, chunk_generator: AsyncGenerator[dict[str, str | bytes], None]
-    ) -> None:
-        request = converted_chunks_generator(chunk_generator)
-        await self._stub.UploadFile(request)
+    async def upload_file(self, data: dict[str, str]) -> str:
+        request = pb2.UploadFileRequest(**data)
+        url = await self._stub.UploadFile(request)
+        return url.url
+
+    @RPCBase.handle_exception
+    async def confirm_upload(self, data: dict[str, str | int]) -> None:
+        request = pb2.ConfirmUploadRequest(**data)
+        await self._stub.ConfirmUpload(request)
 
     @RPCBase.handle_exception
     async def file_info(self, data: dict[str, str]) -> dict[str, str]:

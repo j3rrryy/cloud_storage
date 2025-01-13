@@ -46,5 +46,5 @@ class MailService:
                             )
                             self.email_sent_counter.labels(message.topic).inc()
                         except Exception as exc:
-                            self._logger.error(str(exc))
+                            self._logger.error(exc)
                             self.email_failed_counter.labels(message.topic).inc()

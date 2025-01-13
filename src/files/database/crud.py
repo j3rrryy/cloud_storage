@@ -8,7 +8,7 @@ from .models import File
 
 class CRUD:
     @classmethod
-    async def upload_file(cls, data: dict[str, str], session: AsyncSession) -> None:
+    async def upload_file(cls, data: dict[str, str | int], session: AsyncSession) -> None:
         try:
             new_file = File(**data)
             session.add(new_file)

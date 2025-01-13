@@ -6,7 +6,8 @@ import "google/protobuf/timestamp.proto";
 package files;
 
 service Files {
-  rpc UploadFile(stream UploadFileRequest) returns (google.protobuf.Empty);
+  rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
+  rpc ConfirmUpload(ConfirmUploadRequest) returns (google.protobuf.Empty);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
   rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
   rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
@@ -46,5 +47,14 @@ message FileURLResponse {
 message UploadFileRequest {
   string user_id = 1;
   string name = 2;
-  bytes chunk = 3;
+}
+
+message UploadFileResponse {
+  string url = 1;
+}
+
+message ConfirmUploadRequest {
+  string user_id = 1;
+  string name = 2;
+  uint64 size = 3;
 }

@@ -13,9 +13,14 @@ from utils import ExceptionHandler
 class FilesServicer(proto.FilesServicer):
     _eh = ExceptionHandler(load_config().app.logger)
 
-    async def UploadFile(self, request_iterator, context):
-        file_data = await self._eh(context, STC.upload_file, request_iterator)
-        await self._eh(context, DBC.upload_file, file_data)
+    async def UploadFile(self, request, context):
+        data = self.convert_to_dict(request)
+        upload_url = await self._eh(context, STC.upload_file, data)
+        return pb2.UploadFileResponse(url=upload_url)
+
+    async def ConfirmUpload(self, request, context):
+        data = self.convert_to_dict(request)
+        await self._eh(context, DBC.upload_file, data)
         return empty_pb2.Empty()
 
     async def FileInfo(self, request, context):

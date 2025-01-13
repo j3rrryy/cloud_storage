@@ -12,10 +12,11 @@ class DatabaseController:
     @get_session
     async def upload_file(
         cls,
-        data: dict[str, str],
+        data: dict[str, str | int],
         *,
         session: AsyncSession,
     ) -> None:
+        data["size"] = int(data["size"])
         await CRUD.upload_file(data, session)
         await cache.delete(f"file_list-{data['user_id']}")
 
