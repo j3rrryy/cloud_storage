@@ -71,16 +71,32 @@ class FileURLResponse(_message.Message):
     def __init__(self, url: _Optional[str] = ...) -> None: ...
 
 class UploadFileRequest(_message.Message):
-    __slots__ = ("user_id", "name", "chunk")
+    __slots__ = ("user_id", "name")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
-    CHUNK_FIELD_NUMBER: _ClassVar[int]
     user_id: str
     name: str
-    chunk: bytes
+    def __init__(
+        self, user_id: _Optional[str] = ..., name: _Optional[str] = ...
+    ) -> None: ...
+
+class UploadFileResponse(_message.Message):
+    __slots__ = ("url",)
+    URL_FIELD_NUMBER: _ClassVar[int]
+    url: str
+    def __init__(self, url: _Optional[str] = ...) -> None: ...
+
+class ConfirmUploadRequest(_message.Message):
+    __slots__ = ("user_id", "name", "size")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    SIZE_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    name: str
+    size: int
     def __init__(
         self,
         user_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
-        chunk: _Optional[bytes] = ...,
+        size: _Optional[int] = ...,
     ) -> None: ...

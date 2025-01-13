@@ -2,7 +2,6 @@ from typing import Annotated
 from uuid import UUID
 
 from litestar import MediaType, Request, Router, delete, get, post
-from litestar.datastructures import UploadFile
 from litestar.di import Provide
 from litestar.enums import RequestEncodingType
 from litestar.exceptions import NotAuthorizedException, PermissionDeniedException
@@ -12,21 +11,54 @@ from litestar.response import Redirect
 from config import load_config
 from schemas import files as fm
 from services import Auth, Files, connect_auth_service, connect_files_service
-from utils import chunk_generator
 
 config = load_config()
 
 
-@post(
+@get(
     "/upload-file",
-    status_code=201,
+    status_code=200,
+    response_model=fm.UploadURL,
+    media_type=MediaType.MESSAGEPACK,
     dependencies={
         "auth_service": Provide(connect_auth_service),
         "files_service": Provide(connect_files_service),
     },
 )
 async def upload_file(
-    data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)],
+    name: str,
+    request: Request,
+    auth_service: Auth,
+    files_service: Files,
+) -> fm.UploadURL:
+    access_token = request.headers.get("Authorization")
+
+    if not access_token:
+        raise NotAuthorizedException(detail="Token is invalid")
+
+    user_info = await auth_service.auth(access_token.split()[1])
+
+    if not user_info.get("verified", False):
+        raise PermissionDeniedException(detail="Email not verified")
+
+    request_data = {
+        "user_id": user_info["user_id"],
+        "name": name,
+    }
+    upload_url = await files_service.upload_file(request_data)
+    return fm.UploadURL(url=upload_url)
+
+
+@post(
+    "/confirm-upload",
+    status_code=201,
+    dependencies={
+        "auth_service": Provide(connect_auth_service),
+        "files_service": Provide(connect_files_service),
+    },
+)
+async def confirm_upload(
+    data: Annotated[fm.ConfirmUpload, Body(media_type=RequestEncodingType.MESSAGEPACK)],
     request: Request,
     auth_service: Auth,
     files_service: Files,
@@ -43,9 +75,10 @@ async def upload_file(
 
     request_data = {
         "user_id": user_info["user_id"],
-        "name": data.filename,
+        "name": data.name,
+        "size": data.size,
     }
-    await files_service.upload_file(chunk_generator(data, request_data))
+    await files_service.confirm_upload(request_data)
 
 
 @get(
@@ -205,6 +238,7 @@ files_router = Router(
     path="/v1/files",
     route_handlers=(
         upload_file,
+        confirm_upload,
         file_info,
         file_list,
         download_file,

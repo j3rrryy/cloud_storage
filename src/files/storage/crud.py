@@ -1,5 +1,3 @@
-from typing import AsyncIterator
-
 from aiobotocore.client import AioBaseClient
 from grpc import StatusCode
 
@@ -11,9 +9,7 @@ class CRUD:
     _config: Config = load_config()
 
     @classmethod
-    async def upload_file(
-        cls, chunk_iterator: AsyncIterator, data: dict[str, str], client: AioBaseClient
-    ) -> int:
+    async def upload_file(cls, data: dict[str, str], client: AioBaseClient) -> str:
         OBJECT_KEY = f"{data['user_id']}/{data['name']}"
 
         try:
@@ -30,39 +26,13 @@ class CRUD:
             ...
 
         try:
-            multipart_upload = await client.create_multipart_upload(
-                Bucket=cls._BUCKET_NAME, Key=OBJECT_KEY
+            url = await client.generate_presigned_url(
+                "put_object",
+                Params={"Bucket": cls._BUCKET_NAME, "Key": OBJECT_KEY},
+                ExpiresIn=30,
             )
-            upload_id = multipart_upload["UploadId"]
-
-            parts = []
-            part_number = 1
-            total_size = 0
-
-            async for chunk in chunk_iterator:
-                part = await client.upload_part(
-                    Bucket=cls._BUCKET_NAME,
-                    Key=OBJECT_KEY,
-                    PartNumber=part_number,
-                    UploadId=upload_id,
-                    Body=chunk.chunk,
-                )
-                parts.append({"PartNumber": part_number, "ETag": part["ETag"]})
-                part_number += 1
-                chunk_size = len(chunk.chunk)
-                total_size += chunk_size
-
-            await client.complete_multipart_upload(
-                Bucket=cls._BUCKET_NAME,
-                Key=OBJECT_KEY,
-                UploadId=upload_id,
-                MultipartUpload={"Parts": parts},
-            )
-            return total_size
+            return url
         except Exception as exc:
-            await client.abort_multipart_upload(
-                Bucket=cls._BUCKET_NAME, Key=OBJECT_KEY, UploadId=upload_id
-            )
             exc.args = (StatusCode.INTERNAL, "Internal storage error")
             raise exc
 
@@ -79,11 +49,9 @@ class CRUD:
             url = await client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": cls._BUCKET_NAME, "Key": OBJECT_KEY},
-                ExpiresIn=60,
+                ExpiresIn=30,
             )
             return url
-        except FileNotFoundError as exc:
-            raise exc
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, "Internal storage error")
             raise exc

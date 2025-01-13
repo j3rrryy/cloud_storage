@@ -24,10 +24,10 @@ class Auth(RPCBase):
         return self.convert_to_dict(reset_info)
 
     @RPCBase.handle_exception
-    async def validate_code(self, data: dict[str, str]) -> dict[str, bool]:
+    async def validate_code(self, data: dict[str, str]) -> bool:
         request = pb2.ResetCodeRequest(**data)
         validation_info = await self._stub.ValidateResetCode(request)
-        return self.convert_to_dict(validation_info)
+        return validation_info.is_valid
 
     @RPCBase.handle_exception
     async def reset_password(self, data: dict[str, str]) -> None:

@@ -17,6 +17,6 @@ class ExceptionHandler:
         except Exception as exc:
             status_code, details = exc.args
             self._logger.error(
-                f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
+                f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}, {exc}"
             )
             await context.abort(status_code, details)
