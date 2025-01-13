@@ -15,7 +15,7 @@ from services import Auth, Files, connect_auth_service, connect_files_service
 config = load_config()
 
 
-@get(
+@post(
     "/upload-file",
     status_code=200,
     response_model=fm.UploadURL,
@@ -26,7 +26,7 @@ config = load_config()
     },
 )
 async def upload_file(
-    name: str,
+    data: Annotated[fm.UploadFile, Body(media_type=RequestEncodingType.MESSAGEPACK)],
     request: Request,
     auth_service: Auth,
     files_service: Files,
@@ -43,42 +43,12 @@ async def upload_file(
 
     request_data = {
         "user_id": user_info["user_id"],
-        "name": name,
+        "name": data.name,
+        "path": data.path,
+        "size": data.size,
     }
     upload_url = await files_service.upload_file(request_data)
     return fm.UploadURL(url=upload_url)
-
-
-@post(
-    "/confirm-upload",
-    status_code=201,
-    dependencies={
-        "auth_service": Provide(connect_auth_service),
-        "files_service": Provide(connect_files_service),
-    },
-)
-async def confirm_upload(
-    data: Annotated[fm.ConfirmUpload, Body(media_type=RequestEncodingType.MESSAGEPACK)],
-    request: Request,
-    auth_service: Auth,
-    files_service: Files,
-) -> None:
-    access_token = request.headers.get("Authorization")
-
-    if not access_token:
-        raise NotAuthorizedException(detail="Token is invalid")
-
-    user_info = await auth_service.auth(access_token.split()[1])
-
-    if not user_info.get("verified", False):
-        raise PermissionDeniedException(detail="Email not verified")
-
-    request_data = {
-        "user_id": user_info["user_id"],
-        "name": data.name,
-        "size": data.size,
-    }
-    await files_service.confirm_upload(request_data)
 
 
 @get(
@@ -238,7 +208,6 @@ files_router = Router(
     path="/v1/files",
     route_handlers=(
         upload_file,
-        confirm_upload,
         file_info,
         file_list,
         download_file,

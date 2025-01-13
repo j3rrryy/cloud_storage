@@ -19,19 +19,22 @@ class AllFilesOperationRequest(_message.Message):
     def __init__(self, user_id: _Optional[str] = ...) -> None: ...
 
 class FileInfoResponse(_message.Message):
-    __slots__ = ("file_id", "name", "size", "uploaded")
+    __slots__ = ("file_id", "name", "path", "size", "uploaded")
     FILE_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
+    PATH_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
     UPLOADED_FIELD_NUMBER: _ClassVar[int]
     file_id: str
     name: str
+    path: str
     size: int
     uploaded: _timestamp_pb2.Timestamp
     def __init__(
         self,
         file_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
+        path: _Optional[str] = ...,
         size: _Optional[int] = ...,
         uploaded: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
@@ -71,13 +74,21 @@ class FileURLResponse(_message.Message):
     def __init__(self, url: _Optional[str] = ...) -> None: ...
 
 class UploadFileRequest(_message.Message):
-    __slots__ = ("user_id", "name")
+    __slots__ = ("user_id", "name", "path", "size")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
+    PATH_FIELD_NUMBER: _ClassVar[int]
+    SIZE_FIELD_NUMBER: _ClassVar[int]
     user_id: str
     name: str
+    path: str
+    size: int
     def __init__(
-        self, user_id: _Optional[str] = ..., name: _Optional[str] = ...
+        self,
+        user_id: _Optional[str] = ...,
+        name: _Optional[str] = ...,
+        path: _Optional[str] = ...,
+        size: _Optional[int] = ...,
     ) -> None: ...
 
 class UploadFileResponse(_message.Message):
@@ -85,18 +96,3 @@ class UploadFileResponse(_message.Message):
     URL_FIELD_NUMBER: _ClassVar[int]
     url: str
     def __init__(self, url: _Optional[str] = ...) -> None: ...
-
-class ConfirmUploadRequest(_message.Message):
-    __slots__ = ("user_id", "name", "size")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    SIZE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    name: str
-    size: int
-    def __init__(
-        self,
-        user_id: _Optional[str] = ...,
-        name: _Optional[str] = ...,
-        size: _Optional[int] = ...,
-    ) -> None: ...

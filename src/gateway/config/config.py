@@ -47,7 +47,7 @@ def load_config():
     )
     LOGGING_CONFIG["formatters"]["access"].update(
         {
-            "fmt": "gateway | %(asctime)s | %(levelname)s | %(client_addr)s | %(request_line)s | %(status_code)s",
+            "fmt": "gateway | %(asctime)s | %(levelname)s | %(request_line)s | %(status_code)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     )

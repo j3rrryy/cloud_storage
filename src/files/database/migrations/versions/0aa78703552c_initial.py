@@ -24,9 +24,10 @@ def upgrade() -> None:
         "files",
         sa.Column("file_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("user_id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("name", sa.VARCHAR(), unique=True, nullable=False),
-        sa.Column("size", sa.BIGINT(), nullable=True),
-        sa.Column("uploaded", sa.TIMESTAMP(), nullable=True),
+        sa.Column("name", sa.VARCHAR(), nullable=False),
+        sa.Column("path", sa.VARCHAR(), unique=True, nullable=False),
+        sa.Column("size", sa.BIGINT(), nullable=False),
+        sa.Column("uploaded", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("file_id"),
         sa.UniqueConstraint("file_id"),
     )
