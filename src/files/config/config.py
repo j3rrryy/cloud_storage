@@ -53,18 +53,18 @@ def load_config():
     logger = logging.getLogger("files")
     logging.basicConfig(
         level=logging.INFO,
-        format="files | %(asctime)s | %(levelname)s | %(message)s",
+        format="%(asctime)s | %(levelname)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     LOGGING_CONFIG["formatters"]["default"].update(
         {
-            "fmt": "files | %(asctime)s | %(levelname)s | %(message)s",
+            "fmt": "%(asctime)s | %(levelname)s | %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     )
     LOGGING_CONFIG["formatters"]["access"].update(
         {
-            "fmt": "files | %(asctime)s | %(levelname)s | %(request_line)s | %(status_code)s",
+            "fmt": "%(asctime)s | %(levelname)s | %(request_line)s | %(status_code)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     )

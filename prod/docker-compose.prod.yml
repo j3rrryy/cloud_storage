@@ -179,6 +179,10 @@ services:
       - 9092
     env_file:
       - ./.env
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - mail_kafka_config:/mnt/shared/config
       - mail_kafka_data:/var/lib/kafka/data

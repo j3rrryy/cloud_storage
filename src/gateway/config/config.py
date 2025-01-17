@@ -41,20 +41,20 @@ def load_config():
 
     LOGGING_CONFIG["formatters"]["default"].update(
         {
-            "fmt": "gateway | %(asctime)s | %(levelname)s | %(message)s",
+            "fmt": "%(asctime)s | %(levelname)s | %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     )
     LOGGING_CONFIG["formatters"]["access"].update(
         {
-            "fmt": "gateway | %(asctime)s | %(levelname)s | %(request_line)s | %(status_code)s",
+            "fmt": "%(asctime)s | %(levelname)s | %(request_line)s | %(status_code)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     )
     litestar_logging_config = LoggingConfig(
         formatters={
             "standard": {
-                "format": "gateway | %(asctime)s | %(levelname)s | %(message)s",
+                "format": "%(asctime)s | %(levelname)s | %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             }
         }
