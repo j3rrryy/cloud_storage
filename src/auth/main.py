@@ -4,10 +4,10 @@ from concurrent import futures
 import grpc
 import uvloop
 from grpc_accesslog import AsyncAccessLogInterceptor, handlers
+from prometheus_client import make_asgi_app
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
     PromAsyncServerInterceptor,
 )
-from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
 from config import load_config
