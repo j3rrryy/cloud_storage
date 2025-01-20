@@ -18,7 +18,22 @@ scrape_configs:
     static_configs:
       - targets: ["files:8000"]
 
+  - job_name: "minio"
+    metrics_path: "/minio/v2/metrics/cluster"
+    static_configs:
+      - targets: ["minio:9000"]
+
   - job_name: "mail"
     metrics_path: "/metrics"
     static_configs:
       - targets: ["mail:8000"]
+
+  - job_name: "loki"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["loki:3100"]
+
+  - job_name: "promtail"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["promtail:9080"]

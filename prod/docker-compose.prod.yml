@@ -1,15 +1,16 @@
 volumes:
   auth_postgres_data:
   auth_redis_data:
-  files_minio_data:
   files_postgres_data:
   files_redis_data:
-  mail_zookeper_secrets:
-  mail_zookeper_data:
-  mail_zookeper_log:
-  mail_kafka_config:
-  mail_kafka_data:
-  mail_kafka_secrets:
+  minio_data:
+  zookeper_data:
+  zookeper_log:
+  zookeper_secrets:
+  kafka_data:
+  kafka_config:
+  kafka_secrets:
+  loki_data:
   prometheus_data:
   grafana_data:
   certbot_conf:
@@ -21,6 +22,7 @@ networks:
   auth_network:
   files_network:
   mail_network:
+  grafana_network:
 
 
 services:
@@ -32,9 +34,9 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot_conf:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - nginx_network
     depends_on:
@@ -113,25 +115,40 @@ services:
       - main_network
       - files_network
     depends_on:
-      - files_minio
+      - minio
       - files_postgres
       - files_redis
     command: bash -c "alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
     container_name: files_prod
 
-  files_minio:
+  minio:
     image: minio/minio:latest
     restart: always
     env_file:
       - ./.env
+    environment:
+      MINIO_PROMETHEUS_AUTH_TYPE: public
     volumes:
-      - files_minio_data:/data
+      - minio_data:/data
     networks:
       - nginx_network
       - files_network
-    hostname: minio
+      - grafana_network
     command: server /data
-    container_name: files_minio_prod
+    container_name: minio_prod
+
+  mc:
+    image: minio/mc:latest
+    env_file:
+      - ./.env
+    volumes:
+      - ./create_buckets.sh:/create_buckets.sh
+    networks:
+      - files_network
+    depends_on:
+      - minio
+    entrypoint: bash ./create_buckets.sh
+    container_name: mc_prod
 
   files_postgres:
     image: postgres:alpine
@@ -156,7 +173,7 @@ services:
     hostname: redis
     container_name: files_redis_prod
 
-  mail_zookeeper:
+  zookeeper:
     image: confluentinc/cp-zookeeper:latest
     restart: always
     expose:
@@ -164,15 +181,14 @@ services:
     env_file:
       - ./.env
     volumes:
-      - mail_zookeper_secrets:/etc/zookeeper/secrets
-      - mail_zookeper_data:/var/lib/zookeeper/data
-      - mail_zookeper_log:/var/lib/zookeeper/log
+      - zookeper_data:/var/lib/zookeeper/data
+      - zookeper_log:/var/lib/zookeeper/log
+      - zookeper_secrets:/etc/zookeeper/secrets
     networks:
       - mail_network
-    hostname: zookeeper
-    container_name: mail_zookeper_prod
+    container_name: zookeper_prod
 
-  mail_kafka:
+  kafka:
     image: confluentinc/cp-kafka:latest
     restart: always
     expose:
@@ -180,20 +196,19 @@ services:
     env_file:
       - ./.env
     environment:
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
     volumes:
-      - mail_kafka_config:/mnt/shared/config
-      - mail_kafka_data:/var/lib/kafka/data
-      - mail_kafka_secrets:/etc/kafka/secrets
+      - kafka_data:/var/lib/kafka/data
+      - kafka_config:/mnt/shared/config
+      - kafka_secrets:/etc/kafka/secrets
     networks:
       - main_network
       - mail_network
     depends_on:
-      - mail_zookeeper
-    hostname: kafka
-    container_name: mail_kafka_prod
+      - zookeeper
+    container_name: kafka_prod
 
   mail:
     image: ghcr.io/j3rrryy/cloud_storage:mail-latest
@@ -207,9 +222,39 @@ services:
       - main_network
       - mail_network
     depends_on:
-      - mail_kafka
+      - kafka
     command: python ./main.py
     container_name: mail_prod
+
+  loki:
+    image: grafana/loki:latest
+    restart: always
+    expose:
+      - 3100
+    env_file:
+      - ./.env
+    volumes:
+      - loki_data:/loki
+      - ./loki.yml:/etc/loki/loki.yml:ro
+    networks:
+      - grafana_network
+    command: --config.file=/etc/loki/loki.yml --config.expand-env=true
+    container_name: loki_prod
+
+  promtail:
+    image: grafana/promtail:latest
+    restart: always
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail.yml:/etc/promtail/docker-config.yml:ro
+    networks:
+      - grafana_network
+    depends_on:
+      - loki
+    command: --config.file=/etc/promtail/docker-config.yml
+    container_name: promtail_prod
 
   prometheus:
     image: prom/prometheus:latest
@@ -217,10 +262,10 @@ services:
     expose:
       - 9090
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
-      - main_network
+      - grafana_network
     command: --config.file=/etc/prometheus/prometheus.yml
     container_name: prometheus_prod
 
@@ -231,11 +276,16 @@ services:
       - 3000
     env_file:
       - ./.env
+    environment:
+      GF_SERVER_SERVE_FROM_SUB_PATH: true
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - nginx_network
       - main_network
+      - grafana_network
     depends_on:
+      - loki
+      - promtail
       - prometheus
     container_name: grafana_prod

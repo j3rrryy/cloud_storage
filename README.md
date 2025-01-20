@@ -26,14 +26,14 @@
 - Emails with new login info
 - Main DB - PostgreSQL
 - DB for cache - Redis
-- S3 for files - MinIO
+- S3 for files and logs - MinIO
 - Message broker between Gateway and Mail service - Apache Kafka
 - Monitoring - Prometheus & Grafana
+- Log aggregation - Promtail & Loki & Grafana
 
 ## :memo: To-Do list
 
 - Tests
-- Logs processing - Graylog, Elasticsearch, MongoDB
 
 ![Architecture](https://github.com/j3rrryy/cloud_storage/blob/main/images/architecture.webp?raw=true)
 

@@ -9,16 +9,14 @@ class CRUD:
     _BUCKET_NAME = _config.minio.bucket
 
     @classmethod
-    async def create_bucket(cls, client: AioBaseClient) -> None:
-        try:
-            await client.head_bucket(Bucket=cls._BUCKET_NAME)
-        except Exception:
-            await client.create_bucket(Bucket=cls._BUCKET_NAME)
-
-    @classmethod
     async def upload_file(
         cls, data: dict[str, str | int], client: AioBaseClient
     ) -> str:
+        try:
+            await client.head_bucket(Bucket=cls._BUCKET_NAME)
+        except Exception:
+            raise FileNotFoundError(StatusCode.NOT_FOUND, "Bucket not found")
+
         try:
             url = await client.generate_presigned_url(
                 "put_object",
