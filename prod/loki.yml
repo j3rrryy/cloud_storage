@@ -1,0 +1,47 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 0
+
+common:
+  replication_factor: 1
+  path_prefix: /loki
+  ring:
+    kvstore:
+      store: inmemory
+
+ingester:
+  wal:
+    dir: /loki/wal
+
+schema_config:
+  configs:
+    - from: 2025-01-01
+      store: tsdb
+      object_store: aws
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
+    cache_ttl: 12h
+  aws:
+    s3: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@${MINIO_HOST}.:${MINIO_PORT}/${MINIO_LOKI_BUCKET}
+    s3forcepathstyle: true
+
+limits_config:
+  retention_period: 120h
+  volume_enabled: true
+  max_query_parallelism: 16
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 256

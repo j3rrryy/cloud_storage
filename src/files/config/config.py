@@ -91,6 +91,6 @@ def load_config():
             secret_key=env("MINIO_ROOT_PASSWORD"),
             host=env("MINIO_HOST"),
             port=env("MINIO_PORT"),
-            bucket=env("MINIO_BUCKET"),
+            bucket=env("MINIO_FILES_BUCKET"),
         ),
     )

@@ -9,11 +9,6 @@ class StorageController:
 
     @classmethod
     @get_client
-    async def create_bucket(cls, client: AioBaseClient) -> None:
-        await CRUD.create_bucket(client)
-
-    @classmethod
-    @get_client
     async def upload_file(
         cls, data: dict[str, str | int], client: AioBaseClient
     ) -> str:
