@@ -2,6 +2,7 @@ from typing import Any, AsyncGenerator
 
 import grpc
 from aiokafka import AIOKafkaProducer
+
 from config import load_config
 from proto import AuthStub, FilesStub
 

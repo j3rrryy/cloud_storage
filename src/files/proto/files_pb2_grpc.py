@@ -43,7 +43,7 @@ class FilesStub(object):
         self.UploadFile = channel.unary_unary(
             "/files.Files/UploadFile",
             request_serializer=files__pb2.UploadFileRequest.SerializeToString,
-            response_deserializer=files__pb2.UploadFileResponse.FromString,
+            response_deserializer=files__pb2.FileURLResponse.FromString,
             _registered_method=True,
         )
         self.FileInfo = channel.unary_unary(
@@ -123,7 +123,7 @@ def add_FilesServicer_to_server(servicer, server):
         "UploadFile": grpc.unary_unary_rpc_method_handler(
             servicer.UploadFile,
             request_deserializer=files__pb2.UploadFileRequest.FromString,
-            response_serializer=files__pb2.UploadFileResponse.SerializeToString,
+            response_serializer=files__pb2.FileURLResponse.SerializeToString,
         ),
         "FileInfo": grpc.unary_unary_rpc_method_handler(
             servicer.FileInfo,
@@ -180,7 +180,7 @@ class Files(object):
             target,
             "/files.Files/UploadFile",
             files__pb2.UploadFileRequest.SerializeToString,
-            files__pb2.UploadFileResponse.FromString,
+            files__pb2.FileURLResponse.FromString,
             options,
             channel_credentials,
             insecure,
