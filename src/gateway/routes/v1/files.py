@@ -2,22 +2,17 @@ from typing import Annotated
 from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, post
-from litestar.di import Provide
 from litestar.enums import RequestEncodingType
 from litestar.exceptions import NotAuthorizedException, PermissionDeniedException
 from litestar.params import Body
 from litestar.response import Redirect
 
 from schemas import files as fm
-from services import Auth, Files, connect_auth_service, connect_files_service
+from services import Auth, Files
 
 
 class FilesController(Controller):
     path = "/files"
-    dependencies = {
-        "auth_service": Provide(connect_auth_service),
-        "files_service": Provide(connect_files_service),
-    }
 
     @post(
         "/upload-file",
@@ -51,7 +46,7 @@ class FilesController(Controller):
             "size": data.size,
         }
         upload_url = await files_service.upload_file(request_data)
-        return fm.UploadURL(url=upload_url)
+        return fm.UploadURL(upload_url)
 
     @get(
         "/file-info/{file_id: uuid}",
@@ -106,7 +101,7 @@ class FilesController(Controller):
             raise PermissionDeniedException(detail="Email not verified")
 
         files = await files_service.file_list(user_info["user_id"])
-        return fm.FileList(files=tuple(fm.FileInfo(**file) for file in files))
+        return fm.FileList(tuple(fm.FileInfo(**file) for file in files))
 
     @get("/download-file/{file_id: uuid}", status_code=200, response_class=Redirect)
     async def download_file(
@@ -177,4 +172,4 @@ class FilesController(Controller):
         await files_service.delete_all_files(user_info["user_id"])
 
 
-files_router = Router(path="/v1", route_handlers=(FilesController,), tags=("files",))
+files_router = Router("/v1", route_handlers=(FilesController,), tags=("files",))

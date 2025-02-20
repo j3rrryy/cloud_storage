@@ -20,7 +20,7 @@ async def start_grpc_server():
     logger = config.app.logger
 
     server = grpc.aio.server(
-        migration_thread_pool=futures.ThreadPoolExecutor(max_workers=10),
+        migration_thread_pool=futures.ThreadPoolExecutor(10),
         interceptors=(
             AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),
             PromAsyncServerInterceptor(enable_handling_time_histogram=True),
@@ -38,7 +38,7 @@ async def start_grpc_server():
 async def start_prometheus_server():
     app = make_asgi_app()
     server_config = Config(app=app, loop="uvloop", host="0.0.0.0", port=8000)
-    server = Server(config=server_config)
+    server = Server(server_config)
     await server.serve()
 
 

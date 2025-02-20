@@ -2,29 +2,16 @@ from typing import Annotated
 from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, patch, post
-from litestar.di import Provide
 from litestar.enums import RequestEncodingType
 from litestar.exceptions import NotAuthorizedException
 from litestar.params import Body
 
 from schemas import auth
-from services import (
-    Auth,
-    Files,
-    Mail,
-    connect_auth_service,
-    connect_files_service,
-    connect_mail_service,
-)
+from services import Auth, Files, Mail
 
 
 class AuthController(Controller):
     path = "/auth"
-    dependencies = {
-        "auth_service": Provide(connect_auth_service),
-        "files_service": Provide(connect_files_service),
-        "mail_service": Provide(connect_mail_service),
-    }
 
     @post("/register", status_code=201)
     async def register(
@@ -65,7 +52,7 @@ class AuthController(Controller):
         user_id = reset_code["user_id"]
         del reset_code["user_id"]
         await mail_service.request_reset_code(reset_code)
-        return auth.UserId(user_id=UUID(user_id))
+        return auth.UserId(UUID(user_id))
 
     @post(
         "/validate-reset-code",
@@ -81,7 +68,7 @@ class AuthController(Controller):
         auth_service: Auth,
     ) -> auth.CodeIsValid:
         is_valid = await auth_service.validate_code(data.to_dict())
-        return auth.CodeIsValid(is_valid=is_valid)
+        return auth.CodeIsValid(is_valid)
 
     @post("/reset-password", status_code=204)
     async def reset_password(
@@ -215,7 +202,7 @@ class AuthController(Controller):
 
         sessions = await auth_service.session_list(access_token.split()[1])
         return auth.SessionList(
-            sessions=tuple(auth.SessionInfo(**session) for session in sessions)
+            tuple(auth.SessionInfo(**session) for session in sessions)
         )
 
     @post("/revoke-session", status_code=204)
@@ -316,4 +303,4 @@ class AuthController(Controller):
         await files_service.delete_all_files(user_id)
 
 
-auth_router = Router(path="/v1", route_handlers=(AuthController,), tags=("auth",))
+auth_router = Router("/v1", route_handlers=(AuthController,), tags=("auth",))

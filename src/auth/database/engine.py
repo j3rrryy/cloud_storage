@@ -11,16 +11,16 @@ __all__ = ["get_session"]
 def _get_sessionmaker() -> async_sessionmaker[AsyncSession]:
     config = load_config()
     postgres_url = URL.create(
-        drivername=config.postgres.driver,
-        username=config.postgres.user,
-        password=config.postgres.password,
-        host=config.postgres.host,
-        port=int(config.postgres.port),
-        database=config.postgres.database,
+        config.postgres.driver,
+        config.postgres.user,
+        config.postgres.password,
+        config.postgres.host,
+        int(config.postgres.port),
+        config.postgres.database,
     )
 
-    async_engine = create_async_engine(url=postgres_url, pool_pre_ping=True)
-    sessionmaker = async_sessionmaker(bind=async_engine, class_=AsyncSession)
+    async_engine = create_async_engine(postgres_url, pool_pre_ping=True)
+    sessionmaker = async_sessionmaker(async_engine, class_=AsyncSession)
     return sessionmaker
 
 

@@ -1,4 +1,5 @@
 import asyncio
+
 import uvloop
 from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
@@ -21,7 +22,7 @@ async def start_mail_server():
 async def start_prometheus_server():
     app = make_asgi_app()
     server_config = Config(app=app, loop="uvloop", host="0.0.0.0", port=8000)
-    server = Server(config=server_config)
+    server = Server(server_config)
     await server.serve()
 
 

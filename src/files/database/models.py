@@ -12,12 +12,12 @@ class File(Base):
     __tablename__ = "files"
 
     file_id = sa.Column(
-        UUID(as_uuid=False),
+        UUID(False),
         unique=True,
         primary_key=True,
         default=uuid.uuid4,
     )
-    user_id = sa.Column(UUID(as_uuid=False), nullable=False)
+    user_id = sa.Column(UUID(False), nullable=False)
     name = sa.Column(sa.VARCHAR, nullable=False)
     path = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     size = sa.Column(sa.BIGINT, nullable=False)

@@ -60,16 +60,13 @@ def load_config():
     )
 
     return Config(
-        app=AppConfig(
-            name=env("APP_NAME"),
-            verification_url=env("VERIFICATION_URL"),
-            logger=logger,
-            kafka_service=env("KAFKA_SERVICE"),
+        AppConfig(
+            env("APP_NAME"), env("VERIFICATION_URL"), logger, env("KAFKA_SERVICE")
         ),
-        smtp=SMTPConfig(
-            username=env("MAIL_USERNAME"),
-            password=env("MAIL_PASSWORD"),
-            hostname=env("MAIL_HOSTNAME"),
-            port=int(env("MAIL_PORT")),
+        SMTPConfig(
+            env("MAIL_USERNAME"),
+            env("MAIL_PASSWORD"),
+            env("MAIL_HOSTNAME"),
+            int(env("MAIL_PORT")),
         ),
     )

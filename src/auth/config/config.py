@@ -70,18 +70,13 @@ def load_config():
     private_key = Jwk.from_json(env("SECRET_KEY"))
 
     return Config(
-        app=AppConfig(
-            name=env("APP_NAME"),
-            logger=logger,
-            public_key=private_key.public_jwk(),
-            private_key=private_key,
-        ),
-        postgres=PostgresConfig(
-            driver=env("POSTGRES_DRIVER"),
-            user=env("POSTGRES_USER"),
-            password=env("POSTGRES_PASSWORD"),
-            host=env("POSTGRES_HOST"),
-            port=env("POSTGRES_PORT"),
-            database=env("POSTGRES_DB"),
+        AppConfig(env("APP_NAME"), logger, private_key.public_jwk(), private_key),
+        PostgresConfig(
+            env("POSTGRES_DRIVER"),
+            env("POSTGRES_USER"),
+            env("POSTGRES_PASSWORD"),
+            env("POSTGRES_HOST"),
+            env("POSTGRES_PORT"),
+            env("POSTGRES_DB"),
         ),
     )
