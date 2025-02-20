@@ -58,7 +58,7 @@ def generate_jwt(user_id: str, token_type: TokenTypes, config: Config) -> str:
         "iat": dt.now(),
         "exp": exp_time,
     }
-    jwt = str(Jwt.sign(claims, key=config.app.private_key, alg="EdDSA"))
+    jwt = str(Jwt.sign(claims, config.app.private_key, alg="EdDSA"))
     return jwt
 
 
@@ -69,7 +69,7 @@ def validate_jwt(
         jwt = Jwt(token)
         jwt_type = TokenTypes(jwt.type)
 
-        verified_signature = jwt.verify_signature(config.app.public_key, alg="EdDSA")
+        verified_signature = jwt.verify_signature(config.app.public_key, "EdDSA")
         verified_token_type = jwt_type == token_type
         verified_issuer = jwt.issuer == config.app.name
         user_id = jwt.subject

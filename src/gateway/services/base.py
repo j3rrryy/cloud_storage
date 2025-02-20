@@ -23,6 +23,7 @@ class RPCBase:
         StatusCode.NOT_FOUND: NotFoundException,
         StatusCode.PERMISSION_DENIED: PermissionDeniedException,
         StatusCode.INTERNAL: InternalServerException,
+        StatusCode.UNAVAILABLE: InternalServerException,
         StatusCode.UNKNOWN: InternalServerException,
     }
 

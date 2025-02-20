@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = sa.Column(
-        UUID(as_uuid=False),
+        UUID(False),
         unique=True,
         primary_key=True,
         default=uuid4,
@@ -37,14 +37,14 @@ class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
     token_id = sa.Column(
-        UUID(as_uuid=False),
+        UUID(False),
         unique=True,
         primary_key=True,
         default=uuid4,
     )
     refresh_token = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     user_id = sa.Column(
-        UUID(as_uuid=False),
+        UUID(False),
         sa.ForeignKey(User.user_id, ondelete="CASCADE"),
         nullable=False,
     )

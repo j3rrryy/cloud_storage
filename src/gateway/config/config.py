@@ -80,14 +80,14 @@ def load_config():
     )
 
     return Config(
-        app=AppConfig(
-            debug=bool(int(env("DEBUG"))),
-            litestar_logging_config=litestar_logging_config,
-            cors_config=cors_config,
-            openapi_config=openapi_config,
-            prometheus_config=prometheus_config,
-            auth_service=env("AUTH_SERVICE"),
-            files_service=env("FILES_SERVICE"),
-            kafka_service=env("KAFKA_SERVICE"),
+        AppConfig(
+            bool(int(env("DEBUG"))),
+            litestar_logging_config,
+            cors_config,
+            openapi_config,
+            prometheus_config,
+            env("AUTH_SERVICE"),
+            env("FILES_SERVICE"),
+            env("KAFKA_SERVICE"),
         ),
     )
