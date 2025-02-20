@@ -17,7 +17,7 @@ class FilesServicer(proto.FilesServicer):
         data = self.convert_to_dict(request)
         await self._eh(context, DBC.upload_file, data)
         upload_url = await self._eh(context, STC.upload_file, data)
-        return pb2.UploadFileResponse(url=upload_url)
+        return pb2.FileURLResponse(url=upload_url)
 
     async def FileInfo(self, request, context):
         data = self.convert_to_dict(request)

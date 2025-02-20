@@ -75,7 +75,9 @@ services:
     depends_on:
       - auth_postgres
       - auth_redis
-    command: bash -c "alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
+    command: bash -c "
+      alembic -c "./config/alembic.ini" upgrade head &&
+      python ./main.py"
     container_name: auth_dev
 
   auth_postgres:
@@ -119,7 +121,9 @@ services:
       - minio
       - files_postgres
       - files_redis
-    command: bash -c "alembic -c "./config/alembic.ini" upgrade head && python ./main.py"
+    command: bash -c "
+      alembic -c "./config/alembic.ini" upgrade head &&
+      python ./main.py"
     container_name: files_dev
 
   minio:

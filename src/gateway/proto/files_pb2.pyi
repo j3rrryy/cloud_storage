@@ -90,9 +90,3 @@ class UploadFileRequest(_message.Message):
         path: _Optional[str] = ...,
         size: _Optional[int] = ...,
     ) -> None: ...
-
-class UploadFileResponse(_message.Message):
-    __slots__ = ("url",)
-    URL_FIELD_NUMBER: _ClassVar[int]
-    url: str
-    def __init__(self, url: _Optional[str] = ...) -> None: ...

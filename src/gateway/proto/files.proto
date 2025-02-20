@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 package files;
 
 service Files {
-  rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
+  rpc UploadFile(UploadFileRequest) returns (FileURLResponse);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
   rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
   rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
@@ -49,8 +49,4 @@ message UploadFileRequest {
   string name = 2;
   string path = 3;
   uint64 size = 4;
-}
-
-message UploadFileResponse {
-  string url = 1;
 }
