@@ -26,11 +26,7 @@ class AuthController(Controller):
         await mail_service.register(verification_mail)
 
     @get("/verify-email", status_code=204)
-    async def verify_email(
-        self,
-        verification_token: str,
-        auth_service: Auth,
-    ) -> None:
+    async def verify_email(self, verification_token: str, auth_service: Auth) -> None:
         await auth_service.verify_email(verification_token)
 
     @post(
@@ -114,11 +110,7 @@ class AuthController(Controller):
         return auth.Tokens(**tokens)
 
     @post("/log-out", status_code=204)
-    async def log_out(
-        self,
-        request: Request,
-        auth_service: Auth,
-    ) -> None:
+    async def log_out(self, request: Request, auth_service: Auth) -> None:
         access_token = request.headers.get("Authorization")
 
         if not access_token:
@@ -128,10 +120,7 @@ class AuthController(Controller):
 
     @post("/resend-verification-mail", status_code=204)
     async def resend_verification_mail(
-        self,
-        request: Request,
-        auth_service: Auth,
-        mail_service: Mail,
+        self, request: Request, auth_service: Auth, mail_service: Mail
     ) -> None:
         access_token = request.headers.get("Authorization")
 
@@ -149,11 +138,7 @@ class AuthController(Controller):
         response_model=auth.Auth,
         media_type=MediaType.MESSAGEPACK,
     )
-    async def auth_user(
-        self,
-        request: Request,
-        auth_service: Auth,
-    ) -> auth.Auth:
+    async def auth_user(self, request: Request, auth_service: Auth) -> auth.Auth:
         access_token = request.headers.get("Authorization")
 
         if not access_token:
@@ -191,9 +176,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def session_list(
-        self,
-        request: Request,
-        auth_service: Auth,
+        self, request: Request, auth_service: Auth
     ) -> auth.SessionList:
         access_token = request.headers.get("Authorization")
 
@@ -231,11 +214,7 @@ class AuthController(Controller):
         response_model=auth.Profile,
         media_type=MediaType.MESSAGEPACK,
     )
-    async def profile(
-        self,
-        request: Request,
-        auth_service: Auth,
-    ) -> auth.Profile:
+    async def profile(self, request: Request, auth_service: Auth) -> auth.Profile:
         access_token = request.headers.get("Authorization")
 
         if not access_token:
@@ -289,10 +268,7 @@ class AuthController(Controller):
 
     @delete("/delete-profile", status_code=204)
     async def delete_profile(
-        self,
-        request: Request,
-        auth_service: Auth,
-        files_service: Files,
+        self, request: Request, auth_service: Auth, files_service: Files
     ) -> None:
         access_token = request.headers.get("Authorization")
 

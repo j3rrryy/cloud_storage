@@ -11,12 +11,7 @@ Base = declarative_base()
 class File(Base):
     __tablename__ = "files"
 
-    file_id = sa.Column(
-        UUID(False),
-        unique=True,
-        primary_key=True,
-        default=uuid.uuid4,
-    )
+    file_id = sa.Column(UUID(False), unique=True, primary_key=True, default=uuid.uuid4)
     user_id = sa.Column(UUID(False), nullable=False)
     name = sa.Column(sa.VARCHAR, nullable=False)
     path = sa.Column(sa.VARCHAR, unique=True, nullable=False)

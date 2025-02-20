@@ -11,10 +11,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def upload_file(
-        cls,
-        data: dict[str, str | int],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str | int], *, session: AsyncSession
     ) -> None:
         data["size"] = int(data["size"])
         data["path"] += data["name"]
@@ -24,10 +21,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def file_info(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> dict[str, str]:
         if cached := await cache.get(f"file_info-{data['user_id']}-{data['file_id']}"):
             return cached
@@ -41,10 +35,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def file_list(
-        cls,
-        user_id: str,
-        *,
-        session: AsyncSession,
+        cls, user_id: str, *, session: AsyncSession
     ) -> tuple[dict[str, str]]:
         if cached := await cache.get(f"file_list-{user_id}"):
             return cached
@@ -61,25 +52,19 @@ class DatabaseController:
     @classmethod
     @get_session
     async def delete_files(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> dict[str, str]:
         files = await CRUD.delete_files(data, session)
         await cache.delete(f"file_list-{data['user_id']}")
+
         for file_id in data["file_ids"]:
             await cache.delete(f"file_info-{data['user_id']}-{file_id}")
+
         return files
 
     @classmethod
     @get_session
-    async def delete_all_files(
-        cls,
-        user_id: str,
-        *,
-        session: AsyncSession,
-    ) -> None:
+    async def delete_all_files(cls, user_id: str, *, session: AsyncSession) -> None:
         await CRUD.delete_all_files(user_id, session)
         await cache.delete(f"file_list-{user_id}")
         await cache.delete_match(f"file_info-{user_id}-*")

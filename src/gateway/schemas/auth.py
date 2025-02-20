@@ -31,14 +31,7 @@ class ForgotPassword(BaseStruct):
 
 class ResetCode(BaseStruct):
     user_id: UUID
-    code: Annotated[
-        str,
-        Meta(
-            min_length=6,
-            max_length=6,
-            examples=["123456"],
-        ),
-    ]
+    code: Annotated[str, Meta(min_length=6, max_length=6, examples=["123456"])]
 
 
 class CodeIsValid(BaseStruct):

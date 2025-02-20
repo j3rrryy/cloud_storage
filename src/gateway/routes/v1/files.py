@@ -55,11 +55,7 @@ class FilesController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def file_info(
-        self,
-        file_id: UUID,
-        request: Request,
-        auth_service: Auth,
-        files_service: Files,
+        self, file_id: UUID, request: Request, auth_service: Auth, files_service: Files
     ) -> fm.FileInfo:
         access_token = request.headers.get("Authorization")
 
@@ -85,10 +81,7 @@ class FilesController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def file_list(
-        self,
-        request: Request,
-        auth_service: Auth,
-        files_service: Files,
+        self, request: Request, auth_service: Auth, files_service: Files
     ) -> fm.FileList:
         access_token = request.headers.get("Authorization")
 
@@ -105,11 +98,7 @@ class FilesController(Controller):
 
     @get("/download-file/{file_id: uuid}", status_code=200, response_class=Redirect)
     async def download_file(
-        self,
-        file_id: UUID,
-        request: Request,
-        auth_service: Auth,
-        files_service: Files,
+        self, file_id: UUID, request: Request, auth_service: Auth, files_service: Files
     ) -> Redirect:
         access_token = request.headers.get("Authorization")
 
@@ -154,10 +143,7 @@ class FilesController(Controller):
 
     @delete("/delete-all-files", status_code=204)
     async def delete_all_files(
-        self,
-        request: Request,
-        auth_service: Auth,
-        files_service: Files,
+        self, request: Request, auth_service: Auth, files_service: Files
     ) -> None:
         access_token = request.headers.get("Authorization")
 

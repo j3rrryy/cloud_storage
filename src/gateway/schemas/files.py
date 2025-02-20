@@ -9,13 +9,7 @@ from .base import BaseStruct
 
 class UploadFile(BaseStruct):
     name: str
-    path: Annotated[
-        str,
-        Meta(
-            pattern=r"^\/([^\/\\]+\/)*$",
-            examples=["/", "/path/"],
-        ),
-    ]
+    path: Annotated[str, Meta(pattern=r"^\/([^\/\\]+\/)*$", examples=["/", "/path/"])]
     size: int
 
 
@@ -26,13 +20,7 @@ class UploadURL(BaseStruct):
 class FileInfo(BaseStruct):
     file_id: UUID
     name: str
-    path: Annotated[
-        str,
-        Meta(
-            pattern=r"^\/([^\/\\]+\/)*$",
-            examples=["/", "/path/"],
-        ),
-    ]
+    path: Annotated[str, Meta(pattern=r"^\/([^\/\\]+\/)*$", examples=["/", "/path/"])]
     size: int
     uploaded: datetime.datetime
 

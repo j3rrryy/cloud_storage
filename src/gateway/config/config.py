@@ -89,5 +89,5 @@ def load_config():
             env("AUTH_SERVICE"),
             env("FILES_SERVICE"),
             env("KAFKA_SERVICE"),
-        ),
+        )
     )
