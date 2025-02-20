@@ -126,8 +126,7 @@ class CRUD:
             del data["old_token"]
 
             new_access_token = AccessToken(
-                access_token=data["access_token"],
-                refresh_token=data["refresh_token"],
+                access_token=data["access_token"], refresh_token=data["refresh_token"]
             )
             del data["access_token"]
             new_refresh_token = RefreshToken(**data)
@@ -266,10 +265,7 @@ class CRUD:
             raise exc
         except IntegrityError as exc:
             await session.rollback()
-            exc.args = (
-                StatusCode.ALREADY_EXISTS,
-                "Email address is already in use",
-            )
+            exc.args = (StatusCode.ALREADY_EXISTS, "Email address is already in use")
             raise exc
         except Exception as exc:
             await session.rollback()

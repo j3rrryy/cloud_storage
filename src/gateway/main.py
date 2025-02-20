@@ -28,7 +28,7 @@ app = Litestar(
 
 
 if __name__ == "__main__":
-    uvicorn.run(  # pragma: no cover
+    uvicorn.run(
         "main:app",
         loop="uvloop",
         host="0.0.0.0",

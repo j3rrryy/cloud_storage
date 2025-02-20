@@ -70,15 +70,13 @@ class CRUD:
             paginator = client.get_paginator("list_objects_v2")
 
             async for page in paginator.paginate(
-                Bucket=cls._BUCKET_NAME,
-                Prefix=f"{user_id}/",
+                Bucket=cls._BUCKET_NAME, Prefix=f"{user_id}/"
             ):
                 if page.get("Contents", 0):
                     delete_requests = [{"Key": obj["Key"]} for obj in page["Contents"]]
 
                     await client.delete_objects(
-                        Bucket=cls._BUCKET_NAME,
-                        Delete={"Objects": delete_requests},
+                        Bucket=cls._BUCKET_NAME, Delete={"Objects": delete_requests}
                     )
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, "Internal storage error")

@@ -12,12 +12,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
 
-    user_id = sa.Column(
-        UUID(False),
-        unique=True,
-        primary_key=True,
-        default=uuid4,
-    )
+    user_id = sa.Column(UUID(False), unique=True, primary_key=True, default=uuid4)
     username = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     email = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     password = sa.Column(sa.VARCHAR, nullable=False)
@@ -36,17 +31,10 @@ class User(Base):
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
-    token_id = sa.Column(
-        UUID(False),
-        unique=True,
-        primary_key=True,
-        default=uuid4,
-    )
+    token_id = sa.Column(UUID(False), unique=True, primary_key=True, default=uuid4)
     refresh_token = sa.Column(sa.VARCHAR, unique=True, nullable=False)
     user_id = sa.Column(
-        UUID(False),
-        sa.ForeignKey(User.user_id, ondelete="CASCADE"),
-        nullable=False,
+        UUID(False), sa.ForeignKey(User.user_id, ondelete="CASCADE"), nullable=False
     )
     user_ip = sa.Column(sa.VARCHAR, nullable=False)
     browser = sa.Column(sa.VARCHAR, nullable=False)

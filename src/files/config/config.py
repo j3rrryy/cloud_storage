@@ -75,22 +75,20 @@ def load_config():
     )
 
     return Config(
-        app=AppConfig(
-            logger=logger,
+        AppConfig(logger),
+        PostgresConfig(
+            env("POSTGRES_DRIVER"),
+            env("POSTGRES_USER"),
+            env("POSTGRES_PASSWORD"),
+            env("POSTGRES_HOST"),
+            env("POSTGRES_PORT"),
+            env("POSTGRES_DB"),
         ),
-        postgres=PostgresConfig(
-            driver=env("POSTGRES_DRIVER"),
-            user=env("POSTGRES_USER"),
-            password=env("POSTGRES_PASSWORD"),
-            host=env("POSTGRES_HOST"),
-            port=env("POSTGRES_PORT"),
-            database=env("POSTGRES_DB"),
-        ),
-        minio=MinioConfig(
-            access_key=env("MINIO_ROOT_USER"),
-            secret_key=env("MINIO_ROOT_PASSWORD"),
-            host=env("MINIO_HOST"),
-            port=env("MINIO_PORT"),
-            bucket=env("MINIO_FILES_BUCKET"),
+        MinioConfig(
+            env("MINIO_ROOT_USER"),
+            env("MINIO_ROOT_PASSWORD"),
+            env("MINIO_HOST"),
+            env("MINIO_PORT"),
+            env("MINIO_FILES_BUCKET"),
         ),
     )

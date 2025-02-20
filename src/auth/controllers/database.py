@@ -22,10 +22,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def register(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> dict[str, str]:
         data["password"] = get_hashed_password(data["password"])
         user_id = await CRUD.register(data, session)
@@ -39,10 +36,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def verify_email(
-        cls,
-        verification_token: str,
-        *,
-        session: AsyncSession,
+        cls, verification_token: str, *, session: AsyncSession
     ) -> None:
         validated, user_id = validate_jwt(
             verification_token, TokenTypes.VERIFICATION, cls._config
@@ -59,10 +53,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def request_reset_code(
-        cls,
-        email: str,
-        *,
-        session: AsyncSession,
+        cls, email: str, *, session: AsyncSession
     ) -> dict[str, str]:
         profile = await CRUD.profile(email, session)
         code = generate_reset_code()
@@ -88,10 +79,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def reset_password(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> None:
         code = await cache.get(f"reset-{data['user_id']}")
 
@@ -105,10 +93,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def log_in(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> dict[str, str | bool]:
         profile = await CRUD.profile(data["username"], session)
         password_is_valid = compare_passwords(data["password"], profile["password"])
@@ -120,9 +105,7 @@ class DatabaseController:
 
         access_token = generate_jwt(profile["user_id"], TokenTypes.ACCESS, cls._config)
         refresh_token = generate_jwt(
-            profile["user_id"],
-            TokenTypes.REFRESH,
-            cls._config,
+            profile["user_id"], TokenTypes.REFRESH, cls._config
         )
 
         data["user_id"] = profile["user_id"]
@@ -144,12 +127,7 @@ class DatabaseController:
 
     @classmethod
     @get_session
-    async def log_out(
-        cls,
-        access_token: str,
-        *,
-        session: AsyncSession,
-    ) -> None:
+    async def log_out(cls, access_token: str, *, session: AsyncSession) -> None:
         validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
         db_validated = await CRUD.validate_access_token(access_token, session)
 
@@ -162,10 +140,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def resend_verification_mail(
-        cls,
-        access_token: str,
-        *,
-        session: AsyncSession,
+        cls, access_token: str, *, session: AsyncSession
     ) -> dict[str, str]:
         validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
         db_validated = await CRUD.validate_access_token(access_token, session)
@@ -185,12 +160,7 @@ class DatabaseController:
 
     @classmethod
     @get_session
-    async def auth(
-        cls,
-        access_token: str,
-        *,
-        session: AsyncSession,
-    ) -> dict[str, str]:
+    async def auth(cls, access_token: str, *, session: AsyncSession) -> dict[str, str]:
         validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
         db_validated = await CRUD.validate_access_token(access_token, session)
 
@@ -207,10 +177,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def refresh(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> dict[str, str]:
         validated, user_id = validate_jwt(
             data["refresh_token"], TokenTypes.REFRESH, cls._config
@@ -237,10 +204,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def session_list(
-        cls,
-        access_token: str,
-        *,
-        session: AsyncSession,
+        cls, access_token: str, *, session: AsyncSession
     ) -> tuple[dict[str, str]]:
         validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
         db_validated = await CRUD.validate_access_token(access_token, session)
@@ -262,10 +226,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def revoke_session(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> None:
         access_token, refresh_token_id = data["access_token"], data["session_id"]
 
@@ -286,10 +247,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def profile(
-        cls,
-        access_token: str,
-        *,
-        session: AsyncSession,
+        cls, access_token: str, *, session: AsyncSession
     ) -> dict[str, str]:
         validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
         db_validated = await CRUD.validate_access_token(access_token, session)
@@ -307,10 +265,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def update_email(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> dict[str, str]:
         validated, user_id = validate_jwt(
             data["access_token"], TokenTypes.ACCESS, cls._config
@@ -335,10 +290,7 @@ class DatabaseController:
     @classmethod
     @get_session
     async def update_password(
-        cls,
-        data: dict[str, str],
-        *,
-        session: AsyncSession,
+        cls, data: dict[str, str], *, session: AsyncSession
     ) -> None:
         validated, user_id = validate_jwt(
             data["access_token"], TokenTypes.ACCESS, cls._config
@@ -354,12 +306,7 @@ class DatabaseController:
 
     @classmethod
     @get_session
-    async def delete_profile(
-        cls,
-        access_token: str,
-        *,
-        session: AsyncSession,
-    ) -> str:
+    async def delete_profile(cls, access_token: str, *, session: AsyncSession) -> str:
         validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
         db_validated = await CRUD.validate_access_token(access_token, session)
 
