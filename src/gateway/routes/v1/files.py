@@ -3,12 +3,13 @@ from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, post
 from litestar.enums import RequestEncodingType
-from litestar.exceptions import NotAuthorizedException, PermissionDeniedException
+from litestar.exceptions import PermissionDeniedException
 from litestar.params import Body
 from litestar.response import Redirect
 
 from schemas import files as fm
 from services import Auth, Files
+from utils import validate_access_token
 
 
 class FilesController(Controller):
@@ -16,7 +17,7 @@ class FilesController(Controller):
 
     @post(
         "/upload-file",
-        status_code=200,
+        status_code=201,
         response_model=fm.UploadURL,
         media_type=MediaType.MESSAGEPACK,
     )
@@ -29,12 +30,8 @@ class FilesController(Controller):
         auth_service: Auth,
         files_service: Files,
     ) -> fm.UploadURL:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
 
         if not user_info.get("verified", False):
             raise PermissionDeniedException(detail="Email not verified")
@@ -57,12 +54,8 @@ class FilesController(Controller):
     async def file_info(
         self, file_id: UUID, request: Request, auth_service: Auth, files_service: Files
     ) -> fm.FileInfo:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
 
         if not user_info.get("verified", False):
             raise PermissionDeniedException(detail="Email not verified")
@@ -83,12 +76,8 @@ class FilesController(Controller):
     async def file_list(
         self, request: Request, auth_service: Auth, files_service: Files
     ) -> fm.FileList:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
 
         if not user_info.get("verified", False):
             raise PermissionDeniedException(detail="Email not verified")
@@ -100,12 +89,8 @@ class FilesController(Controller):
     async def download_file(
         self, file_id: UUID, request: Request, auth_service: Auth, files_service: Files
     ) -> Redirect:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
 
         if not user_info.get("verified", False):
             raise PermissionDeniedException(detail="Email not verified")
@@ -125,12 +110,8 @@ class FilesController(Controller):
         auth_service: Auth,
         files_service: Files,
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
 
         if not user_info.get("verified", False):
             raise PermissionDeniedException(detail="Email not verified")
@@ -145,12 +126,8 @@ class FilesController(Controller):
     async def delete_all_files(
         self, request: Request, auth_service: Auth, files_service: Files
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
 
         if not user_info.get("verified", False):
             raise PermissionDeniedException(detail="Email not verified")

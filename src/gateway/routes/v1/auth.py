@@ -3,11 +3,11 @@ from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, patch, post
 from litestar.enums import RequestEncodingType
-from litestar.exceptions import NotAuthorizedException
 from litestar.params import Body
 
 from schemas import auth
 from services import Auth, Files, Mail
+from utils import validate_access_token
 
 
 class AuthController(Controller):
@@ -111,25 +111,15 @@ class AuthController(Controller):
 
     @post("/log-out", status_code=204)
     async def log_out(self, request: Request, auth_service: Auth) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        await auth_service.log_out(access_token.split()[1])
+        access_token = validate_access_token(request)
+        await auth_service.log_out(access_token)
 
     @post("/resend-verification-mail", status_code=204)
     async def resend_verification_mail(
         self, request: Request, auth_service: Auth, mail_service: Mail
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        verification_mail = await auth_service.resend_verification_mail(
-            access_token.split()[1]
-        )
+        access_token = validate_access_token(request)
+        verification_mail = await auth_service.resend_verification_mail(access_token)
         await mail_service.resend_verification_mail(verification_mail)
 
     @get(
@@ -139,12 +129,8 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def auth_user(self, request: Request, auth_service: Auth) -> auth.Auth:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_info = await auth_service.auth(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_info = await auth_service.auth(access_token)
         return auth.Auth(**user_info)
 
     @post(
@@ -178,12 +164,8 @@ class AuthController(Controller):
     async def session_list(
         self, request: Request, auth_service: Auth
     ) -> auth.SessionList:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        sessions = await auth_service.session_list(access_token.split()[1])
+        access_token = validate_access_token(request)
+        sessions = await auth_service.session_list(access_token)
         return auth.SessionList(
             tuple(auth.SessionInfo(**session) for session in sessions)
         )
@@ -197,14 +179,9 @@ class AuthController(Controller):
         request: Request,
         auth_service: Auth,
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
         request_data = {
-            "access_token": access_token.split()[1],
-            "session_id": data.session_id,
+            "access_token": validate_access_token(request),
+            "session_id": str(data.session_id),
         }
         await auth_service.revoke_session(request_data)
 
@@ -215,12 +192,8 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def profile(self, request: Request, auth_service: Auth) -> auth.Profile:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_profile = await auth_service.profile(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_profile = await auth_service.profile(access_token)
         return auth.Profile(**user_profile)
 
     @patch("/update-email", status_code=204)
@@ -233,13 +206,8 @@ class AuthController(Controller):
         auth_service: Auth,
         mail_service: Mail,
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
         request_data = {
-            "access_token": access_token.split()[1],
+            "access_token": validate_access_token(request),
             "new_email": data.new_email,
         }
         verification_mail = await auth_service.update_email(request_data)
@@ -254,13 +222,8 @@ class AuthController(Controller):
         request: Request,
         auth_service: Auth,
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
         request_data = {
-            "access_token": access_token.split()[1],
+            "access_token": validate_access_token(request),
             "old_password": data.old_password,
             "new_password": data.new_password,
         }
@@ -270,12 +233,8 @@ class AuthController(Controller):
     async def delete_profile(
         self, request: Request, auth_service: Auth, files_service: Files
     ) -> None:
-        access_token = request.headers.get("Authorization")
-
-        if not access_token:
-            raise NotAuthorizedException(detail="Token is invalid")
-
-        user_id = await auth_service.delete_profile(access_token.split()[1])
+        access_token = validate_access_token(request)
+        user_id = await auth_service.delete_profile(access_token)
         await files_service.delete_all_files(user_id)
 
 
