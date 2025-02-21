@@ -8,12 +8,12 @@ from uvicorn.config import LOGGING_CONFIG
 __all__ = ["Config", "load_config"]
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class AppConfig:
     logger: logging.Logger
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class PostgresConfig:
     driver: str
     user: str
@@ -23,7 +23,7 @@ class PostgresConfig:
     database: str
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class MinioConfig:
     access_key: str
     secret_key: str
@@ -32,7 +32,7 @@ class MinioConfig:
     bucket: str
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class Config:
     _instance = None
 

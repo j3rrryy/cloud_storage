@@ -11,7 +11,7 @@ from uvicorn.config import LOGGING_CONFIG
 __all__ = ["Config", "load_config"]
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class AppConfig:
     debug: bool
     litestar_logging_config: LoggingConfig
@@ -23,7 +23,7 @@ class AppConfig:
     kafka_service: str
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class Config:
     _instance = None
 
