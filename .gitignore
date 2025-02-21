@@ -1,6 +1,8 @@
 .vscode/
 venv/
 __pycache__/
+/src/**/.env
+/src/**/.coverage
 /dev/.env
 /dev/redis.conf
 /prod/.env

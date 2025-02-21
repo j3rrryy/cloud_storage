@@ -4,6 +4,9 @@
   <a href="https://github.com/j3rrryy/cloud_storage/actions/workflows/main.yml">
     <img src="https://github.com/j3rrryy/cloud_storage/actions/workflows/main.yml/badge.svg" alt="СI/CD">
   </a>
+  <a href="https://codecov.io/gh/j3rrryy/cloud_storage">
+    <img src="https://codecov.io/gh/j3rrryy/cloud_storage/graph/badge.svg?token=XYDO0P4U7P" alt="Codecov">
+  </a>
   <a href="https://www.python.org/downloads/release/python-3120/">
     <img src="https://img.shields.io/badge/Python-3.12-FFD64E.svg" alt="Python 3.12">
   </a>
@@ -30,10 +33,6 @@
 - Message broker between Gateway and Mail service - Apache Kafka
 - Monitoring - Prometheus & Grafana
 - Log aggregation - Promtail & Loki & Grafana
-
-## :memo: To-Do list
-
-- Tests
 
 ![Architecture](https://github.com/j3rrryy/cloud_storage/blob/main/images/architecture.webp?raw=true)
 
@@ -86,6 +85,28 @@
 
     ```shell
     bash deploy.sh
+    ```
+
+### :construction_worker: Maintenance
+
+- Run tests
+
+  - Get access to the container
+
+    ```shell
+    docker exec -it <container_name> sh
+    ```
+
+  - Install testing dependencies
+
+    ```shell
+    pip install -r ./tests/requirements.test.txt
+    ```
+
+  - Use this command
+
+    ```shell
+    pytest
     ```
 
 ### :x: Stop
