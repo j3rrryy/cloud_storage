@@ -3,6 +3,8 @@
 **/.gitignore
 **/__pycache__
 **/.ruff_cache
+.env
+.coverage
 venv
 Dockerfile
 .dockerignore
