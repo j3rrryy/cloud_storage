@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import msgspec
 import pytest
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
@@ -60,7 +58,7 @@ async def test_request_reset(verified_client: AsyncTestClient):
 
 @pytest.mark.asyncio
 async def test_validate_reset_code(verified_client: AsyncTestClient):
-    data = auth.ResetCode(UUID(USER_ID), CODE)
+    data = auth.ResetCode(USER_ID, CODE)
     response = await verified_client.post(
         f"{PREFIX}/validate-reset-code",
         content=msgspec.msgpack.encode(data),
@@ -74,7 +72,7 @@ async def test_validate_reset_code(verified_client: AsyncTestClient):
 
 @pytest.mark.asyncio
 async def test_reset_password(verified_client: AsyncTestClient):
-    data = auth.ResetPassword(UUID(USER_ID), PASSWORD)
+    data = auth.ResetPassword(USER_ID, PASSWORD)
     response = await verified_client.post(
         f"{PREFIX}/reset-password",
         content=msgspec.msgpack.encode(data),
@@ -190,7 +188,7 @@ async def test_session_list(verified_client: AsyncTestClient):
 
 @pytest.mark.asyncio
 async def test_revoke_session(verified_client: AsyncTestClient):
-    data = auth.SessionId(UUID(SESSION_ID))
+    data = auth.SessionId(SESSION_ID)
     response = await verified_client.post(
         f"{PREFIX}/revoke-session",
         content=msgspec.msgpack.encode(data),

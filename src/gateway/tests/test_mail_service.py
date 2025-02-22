@@ -1,5 +1,6 @@
 import pytest
 
+from dto import mail
 from services import Mail
 from utils import MailTypes
 
@@ -7,62 +8,31 @@ from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
 
 @pytest.mark.asyncio
-async def test_register(mail_service: Mail):
-    data = {
-        "verification_token": VERIFICATION_TOKEN,
-        "username": USERNAME,
-        "email": EMAIL,
-    }
-    await mail_service.register(data)
+async def test_verification(mail_service: Mail):
+    dto = mail.VerificationMailDTO(
+        verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
+    )
+    await mail_service.verification(dto)
     mail_service._producer.send.assert_called_once_with(
-        MailTypes.VERIFICATION.name, mail_service.serialize_dict(data)
+        MailTypes.VERIFICATION.name, mail_service.serialize_dict(dto.dict())
     )
 
 
 @pytest.mark.asyncio
-async def test_request_reset_code(mail_service: Mail):
-    data = {"username": USERNAME, "email": EMAIL, "code": CODE}
-    await mail_service.request_reset_code(data)
+async def test_info(mail_service: Mail):
+    dto = mail.InfoMailDTO(
+        username=USERNAME, email=EMAIL, user_ip=USER_IP, browser=BROWSER
+    )
+    await mail_service.info(dto)
     mail_service._producer.send.assert_called_once_with(
-        MailTypes.RESET.name, mail_service.serialize_dict(data)
+        MailTypes.INFO.name, mail_service.serialize_dict(dto.dict())
     )
 
 
 @pytest.mark.asyncio
-async def test_log_in(mail_service: Mail):
-    data = {
-        "username": USERNAME,
-        "email": EMAIL,
-        "user_ip": USER_IP,
-        "browser": BROWSER,
-    }
-    await mail_service.log_in(data)
+async def test_reset(mail_service: Mail):
+    dto = mail.ResetMailDTO(code=CODE, username=USERNAME, email=EMAIL)
+    await mail_service.reset(dto)
     mail_service._producer.send.assert_called_once_with(
-        MailTypes.INFO.name, mail_service.serialize_dict(data)
-    )
-
-
-@pytest.mark.asyncio
-async def test_resend_verification_mail(mail_service: Mail):
-    data = {
-        "verification_token": VERIFICATION_TOKEN,
-        "username": USERNAME,
-        "email": EMAIL,
-    }
-    await mail_service.resend_verification_mail(data)
-    mail_service._producer.send.assert_called_once_with(
-        MailTypes.VERIFICATION.name, mail_service.serialize_dict(data)
-    )
-
-
-@pytest.mark.asyncio
-async def test_update_email(mail_service: Mail):
-    data = {
-        "verification_token": VERIFICATION_TOKEN,
-        "username": USERNAME,
-        "email": EMAIL,
-    }
-    await mail_service.update_email(data)
-    mail_service._producer.send.assert_called_once_with(
-        MailTypes.VERIFICATION.name, mail_service.serialize_dict(data)
+        MailTypes.RESET.name, mail_service.serialize_dict(dto.dict())
     )

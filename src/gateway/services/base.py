@@ -1,5 +1,6 @@
 import pickle
 from functools import wraps
+from typing import Type, TypeVar
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
@@ -11,6 +12,10 @@ from litestar.exceptions import (
     NotFoundException,
     PermissionDeniedException,
 )
+
+from dto.base import BaseDTO
+
+T = TypeVar("T", bound=BaseDTO)
 
 
 class RPCBase:
@@ -50,8 +55,8 @@ class RPCBase:
         return wrapper
 
     @staticmethod
-    def convert_to_dict(data: Message) -> dict:
-        return MessageToDict(data, preserving_proto_field_name=True)
+    def convert_to_dto(data: Message, dto: Type[T]) -> T:
+        return dto(**MessageToDict(data, preserving_proto_field_name=True))
 
 
 class KafkaBase:

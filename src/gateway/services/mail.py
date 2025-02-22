@@ -1,26 +1,21 @@
+from dto import mail
 from utils import MailTypes
 
 from .base import KafkaBase
 
 
 class Mail(KafkaBase):
-    async def register(self, verification_mail: dict[str, str]) -> None:
+    async def verification(self, verification_mail: mail.VerificationMailDTO) -> None:
         await self._producer.send(
-            MailTypes.VERIFICATION.name, self.serialize_dict(verification_mail)
+            MailTypes.VERIFICATION.name, self.serialize_dict(verification_mail.dict())
         )
 
-    async def request_reset_code(self, reset_mail: dict[str, str]) -> None:
-        await self._producer.send(MailTypes.RESET.name, self.serialize_dict(reset_mail))
-
-    async def log_in(self, info_mail: dict[str, str]) -> None:
-        await self._producer.send(MailTypes.INFO.name, self.serialize_dict(info_mail))
-
-    async def resend_verification_mail(self, verification_mail: dict[str, str]) -> None:
+    async def info(self, info_mail: mail.InfoMailDTO) -> None:
         await self._producer.send(
-            MailTypes.VERIFICATION.name, self.serialize_dict(verification_mail)
+            MailTypes.INFO.name, self.serialize_dict(info_mail.dict())
         )
 
-    async def update_email(self, verification_mail: dict[str, str]) -> None:
+    async def reset(self, reset_mail: mail.ResetMailDTO) -> None:
         await self._producer.send(
-            MailTypes.VERIFICATION.name, self.serialize_dict(verification_mail)
+            MailTypes.RESET.name, self.serialize_dict(reset_mail.dict())
         )
