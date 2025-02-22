@@ -1,11 +1,12 @@
 from typing import Annotated
-from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, patch, post
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
 
-from schemas import auth
+from dto import auth as auth_dto
+from dto import mail as mail_dto
+from schemas import auth as auth_schemas
 from services import Auth, Files, Mail
 from utils import validate_access_token
 
@@ -17,13 +18,14 @@ class AuthController(Controller):
     async def register(
         self,
         data: Annotated[
-            auth.Registration, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.Registration, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         auth_service: Auth,
         mail_service: Mail,
     ) -> None:
-        verification_mail = await auth_service.register(data.to_dict())
-        await mail_service.register(verification_mail)
+        dto = auth_dto.RegistrationDTO.from_struct(data)
+        verification_mail = await auth_service.register(dto)
+        await mail_service.verification(verification_mail)
 
     @get("/verify-email", status_code=204)
     async def verify_email(self, verification_token: str, auth_service: Auth) -> None:
@@ -32,82 +34,81 @@ class AuthController(Controller):
     @post(
         "/request-reset-code",
         status_code=200,
-        response_model=auth.UserId,
+        response_model=auth_schemas.UserId,
         media_type=MediaType.MESSAGEPACK,
     )
     async def request_reset_code(
         self,
         data: Annotated[
-            auth.ForgotPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.ForgotPassword,
+            Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         auth_service: Auth,
         mail_service: Mail,
-    ) -> auth.UserId:
-        reset_code = await auth_service.request_reset_code(data.email)
-        reset_code["email"] = data.email
-        user_id = reset_code["user_id"]
-        del reset_code["user_id"]
-        await mail_service.request_reset_code(reset_code)
-        return auth.UserId(UUID(user_id))
+    ) -> auth_schemas.UserId:
+        reset_info = await auth_service.request_reset_code(data.email)
+        dto = mail_dto.ResetMailDTO(reset_info.code, reset_info.username, data.email)
+        await mail_service.reset(dto)
+        return auth_schemas.UserId(reset_info.user_id)
 
     @post(
         "/validate-reset-code",
         status_code=200,
-        response_model=auth.CodeIsValid,
+        response_model=auth_schemas.CodeIsValid,
         media_type=MediaType.MESSAGEPACK,
     )
     async def validate_reset_code(
         self,
         data: Annotated[
-            auth.ResetCode, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.ResetCode, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         auth_service: Auth,
-    ) -> auth.CodeIsValid:
-        is_valid = await auth_service.validate_code(data.to_dict())
-        return auth.CodeIsValid(is_valid)
+    ) -> auth_schemas.CodeIsValid:
+        dto = auth_dto.ResetCodeDTO.from_struct(data)
+        is_valid = await auth_service.validate_code(dto)
+        return auth_schemas.CodeIsValid(is_valid)
 
     @post("/reset-password", status_code=204)
     async def reset_password(
         self,
         data: Annotated[
-            auth.ResetPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.ResetPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         auth_service: Auth,
     ) -> None:
-        await auth_service.reset_password(data.to_dict())
+        dto = auth_dto.ResetPasswordDTO.from_struct(data)
+        await auth_service.reset_password(dto)
 
     @post(
         "/log-in",
         status_code=200,
-        response_model=auth.Tokens,
+        response_model=auth_schemas.Tokens,
         media_type=MediaType.MESSAGEPACK,
     )
     async def log_in(
         self,
-        data: Annotated[auth.LogIn, Body(media_type=RequestEncodingType.MESSAGEPACK)],
+        data: Annotated[
+            auth_schemas.LogIn, Body(media_type=RequestEncodingType.MESSAGEPACK)
+        ],
         request: Request,
         auth_service: Auth,
         mail_service: Mail,
-    ) -> auth.Tokens:
-        request_data = {
-            "username": data.username,
-            "password": data.password,
-            "user_ip": request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
-            "user_agent": request.headers.get("User-Agent", "Unknown"),
-        }
-        login_data = await auth_service.log_in(request_data)
+    ) -> auth_schemas.Tokens:
+        dto = auth_dto.LogInDTO(
+            data.username,
+            data.password,
+            request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
+            request.headers.get("User-Agent", "Unknown"),
+        )
+        login_data = await auth_service.log_in(dto)
 
-        if login_data.get("verified", False):
-            del request_data["password"], request_data["user_agent"]
-            request_data["browser"] = login_data["browser"]
-            request_data["email"] = login_data["email"]
-            await mail_service.log_in(request_data)
+        if login_data.verified:
+            info_mail = mail_dto.InfoMailDTO(
+                data.username, login_data.email, dto.user_ip, login_data.browser
+            )
+            await mail_service.info(info_mail)
 
-        tokens = {
-            "access_token": login_data["access_token"],
-            "refresh_token": login_data["refresh_token"],
-        }
-        return auth.Tokens(**tokens)
+        return auth_schemas.Tokens(login_data.access_token, login_data.refresh_token)
 
     @post("/log-out", status_code=204)
     async def log_out(self, request: Request, auth_service: Auth) -> None:
@@ -120,114 +121,111 @@ class AuthController(Controller):
     ) -> None:
         access_token = validate_access_token(request)
         verification_mail = await auth_service.resend_verification_mail(access_token)
-        await mail_service.resend_verification_mail(verification_mail)
+        await mail_service.verification(verification_mail)
 
     @get(
         "/auth",
         status_code=200,
-        response_model=auth.Auth,
+        response_model=auth_schemas.Auth,
         media_type=MediaType.MESSAGEPACK,
     )
-    async def auth_user(self, request: Request, auth_service: Auth) -> auth.Auth:
+    async def auth_user(
+        self, request: Request, auth_service: Auth
+    ) -> auth_schemas.Auth:
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
-        return auth.Auth(**user_info)
+        return auth_schemas.Auth(**user_info.dict())
 
     @post(
         "/refresh",
         status_code=201,
-        response_model=auth.Tokens,
+        response_model=auth_schemas.Tokens,
         media_type=MediaType.MESSAGEPACK,
     )
     async def refresh(
         self,
         data: Annotated[
-            auth.RefreshToken, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.RefreshToken, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
         auth_service: Auth,
-    ) -> auth.Tokens:
-        request_data = {
-            "refresh_token": data.refresh_token,
-            "user_ip": request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
-            "user_agent": request.headers.get("User-Agent", "Unknown"),
-        }
-        tokens = await auth_service.refresh(request_data)
-        return auth.Tokens(**tokens)
+    ) -> auth_schemas.Tokens:
+        dto = auth_dto.RefreshDTO(
+            data.refresh_token,
+            request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
+            request.headers.get("User-Agent", "Unknown"),
+        )
+        tokens = await auth_service.refresh(dto)
+        return auth_schemas.Tokens(**tokens.dict())
 
     @get(
         "/session-list",
         status_code=200,
-        response_model=auth.SessionList,
+        response_model=auth_schemas.SessionList,
         media_type=MediaType.MESSAGEPACK,
     )
     async def session_list(
         self, request: Request, auth_service: Auth
-    ) -> auth.SessionList:
+    ) -> auth_schemas.SessionList:
         access_token = validate_access_token(request)
         sessions = await auth_service.session_list(access_token)
-        return auth.SessionList(
-            tuple(auth.SessionInfo(**session) for session in sessions)
+        return auth_schemas.SessionList(
+            tuple(auth_schemas.SessionInfo(**session.dict()) for session in sessions)
         )
 
     @post("/revoke-session", status_code=204)
     async def revoke_session(
         self,
         data: Annotated[
-            auth.SessionId, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.SessionId, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
         auth_service: Auth,
     ) -> None:
-        request_data = {
-            "access_token": validate_access_token(request),
-            "session_id": str(data.session_id),
-        }
-        await auth_service.revoke_session(request_data)
+        dto = auth_dto.RevokeSessionDTO(validate_access_token(request), data.session_id)
+        await auth_service.revoke_session(dto)
 
     @get(
         "/profile",
         status_code=200,
-        response_model=auth.Profile,
+        response_model=auth_schemas.Profile,
         media_type=MediaType.MESSAGEPACK,
     )
-    async def profile(self, request: Request, auth_service: Auth) -> auth.Profile:
+    async def profile(
+        self, request: Request, auth_service: Auth
+    ) -> auth_schemas.Profile:
         access_token = validate_access_token(request)
         user_profile = await auth_service.profile(access_token)
-        return auth.Profile(**user_profile)
+        return auth_schemas.Profile(**user_profile.dict())
 
     @patch("/update-email", status_code=204)
     async def update_email(
         self,
         data: Annotated[
-            auth.UpdateEmail, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.UpdateEmail, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
         auth_service: Auth,
         mail_service: Mail,
     ) -> None:
-        request_data = {
-            "access_token": validate_access_token(request),
-            "new_email": data.new_email,
-        }
-        verification_mail = await auth_service.update_email(request_data)
-        await mail_service.update_email(verification_mail)
+        dto = auth_dto.UpdateEmailDTO(validate_access_token(request), data.new_email)
+        verification_mail = await auth_service.update_email(dto)
+        await mail_service.verification(verification_mail)
 
     @patch("/update-password", status_code=204)
     async def update_password(
         self,
         data: Annotated[
-            auth.UpdatePassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            auth_schemas.UpdatePassword,
+            Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         request: Request,
         auth_service: Auth,
     ) -> None:
-        request_data = {
-            "access_token": validate_access_token(request),
-            "old_password": data.old_password,
-            "new_password": data.new_password,
-        }
-        await auth_service.update_password(request_data)
+        dto = auth_dto.UpdatePasswordDTO(
+            validate_access_token(request), data.old_password, data.new_password
+        )
+        await auth_service.update_password(dto)
 
     @delete("/delete-profile", status_code=204)
     async def delete_profile(

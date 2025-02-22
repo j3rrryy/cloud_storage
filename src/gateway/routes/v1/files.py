@@ -7,6 +7,7 @@ from litestar.exceptions import PermissionDeniedException
 from litestar.params import Body
 from litestar.response import Redirect
 
+from dto import files as files_dto
 from schemas import files as fm
 from services import Auth, Files
 from utils import validate_access_token
@@ -33,16 +34,13 @@ class FilesController(Controller):
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
 
-        if not user_info.get("verified", False):
+        if not user_info.verified:
             raise PermissionDeniedException(detail="Email not verified")
 
-        request_data = {
-            "user_id": user_info["user_id"],
-            "name": data.name,
-            "path": data.path,
-            "size": data.size,
-        }
-        upload_url = await files_service.upload_file(request_data)
+        dto = files_dto.UploadFileDTO(
+            user_info.user_id, data.name, data.path, data.size
+        )
+        upload_url = await files_service.upload_file(dto)
         return fm.UploadURL(upload_url)
 
     @get(
@@ -57,15 +55,12 @@ class FilesController(Controller):
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
 
-        if not user_info.get("verified", False):
+        if not user_info.verified:
             raise PermissionDeniedException(detail="Email not verified")
 
-        request_data = {
-            "user_id": user_info["user_id"],
-            "file_id": str(file_id),
-        }
-        info = await files_service.file_info(request_data)
-        return fm.FileInfo(**info)
+        dto = files_dto.FileDTO(user_info.user_id, str(file_id))
+        file_info = await files_service.file_info(dto)
+        return fm.FileInfo(**file_info.dict())
 
     @get(
         "/file-list",
@@ -79,11 +74,11 @@ class FilesController(Controller):
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
 
-        if not user_info.get("verified", False):
+        if not user_info.verified:
             raise PermissionDeniedException(detail="Email not verified")
 
-        files = await files_service.file_list(user_info["user_id"])
-        return fm.FileList(tuple(fm.FileInfo(**file) for file in files))
+        files = await files_service.file_list(user_info.user_id)
+        return fm.FileList(tuple(fm.FileInfo(**file.dict()) for file in files))
 
     @get("/download-file/{file_id: uuid}", status_code=200, response_class=Redirect)
     async def download_file(
@@ -92,14 +87,11 @@ class FilesController(Controller):
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
 
-        if not user_info.get("verified", False):
+        if not user_info.verified:
             raise PermissionDeniedException(detail="Email not verified")
 
-        request_data = {
-            "user_id": user_info["user_id"],
-            "file_id": str(file_id),
-        }
-        file_url = await files_service.download_file(request_data)
+        dto = files_dto.FileDTO(user_info.user_id, str(file_id))
+        file_url = await files_service.download_file(dto)
         return Redirect(file_url)
 
     @delete("/delete-files", status_code=204)
@@ -113,14 +105,11 @@ class FilesController(Controller):
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
 
-        if not user_info.get("verified", False):
+        if not user_info.verified:
             raise PermissionDeniedException(detail="Email not verified")
 
-        request_data = {
-            "user_id": user_info["user_id"],
-            "file_ids": tuple(map(str, file_id)),
-        }
-        await files_service.delete_files(request_data)
+        dto = files_dto.DeleteFilesDTO(user_info.user_id, tuple(map(str, file_id)))
+        await files_service.delete_files(dto)
 
     @delete("/delete-all-files", status_code=204)
     async def delete_all_files(
@@ -129,10 +118,10 @@ class FilesController(Controller):
         access_token = validate_access_token(request)
         user_info = await auth_service.auth(access_token)
 
-        if not user_info.get("verified", False):
+        if not user_info.verified:
             raise PermissionDeniedException(detail="Email not verified")
 
-        await files_service.delete_all_files(user_info["user_id"])
+        await files_service.delete_all_files(user_info.user_id)
 
 
 files_router = Router("/v1", route_handlers=(FilesController,), tags=("files",))
