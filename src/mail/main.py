@@ -5,8 +5,8 @@ from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
 from config import load_config
+from kafka import connect_kafka_service
 from service import MailService
-from services import connect_kafka_service
 
 
 async def start_mail_server():
