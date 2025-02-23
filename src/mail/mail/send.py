@@ -4,20 +4,19 @@ from email.mime import multipart, text
 from aiosmtplib import SMTP
 
 from config import load_config
+from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 
 
 class Mail:
     _config = load_config()
 
     @classmethod
-    async def verification(cls, message: dict[str, str], smtp: SMTP) -> None:
+    async def verification(cls, mail: VerificationMailDTO, smtp: SMTP) -> None:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Confirm Your Email"
         msg["From"] = cls._config.smtp.username
-        msg["To"] = message["email"]
-        verification_url = (
-            cls._config.app.verification_url + message["verification_token"]
-        )
+        msg["To"] = mail.email
+        verification_url = cls._config.app.verification_url + mail.verification_token
 
         html_content = f"""
         <!DOCTYPE html>
@@ -76,7 +75,7 @@ class Mail:
                     Confirm Your Email
                 </div>
                 <div class="email-content">
-                    <p>Hello, {message["username"]}!</p>
+                    <p>Hello, {mail.username}!</p>
                     <p>Please confirm your email address by clicking the button below:</p>
                     <a href="{verification_url}" class="button">Confirm Email</a>
                     <p>This link is valid for 3 days.</p>
@@ -93,11 +92,11 @@ class Mail:
         await smtp.send_message(msg)
 
     @classmethod
-    async def info(cls, message: dict[str, str], smtp: SMTP) -> None:
+    async def info(cls, mail: InfoMailDTO, smtp: SMTP) -> None:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Login Information"
         msg["From"] = cls._config.smtp.username
-        msg["To"] = message["email"]
+        msg["To"] = mail.email
 
         html_content = f"""
         <!DOCTYPE html>
@@ -143,9 +142,9 @@ class Mail:
                     Login Information
                 </div>
                 <div class="email-content">
-                    <p>Hello, {message["username"]}!</p>
-                    <p>We noticed a login to your account from the following IP address: <strong>{message["user_ip"]}</strong></p>
-                    <p>Browser: <strong>{message["browser"]}</strong></p>
+                    <p>Hello, {mail.username}!</p>
+                    <p>We noticed a login to your account from the following IP address: <strong>{mail.user_ip}</strong></p>
+                    <p>Browser: <strong>{mail.browser}</strong></p>
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
@@ -159,11 +158,11 @@ class Mail:
         await smtp.send_message(msg)
 
     @classmethod
-    async def reset(cls, message: dict[str, str], smtp: SMTP) -> None:
+    async def reset(cls, mail: ResetMailDTO, smtp: SMTP) -> None:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Reset Your Password"
         msg["From"] = cls._config.smtp.username
-        msg["To"] = message["email"]
+        msg["To"] = mail.email
 
         html_content = f"""
         <!DOCTYPE html>
@@ -215,9 +214,9 @@ class Mail:
                     Reset Your Password
                 </div>
                 <div class="email-content">
-                    <p>Hello, {message["username"]}!</p>
+                    <p>Hello, {mail.username}!</p>
                     <p>Use the following code to reset your password:</p>
-                    <div class="reset-code">{message["code"]}</div>
+                    <div class="reset-code">{mail.code}</div>
                     <p>This code is valid for 10 minutes.</p>
                 </div>
                 <div class="email-footer">
