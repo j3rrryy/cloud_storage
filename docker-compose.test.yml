@@ -1,0 +1,38 @@
+services:
+  gateway:
+    image: ghcr.io/j3rrryy/cloud_storage:gateway-latest
+    env_file:
+      - ./test/.env
+    command: bash -c "
+      pip install -r ./tests/requirements.test.txt &&
+      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+    container_name: gateway_test
+
+  auth:
+    image: ghcr.io/j3rrryy/cloud_storage:auth-latest
+    env_file:
+      - ./test/.env
+    command: bash -c "
+      pip install -r ./tests/requirements.test.txt &&
+      alembic -c "./config/alembic.ini" upgrade head &&
+      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+    container_name: auth_test
+
+  files:
+    image: ghcr.io/j3rrryy/cloud_storage:files-latest
+    env_file:
+      - ./test/.env
+    command: bash -c "
+      pip install -r ./tests/requirements.test.txt &&
+      alembic -c "./config/alembic.ini" upgrade head &&
+      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+    container_name: files_test
+
+  mail:
+    image: ghcr.io/j3rrryy/cloud_storage:mail-latest
+    env_file:
+      - ./test/.env
+    command: bash -c "
+      pip install -r ./tests/requirements.test.txt &&
+      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+    container_name: mail_test
