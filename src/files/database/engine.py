@@ -15,7 +15,7 @@ def _get_sessionmaker() -> async_sessionmaker[AsyncSession]:
         config.postgres.user,
         config.postgres.password,
         config.postgres.host,
-        int(config.postgres.port),
+        config.postgres.port,
         config.postgres.database,
     )
 
@@ -31,7 +31,7 @@ def get_session(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         async with _sessionmaker() as session:
-            result = await func(*args, **kwargs, session=session)
-            return result
+            res = await func(*args, **kwargs, session=session)
+            return res
 
     return wrapper

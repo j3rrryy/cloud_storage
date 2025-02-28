@@ -28,7 +28,8 @@ class DatabaseController:
 
         info = await CRUD.file_info(data["file_id"], session)
         info["path"] = info["path"][: info["path"].rfind("/") + 1]
-        del info["user_id"]
+        info["file_id"] = info["id"]
+        del info["user_id"], info["id"]
         await cache.set(f"file_info-{data['user_id']}-{data['file_id']}", info, 3600)
         return info
 
@@ -43,8 +44,9 @@ class DatabaseController:
         files = await CRUD.file_list(user_id, session)
 
         for file in files:
+            file["file_id"] = file["id"]
             file["path"] = file["path"][: file["path"].rfind("/") + 1]
-            del file["user_id"]
+            del file["user_id"], file["id"]
 
         await cache.set(f"file_list-{user_id}", files, 3600)
         return files

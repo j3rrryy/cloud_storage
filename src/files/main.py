@@ -22,7 +22,7 @@ async def start_grpc_server():
     server = grpc.aio.server(
         migration_thread_pool=futures.ThreadPoolExecutor(10),
         interceptors=(
-            AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),
+            AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),  # type: ignore
             PromAsyncServerInterceptor(enable_handling_time_histogram=True),
         ),
         compression=grpc.Compression.Deflate,
@@ -49,4 +49,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    uvloop.run(main())
+    uvloop.run(main())  # pragma: no cover
