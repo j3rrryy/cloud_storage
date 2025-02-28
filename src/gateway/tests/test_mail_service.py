@@ -1,14 +1,13 @@
 import pytest
 
 from dto import mail
-from services import Mail
 from utils import MailTypes
 
 from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
 
 @pytest.mark.asyncio
-async def test_verification(mail_service: Mail):
+async def test_verification(mail_service):
     dto = mail.VerificationMailDTO(
         verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
     )
@@ -19,7 +18,7 @@ async def test_verification(mail_service: Mail):
 
 
 @pytest.mark.asyncio
-async def test_info(mail_service: Mail):
+async def test_info(mail_service):
     dto = mail.InfoMailDTO(
         username=USERNAME, email=EMAIL, user_ip=USER_IP, browser=BROWSER
     )
@@ -30,7 +29,7 @@ async def test_info(mail_service: Mail):
 
 
 @pytest.mark.asyncio
-async def test_reset(mail_service: Mail):
+async def test_reset(mail_service):
     dto = mail.ResetMailDTO(code=CODE, username=USERNAME, email=EMAIL)
     await mail_service.reset(dto)
     mail_service._producer.send.assert_called_once_with(

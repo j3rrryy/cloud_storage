@@ -6,7 +6,6 @@ from litestar.status_codes import (
     HTTP_204_NO_CONTENT,
     HTTP_403_FORBIDDEN,
 )
-from litestar.testing import AsyncTestClient
 
 from schemas import files
 
@@ -16,7 +15,7 @@ PREFIX = "/api/v1/files"
 
 
 @pytest.mark.asyncio
-async def test_upload_file(verified_client: AsyncTestClient):
+async def test_upload_file(verified_client):
     data = files.UploadFile(NAME, PATH, SIZE)
     response = await verified_client.post(
         f"{PREFIX}/upload-file",
@@ -33,7 +32,7 @@ async def test_upload_file(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_upload_file(unverified_client: AsyncTestClient):
+async def test_unverified_upload_file(unverified_client):
     data = files.UploadFile(NAME, PATH, SIZE)
     response = await unverified_client.post(
         f"{PREFIX}/upload-file",
@@ -49,7 +48,7 @@ async def test_unverified_upload_file(unverified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_file_info(verified_client: AsyncTestClient):
+async def test_file_info(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/file-info/{FILE_ID}",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -67,7 +66,7 @@ async def test_file_info(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_file_info(unverified_client: AsyncTestClient):
+async def test_unverified_file_info(unverified_client):
     response = await unverified_client.get(
         f"{PREFIX}/file-info/{FILE_ID}",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -77,7 +76,7 @@ async def test_unverified_file_info(unverified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_file_list(verified_client: AsyncTestClient):
+async def test_file_list(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/file-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
@@ -98,7 +97,7 @@ async def test_file_list(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_file_list(unverified_client: AsyncTestClient):
+async def test_unverified_file_list(unverified_client):
     response = await unverified_client.get(
         f"{PREFIX}/file-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
@@ -107,7 +106,7 @@ async def test_unverified_file_list(unverified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_download_file(verified_client: AsyncTestClient):
+async def test_download_file(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/download-file/{FILE_ID}",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -117,7 +116,7 @@ async def test_download_file(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_download_file(unverified_client: AsyncTestClient):
+async def test_unverified_download_file(unverified_client):
     response = await unverified_client.get(
         f"{PREFIX}/download-file/{FILE_ID}",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -128,7 +127,7 @@ async def test_unverified_download_file(unverified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_delete_files(verified_client: AsyncTestClient):
+async def test_delete_files(verified_client):
     response = await verified_client.delete(
         f"{PREFIX}/delete-files",
         params={"file_id": (FILE_ID,)},
@@ -138,7 +137,7 @@ async def test_delete_files(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_delete_files(unverified_client: AsyncTestClient):
+async def test_unverified_delete_files(unverified_client):
     response = await unverified_client.delete(
         f"{PREFIX}/delete-files",
         params={"file_id": (FILE_ID,)},
@@ -149,7 +148,7 @@ async def test_unverified_delete_files(unverified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_delete_all_files(verified_client: AsyncTestClient):
+async def test_delete_all_files(verified_client):
     response = await verified_client.delete(
         f"{PREFIX}/delete-all-files",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -158,7 +157,7 @@ async def test_delete_all_files(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_delete_all_files(unverified_client: AsyncTestClient):
+async def test_unverified_delete_all_files(unverified_client):
     response = await unverified_client.delete(
         f"{PREFIX}/delete-all-files",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},

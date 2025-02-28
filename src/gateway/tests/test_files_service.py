@@ -1,20 +1,19 @@
 import pytest
 
 from dto import files as files_dto
-from services import Files
 
 from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, URL, USER_ID
 
 
 @pytest.mark.asyncio
-async def test_upload_file(files_service: Files):
+async def test_upload_file(files_service):
     dto = files_dto.UploadFileDTO(USER_ID, NAME, PATH, SIZE)
     response = await files_service.upload_file(dto)
     assert response == URL
 
 
 @pytest.mark.asyncio
-async def test_file_info(files_service: Files):
+async def test_file_info(files_service):
     dto = files_dto.FileDTO(USER_ID, FILE_ID)
     response = await files_service.file_info(dto)
     assert response.file_id == FILE_ID
@@ -25,7 +24,7 @@ async def test_file_info(files_service: Files):
 
 
 @pytest.mark.asyncio
-async def test_file_list(files_service: Files):
+async def test_file_list(files_service):
     response = await files_service.file_list(USER_ID)
     first_file = next(response)
     assert first_file.file_id == FILE_ID
@@ -36,20 +35,20 @@ async def test_file_list(files_service: Files):
 
 
 @pytest.mark.asyncio
-async def test_download_file(files_service: Files):
+async def test_download_file(files_service):
     dto = files_dto.FileDTO(USER_ID, FILE_ID)
     response = await files_service.download_file(dto)
     assert response == URL
 
 
 @pytest.mark.asyncio
-async def test_delete_files(files_service: Files):
+async def test_delete_files(files_service):
     dto = files_dto.DeleteFilesDTO(USER_ID, (FILE_ID,))
     response = await files_service.delete_files(dto)
     assert response is None
 
 
 @pytest.mark.asyncio
-async def test_delete_all_files(files_service: Files):
+async def test_delete_all_files(files_service):
     response = await files_service.delete_all_files(USER_ID)
     assert response is None
