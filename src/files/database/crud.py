@@ -21,7 +21,7 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -36,7 +36,7 @@ class CRUD:
         except FileNotFoundError as exc:
             raise exc
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -49,10 +49,10 @@ class CRUD:
                 .scalars()
                 .all()
             )
-            result = tuple(file.columns_to_dict() for file in files)
-            return result
+            res = tuple(file.columns_to_dict() for file in files)
+            return res
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -77,7 +77,7 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -87,5 +87,5 @@ class CRUD:
             await session.commit()
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc

@@ -1,26 +1,26 @@
-import uuid
 from datetime import datetime
+from uuid import uuid4
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Mapped, mapped_column
 
-Base = declarative_base()
+from .base import BaseModel
 
 
-class File(Base):
+class File(BaseModel):
     __tablename__ = "files"
 
-    file_id = sa.Column(UUID(False), unique=True, primary_key=True, default=uuid.uuid4)
-    user_id = sa.Column(UUID(False), nullable=False)
-    name = sa.Column(sa.VARCHAR, nullable=False)
-    path = sa.Column(sa.VARCHAR, unique=True, nullable=False)
-    size = sa.Column(sa.BIGINT, nullable=False)
-    uploaded = sa.Column(sa.TIMESTAMP, nullable=False, default=datetime.now)
+    id: Mapped[str] = mapped_column(
+        UUID(False), primary_key=True, unique=True, default=uuid4
+    )
+    user_id: Mapped[str] = mapped_column(UUID(False), nullable=False)
+    name: Mapped[str] = mapped_column(sa.String, nullable=False)
+    path: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
+    size: Mapped[int] = mapped_column(sa.BigInteger, nullable=False)
+    uploaded: Mapped[datetime] = mapped_column(
+        sa.TIMESTAMP, nullable=False, default=datetime.now
+    )
 
     def __str__(self) -> str:
-        return f"<File: {self.file_id}>"
-
-    def columns_to_dict(self) -> dict:
-        d = {key: getattr(self, key) for key in self.__mapper__.c.keys()}
-        return d
+        return f"<File: {self.name}>"
