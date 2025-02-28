@@ -6,8 +6,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-import database
-from config.config import load_config
+from config import load_config
+from database import BaseModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,7 +20,7 @@ config.set_section_option(section, "POSTGRES_DRIVER", env_conf.postgres.driver)
 config.set_section_option(section, "POSTGRES_USER", env_conf.postgres.user)
 config.set_section_option(section, "POSTGRES_PASSWORD", env_conf.postgres.password)
 config.set_section_option(section, "POSTGRES_HOST", env_conf.postgres.host)
-config.set_section_option(section, "POSTGRES_PORT", env_conf.postgres.port)
+config.set_section_option(section, "POSTGRES_PORT", str(env_conf.postgres.port))
 config.set_section_option(section, "POSTGRES_DB", env_conf.postgres.database)
 
 # Interpret the config file for Python logging.
@@ -32,7 +32,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = database.Base.metadata
+target_metadata = BaseModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

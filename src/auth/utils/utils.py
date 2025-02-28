@@ -28,12 +28,12 @@ class ExceptionHandler:
 
     async def __call__(self, context: ServicerContext, func, *args, **kwargs) -> Any:
         try:
-            result = await func(*args, **kwargs)
-            return result
+            res = await func(*args, **kwargs)
+            return res
         except Exception as exc:
             status_code, details = exc.args
             self._logger.error(
-                f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}, {exc}"
+                f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
             await context.abort(status_code, details)
 
@@ -84,7 +84,7 @@ def validate_jwt(
                 StatusCode.UNAUTHENTICATED, "Resend the verification mail"
             )
 
-        result = (
+        res = (
             verified_signature
             and verified_token_type
             and verified_issuer
@@ -92,7 +92,7 @@ def validate_jwt(
             and not expired
         )
 
-        return result, user_id
+        return res, user_id
     except UnauthenticatedError as exc:
         raise exc
     except Exception:
@@ -100,13 +100,13 @@ def validate_jwt(
 
 
 def compare_passwords(password: str, hashed_password: str) -> bool:
-    result = bcrypt.checkpw(password.encode(), hashed_password.encode())
-    return result
+    res = bcrypt.checkpw(password.encode(), hashed_password.encode())
+    return res
 
 
 def get_hashed_password(password: str) -> str:
-    result = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    return result
+    res = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return res
 
 
 def convert_user_agent(user_agent: str) -> str:
