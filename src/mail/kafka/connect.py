@@ -5,11 +5,10 @@ from utils import MailTypes
 
 
 def connect_kafka_service() -> AIOKafkaConsumer:
-    config = load_config()
     return AIOKafkaConsumer(
         MailTypes.VERIFICATION.name,
         MailTypes.INFO.name,
         MailTypes.RESET.name,
-        bootstrap_servers=config.app.kafka_service,
+        bootstrap_servers=load_config().app.kafka_service,
         group_id="mail",
     )

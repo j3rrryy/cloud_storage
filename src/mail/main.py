@@ -33,4 +33,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    uvloop.run(main())
+    uvloop.run(main())  # pragma: no cover
