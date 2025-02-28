@@ -24,9 +24,7 @@ from services.base import RPCBase
         (StatusCode.UNKNOWN, InternalServerException),
     ),
 )
-async def test_handle_exception(
-    status_code: StatusCode, expected_exception: type[HTTPException]
-):
+async def test_handle_exception(status_code, expected_exception):
     DETAILS = "Test error details"
     exception = aio.AioRpcError(
         code=status_code,

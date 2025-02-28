@@ -13,42 +13,40 @@ from services import connect_auth_service, connect_files_service, connect_mail_s
 config = load_config()
 
 
-def test_app():
-    with patch("litestar.Litestar") as mock_litestar:
-        importlib.reload(main)
+@patch("litestar.Litestar")
+def test_app(mock_litestar):
+    importlib.reload(main)
 
-        mock_litestar.assert_called_once_with(
-            path="/api",
-            route_handlers=(PrometheusController, auth_v1, files_v1),
-            debug=config.app.debug,
-            logging_config=config.app.litestar_logging_config,
-            cors_config=config.app.cors_config,
-            openapi_config=config.app.openapi_config,
-            middleware=ANY,
-            request_max_body_size=None,
-            dependencies={
-                "auth_service": Provide(connect_auth_service),
-                "files_service": Provide(connect_files_service),
-                "mail_service": Provide(connect_mail_service),
-            },
-        )
-        _, kwargs = mock_litestar.call_args
-        assert len(kwargs["middleware"]) == 1
-        assert (
-            kwargs["middleware"][0].middleware
-            == config.app.prometheus_config.middleware.middleware
-        )
-        assert (
-            kwargs["middleware"][0].args == config.app.prometheus_config.middleware.args
-        )
-        assert (
-            kwargs["middleware"][0].kwargs
-            == config.app.prometheus_config.middleware.kwargs
-        )
+    mock_litestar.assert_called_once_with(
+        path="/api",
+        route_handlers=(PrometheusController, auth_v1, files_v1),
+        debug=config.app.debug,
+        logging_config=config.app.litestar_logging_config,
+        cors_config=config.app.cors_config,
+        openapi_config=config.app.openapi_config,
+        middleware=ANY,
+        request_max_body_size=None,
+        dependencies={
+            "auth_service": Provide(connect_auth_service),
+            "files_service": Provide(connect_files_service),
+            "mail_service": Provide(connect_mail_service),
+        },
+    )
+    _, kwargs = mock_litestar.call_args
+    assert len(kwargs["middleware"]) == 1
+    assert (
+        kwargs["middleware"][0].middleware
+        == config.app.prometheus_config.middleware.middleware
+    )
+    assert kwargs["middleware"][0].args == config.app.prometheus_config.middleware.args
+    assert (
+        kwargs["middleware"][0].kwargs == config.app.prometheus_config.middleware.kwargs
+    )
 
 
-def test_uvicorn():
-    with patch("uvicorn.run") as mock_run, open("main.py") as file:
+@patch("uvicorn.run")
+def test_uvicorn(mock_run):
+    with open("main.py") as file:
         code = compile(file.read(), str("main.py"), "exec")
         exec(code, {"__name__": "__main__"})
 

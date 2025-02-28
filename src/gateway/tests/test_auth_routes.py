@@ -1,7 +1,6 @@
 import msgspec
 import pytest
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
-from litestar.testing import AsyncTestClient
 
 from schemas import auth
 
@@ -24,7 +23,7 @@ PREFIX = "/api/v1/auth"
 
 
 @pytest.mark.asyncio
-async def test_register(verified_client: AsyncTestClient):
+async def test_register(verified_client):
     data = auth.Registration(USERNAME, EMAIL, PASSWORD)
     response = await verified_client.post(
         f"{PREFIX}/register",
@@ -35,7 +34,7 @@ async def test_register(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_verify_email(verified_client: AsyncTestClient):
+async def test_verify_email(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/verify-email", params={"verification_token": VERIFICATION_TOKEN}
     )
@@ -43,7 +42,7 @@ async def test_verify_email(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_request_reset(verified_client: AsyncTestClient):
+async def test_request_reset(verified_client):
     data = auth.ForgotPassword(EMAIL)
     response = await verified_client.post(
         f"{PREFIX}/request-reset-code",
@@ -57,7 +56,7 @@ async def test_request_reset(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_validate_reset_code(verified_client: AsyncTestClient):
+async def test_validate_reset_code(verified_client):
     data = auth.ResetCode(USER_ID, CODE)
     response = await verified_client.post(
         f"{PREFIX}/validate-reset-code",
@@ -71,7 +70,7 @@ async def test_validate_reset_code(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_reset_password(verified_client: AsyncTestClient):
+async def test_reset_password(verified_client):
     data = auth.ResetPassword(USER_ID, PASSWORD)
     response = await verified_client.post(
         f"{PREFIX}/reset-password",
@@ -82,7 +81,7 @@ async def test_reset_password(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_log_in(verified_client: AsyncTestClient):
+async def test_log_in(verified_client):
     data = auth.LogIn(USERNAME, PASSWORD)
     response = await verified_client.post(
         f"{PREFIX}/log-in",
@@ -100,7 +99,7 @@ async def test_log_in(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_unverified_log_in(unverified_client: AsyncTestClient):
+async def test_unverified_log_in(unverified_client):
     data = auth.LogIn(USERNAME, PASSWORD)
     response = await unverified_client.post(
         f"{PREFIX}/log-in",
@@ -118,7 +117,7 @@ async def test_unverified_log_in(unverified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_log_out(verified_client: AsyncTestClient):
+async def test_log_out(verified_client):
     response = await verified_client.post(
         f"{PREFIX}/log-out", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
@@ -126,7 +125,7 @@ async def test_log_out(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_resend_verification_mail(verified_client: AsyncTestClient):
+async def test_resend_verification_mail(verified_client):
     response = await verified_client.post(
         f"{PREFIX}/resend-verification-mail",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -135,7 +134,7 @@ async def test_resend_verification_mail(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_auth(verified_client: AsyncTestClient):
+async def test_auth(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/auth", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
@@ -146,7 +145,7 @@ async def test_auth(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_refresh(verified_client: AsyncTestClient):
+async def test_refresh(verified_client):
     data = auth.RefreshToken(REFRESH_TOKEN)
     response = await verified_client.post(
         f"{PREFIX}/refresh",
@@ -167,7 +166,7 @@ async def test_refresh(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_session_list(verified_client: AsyncTestClient):
+async def test_session_list(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/session-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
@@ -187,7 +186,7 @@ async def test_session_list(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_revoke_session(verified_client: AsyncTestClient):
+async def test_revoke_session(verified_client):
     data = auth.SessionId(SESSION_ID)
     response = await verified_client.post(
         f"{PREFIX}/revoke-session",
@@ -201,7 +200,7 @@ async def test_revoke_session(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_profile(verified_client: AsyncTestClient):
+async def test_profile(verified_client):
     response = await verified_client.get(
         f"{PREFIX}/profile", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
@@ -218,7 +217,7 @@ async def test_profile(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_update_email(verified_client: AsyncTestClient):
+async def test_update_email(verified_client):
     data = auth.UpdateEmail(EMAIL)
     response = await verified_client.patch(
         f"{PREFIX}/update-email",
@@ -232,7 +231,7 @@ async def test_update_email(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_update_password(verified_client: AsyncTestClient):
+async def test_update_password(verified_client):
     data = auth.UpdatePassword(PASSWORD, PASSWORD)
     response = await verified_client.patch(
         f"{PREFIX}/update-password",
@@ -246,7 +245,7 @@ async def test_update_password(verified_client: AsyncTestClient):
 
 
 @pytest.mark.asyncio
-async def test_delete_profile(verified_client: AsyncTestClient):
+async def test_delete_profile(verified_client):
     response = await verified_client.delete(
         f"{PREFIX}/delete-profile", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )

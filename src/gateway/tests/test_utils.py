@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from litestar import Request
-from litestar.exceptions import HTTPException, NotAuthorizedException
+from litestar.exceptions import NotAuthorizedException
 
 from utils import validate_access_token
 
@@ -24,10 +24,7 @@ from .mocks import ACCESS_TOKEN
     ],
 )
 def test_validate_access_token(
-    header_value: str,
-    expected_token: str | None,
-    expected_exception: type[HTTPException] | None,
-    expected_message: str | None,
+    header_value, expected_token, expected_exception, expected_message
 ):
     mock_request = MagicMock(spec=Request)
     mock_request.headers.get.return_value = header_value
