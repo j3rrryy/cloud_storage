@@ -57,14 +57,14 @@ class DatabaseController:
     ) -> dict[str, str]:
         profile = await CRUD.profile(email, session)
         code = generate_reset_code()
-        await cache.set(f"reset-{profile['user_id']}", code, 600)
+        await cache.set(f"reset-{profile['id']}", code, 600)
 
-        result = {
-            "user_id": profile["user_id"],
+        res = {
+            "user_id": profile["id"],
             "username": profile["username"],
             "code": code,
         }
-        return result
+        return res
 
     @classmethod
     async def validate_reset_code(cls, data: dict[str, str]) -> bool:
@@ -103,18 +103,16 @@ class DatabaseController:
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
 
-        access_token = generate_jwt(profile["user_id"], TokenTypes.ACCESS, cls._config)
-        refresh_token = generate_jwt(
-            profile["user_id"], TokenTypes.REFRESH, cls._config
-        )
+        access_token = generate_jwt(profile["id"], TokenTypes.ACCESS, cls._config)
+        refresh_token = generate_jwt(profile["id"], TokenTypes.REFRESH, cls._config)
 
-        data["user_id"] = profile["user_id"]
+        data["user_id"] = profile["id"]
         data["access_token"] = access_token
         data["refresh_token"] = refresh_token
         data["browser"] = convert_user_agent(data["user_agent"])
         del data["username"], data["password"], data["user_agent"]
         await CRUD.log_in(data, session)
-        await cache.delete(f"session_list-{profile['user_id']}")
+        await cache.delete(f"session_list-{profile['id']}")
 
         login_data = {
             "access_token": access_token,
@@ -151,12 +149,12 @@ class DatabaseController:
         profile = await CRUD.profile(user_id, session)
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
 
-        result = {
+        res = {
             "verification_token": verification_token,
             "username": profile["username"],
             "email": profile["email"],
         }
-        return result
+        return res
 
     @classmethod
     @get_session
@@ -217,8 +215,8 @@ class DatabaseController:
         tokens = await CRUD.session_list(user_id, session)
 
         for token in tokens:
-            token["session_id"] = token["token_id"]
-            del token["refresh_token"], token["token_id"], token["user_id"]
+            token["session_id"] = token["id"]
+            del token["refresh_token"], token["id"], token["user_id"]
 
         await cache.set(f"session_list-{user_id}", tokens, 3600)
         return tokens
@@ -258,7 +256,8 @@ class DatabaseController:
             return cached
 
         profile = await CRUD.profile(user_id, session)
-        del profile["password"]
+        profile["user_id"] = profile["id"]
+        del profile["password"], profile["id"]
         await cache.set(f"profile-{user_id}", profile, 3600)
         return profile
 
@@ -280,12 +279,12 @@ class DatabaseController:
         await cache.delete(f"profile-{user_id}")
 
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
-        result = {
+        res = {
             "verification_token": verification_token,
             "username": username,
             "email": email,
         }
-        return result
+        return res
 
     @classmethod
     @get_session

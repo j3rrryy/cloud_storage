@@ -23,7 +23,7 @@ class PostgresConfig:
     user: str
     password: str
     host: str
-    port: str
+    port: int
     database: str
 
 
@@ -76,7 +76,7 @@ def load_config():
             env("POSTGRES_USER"),
             env("POSTGRES_PASSWORD"),
             env("POSTGRES_HOST"),
-            env("POSTGRES_PORT"),
+            int(env("POSTGRES_PORT")),
             env("POSTGRES_DB"),
         ),
     )

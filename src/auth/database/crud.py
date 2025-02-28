@@ -23,14 +23,14 @@ class CRUD:
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
-            return new_user.user_id
+            return new_user.id
         except IntegrityError as exc:
             await session.rollback()
             exc.args = (StatusCode.ALREADY_EXISTS, "User already exists")
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -50,7 +50,7 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -65,7 +65,7 @@ class CRUD:
 
             user.password = data["new_password"]
             await session.execute(
-                delete(RefreshToken).filter(RefreshToken.user_id == user.user_id)
+                delete(RefreshToken).filter(RefreshToken.user_id == user.id)
             )
             await session.commit()
         except UnauthenticatedError as exc:
@@ -76,7 +76,7 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -97,13 +97,19 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
     async def log_out(cls, access_token: str, session: AsyncSession) -> None:
         try:
             token = await session.get(AccessToken, access_token)
+
+            if not token:
+                raise UnauthenticatedError(
+                    StatusCode.UNAUTHENTICATED, "Token is invalid"
+                )
+
             await session.execute(
                 delete(RefreshToken).filter(
                     RefreshToken.refresh_token == token.refresh_token
@@ -112,7 +118,7 @@ class CRUD:
             await session.commit()
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -142,7 +148,7 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -159,22 +165,22 @@ class CRUD:
                 .scalars()
                 .all()
             )
-            result = tuple(token.columns_to_dict() for token in tokens)
-            return result
+            res = tuple(token.columns_to_dict() for token in tokens)
+            return res
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
     async def revoke_session(cls, refresh_token_id: str, session: AsyncSession) -> None:
         try:
             await session.execute(
-                delete(RefreshToken).filter(RefreshToken.token_id == refresh_token_id)
+                delete(RefreshToken).filter(RefreshToken.id == refresh_token_id)
             )
             await session.commit()
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -182,10 +188,10 @@ class CRUD:
         cls, access_token: str, session: AsyncSession
     ) -> bool:
         try:
-            result = await session.get(AccessToken, access_token)
-            return bool(result)
+            res = await session.get(AccessToken, access_token)
+            return bool(res)
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -194,7 +200,7 @@ class CRUD:
     ) -> bool:
         try:
             if token_or_id.count(".") == 2:
-                result = (
+                res = (
                     await session.execute(
                         select(RefreshToken).filter(
                             RefreshToken.refresh_token == token_or_id
@@ -202,11 +208,11 @@ class CRUD:
                     )
                 ).scalar_one_or_none()
             else:
-                result = await session.get(RefreshToken, token_or_id)
+                res = await session.get(RefreshToken, token_or_id)
 
-            return bool(result)
+            return bool(res)
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -240,7 +246,7 @@ class CRUD:
         except UnauthenticatedError as exc:
             raise exc
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -269,7 +275,7 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
@@ -291,7 +297,7 @@ class CRUD:
 
             user.password = data["new_password"]
             await session.execute(
-                delete(RefreshToken).filter(RefreshToken.user_id == user.user_id)
+                delete(RefreshToken).filter(RefreshToken.user_id == user.id)
             )
             await session.commit()
         except UnauthenticatedError as exc:
@@ -299,14 +305,14 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
     async def delete_profile(cls, user_id: str, session: AsyncSession) -> None:
         try:
             row_count = (
-                await session.execute(delete(User).filter(User.user_id == user_id))
+                await session.execute(delete(User).filter(User.id == user_id))
             ).rowcount
 
             if row_count == 0:
@@ -319,5 +325,5 @@ class CRUD:
             raise exc
         except Exception as exc:
             await session.rollback()
-            exc.args = (StatusCode.INTERNAL, "Internal database error")
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
