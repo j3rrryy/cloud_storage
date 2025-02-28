@@ -28,10 +28,10 @@ class MailService:
         ["topic"],
     )
 
-    def __init__(self, consumer: AIOKafkaConsumer) -> None:
+    def __init__(self, consumer: AIOKafkaConsumer):
         self._consumer = consumer
 
-    async def process_messages(self):
+    async def process_messages(self) -> None:
         async with self._consumer as consumer, get_smtp() as smtp:
             async for message in consumer:
                 with self._email_processing_time.labels(message.topic).time():

@@ -1,0 +1,6 @@
+VERIFICATION_TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
+USERNAME = "test_username"
+BROWSER = "test_browser"
+USER_IP = "127.0.0.1"
+EMAIL = "test@example.com"
+CODE = "123456"
