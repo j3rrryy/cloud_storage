@@ -23,7 +23,7 @@ class Files(RPCBase):
     async def file_list(
         self, user_id: str
     ) -> Generator[files_dto.FileInfoDTO, None, None]:
-        request = pb2.AllFilesOperationRequest(user_id=user_id)
+        request = pb2.UserId(user_id=user_id)
         files = await self._stub.FileList(request)
         return (
             self.convert_to_dto(file, files_dto.FileInfoDTO) for file in files.files
@@ -37,10 +37,10 @@ class Files(RPCBase):
 
     @RPCBase.handle_exception
     async def delete_files(self, data: files_dto.DeleteFilesDTO) -> None:
-        request = pb2.FilesOperationRequest(**data.dict())
+        request = pb2.DeleteFilesRequest(**data.dict())
         await self._stub.DeleteFiles(request)
 
     @RPCBase.handle_exception
     async def delete_all_files(self, user_id: str) -> None:
-        request = pb2.AllFilesOperationRequest(user_id=user_id)
+        request = pb2.UserId(user_id=user_id)
         await self._stub.DeleteAllFiles(request)

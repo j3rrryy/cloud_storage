@@ -8,14 +8,15 @@ package files;
 service Files {
   rpc UploadFile(UploadFileRequest) returns (FileURLResponse);
   rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
-  rpc FileList(AllFilesOperationRequest) returns (FileListResponse);
+  rpc FileList(UserId) returns (FileListResponse);
   rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
-  rpc DeleteFiles(FilesOperationRequest) returns (google.protobuf.Empty);
-  rpc DeleteAllFiles(AllFilesOperationRequest) returns (google.protobuf.Empty);
+  rpc DeleteFiles(DeleteFilesRequest) returns (google.protobuf.Empty);
+  rpc DeleteAllFiles(UserId) returns (google.protobuf.Empty);
 }
 
-message AllFilesOperationRequest {
+message DeleteFilesRequest {
   string user_id = 1;
+  repeated string file_ids = 2;
 }
 
 message FileInfoResponse {
@@ -35,11 +36,6 @@ message FileOperationRequest {
   string file_id = 2;
 }
 
-message FilesOperationRequest {
-  string user_id = 1;
-  repeated string file_ids = 2;
-}
-
 message FileURLResponse {
   string url = 1;
 }
@@ -49,4 +45,8 @@ message UploadFileRequest {
   string name = 2;
   string path = 3;
   uint64 size = 4;
+}
+
+message UserId {
+  string user_id = 1;
 }

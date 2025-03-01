@@ -2,6 +2,8 @@ from grpc import StatusCode
 from types_aiobotocore_s3 import S3Client
 
 from config import load_config
+from dto import request as request_dto
+from dto import response as response_dto
 
 
 class CRUD:
@@ -9,7 +11,9 @@ class CRUD:
     _BUCKET_NAME = _config.minio.bucket
 
     @classmethod
-    async def upload_file(cls, data: dict[str, str | int], client: S3Client) -> str:
+    async def upload_file(
+        cls, data: request_dto.UploadFileRequestDTO, client: S3Client
+    ) -> str:
         try:
             await client.head_bucket(Bucket=cls._BUCKET_NAME)
         except Exception:
@@ -20,7 +24,7 @@ class CRUD:
                 "put_object",
                 Params={
                     "Bucket": cls._BUCKET_NAME,
-                    "Key": f"{data['user_id']}{data['path']}",
+                    "Key": f"{data.user_id}{data.path}",
                 },
                 ExpiresIn=15,
             )
@@ -30,8 +34,10 @@ class CRUD:
             raise exc
 
     @classmethod
-    async def download_file(cls, data: dict[str, str | int], client: S3Client) -> str:
-        OBJECT_KEY = f"{data['user_id']}{data['path']}"
+    async def download_file(
+        cls, data: response_dto.FileInfoResponseDTO, client: S3Client
+    ) -> str:
+        OBJECT_KEY = f"{data.user_id}{data.path}"
 
         try:
             await client.head_object(Bucket=cls._BUCKET_NAME, Key=OBJECT_KEY)
@@ -50,11 +56,13 @@ class CRUD:
             raise exc
 
     @classmethod
-    async def delete_files(cls, data: dict[str, str], client: S3Client) -> None:
+    async def delete_files(
+        cls, data: response_dto.DeleteFilesResponseDTO, client: S3Client
+    ) -> None:
         try:
-            for path in data["files"]:
+            for path in data.paths:
                 await client.delete_object(
-                    Bucket=cls._BUCKET_NAME, Key=f"{data['user_id']}{path}"
+                    Bucket=cls._BUCKET_NAME, Key=f"{data.user_id}{path}"
                 )
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, "Internal storage error, {exc}")
@@ -72,7 +80,8 @@ class CRUD:
                     delete_requests = [{"Key": obj["Key"]} for obj in page["Contents"]]
 
                     await client.delete_objects(
-                        Bucket=cls._BUCKET_NAME, Delete={"Objects": delete_requests}
+                        Bucket=cls._BUCKET_NAME,
+                        Delete={"Objects": delete_requests},  # type: ignore
                     )
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, "Internal storage error, {exc}")

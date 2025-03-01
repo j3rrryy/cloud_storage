@@ -1,7 +1,9 @@
-from typing import Any
+from typing import Awaitable, Callable, TypeVar
 
 from grpc import ServicerContext
 from picologging import Logger
+
+T = TypeVar("T")
 
 
 class ExceptionHandler:
@@ -10,7 +12,13 @@ class ExceptionHandler:
     def __init__(self, logger: Logger):
         self._logger = logger
 
-    async def __call__(self, context: ServicerContext, func, *args, **kwargs) -> Any:
+    async def __call__(
+        self,
+        context: ServicerContext,
+        func: Callable[..., Awaitable[T]],
+        *args,
+        **kwargs,
+    ) -> T:
         try:
             res = await func(*args, **kwargs)
             return res
@@ -20,3 +28,4 @@ class ExceptionHandler:
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
             await context.abort(status_code, details)
+            raise
