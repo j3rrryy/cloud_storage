@@ -12,11 +12,15 @@ from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class AllFilesOperationRequest(_message.Message):
-    __slots__ = ("user_id",)
+class DeleteFilesRequest(_message.Message):
+    __slots__ = ("user_id", "file_ids")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
+    FILE_IDS_FIELD_NUMBER: _ClassVar[int]
     user_id: str
-    def __init__(self, user_id: _Optional[str] = ...) -> None: ...
+    file_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(
+        self, user_id: _Optional[str] = ..., file_ids: _Optional[_Iterable[str]] = ...
+    ) -> None: ...
 
 class FileInfoResponse(_message.Message):
     __slots__ = ("file_id", "name", "path", "size", "uploaded")
@@ -57,16 +61,6 @@ class FileOperationRequest(_message.Message):
         self, user_id: _Optional[str] = ..., file_id: _Optional[str] = ...
     ) -> None: ...
 
-class FilesOperationRequest(_message.Message):
-    __slots__ = ("user_id", "file_ids")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    FILE_IDS_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    file_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(
-        self, user_id: _Optional[str] = ..., file_ids: _Optional[_Iterable[str]] = ...
-    ) -> None: ...
-
 class FileURLResponse(_message.Message):
     __slots__ = ("url",)
     URL_FIELD_NUMBER: _ClassVar[int]
@@ -90,3 +84,9 @@ class UploadFileRequest(_message.Message):
         path: _Optional[str] = ...,
         size: _Optional[int] = ...,
     ) -> None: ...
+
+class UserId(_message.Message):
+    __slots__ = ("user_id",)
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    def __init__(self, user_id: _Optional[str] = ...) -> None: ...

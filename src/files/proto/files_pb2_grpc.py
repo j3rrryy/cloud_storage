@@ -54,7 +54,7 @@ class FilesStub(object):
         )
         self.FileList = channel.unary_unary(
             "/files.Files/FileList",
-            request_serializer=files__pb2.AllFilesOperationRequest.SerializeToString,
+            request_serializer=files__pb2.UserId.SerializeToString,
             response_deserializer=files__pb2.FileListResponse.FromString,
             _registered_method=True,
         )
@@ -66,13 +66,13 @@ class FilesStub(object):
         )
         self.DeleteFiles = channel.unary_unary(
             "/files.Files/DeleteFiles",
-            request_serializer=files__pb2.FilesOperationRequest.SerializeToString,
+            request_serializer=files__pb2.DeleteFilesRequest.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.DeleteAllFiles = channel.unary_unary(
             "/files.Files/DeleteAllFiles",
-            request_serializer=files__pb2.AllFilesOperationRequest.SerializeToString,
+            request_serializer=files__pb2.UserId.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
@@ -132,7 +132,7 @@ def add_FilesServicer_to_server(servicer, server):
         ),
         "FileList": grpc.unary_unary_rpc_method_handler(
             servicer.FileList,
-            request_deserializer=files__pb2.AllFilesOperationRequest.FromString,
+            request_deserializer=files__pb2.UserId.FromString,
             response_serializer=files__pb2.FileListResponse.SerializeToString,
         ),
         "DownloadFile": grpc.unary_unary_rpc_method_handler(
@@ -142,12 +142,12 @@ def add_FilesServicer_to_server(servicer, server):
         ),
         "DeleteFiles": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteFiles,
-            request_deserializer=files__pb2.FilesOperationRequest.FromString,
+            request_deserializer=files__pb2.DeleteFilesRequest.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "DeleteAllFiles": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteAllFiles,
-            request_deserializer=files__pb2.AllFilesOperationRequest.FromString,
+            request_deserializer=files__pb2.UserId.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
     }
@@ -239,7 +239,7 @@ class Files(object):
             request,
             target,
             "/files.Files/FileList",
-            files__pb2.AllFilesOperationRequest.SerializeToString,
+            files__pb2.UserId.SerializeToString,
             files__pb2.FileListResponse.FromString,
             options,
             channel_credentials,
@@ -299,7 +299,7 @@ class Files(object):
             request,
             target,
             "/files.Files/DeleteFiles",
-            files__pb2.FilesOperationRequest.SerializeToString,
+            files__pb2.DeleteFilesRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -329,7 +329,7 @@ class Files(object):
             request,
             target,
             "/files.Files/DeleteAllFiles",
-            files__pb2.AllFilesOperationRequest.SerializeToString,
+            files__pb2.UserId.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,

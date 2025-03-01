@@ -3,16 +3,19 @@ from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from dto import request as request_dto
+from dto import response as response_dto
+
 from .models import File
 
 
 class CRUD:
     @classmethod
     async def upload_file(
-        cls, data: dict[str, str | int], session: AsyncSession
+        cls, data: request_dto.UploadFileRequestDTO, session: AsyncSession
     ) -> None:
         try:
-            new_file = File(**data)
+            new_file = File(**data.dict())
             session.add(new_file)
             await session.commit()
         except IntegrityError as exc:
@@ -25,14 +28,16 @@ class CRUD:
             raise exc
 
     @classmethod
-    async def file_info(cls, file_id: str, session: AsyncSession) -> dict[str, str]:
+    async def file_info(
+        cls, data: request_dto.FileOperationRequestDTO, session: AsyncSession
+    ) -> response_dto.FileInfoResponseDTO:
         try:
-            file = await session.get(File, file_id)
+            file = await session.get(File, data.file_id)
 
-            if not file:
+            if not file or file.user_id != data.user_id:
                 raise FileNotFoundError(StatusCode.NOT_FOUND, "File not found")
 
-            return file.columns_to_dict()
+            return response_dto.FileInfoResponseDTO.from_model(file)
         except FileNotFoundError as exc:
             raise exc
         except Exception as exc:
@@ -42,36 +47,38 @@ class CRUD:
     @classmethod
     async def file_list(
         cls, user_id: str, session: AsyncSession
-    ) -> tuple[dict[str, str]]:
+    ) -> tuple[response_dto.FileInfoResponseDTO, ...]:
         try:
             files = (
                 (await session.execute(select(File).filter(File.user_id == user_id)))
                 .scalars()
                 .all()
             )
-            res = tuple(file.columns_to_dict() for file in files)
-            return res
+            return tuple(
+                response_dto.FileInfoResponseDTO.from_model(file) for file in files
+            )
         except Exception as exc:
             exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
     @classmethod
     async def delete_files(
-        cls, data: dict[str, str], session: AsyncSession
-    ) -> dict[str, str]:
+        cls, data: request_dto.DeleteFilesRequestDTO, session: AsyncSession
+    ) -> response_dto.DeleteFilesResponseDTO:
         try:
-            files = {"user_id": data["user_id"], "files": []}
+            files = {"user_id": data.user_id, "paths": []}
 
-            for file_id in data["file_ids"]:
+            for file_id in data.file_ids:
                 file = await session.get(File, file_id)
 
-                if not file:
+                if not file or file.user_id != data.user_id:
                     raise FileNotFoundError(StatusCode.NOT_FOUND, "File not found")
 
-                files["files"].append(file.path)
+                files["paths"].append(file.path)
                 await session.delete(file)
+
             await session.commit()
-            return files
+            return response_dto.DeleteFilesResponseDTO(**files)
         except FileNotFoundError as exc:
             await session.rollback()
             raise exc

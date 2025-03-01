@@ -3,15 +3,15 @@ from uuid import uuid4
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
-from .base import BaseModel
+Base = declarative_base()
 
 
-class File(BaseModel):
+class File(Base):
     __tablename__ = "files"
 
-    id: Mapped[str] = mapped_column(
+    file_id: Mapped[str] = mapped_column(
         UUID(False), primary_key=True, unique=True, default=uuid4
     )
     user_id: Mapped[str] = mapped_column(UUID(False), nullable=False)
