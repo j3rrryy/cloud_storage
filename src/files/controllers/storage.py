@@ -14,6 +14,7 @@ class StorageController:
     async def upload_file(
         cls, data: request_dto.UploadFileRequestDTO, client: S3Client
     ) -> str:
+        data = data.replace(path=data.path + data.name)
         upload_url = await CRUD.upload_file(data, client)
         relative_url = upload_url[upload_url.find("/", 7) :]
         return relative_url

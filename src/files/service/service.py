@@ -31,7 +31,7 @@ class FilesServicer(proto.FilesServicer):
 
     async def DownloadFile(self, request, context):
         dto = request_dto.FileOperationRequestDTO.from_request(request)
-        info = await self._eh(context, DBC.file_info, dto)
+        info = await self._eh(context, DBC.download_file, dto)
         file_url = await self._eh(context, STC.download_file, info)
         return pb2.FileURLResponse(url=file_url)
 
