@@ -2,51 +2,40 @@ from cashews import cache
 from grpc import StatusCode
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import load_config
 from database import CRUD, get_session
+from dto import request as request_dto
+from dto import response as response_dto
 from errors import UnauthenticatedError
 from utils import (
     TokenTypes,
     compare_passwords,
+    convert_user_agent,
     generate_jwt,
     generate_reset_code,
     get_hashed_password,
     validate_jwt,
 )
-from utils.utils import convert_user_agent
 
 
 class DatabaseController:
-    _config = load_config()
-
     @classmethod
     @get_session
     async def register(
-        cls, data: dict[str, str], *, session: AsyncSession
-    ) -> dict[str, str]:
-        data["password"] = get_hashed_password(data["password"])
+        cls, data: request_dto.RegisterRequestDTO, *, session: AsyncSession
+    ) -> response_dto.VerificationMailResponseDTO:
+        data = data.replace(password=get_hashed_password(data.password))
         user_id = await CRUD.register(data, session)
-        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
-        return {
-            "verification_token": verification_token,
-            "username": data["username"],
-            "email": data["email"],
-        }
+        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)
+        return response_dto.VerificationMailResponseDTO(
+            verification_token, data.username, data.email
+        )
 
     @classmethod
     @get_session
     async def verify_email(
         cls, verification_token: str, *, session: AsyncSession
     ) -> None:
-        validated, user_id = validate_jwt(
-            verification_token, TokenTypes.VERIFICATION, cls._config
-        )
-
-        if not validated:
-            raise UnauthenticatedError(
-                StatusCode.UNAUTHENTICATED, "Verification link is invalid"
-            )
-
+        user_id = validate_jwt(verification_token, TokenTypes.VERIFICATION)
         await CRUD.verify_email(user_id, session)
         await cache.delete_many(f"auth-{user_id}", f"profile-{user_id}")
 
@@ -54,84 +43,67 @@ class DatabaseController:
     @get_session
     async def request_reset_code(
         cls, email: str, *, session: AsyncSession
-    ) -> dict[str, str]:
+    ) -> response_dto.ResetCodeResponseDTO:
         profile = await CRUD.profile(email, session)
         code = generate_reset_code()
-        await cache.set(f"reset-{profile['id']}", code, 600)
-
-        res = {
-            "user_id": profile["id"],
-            "username": profile["username"],
-            "code": code,
-        }
-        return res
+        await cache.set(f"reset-{profile.user_id}", code, 600)
+        return response_dto.ResetCodeResponseDTO(
+            profile.user_id, profile.username, code
+        )
 
     @classmethod
-    async def validate_reset_code(cls, data: dict[str, str]) -> bool:
-        code = await cache.get(f"reset-{data['user_id']}")
+    async def validate_reset_code(cls, data: request_dto.ResetCodeRequestDTO) -> bool:
+        code = await cache.get(f"reset-{data.user_id}")
 
-        if not code or data["code"] != code:
+        if not code or data.code != code:
             return False
 
-        await cache.set(f"reset-{data['user_id']}", "Validated", 600)
+        await cache.set(f"reset-{data.user_id}", "validated", 600)
         return True
 
     @classmethod
     @get_session
     async def reset_password(
-        cls, data: dict[str, str], *, session: AsyncSession
+        cls, data: request_dto.ResetPasswordRequestDTO, *, session: AsyncSession
     ) -> None:
-        code = await cache.get(f"reset-{data['user_id']}")
+        code = await cache.get(f"reset-{data.user_id}")
 
-        if not code or code != "Validated":
-            raise PermissionError(StatusCode.PERMISSION_DENIED, "Code is not validated")
+        if not code or code != "validated":
+            raise UnauthenticatedError(
+                StatusCode.UNAUTHENTICATED, "Code is not validated"
+            )
 
-        data["new_password"] = get_hashed_password(data["new_password"])
+        data = data.replace(new_password=get_hashed_password(data.new_password))
         await CRUD.reset_password(data, session)
-        await cache.delete(f"reset-{data['user_id']}")
+        await cache.delete(f"reset-{data.user_id}")
 
     @classmethod
     @get_session
     async def log_in(
-        cls, data: dict[str, str], *, session: AsyncSession
-    ) -> dict[str, str | bool]:
-        profile = await CRUD.profile(data["username"], session)
-        password_is_valid = compare_passwords(data["password"], profile["password"])
+        cls, data: request_dto.LogInRequestDTO, *, session: AsyncSession
+    ) -> response_dto.LogInResponseDTO:
+        profile = await CRUD.profile(data.username, session)
+        compare_passwords(data.password, profile.password)  # type: ignore
 
-        if not password_is_valid:
-            raise UnauthenticatedError(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
+        access_token = generate_jwt(profile.user_id, TokenTypes.ACCESS)
+        refresh_token = generate_jwt(profile.user_id, TokenTypes.REFRESH)
+        browser = convert_user_agent(data.user_agent)
 
-        access_token = generate_jwt(profile["id"], TokenTypes.ACCESS, cls._config)
-        refresh_token = generate_jwt(profile["id"], TokenTypes.REFRESH, cls._config)
+        dto = request_dto.LogInDataRequestDTO(
+            access_token, refresh_token, profile.user_id, data.user_ip, browser
+        )
 
-        data["user_id"] = profile["id"]
-        data["access_token"] = access_token
-        data["refresh_token"] = refresh_token
-        data["browser"] = convert_user_agent(data["user_agent"])
-        del data["username"], data["password"], data["user_agent"]
-        await CRUD.log_in(data, session)
-        await cache.delete(f"session_list-{profile['id']}")
-
-        login_data = {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "email": profile["email"],
-            "browser": data["browser"],
-            "verified": profile["verified"],
-        }
-        return login_data
+        await CRUD.log_in(dto, session)
+        await cache.delete(f"session_list-{profile.user_id}")
+        return response_dto.LogInResponseDTO(
+            access_token, refresh_token, profile.email, browser, profile.verified
+        )
 
     @classmethod
     @get_session
     async def log_out(cls, access_token: str, *, session: AsyncSession) -> None:
-        validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
-        db_validated = await CRUD.validate_access_token(access_token, session)
-
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-
+        user_id = validate_jwt(access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(access_token, session)
         await CRUD.log_out(access_token, session)
         await cache.delete(f"session_list-{user_id}")
 
@@ -139,179 +111,146 @@ class DatabaseController:
     @get_session
     async def resend_verification_mail(
         cls, access_token: str, *, session: AsyncSession
-    ) -> dict[str, str]:
-        validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
-        db_validated = await CRUD.validate_access_token(access_token, session)
-
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+    ) -> response_dto.VerificationMailResponseDTO:
+        user_id = validate_jwt(access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(access_token, session)
 
         profile = await CRUD.profile(user_id, session)
-        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
-
-        res = {
-            "verification_token": verification_token,
-            "username": profile["username"],
-            "email": profile["email"],
-        }
-        return res
+        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)
+        return response_dto.VerificationMailResponseDTO(
+            verification_token, profile.username, profile.email
+        )
 
     @classmethod
     @get_session
-    async def auth(cls, access_token: str, *, session: AsyncSession) -> dict[str, str]:
-        validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
-        db_validated = await CRUD.validate_access_token(access_token, session)
+    async def auth(
+        cls, access_token: str, *, session: AsyncSession
+    ) -> response_dto.AuthResponseDTO:
+        user_id = validate_jwt(access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(access_token, session)
 
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-        elif cached := await cache.get(f"auth-{user_id}"):
+        if cached := await cache.get(f"auth-{user_id}"):
             return cached
 
         profile = await CRUD.profile(user_id, session)
-        user_info = {"user_id": user_id, "verified": profile["verified"]}
+        user_info = response_dto.AuthResponseDTO(user_id, profile.verified)
         await cache.set(f"auth-{user_id}", user_info, 3600)
         return user_info
 
     @classmethod
     @get_session
     async def refresh(
-        cls, data: dict[str, str], *, session: AsyncSession
-    ) -> dict[str, str]:
-        validated, user_id = validate_jwt(
-            data["refresh_token"], TokenTypes.REFRESH, cls._config
+        cls, data: request_dto.RefreshRequestDTO, *, session: AsyncSession
+    ) -> response_dto.RefreshesponseDTO:
+        user_id = validate_jwt(data.refresh_token, TokenTypes.REFRESH)
+        await CRUD.validate_refresh_token(data.refresh_token, session)
+
+        access_token = generate_jwt(user_id, TokenTypes.ACCESS)
+        refresh_token = generate_jwt(user_id, TokenTypes.REFRESH)
+        browser = convert_user_agent(data.user_agent)
+
+        dto = request_dto.RefreshDataRequestDTO(
+            access_token,
+            refresh_token,
+            data.refresh_token,
+            user_id,
+            data.user_ip,
+            browser,
         )
-        db_validated = await CRUD.validate_refresh_token(data["refresh_token"], session)
 
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-
-        data["user_id"] = user_id
-        data["old_token"] = data["refresh_token"]
-        access_token = generate_jwt(user_id, TokenTypes.ACCESS, cls._config)
-        refresh_token = generate_jwt(user_id, TokenTypes.REFRESH, cls._config)
-        data["access_token"] = access_token
-        data["refresh_token"] = refresh_token
-        data["browser"] = convert_user_agent(data["user_agent"])
-        del data["user_agent"]
-        await CRUD.refresh(data, session)
+        await CRUD.refresh(dto, session)
         await cache.delete(f"session_list-{user_id}")
-
-        tokens = {"access_token": access_token, "refresh_token": refresh_token}
+        tokens = response_dto.RefreshesponseDTO(access_token, refresh_token)
         return tokens
 
     @classmethod
     @get_session
     async def session_list(
         cls, access_token: str, *, session: AsyncSession
-    ) -> tuple[dict[str, str]]:
-        validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
-        db_validated = await CRUD.validate_access_token(access_token, session)
+    ) -> tuple[response_dto.SessionInfoResponseDTO, ...]:
+        user_id = validate_jwt(access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(access_token, session)
 
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-        elif cached := await cache.get(f"session_list-{user_id}"):
+        if cached := await cache.get(f"session_list-{user_id}"):
             return cached
 
-        tokens = await CRUD.session_list(user_id, session)
-
-        for token in tokens:
-            token["session_id"] = token["id"]
-            del token["refresh_token"], token["id"], token["user_id"]
-
-        await cache.set(f"session_list-{user_id}", tokens, 3600)
-        return tokens
+        sessions = await CRUD.session_list(user_id, session)
+        sessions = tuple(
+            session.replace(user_id=None, access_token=None, refresh_token=None)
+            for session in sessions
+        )
+        await cache.set(f"session_list-{user_id}", sessions, 3600)
+        return sessions
 
     @classmethod
     @get_session
     async def revoke_session(
-        cls, data: dict[str, str], *, session: AsyncSession
+        cls, data: request_dto.RevokeSessionRequestDTO, *, session: AsyncSession
     ) -> None:
-        access_token, refresh_token_id = data["access_token"], data["session_id"]
-
-        access_validated, user_id = validate_jwt(
-            access_token, TokenTypes.ACCESS, cls._config
-        )
-        access_db_validated = await CRUD.validate_access_token(access_token, session)
-        refresh_db_validated = await CRUD.validate_refresh_token(
-            refresh_token_id, session
-        )
-
-        if not access_validated or not access_db_validated or not refresh_db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-
-        await CRUD.revoke_session(refresh_token_id, session)
+        user_id = validate_jwt(data.access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(data.access_token, session)
+        await CRUD.validate_refresh_token(data.session_id, session)
+        await CRUD.revoke_session(data.session_id, session)
         await cache.delete(f"session_list-{user_id}")
 
     @classmethod
     @get_session
     async def profile(
         cls, access_token: str, *, session: AsyncSession
-    ) -> dict[str, str]:
-        validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
-        db_validated = await CRUD.validate_access_token(access_token, session)
+    ) -> response_dto.ProfileResponseDTO:
+        user_id = validate_jwt(access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(access_token, session)
 
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-        elif cached := await cache.get(f"profile-{user_id}"):
+        if cached := await cache.get(f"profile-{user_id}"):
             return cached
 
         profile = await CRUD.profile(user_id, session)
-        profile["user_id"] = profile["id"]
-        del profile["password"], profile["id"]
+        profile = profile.replace(password=None)
         await cache.set(f"profile-{user_id}", profile, 3600)
         return profile
 
     @classmethod
     @get_session
     async def update_email(
-        cls, data: dict[str, str], *, session: AsyncSession
-    ) -> dict[str, str]:
-        validated, user_id = validate_jwt(
-            data["access_token"], TokenTypes.ACCESS, cls._config
+        cls, data: request_dto.UpdateEmailRequestDTO, *, session: AsyncSession
+    ) -> response_dto.VerificationMailResponseDTO:
+        user_id = validate_jwt(data.access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(data.access_token, session)
+
+        dto = request_dto.UpdateEmailDataRequestDTO(
+            user_id, data.access_token, data.new_email
         )
-        db_validated = await CRUD.validate_access_token(data["access_token"], session)
 
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-
-        data["user_id"] = user_id
-        username, email = await CRUD.update_email(data, session)
+        username = await CRUD.update_email(dto, session)
+        await cache.delete(f"auth-{user_id}")
         await cache.delete(f"profile-{user_id}")
-
-        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION, cls._config)
-        res = {
-            "verification_token": verification_token,
-            "username": username,
-            "email": email,
-        }
-        return res
+        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)
+        return response_dto.VerificationMailResponseDTO(
+            verification_token, username, data.new_email
+        )
 
     @classmethod
     @get_session
     async def update_password(
-        cls, data: dict[str, str], *, session: AsyncSession
+        cls, data: request_dto.UpdatePasswordRequestDTO, *, session: AsyncSession
     ) -> None:
-        validated, user_id = validate_jwt(
-            data["access_token"], TokenTypes.ACCESS, cls._config
+        user_id = validate_jwt(data.access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(data.access_token, session)
+
+        dto = request_dto.UpdatePasswordDataRequestDTO(
+            user_id,
+            data.access_token,
+            data.old_password,
+            get_hashed_password(data.new_password),
         )
-        db_validated = await CRUD.validate_access_token(data["access_token"], session)
 
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-
-        data["user_id"] = user_id
-        data["new_password"] = get_hashed_password(data["new_password"])
-        await CRUD.update_password(data, session)
+        await CRUD.update_password(dto, session)
 
     @classmethod
     @get_session
     async def delete_profile(cls, access_token: str, *, session: AsyncSession) -> str:
-        validated, user_id = validate_jwt(access_token, TokenTypes.ACCESS, cls._config)
-        db_validated = await CRUD.validate_access_token(access_token, session)
-
-        if not validated or not db_validated:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
-
+        user_id = validate_jwt(access_token, TokenTypes.ACCESS)
+        await CRUD.validate_access_token(access_token, session)
         await CRUD.delete_profile(user_id, session)
         await cache.delete_match(rf"\w+-{user_id}")
         return user_id

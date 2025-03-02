@@ -23,4 +23,4 @@ class File(Base):
     )
 
     def __str__(self) -> str:
-        return f"<File: {self.name}>"
+        return f"<File: {self.file_id}>"

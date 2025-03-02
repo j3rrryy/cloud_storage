@@ -3,15 +3,15 @@ from uuid import uuid4
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
-from .base import BaseModel
+Base = declarative_base()
 
 
-class User(BaseModel):
+class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         UUID(False), primary_key=True, unique=True, default=uuid4
     )
     username: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
@@ -22,51 +22,32 @@ class User(BaseModel):
         sa.TIMESTAMP, nullable=False, default=datetime.now
     )
 
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
-        "RefreshToken", back_populates="user"
-    )
+    tokens: Mapped[list["TokenPair"]] = relationship("TokenPair", back_populates="user")
 
     def __str__(self) -> str:
-        return f"<User: {self.username}>"
+        return f"<User: {self.user_id}>"
 
 
-class AccessToken(BaseModel):
-    __tablename__ = "access_tokens"
+class TokenPair(Base):
+    __tablename__ = "tokens"
 
-    access_token: Mapped[str] = mapped_column(sa.String, primary_key=True, unique=True)
-    refresh_token: Mapped[str] = mapped_column(
-        sa.ForeignKey("refresh_tokens.refresh_token", ondelete="CASCADE"),
-        nullable=False,
-    )
-
-    refresh_token_parent: Mapped["RefreshToken"] = relationship(
-        "RefreshToken", back_populates="access_tokens"
-    )
-
-    def __str__(self) -> str:
-        return f"<AccessToken: {self.access_token}>"
-
-
-class RefreshToken(BaseModel):
-    __tablename__ = "refresh_tokens"
-
-    id: Mapped[str] = mapped_column(
+    session_id: Mapped[str] = mapped_column(
         UUID(False), primary_key=True, unique=True, default=uuid4
     )
-    refresh_token: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
     user_id: Mapped[UUID] = mapped_column(
-        sa.ForeignKey(User.id, ondelete="CASCADE"), nullable=False
+        sa.ForeignKey(User.user_id, ondelete="CASCADE"), nullable=False
     )
+    access_token: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
+    refresh_token: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
     user_ip: Mapped[str] = mapped_column(sa.String, nullable=False)
     browser: Mapped[str] = mapped_column(sa.String, nullable=False)
     last_accessed: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=datetime.now
     )
 
-    user: Mapped[User] = relationship(User, back_populates="refresh_tokens")
-    access_tokens: Mapped[list["AccessToken"]] = relationship(
-        AccessToken, back_populates="refresh_token_parent"
+    user: Mapped[User] = relationship(
+        User, back_populates="tokens", passive_deletes=True
     )
 
     def __str__(self) -> str:
-        return f"<RefreshToken: {self.refresh_token}>"
+        return f"<TokenPair: {self.session_id}>"

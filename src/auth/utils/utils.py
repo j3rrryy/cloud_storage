@@ -2,16 +2,20 @@ from datetime import datetime as dt
 from datetime import timedelta
 from enum import Enum
 from secrets import choice
-from typing import Any
+from typing import Awaitable, Callable, TypeVar
 
 import bcrypt
 from grpc import ServicerContext, StatusCode
 from httpagentparser import simple_detect
-from jwskate import Jwt
+from jwskate import Jwt, SignedJwt
 from picologging import Logger
 
-from config import Config
+from config import load_config
 from errors import UnauthenticatedError
+
+T = TypeVar("T")
+
+config = load_config()
 
 
 class TokenTypes(Enum):
@@ -26,7 +30,13 @@ class ExceptionHandler:
     def __init__(self, logger: Logger):
         self._logger = logger
 
-    async def __call__(self, context: ServicerContext, func, *args, **kwargs) -> Any:
+    async def __call__(
+        self,
+        context: ServicerContext,
+        func: Callable[..., Awaitable[T]],
+        *args,
+        **kwargs,
+    ) -> T:
         try:
             res = await func(*args, **kwargs)
             return res
@@ -36,13 +46,14 @@ class ExceptionHandler:
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
             await context.abort(status_code, details)
+            raise
 
 
 def generate_reset_code() -> str:
     return "".join(choice("0123456789") for _ in range(6))
 
 
-def generate_jwt(user_id: str, token_type: TokenTypes, config: Config) -> str:
+def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
     match token_type:
         case TokenTypes.ACCESS:
             exp_time = dt.now() + timedelta(minutes=15)
@@ -58,55 +69,46 @@ def generate_jwt(user_id: str, token_type: TokenTypes, config: Config) -> str:
         "iat": dt.now(),
         "exp": exp_time,
     }
-    jwt = str(Jwt.sign(claims, config.app.private_key, alg="EdDSA"))
-    return jwt
+    return str(Jwt.sign(claims, config.app.private_key, alg="EdDSA"))
 
 
-def validate_jwt(
-    token: str, token_type: TokenTypes, config: Config
-) -> tuple[bool, str | None]:
+def validate_jwt(token: str, token_type: TokenTypes) -> str:
     try:
         jwt = Jwt(token)
+
+        if (
+            not isinstance(jwt, SignedJwt)
+            or not jwt.verify_signature(config.app.public_key, "EdDSA")
+            or jwt.issuer != config.app.name
+            or jwt.subject is None
+            or jwt.type is None
+        ):
+            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+
         jwt_type = TokenTypes(jwt.type)
 
-        verified_signature = jwt.verify_signature(config.app.public_key, "EdDSA")
-        verified_token_type = jwt_type == token_type
-        verified_issuer = jwt.issuer == config.app.name
-        user_id = jwt.subject
-        expired = jwt.is_expired()
-
-        if not verified_token_type:
+        if jwt_type != token_type:
             raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Invalid token type")
-        elif jwt_type == TokenTypes.ACCESS and expired:
+        elif jwt_type == TokenTypes.ACCESS and jwt.is_expired():
             raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Refresh the tokens")
-        elif jwt_type == TokenTypes.REFRESH and expired:
+        elif jwt_type == TokenTypes.REFRESH and jwt.is_expired():
+            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Re-log in")
+        elif jwt_type == TokenTypes.VERIFICATION and jwt.is_expired():
             raise UnauthenticatedError(
                 StatusCode.UNAUTHENTICATED, "Resend the verification mail"
             )
-
-        res = (
-            verified_signature
-            and verified_token_type
-            and verified_issuer
-            and user_id
-            and not expired
-        )
-
-        return res, user_id
+        return jwt.subject
     except UnauthenticatedError as exc:
         raise exc
-    except Exception:
-        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
 
 
-def compare_passwords(password: str, hashed_password: str) -> bool:
-    res = bcrypt.checkpw(password.encode(), hashed_password.encode())
-    return res
+def compare_passwords(password: str, hashed_password: str) -> None:
+    if not bcrypt.checkpw(password.encode(), hashed_password.encode()):
+        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Invalid credentials")
 
 
 def get_hashed_password(password: str) -> str:
-    res = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    return res
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 def convert_user_agent(user_agent: str) -> str:

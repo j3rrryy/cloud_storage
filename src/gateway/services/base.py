@@ -10,7 +10,6 @@ from litestar.exceptions import (
     InternalServerException,
     NotAuthorizedException,
     NotFoundException,
-    PermissionDeniedException,
 )
 
 from dto.base import BaseDTO
@@ -26,7 +25,6 @@ class RPCBase:
         StatusCode.ALREADY_EXISTS: HTTPException(status_code=409),
         StatusCode.UNAUTHENTICATED: NotAuthorizedException,
         StatusCode.NOT_FOUND: NotFoundException,
-        StatusCode.PERMISSION_DENIED: PermissionDeniedException,
         StatusCode.INTERNAL: InternalServerException,
         StatusCode.UNAVAILABLE: InternalServerException,
         StatusCode.UNKNOWN: InternalServerException,
