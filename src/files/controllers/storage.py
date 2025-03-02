@@ -1,14 +1,11 @@
 from types_aiobotocore_s3 import S3Client
 
-from config import load_config
 from dto import request as request_dto
 from dto import response as response_dto
 from storage import CRUD, get_client
 
 
 class StorageController:
-    _config = load_config()
-
     @classmethod
     @get_client
     async def upload_file(

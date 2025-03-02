@@ -1,15 +1,12 @@
 from cashews import cache
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import load_config
 from database import CRUD, get_session
 from dto import request as request_dto
 from dto import response as response_dto
 
 
 class DatabaseController:
-    _config = load_config()
-
     @classmethod
     @get_session
     async def upload_file(
