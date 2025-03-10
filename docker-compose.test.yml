@@ -5,7 +5,7 @@ services:
       - ./test/.env
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
-      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+      pytest ./tests --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: gateway_test
 
   auth:
@@ -15,7 +15,7 @@ services:
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
       alembic -c "./config/alembic.ini" upgrade head &&
-      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+      pytest ./tests --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: auth_test
 
   files:
@@ -25,7 +25,7 @@ services:
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
       alembic -c "./config/alembic.ini" upgrade head &&
-      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+      pytest ./tests --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: files_test
 
   mail:
@@ -34,5 +34,5 @@ services:
       - ./test/.env
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
-      pytest --cov-config=./tests/.coveragerc --cov-report=xml"
+      pytest ./tests --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: mail_test
