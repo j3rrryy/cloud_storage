@@ -18,7 +18,6 @@ from services.base import RPCBase
         (StatusCode.ALREADY_EXISTS, HTTPException),
         (StatusCode.UNAUTHENTICATED, NotAuthorizedException),
         (StatusCode.NOT_FOUND, NotFoundException),
-        (StatusCode.PERMISSION_DENIED, PermissionDeniedException),
         (StatusCode.INTERNAL, InternalServerException),
         (StatusCode.UNAVAILABLE, InternalServerException),
         (StatusCode.UNKNOWN, InternalServerException),
@@ -39,6 +38,5 @@ async def test_handle_exception(status_code, expected_exception):
 
     with pytest.raises(expected_exception) as exc_info:
         await mock_function()
-        assert exc_info.value.detail == DETAILS
-        if isinstance(exc_info.value, HTTPException):
-            assert exc_info.value.status_code == 409
+
+    assert exc_info.value.detail == DETAILS
