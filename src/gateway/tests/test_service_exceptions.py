@@ -5,7 +5,6 @@ from litestar.exceptions import (
     InternalServerException,
     NotAuthorizedException,
     NotFoundException,
-    PermissionDeniedException,
 )
 
 from services.base import RPCBase
