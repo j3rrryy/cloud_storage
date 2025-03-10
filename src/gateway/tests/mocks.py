@@ -7,7 +7,6 @@ from proto import auth_pb2, files_pb2
 TIMESTAMP = "1970-01-01T00:02:03Z"
 TIMESTAMP_MOCK = timestamp_pb2.Timestamp(seconds=123)
 
-
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
 REFRESH_TOKEN = "eyJ0eXBlIjoxLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.Cz6F9m9TJP76hzcyst0xE9vp6RmXtGIhAXaNqJWrJL8"
 VERIFICATION_TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
@@ -20,8 +19,10 @@ PASSWORD = "p@ssw0rd"
 
 SESSION_ID = "13bcdea3-dd61-40fb-8f1f-f9546fd8ffc5"
 USER_IP = "127.0.0.1"
-USER_AGENT = "test_user_agent"
-BROWSER = "test_browser"
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
+)
+BROWSER = "Firefox 47.0, Windows 7"
 
 
 URL = "/files/url"

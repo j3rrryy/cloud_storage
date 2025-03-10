@@ -106,7 +106,7 @@
   - Use this command
 
     ```shell
-    pytest
+    pytest ./tests
     ```
 
 ### :x: Stop

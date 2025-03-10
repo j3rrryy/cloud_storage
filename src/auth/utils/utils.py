@@ -61,45 +61,42 @@ def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
             exp_time = dt.now() + timedelta(days=30)
         case TokenTypes.VERIFICATION:
             exp_time = dt.now() + timedelta(days=3)
+        case _:  # pragma: no cover
+            exp_time = None
 
-    claims = {
-        "type": token_type.value,
-        "iss": config.app.name,
-        "sub": user_id,
-        "iat": dt.now(),
-        "exp": exp_time,
-    }
-    return str(Jwt.sign(claims, config.app.private_key, alg="EdDSA"))
+    claims = {"iss": config.app.name, "sub": user_id, "iat": dt.now(), "exp": exp_time}
+    return str(
+        Jwt.sign(claims, config.app.private_key, alg="EdDSA", typ=str(token_type.value))
+    )
 
 
 def validate_jwt(token: str, token_type: TokenTypes) -> str:
-    try:
-        jwt = Jwt(token)
+    jwt = Jwt(token)
 
-        if (
-            not isinstance(jwt, SignedJwt)
-            or not jwt.verify_signature(config.app.public_key, "EdDSA")
-            or jwt.issuer != config.app.name
-            or jwt.subject is None
-            or jwt.type is None
-        ):
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+    if (
+        not isinstance(jwt, SignedJwt)
+        or not jwt.verify_signature(config.app.public_key, "EdDSA")
+        or jwt.issuer != config.app.name
+        or jwt.subject is None
+        or not (
+            hasattr(jwt, "typ") and jwt.typ.isdigit() and int(jwt.typ) in range(0, 3)
+        )
+    ):
+        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
 
-        jwt_type = TokenTypes(jwt.type)
+    jwt_type = TokenTypes(int(jwt.typ))
 
-        if jwt_type != token_type:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Invalid token type")
-        elif jwt_type == TokenTypes.ACCESS and jwt.is_expired():
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Refresh the tokens")
-        elif jwt_type == TokenTypes.REFRESH and jwt.is_expired():
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Re-log in")
-        elif jwt_type == TokenTypes.VERIFICATION and jwt.is_expired():
-            raise UnauthenticatedError(
-                StatusCode.UNAUTHENTICATED, "Resend the verification mail"
-            )
-        return jwt.subject
-    except UnauthenticatedError as exc:
-        raise exc
+    if jwt_type != token_type:
+        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Invalid token type")
+    elif jwt_type == TokenTypes.ACCESS and jwt.is_expired():
+        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Refresh the tokens")
+    elif jwt_type == TokenTypes.REFRESH and jwt.is_expired():
+        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Re-log in")
+    elif jwt_type == TokenTypes.VERIFICATION and jwt.is_expired():
+        raise UnauthenticatedError(
+            StatusCode.UNAUTHENTICATED, "Resend the verification mail"
+        )
+    return jwt.subject
 
 
 def compare_passwords(password: str, hashed_password: str) -> None:
