@@ -32,7 +32,7 @@ def test_validate_access_token(
     if expected_exception and expected_message:
         with pytest.raises(expected_exception) as exc_info:
             validate_access_token(mock_request)
-            assert expected_message in exc_info.value.detail
+        assert expected_message in exc_info.value.detail
     else:
         token = validate_access_token(mock_request)
         assert token == expected_token
