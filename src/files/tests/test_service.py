@@ -39,7 +39,6 @@ async def test_upload_file(files_servicer):
 async def test_file_info(files_servicer):
     with (
         patch("controllers.database.CRUD", new_callable=create_database_crud),
-        patch("controllers.storage.CRUD", new_callable=create_storage_crud),
         patch("controllers.database.cache", new_callable=create_cache),
     ):
         request = pb2.FileOperationRequest(user_id=USER_ID, file_id=FILE_ID)
@@ -57,7 +56,6 @@ async def test_file_info(files_servicer):
 async def test_file_list(files_servicer):
     with (
         patch("controllers.database.CRUD", new_callable=create_database_crud),
-        patch("controllers.storage.CRUD", new_callable=create_storage_crud),
         patch("controllers.database.cache", new_callable=create_cache),
     ):
         request = pb2.UserId(user_id=USER_ID)
