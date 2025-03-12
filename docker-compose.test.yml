@@ -14,7 +14,6 @@ services:
       - ./test/.env
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
-      alembic -c "./config/alembic.ini" upgrade head &&
       pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: auth_test
 
@@ -24,7 +23,6 @@ services:
       - ./test/.env
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
-      alembic -c "./config/alembic.ini" upgrade head &&
       pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: files_test
 
