@@ -34,7 +34,7 @@ class AuthResponseDTO(BaseResponseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class RefreshesponseDTO(BaseResponseDTO):
+class RefreshResponseDTO(BaseResponseDTO):
     access_token: str
     refresh_token: str
 
