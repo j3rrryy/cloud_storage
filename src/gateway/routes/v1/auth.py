@@ -7,7 +7,7 @@ from litestar.params import Body
 from dto import auth as auth_dto
 from dto import mail as mail_dto
 from schemas import auth as auth_schemas
-from services import Auth, Files, Mail
+from services import Auth, File, Mail
 from utils import validate_access_token
 
 
@@ -229,11 +229,11 @@ class AuthController(Controller):
 
     @delete("/delete-profile", status_code=204)
     async def delete_profile(
-        self, request: Request, auth_service: Auth, files_service: Files
+        self, request: Request, auth_service: Auth, file_service: File
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service.delete_profile(access_token)
-        await files_service.delete_all_files(user_id)
+        await file_service.delete_all_files(user_id)
 
 
 auth_router = Router("/v1", route_handlers=(AuthController,), tags=("auth",))

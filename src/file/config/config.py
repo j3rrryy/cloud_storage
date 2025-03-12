@@ -50,7 +50,7 @@ def load_config():
     env = Env()
     env.read_env()
 
-    logger = logging.getLogger("files")
+    logger = logging.getLogger("file")
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(message)s",
@@ -89,6 +89,6 @@ def load_config():
             env("MINIO_ROOT_PASSWORD"),
             env("MINIO_HOST"),
             env("MINIO_PORT"),
-            env("MINIO_FILES_BUCKET"),
+            env("MINIO_FILE_BUCKET"),
         ),
     )

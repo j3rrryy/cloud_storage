@@ -4,10 +4,10 @@ import grpc
 from aiokafka import AIOKafkaProducer
 
 from config import load_config
-from proto import AuthStub, FilesStub
+from proto import AuthStub, FileStub
 
 from .auth import Auth
-from .files import Files
+from .file import File
 from .mail import Mail
 
 config = load_config()
@@ -21,12 +21,12 @@ async def connect_auth_service() -> AsyncGenerator[Auth, Any]:
         yield Auth(stub)
 
 
-async def connect_files_service() -> AsyncGenerator[Files, Any]:
+async def connect_file_service() -> AsyncGenerator[File, Any]:
     async with grpc.aio.insecure_channel(
-        config.app.files_service, compression=grpc.Compression.Deflate
+        config.app.file_service, compression=grpc.Compression.Deflate
     ) as channel:
-        stub = FilesStub(channel)
-        yield Files(stub)
+        stub = FileStub(channel)
+        yield File(stub)
 
 
 async def connect_mail_service() -> AsyncGenerator[Mail, Any]:

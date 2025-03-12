@@ -19,7 +19,7 @@ class AppConfig:
     openapi_config: OpenAPIConfig
     prometheus_config: PrometheusConfig
     auth_service: str
-    files_service: str
+    file_service: str
     kafka_service: str
 
 
@@ -87,7 +87,7 @@ def load_config():
             openapi_config,
             prometheus_config,
             env("AUTH_SERVICE"),
-            env("FILES_SERVICE"),
+            env("FILE_SERVICE"),
             env("KAFKA_SERVICE"),
         )
     )

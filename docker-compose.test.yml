@@ -17,14 +17,14 @@ services:
       pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml"
     container_name: auth_test
 
-  files:
-    image: ghcr.io/j3rrryy/cloud_storage:files-latest
+  file:
+    image: ghcr.io/j3rrryy/cloud_storage:file-latest
     env_file:
       - ./test/.env
     command: bash -c "
       pip install -r ./tests/requirements.test.txt &&
       pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml"
-    container_name: files_test
+    container_name: file_test
 
   mail:
     image: ghcr.io/j3rrryy/cloud_storage:mail-latest

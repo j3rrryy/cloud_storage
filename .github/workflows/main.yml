@@ -39,7 +39,7 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        service: [gateway, auth, files, mail]
+        service: [gateway, auth, file, mail]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2

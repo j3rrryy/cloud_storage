@@ -5,11 +5,11 @@ from config import load_config
 from controllers import DatabaseController as DBC
 from controllers import StorageController as STC
 from dto import request as request_dto
-from proto import files_pb2 as pb2
+from proto import file_pb2 as pb2
 from utils import ExceptionHandler
 
 
-class FilesServicer(proto.FilesServicer):
+class FileServicer(proto.FileServicer):
     _eh = ExceptionHandler(load_config().app.logger)
 
     async def UploadFile(self, request, context):

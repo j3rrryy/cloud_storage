@@ -161,7 +161,7 @@ async def test_delete_files_not_file(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_delete_files_not_belongs(mock_session, file):
+async def test_delete_files_not_belong(mock_session, file):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
     file.user_id += "0"
     mock_session.get.return_value = file

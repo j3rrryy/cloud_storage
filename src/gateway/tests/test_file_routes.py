@@ -7,16 +7,16 @@ from litestar.status_codes import (
     HTTP_403_FORBIDDEN,
 )
 
-from schemas import files
+from schemas import file
 
 from .mocks import ACCESS_TOKEN, FILE_ID, NAME, PATH, SIZE, TIMESTAMP, URL
 
-PREFIX = "/api/v1/files"
+PREFIX = "/api/v1/file"
 
 
 @pytest.mark.asyncio
 async def test_upload_file(verified_client):
-    data = files.UploadFile(NAME, PATH, SIZE)
+    data = file.UploadFile(NAME, PATH, SIZE)
     response = await verified_client.post(
         f"{PREFIX}/upload-file",
         content=msgspec.msgpack.encode(data),
@@ -33,7 +33,7 @@ async def test_upload_file(verified_client):
 
 @pytest.mark.asyncio
 async def test_unverified_upload_file(unverified_client):
-    data = files.UploadFile(NAME, PATH, SIZE)
+    data = file.UploadFile(NAME, PATH, SIZE)
     response = await unverified_client.post(
         f"{PREFIX}/upload-file",
         content=msgspec.msgpack.encode(data),

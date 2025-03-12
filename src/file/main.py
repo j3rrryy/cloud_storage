@@ -11,8 +11,8 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 from uvicorn import Config, Server
 
 from config import load_config
-from proto import add_FilesServicer_to_server
-from service import FilesServicer
+from proto import add_FileServicer_to_server
+from service import FileServicer
 
 
 async def start_grpc_server():
@@ -27,7 +27,7 @@ async def start_grpc_server():
         ),
         compression=grpc.Compression.Deflate,
     )
-    add_FilesServicer_to_server(FilesServicer(), server)
+    add_FileServicer_to_server(FileServicer(), server)
     server.add_insecure_port("[::]:50051")
 
     await server.start()

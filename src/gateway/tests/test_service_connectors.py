@@ -4,13 +4,13 @@ import grpc
 import pytest
 
 from config import load_config
-from proto import AuthStub, FilesStub
+from proto import AuthStub, FileStub
 from services import (
     Auth,
-    Files,
+    File,
     Mail,
     connect_auth_service,
-    connect_files_service,
+    connect_file_service,
     connect_mail_service,
 )
 
@@ -39,12 +39,12 @@ async def test_connect_files_service(mock_channel):
     mock_channel_instance.__aenter__.return_value = mock_channel_instance
     mock_channel.return_value = mock_channel_instance
 
-    async for service in connect_files_service():
+    async for service in connect_file_service():
         mock_channel.assert_called_once_with(
-            config.app.files_service, compression=grpc.Compression.Deflate
+            config.app.file_service, compression=grpc.Compression.Deflate
         )
-        assert isinstance(service._stub, FilesStub)
-        assert isinstance(service, Files)
+        assert isinstance(service._stub, FileStub)
+        assert isinstance(service, File)
 
 
 @pytest.mark.asyncio

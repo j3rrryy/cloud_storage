@@ -9,8 +9,8 @@ NAME = "test_name"
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
 FILE_ID = "b8a47c8d-9203-456a-aa58-ceab64b13cbb"
 TIMESTAMP = datetime.fromisoformat("1970-01-01T00:02:03Z")
-URL = "http://minio:9000/files/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
-RELATIVE_URL = "/files/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
+URL = "http://minio:9000/file/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
+RELATIVE_URL = "/file/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
 
 
 def create_database_crud() -> MagicMock:
