@@ -69,8 +69,10 @@ class DatabaseController:
         await cache.delete(f"file_list-{data.user_id}")
 
         for file_id in data.file_ids:
-            await cache.delete(f"file_info-{data.user_id}-{file_id}")
-            await cache.delete(f"download_file_info-{data.user_id}-{file_id}")
+            await cache.delete_many(
+                f"file_info-{data.user_id}-{file_id}",
+                f"download_file_info-{data.user_id}-{file_id}",
+            )
 
         return files
 
