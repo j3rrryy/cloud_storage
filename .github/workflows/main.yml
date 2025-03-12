@@ -72,7 +72,7 @@ jobs:
         run: docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
 
   deploy:
-    if: ${{ vars.DEPLOY }}
+    if: ${{ vars.DEPLOY == 'true' }}
     runs-on: ubuntu-latest
     needs: test
     steps:
