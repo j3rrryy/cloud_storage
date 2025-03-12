@@ -141,7 +141,7 @@ class DatabaseController:
     @get_session
     async def refresh(
         cls, data: request_dto.RefreshRequestDTO, *, session: AsyncSession
-    ) -> response_dto.RefreshesponseDTO:
+    ) -> response_dto.RefreshResponseDTO:
         user_id = validate_jwt(data.refresh_token, TokenTypes.REFRESH)
         await CRUD.validate_refresh_token(data.refresh_token, session)
 
@@ -160,7 +160,7 @@ class DatabaseController:
 
         await CRUD.refresh(dto, session)
         await cache.delete(f"session_list-{user_id}")
-        tokens = response_dto.RefreshesponseDTO(access_token, refresh_token)
+        tokens = response_dto.RefreshResponseDTO(access_token, refresh_token)
         return tokens
 
     @classmethod
@@ -222,8 +222,7 @@ class DatabaseController:
         )
 
         username = await CRUD.update_email(dto, session)
-        await cache.delete(f"auth-{user_id}")
-        await cache.delete(f"profile-{user_id}")
+        await cache.delete_many(f"auth-{user_id}", f"profile-{user_id}")
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)
         return response_dto.VerificationMailResponseDTO(
             verification_token, username, data.new_email
@@ -243,7 +242,6 @@ class DatabaseController:
             data.old_password,
             get_hashed_password(data.new_password),
         )
-
         await CRUD.update_password(dto, session)
 
     @classmethod
