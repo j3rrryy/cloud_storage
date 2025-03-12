@@ -15,22 +15,17 @@ class CRUD:
         cls, data: request_dto.UploadFileRequestDTO, client: S3Client
     ) -> str:
         try:
-            await client.head_bucket(Bucket=cls._BUCKET_NAME)
-        except Exception:
-            raise FileNotFoundError(StatusCode.NOT_FOUND, "Bucket not found")
-
-        try:
             url = await client.generate_presigned_url(
                 "put_object",
                 Params={
                     "Bucket": cls._BUCKET_NAME,
                     "Key": f"{data.user_id}{data.path}",
                 },
-                ExpiresIn=15,
+                ExpiresIn=30,
             )
             return url
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal storage error, {exc}")
+            exc.args = (StatusCode.INTERNAL, f"Internal storage error, {exc}")
             raise exc
 
     @classmethod
@@ -48,11 +43,11 @@ class CRUD:
             url = await client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": cls._BUCKET_NAME, "Key": OBJECT_KEY},
-                ExpiresIn=15,
+                ExpiresIn=30,
             )
             return url
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal storage error, {exc}")
+            exc.args = (StatusCode.INTERNAL, f"Internal storage error, {exc}")
             raise exc
 
     @classmethod
@@ -65,7 +60,7 @@ class CRUD:
                     Bucket=cls._BUCKET_NAME, Key=f"{data.user_id}{path}"
                 )
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal storage error, {exc}")
+            exc.args = (StatusCode.INTERNAL, f"Internal storage error, {exc}")
             raise exc
 
     @classmethod
@@ -84,5 +79,5 @@ class CRUD:
                         Delete={"Objects": delete_requests},  # type: ignore
                     )
         except Exception as exc:
-            exc.args = (StatusCode.INTERNAL, "Internal storage error, {exc}")
+            exc.args = (StatusCode.INTERNAL, f"Internal storage error, {exc}")
             raise exc
