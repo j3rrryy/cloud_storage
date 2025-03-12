@@ -7,8 +7,8 @@ from litestar.plugins.prometheus import PrometheusController
 import main
 from config import load_config
 from routes.v1.auth import auth_router as auth_v1
-from routes.v1.files import files_router as files_v1
-from services import connect_auth_service, connect_files_service, connect_mail_service
+from routes.v1.file import file_router as file_v1
+from services import connect_auth_service, connect_file_service, connect_mail_service
 
 config = load_config()
 
@@ -19,7 +19,7 @@ def test_app(mock_litestar):
 
     mock_litestar.assert_called_once_with(
         path="/api",
-        route_handlers=(PrometheusController, auth_v1, files_v1),
+        route_handlers=(PrometheusController, auth_v1, file_v1),
         debug=config.app.debug,
         logging_config=config.app.litestar_logging_config,
         cors_config=config.app.cors_config,
@@ -28,7 +28,7 @@ def test_app(mock_litestar):
         request_max_body_size=None,
         dependencies={
             "auth_service": Provide(connect_auth_service),
-            "files_service": Provide(connect_files_service),
+            "file_service": Provide(connect_file_service),
             "mail_service": Provide(connect_mail_service),
         },
     )

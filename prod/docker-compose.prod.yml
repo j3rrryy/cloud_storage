@@ -1,8 +1,8 @@
 volumes:
   auth_postgres_data:
   auth_redis_data:
-  files_postgres_data:
-  files_redis_data:
+  file_postgres_data:
+  file_redis_data:
   minio_data:
   zookeper_data:
   zookeper_log:
@@ -20,7 +20,7 @@ networks:
   nginx_network:
   main_network:
   auth_network:
-  files_network:
+  file_network:
   mail_network:
   grafana_network:
 
@@ -56,7 +56,7 @@ services:
       - main_network
     depends_on:
       - auth
-      - files
+      - file
       - mail
     command: python ./main.py
     container_name: gateway_prod
@@ -104,8 +104,8 @@ services:
     hostname: redis
     container_name: auth_redis_prod
 
-  files:
-    image: ghcr.io/j3rrryy/cloud_storage:files-latest
+  file:
+    image: ghcr.io/j3rrryy/cloud_storage:file-latest
     pull_policy: always
     restart: always
     expose:
@@ -115,15 +115,15 @@ services:
       - ./.env
     networks:
       - main_network
-      - files_network
+      - file_network
     depends_on:
       - minio
-      - files_postgres
-      - files_redis
+      - file_postgres
+      - file_redis
     command: bash -c "
       alembic -c "./config/alembic.ini" upgrade head &&
       python ./main.py"
-    container_name: files_prod
+    container_name: file_prod
 
   minio:
     image: minio/minio:latest
@@ -136,7 +136,7 @@ services:
       - minio_data:/data
     networks:
       - nginx_network
-      - files_network
+      - file_network
       - grafana_network
     command: server /data
     container_name: minio_prod
@@ -148,34 +148,34 @@ services:
     volumes:
       - ./create_buckets.sh:/create_buckets.sh
     networks:
-      - files_network
+      - file_network
     depends_on:
       - minio
     entrypoint: bash ./create_buckets.sh
     container_name: mc_prod
 
-  files_postgres:
+  file_postgres:
     image: postgres:alpine
     restart: always
     env_file:
       - ./.env
     volumes:
-      - files_postgres_data:/var/lib/postgresql/data/
+      - file_postgres_data:/var/lib/postgresql/data/
     networks:
-      - files_network
+      - file_network
     hostname: postgres
-    container_name: files_postgres_prod
+    container_name: file_postgres_prod
 
-  files_redis:
+  file_redis:
     image: redis:alpine
     restart: always
     volumes:
-      - files_redis_data:/data/
+      - file_redis_data:/data/
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
-      - files_network
+      - file_network
     hostname: redis
-    container_name: files_redis_prod
+    container_name: file_redis_prod
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest

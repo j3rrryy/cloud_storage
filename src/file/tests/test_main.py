@@ -8,12 +8,12 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 )
 
 import main
-from service import FilesServicer
+from service import FileServicer
 
 
 @pytest.mark.asyncio
 @patch("grpc.aio.server")
-@patch("main.add_FilesServicer_to_server")
+@patch("main.add_FileServicer_to_server")
 @patch("main.load_config")
 async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_server):
     mock_logger = MagicMock()
@@ -45,7 +45,7 @@ async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_
 
     args, _ = mock_add_servicer.call_args
     assert len(args) == 2
-    assert isinstance(args[0], FilesServicer)
+    assert isinstance(args[0], FileServicer)
     assert isinstance(args[1], grpc.aio.Server)
 
     server_mock.add_insecure_port.assert_called_once_with("[::]:50051")
