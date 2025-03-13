@@ -7,7 +7,7 @@ from litestar.exceptions import (
     NotFoundException,
 )
 
-from services.base import RPCBase
+from service.base import RPCBaseService
 
 
 @pytest.mark.asyncio
@@ -31,7 +31,7 @@ async def test_handle_exception(status_code, expected_exception):
         details=DETAILS,
     )
 
-    @RPCBase.handle_exception
+    @RPCBaseService.exception_handler
     async def mock_function():
         raise exception
 

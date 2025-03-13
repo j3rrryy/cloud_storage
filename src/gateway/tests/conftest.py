@@ -7,23 +7,23 @@ from litestar.di import Provide
 from litestar.testing import AsyncTestClient
 
 from config import load_config
-from routes.v1.auth import auth_router as auth_v1
-from routes.v1.file import file_router as file_v1
-from services import Auth, File, Mail
+from controller.v1.auth import auth_router as auth_v1
+from controller.v1.file import file_router as file_v1
+from service import AuthService, FileService, MailService
 
 from .mocks import create_auth_stub, create_file_stub, create_mail_producer
 
 
-async def connect_auth_service() -> AsyncGenerator[Auth, None]:
-    yield Auth(create_auth_stub())
+async def connect_auth_service() -> AsyncGenerator[AuthService, None]:
+    yield AuthService(create_auth_stub())
 
 
-async def connect_file_service() -> AsyncGenerator[File, None]:
-    yield File(create_file_stub())
+async def connect_file_service() -> AsyncGenerator[FileService, None]:
+    yield FileService(create_file_stub())
 
 
-async def connect_mail_service() -> AsyncGenerator[Mail, None]:
-    yield Mail(create_mail_producer())
+async def connect_mail_service() -> AsyncGenerator[MailService, None]:
+    yield MailService(create_mail_producer())
 
 
 def create_app() -> Litestar:
@@ -47,15 +47,15 @@ async def client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
 
 
 @pytest.fixture(scope="session")
-def auth_service() -> Auth:
-    return Auth(create_auth_stub())
+def auth_service() -> AuthService:
+    return AuthService(create_auth_stub())
 
 
 @pytest.fixture(scope="session")
-def file_service() -> File:
-    return File(create_file_stub())
+def file_service() -> FileService:
+    return FileService(create_file_stub())
 
 
 @pytest.fixture
-def mail_service() -> Mail:
-    return Mail(create_mail_producer())
+def mail_service() -> MailService:
+    return MailService(create_mail_producer())

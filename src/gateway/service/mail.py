@@ -1,10 +1,10 @@
 from dto import mail
 from utils import MailTypes
 
-from .base import KafkaBase
+from .base import KafkaBaseService
 
 
-class Mail(KafkaBase):
+class MailService(KafkaBaseService):
     async def verification(self, verification_mail: mail.VerificationMailDTO) -> None:
         await self._producer.send(
             MailTypes.VERIFICATION.name, self.serialize_dict(verification_mail.dict())
