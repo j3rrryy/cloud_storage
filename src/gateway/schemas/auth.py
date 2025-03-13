@@ -45,11 +45,6 @@ class Tokens(Struct):
     token_type: str = "bearer"
 
 
-class Auth(Struct):
-    user_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
-    verified: bool
-
-
 class UserId(Struct):
     user_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
 

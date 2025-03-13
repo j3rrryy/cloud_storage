@@ -1,5 +1,4 @@
-from collections.abc import Callable
-from typing import Any, AsyncGenerator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -15,11 +14,8 @@ from services import Auth, File, Mail
 from .mocks import create_auth_stub, create_file_stub, create_mail_producer
 
 
-def connect_auth_service(verified: bool) -> Callable[[], AsyncGenerator[Auth, None]]:
-    async def wrapper() -> AsyncGenerator[Auth, Any]:
-        yield Auth(create_auth_stub(verified))
-
-    return wrapper
+async def connect_auth_service() -> AsyncGenerator[Auth, None]:
+    yield Auth(create_auth_stub())
 
 
 async def connect_file_service() -> AsyncGenerator[File, None]:
@@ -30,13 +26,13 @@ async def connect_mail_service() -> AsyncGenerator[Mail, None]:
     yield Mail(create_mail_producer())
 
 
-def create_app(verified: bool) -> Litestar:
+def create_app() -> Litestar:
     app = Litestar(
         path="/api",
         route_handlers=(auth_v1, file_v1),
         debug=load_config().app.debug,
         dependencies={
-            "auth_service": Provide(connect_auth_service(verified)),
+            "auth_service": Provide(connect_auth_service),
             "file_service": Provide(connect_file_service),
             "mail_service": Provide(connect_mail_service),
         },
@@ -45,20 +41,14 @@ def create_app(verified: bool) -> Litestar:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def verified_client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
-    async with AsyncTestClient(app=create_app(True)) as client:
-        yield client
-
-
-@pytest_asyncio.fixture(scope="session")
-async def unverified_client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
-    async with AsyncTestClient(app=create_app(False)) as client:
+async def client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
+    async with AsyncTestClient(app=create_app()) as client:
         yield client
 
 
 @pytest.fixture(scope="session")
 def auth_service() -> Auth:
-    return Auth(create_auth_stub(True))
+    return Auth(create_auth_stub())
 
 
 @pytest.fixture(scope="session")

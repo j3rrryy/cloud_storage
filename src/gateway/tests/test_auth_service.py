@@ -84,8 +84,7 @@ async def test_resend_verification_mail(auth_service):
 @pytest.mark.asyncio
 async def test_auth(auth_service):
     response = await auth_service.auth(ACCESS_TOKEN)
-    assert response.user_id == USER_ID
-    assert response.verified
+    assert response == USER_ID
 
 
 @pytest.mark.asyncio

@@ -34,7 +34,7 @@ async def test_connect_auth_service(mock_channel):
 
 @pytest.mark.asyncio
 @patch("services.connect.grpc.aio.insecure_channel")
-async def test_connect_files_service(mock_channel):
+async def test_connect_file_service(mock_channel):
     mock_channel_instance = AsyncMock()
     mock_channel_instance.__aenter__.return_value = mock_channel_instance
     mock_channel.return_value = mock_channel_instance

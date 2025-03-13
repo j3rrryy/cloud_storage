@@ -154,7 +154,7 @@ async def test_auth(auth_servicer):
         mock_validator.return_value = USER_ID
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_servicer.Auth(request, MagicMock(ServicerContext))
-        assert response == pb2.AuthResponse(user_id=USER_ID, verified=True)
+        assert response == pb2.UserId(user_id=USER_ID)
 
 
 @pytest.mark.asyncio

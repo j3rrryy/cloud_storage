@@ -23,9 +23,9 @@ PREFIX = "/api/v1/auth"
 
 
 @pytest.mark.asyncio
-async def test_register(verified_client):
+async def test_register(client):
     data = auth.Registration(USERNAME, EMAIL, PASSWORD)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/register",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
@@ -34,17 +34,17 @@ async def test_register(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_verify_email(verified_client):
-    response = await verified_client.get(
+async def test_verify_email(client):
+    response = await client.get(
         f"{PREFIX}/verify-email", params={"verification_token": VERIFICATION_TOKEN}
     )
     assert response.status_code == HTTP_204_NO_CONTENT
 
 
 @pytest.mark.asyncio
-async def test_request_reset(verified_client):
+async def test_request_reset(client):
     data = auth.ForgotPassword(EMAIL)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/request-reset-code",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
@@ -56,9 +56,9 @@ async def test_request_reset(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_validate_reset_code(verified_client):
+async def test_validate_reset_code(client):
     data = auth.ResetCode(USER_ID, CODE)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/validate-reset-code",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
@@ -70,9 +70,9 @@ async def test_validate_reset_code(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_reset_password(verified_client):
+async def test_reset_password(client):
     data = auth.ResetPassword(USER_ID, PASSWORD)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/reset-password",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
@@ -81,9 +81,9 @@ async def test_reset_password(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_log_in(verified_client):
+async def test_log_in(client):
     data = auth.LogIn(USERNAME, PASSWORD)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/log-in",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
@@ -99,34 +99,16 @@ async def test_log_in(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_unverified_log_in(unverified_client):
-    data = auth.LogIn(USERNAME, PASSWORD)
-    response = await unverified_client.post(
-        f"{PREFIX}/log-in",
-        content=msgspec.msgpack.encode(data),
-        headers={"Content-Type": "application/msgpack"},
-    )
-
-    response_data = msgspec.msgpack.decode(response.content)
-    assert response.status_code == HTTP_200_OK
-    assert response_data == {
-        "access_token": ACCESS_TOKEN,
-        "refresh_token": REFRESH_TOKEN,
-        "token_type": "bearer",
-    }
-
-
-@pytest.mark.asyncio
-async def test_log_out(verified_client):
-    response = await verified_client.post(
+async def test_log_out(client):
+    response = await client.post(
         f"{PREFIX}/log-out", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
     assert response.status_code == HTTP_204_NO_CONTENT
 
 
 @pytest.mark.asyncio
-async def test_resend_verification_mail(verified_client):
-    response = await verified_client.post(
+async def test_resend_verification_mail(client):
+    response = await client.post(
         f"{PREFIX}/resend-verification-mail",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
     )
@@ -134,20 +116,20 @@ async def test_resend_verification_mail(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_auth(verified_client):
-    response = await verified_client.get(
+async def test_auth(client):
+    response = await client.get(
         f"{PREFIX}/auth", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
     response_data = msgspec.msgpack.decode(response.content)
     assert response.status_code == HTTP_200_OK
-    assert response_data == {"user_id": USER_ID, "verified": True}
+    assert response_data == {"user_id": USER_ID}
 
 
 @pytest.mark.asyncio
-async def test_refresh(verified_client):
+async def test_refresh(client):
     data = auth.RefreshToken(REFRESH_TOKEN)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/refresh",
         content=msgspec.msgpack.encode(data),
         headers={
@@ -166,8 +148,8 @@ async def test_refresh(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_session_list(verified_client):
-    response = await verified_client.get(
+async def test_session_list(client):
+    response = await client.get(
         f"{PREFIX}/session-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
@@ -186,9 +168,9 @@ async def test_session_list(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_revoke_session(verified_client):
+async def test_revoke_session(client):
     data = auth.SessionId(SESSION_ID)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/revoke-session",
         content=msgspec.msgpack.encode(data),
         headers={
@@ -200,8 +182,8 @@ async def test_revoke_session(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_profile(verified_client):
-    response = await verified_client.get(
+async def test_profile(client):
+    response = await client.get(
         f"{PREFIX}/profile", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
@@ -217,9 +199,9 @@ async def test_profile(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_update_email(verified_client):
+async def test_update_email(client):
     data = auth.UpdateEmail(EMAIL)
-    response = await verified_client.patch(
+    response = await client.patch(
         f"{PREFIX}/update-email",
         content=msgspec.msgpack.encode(data),
         headers={
@@ -231,9 +213,9 @@ async def test_update_email(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_update_password(verified_client):
+async def test_update_password(client):
     data = auth.UpdatePassword(PASSWORD, PASSWORD)
-    response = await verified_client.patch(
+    response = await client.patch(
         f"{PREFIX}/update-password",
         content=msgspec.msgpack.encode(data),
         headers={
@@ -245,8 +227,8 @@ async def test_update_password(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_delete_profile(verified_client):
-    response = await verified_client.delete(
+async def test_delete_profile(client):
+    response = await client.delete(
         f"{PREFIX}/delete-profile", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
     assert response.status_code == HTTP_204_NO_CONTENT

@@ -123,19 +123,10 @@ class DatabaseController:
 
     @classmethod
     @get_session
-    async def auth(
-        cls, access_token: str, *, session: AsyncSession
-    ) -> response_dto.AuthResponseDTO:
+    async def auth(cls, access_token: str, *, session: AsyncSession) -> str:
         user_id = validate_jwt(access_token, TokenTypes.ACCESS)
         await CRUD.validate_access_token(access_token, session)
-
-        if cached := await cache.get(f"auth-{user_id}"):
-            return cached
-
-        profile = await CRUD.profile(user_id, session)
-        user_info = response_dto.AuthResponseDTO(user_id, profile.verified)
-        await cache.set(f"auth-{user_id}", user_info, 3600)
-        return user_info
+        return user_id
 
     @classmethod
     @get_session

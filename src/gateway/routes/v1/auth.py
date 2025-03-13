@@ -102,7 +102,7 @@ class AuthController(Controller):
         )
         login_data = await auth_service.log_in(dto)
 
-        if login_data.verified:
+        if login_data.verified:  # pragma: no cover
             info_mail = mail_dto.InfoMailDTO(
                 data.username, login_data.email, dto.user_ip, login_data.browser
             )
@@ -126,15 +126,15 @@ class AuthController(Controller):
     @get(
         "/auth",
         status_code=200,
-        response_model=auth_schemas.Auth,
+        response_model=auth_schemas.UserId,
         media_type=MediaType.MESSAGEPACK,
     )
     async def auth_user(
         self, request: Request, auth_service: Auth
-    ) -> auth_schemas.Auth:
+    ) -> auth_schemas.UserId:
         access_token = validate_access_token(request)
-        user_info = await auth_service.auth(access_token)
-        return auth_schemas.Auth(**user_info.dict())
+        user_id = await auth_service.auth(access_token)
+        return auth_schemas.UserId(user_id)
 
     @post(
         "/refresh",

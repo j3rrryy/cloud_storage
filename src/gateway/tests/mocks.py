@@ -33,7 +33,7 @@ SIZE = 123
 NAME = "test_name"
 
 
-def create_auth_stub(verified: bool) -> MagicMock:
+def create_auth_stub() -> MagicMock:
     stub = MagicMock()
 
     stub.Register = AsyncMock(
@@ -55,7 +55,7 @@ def create_auth_stub(verified: bool) -> MagicMock:
             refresh_token=REFRESH_TOKEN,
             email=EMAIL,
             browser=BROWSER,
-            verified=verified,
+            verified=True,
         )
     )
     stub.LogOut = AsyncMock(return_value=Empty())
@@ -64,9 +64,7 @@ def create_auth_stub(verified: bool) -> MagicMock:
             verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
         )
     )
-    stub.Auth = AsyncMock(
-        return_value=auth_pb2.AuthResponse(user_id=USER_ID, verified=verified)
-    )
+    stub.Auth = AsyncMock(return_value=auth_pb2.UserId(user_id=USER_ID))
     stub.Refresh = AsyncMock(
         return_value=auth_pb2.Tokens(
             access_token=ACCESS_TOKEN, refresh_token=REFRESH_TOKEN
@@ -90,7 +88,7 @@ def create_auth_stub(verified: bool) -> MagicMock:
             user_id=USER_ID,
             username=USERNAME,
             email=EMAIL,
-            verified=verified,
+            verified=True,
             registered=TIMESTAMP_MOCK,
         )
     )
