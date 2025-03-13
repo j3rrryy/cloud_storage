@@ -47,7 +47,7 @@ services:
     env_file:
       - ./dev/.env
     volumes:
-      - ./src/gateway/:/app
+      - ./src/gateway/:/src/gateway/
     networks:
       - nginx_network
       - main_network
@@ -68,7 +68,7 @@ services:
     env_file:
       - ./dev/.env
     volumes:
-      - ./src/auth/:/app
+      - ./src/auth/:/src/auth/
     networks:
       - main_network
       - auth_network
@@ -113,7 +113,7 @@ services:
     env_file:
       - ./dev/.env
     volumes:
-      - ./src/file/:/app
+      - ./src/file/:/src/file/
     networks:
       - main_network
       - file_network
@@ -226,7 +226,7 @@ services:
     env_file:
       - ./dev/.env
     volumes:
-      - ./src/mail/:/app
+      - ./src/mail/:/src/mail/
     networks:
       - main_network
       - mail_network
