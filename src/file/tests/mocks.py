@@ -13,7 +13,7 @@ URL = "http://minio:9000/file/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWS
 RELATIVE_URL = "/file/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
 
 
-def create_database_crud() -> MagicMock:
+def create_repository() -> MagicMock:
     crud = MagicMock()
 
     crud.upload_file = AsyncMock()
@@ -36,7 +36,7 @@ def create_database_crud() -> MagicMock:
     return crud
 
 
-def create_storage_crud() -> MagicMock:
+def create_storage() -> MagicMock:
     crud = MagicMock()
 
     crud.upload_file = AsyncMock(return_value=URL)

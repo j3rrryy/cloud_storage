@@ -8,7 +8,7 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 )
 
 import main
-from service import FileServicer
+from controller import FileServicer
 
 
 @pytest.mark.asyncio

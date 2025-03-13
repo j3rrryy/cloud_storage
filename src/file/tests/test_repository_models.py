@@ -1,4 +1,4 @@
-from database import File
+from repository import File
 
 from .mocks import FILE_ID
 
