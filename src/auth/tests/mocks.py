@@ -23,7 +23,7 @@ USER_AGENT = (
 BROWSER = "Firefox 47.0, Windows 7"
 
 
-def create_database_crud() -> MagicMock:
+def create_repository() -> MagicMock:
     crud = MagicMock()
 
     crud.register = AsyncMock(return_value=USER_ID)
