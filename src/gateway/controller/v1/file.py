@@ -7,8 +7,8 @@ from litestar.params import Body
 from litestar.response import Redirect
 
 from dto import file as file_dto
-from schemas import file as fm
-from services import Auth, File
+from schemas import file as file_schemas
+from service import AuthService, FileService
 from utils import validate_access_token
 
 
@@ -18,58 +18,68 @@ class FileController(Controller):
     @post(
         "/upload-file",
         status_code=201,
-        response_model=fm.UploadURL,
+        response_model=file_schemas.UploadURL,
         media_type=MediaType.MESSAGEPACK,
     )
     async def upload_file(
         self,
         data: Annotated[
-            fm.UploadFile, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            file_schemas.UploadFile, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service: Auth,
-        file_service: File,
-    ) -> fm.UploadURL:
+        auth_service: AuthService,
+        file_service: FileService,
+    ) -> file_schemas.UploadURL:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
 
         dto = file_dto.UploadFileDTO(user_id, data.name, data.path, data.size)
         upload_url = await file_service.upload_file(dto)
-        return fm.UploadURL(upload_url)
+        return file_schemas.UploadURL(upload_url)
 
     @get(
         "/file-info/{file_id: uuid}",
         status_code=200,
-        response_model=fm.FileInfo,
+        response_model=file_schemas.FileInfo,
         media_type=MediaType.MESSAGEPACK,
     )
     async def file_info(
-        self, file_id: UUID, request: Request, auth_service: Auth, file_service: File
-    ) -> fm.FileInfo:
+        self,
+        file_id: UUID,
+        request: Request,
+        auth_service: AuthService,
+        file_service: FileService,
+    ) -> file_schemas.FileInfo:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
 
         dto = file_dto.FileDTO(user_id, str(file_id))
         file_info = await file_service.file_info(dto)
-        return fm.FileInfo(**file_info.dict())
+        return file_schemas.FileInfo(**file_info.dict())
 
     @get(
         "/file-list",
         status_code=200,
-        response_model=fm.FileList,
+        response_model=file_schemas.FileList,
         media_type=MediaType.MESSAGEPACK,
     )
     async def file_list(
-        self, request: Request, auth_service: Auth, file_service: File
-    ) -> fm.FileList:
+        self, request: Request, auth_service: AuthService, file_service: FileService
+    ) -> file_schemas.FileList:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
         files = await file_service.file_list(user_id)
-        return fm.FileList(tuple(fm.FileInfo(**file.dict()) for file in files))
+        return file_schemas.FileList(
+            tuple(file_schemas.FileInfo(**file.dict()) for file in files)
+        )
 
     @get("/download-file/{file_id: uuid}", status_code=200, response_class=Redirect)
     async def download_file(
-        self, file_id: UUID, request: Request, auth_service: Auth, file_service: File
+        self,
+        file_id: UUID,
+        request: Request,
+        auth_service: AuthService,
+        file_service: FileService,
     ) -> Redirect:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
@@ -83,8 +93,8 @@ class FileController(Controller):
         self,
         file_id: list[UUID],
         request: Request,
-        auth_service: Auth,
-        file_service: File,
+        auth_service: AuthService,
+        file_service: FileService,
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
@@ -93,7 +103,7 @@ class FileController(Controller):
 
     @delete("/delete-all-files", status_code=204)
     async def delete_all_files(
-        self, request: Request, auth_service: Auth, file_service: File
+        self, request: Request, auth_service: AuthService, file_service: FileService
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)

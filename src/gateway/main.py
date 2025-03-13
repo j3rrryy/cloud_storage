@@ -4,9 +4,9 @@ from litestar.di import Provide
 from litestar.plugins.prometheus import PrometheusController
 
 from config import load_config
-from routes.v1.auth import auth_router as auth_v1
-from routes.v1.file import file_router as file_v1
-from services import connect_auth_service, connect_file_service, connect_mail_service
+from controller.v1.auth import auth_router as auth_v1
+from controller.v1.file import file_router as file_v1
+from service import connect_auth_service, connect_file_service, connect_mail_service
 
 config = load_config()
 

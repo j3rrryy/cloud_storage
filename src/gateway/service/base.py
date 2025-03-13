@@ -17,7 +17,7 @@ from dto.base import BaseDTO
 T = TypeVar("T", bound=BaseDTO)
 
 
-class RPCBase:
+class RPCBaseService:
     __slots__ = "_stub"
 
     _instance = None
@@ -39,7 +39,7 @@ class RPCBase:
         self._stub = stub
 
     @classmethod
-    def handle_exception(cls, func):
+    def exception_handler(cls, func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             try:
@@ -57,7 +57,7 @@ class RPCBase:
         return dto(**MessageToDict(data, preserving_proto_field_name=True))
 
 
-class KafkaBase:
+class KafkaBaseService:
     __slots__ = "_producer"
 
     _instance = None

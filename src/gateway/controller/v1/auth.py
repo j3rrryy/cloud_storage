@@ -7,7 +7,7 @@ from litestar.params import Body
 from dto import auth as auth_dto
 from dto import mail as mail_dto
 from schemas import auth as auth_schemas
-from services import Auth, File, Mail
+from service import AuthService, FileService, MailService
 from utils import validate_access_token
 
 
@@ -20,15 +20,17 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.Registration, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        auth_service: Auth,
-        mail_service: Mail,
+        auth_service: AuthService,
+        mail_service: MailService,
     ) -> None:
         dto = auth_dto.RegistrationDTO.from_struct(data)
         verification_mail = await auth_service.register(dto)
         await mail_service.verification(verification_mail)
 
     @get("/verify-email", status_code=204)
-    async def verify_email(self, verification_token: str, auth_service: Auth) -> None:
+    async def verify_email(
+        self, verification_token: str, auth_service: AuthService
+    ) -> None:
         await auth_service.verify_email(verification_token)
 
     @post(
@@ -43,8 +45,8 @@ class AuthController(Controller):
             auth_schemas.ForgotPassword,
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
-        auth_service: Auth,
-        mail_service: Mail,
+        auth_service: AuthService,
+        mail_service: MailService,
     ) -> auth_schemas.UserId:
         reset_info = await auth_service.request_reset_code(data.email)
         dto = mail_dto.ResetMailDTO(reset_info.code, reset_info.username, data.email)
@@ -62,7 +64,7 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.ResetCode, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        auth_service: Auth,
+        auth_service: AuthService,
     ) -> auth_schemas.CodeIsValid:
         dto = auth_dto.ResetCodeDTO.from_struct(data)
         is_valid = await auth_service.validate_code(dto)
@@ -74,7 +76,7 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.ResetPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        auth_service: Auth,
+        auth_service: AuthService,
     ) -> None:
         dto = auth_dto.ResetPasswordDTO.from_struct(data)
         await auth_service.reset_password(dto)
@@ -91,8 +93,8 @@ class AuthController(Controller):
             auth_schemas.LogIn, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service: Auth,
-        mail_service: Mail,
+        auth_service: AuthService,
+        mail_service: MailService,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.LogInDTO(
             data.username,
@@ -111,13 +113,13 @@ class AuthController(Controller):
         return auth_schemas.Tokens(login_data.access_token, login_data.refresh_token)
 
     @post("/log-out", status_code=204)
-    async def log_out(self, request: Request, auth_service: Auth) -> None:
+    async def log_out(self, request: Request, auth_service: AuthService) -> None:
         access_token = validate_access_token(request)
         await auth_service.log_out(access_token)
 
     @post("/resend-verification-mail", status_code=204)
     async def resend_verification_mail(
-        self, request: Request, auth_service: Auth, mail_service: Mail
+        self, request: Request, auth_service: AuthService, mail_service: MailService
     ) -> None:
         access_token = validate_access_token(request)
         verification_mail = await auth_service.resend_verification_mail(access_token)
@@ -130,7 +132,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def auth_user(
-        self, request: Request, auth_service: Auth
+        self, request: Request, auth_service: AuthService
     ) -> auth_schemas.UserId:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
@@ -148,7 +150,7 @@ class AuthController(Controller):
             auth_schemas.RefreshToken, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service: Auth,
+        auth_service: AuthService,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.RefreshDTO(
             data.refresh_token,
@@ -165,7 +167,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def session_list(
-        self, request: Request, auth_service: Auth
+        self, request: Request, auth_service: AuthService
     ) -> auth_schemas.SessionList:
         access_token = validate_access_token(request)
         sessions = await auth_service.session_list(access_token)
@@ -180,7 +182,7 @@ class AuthController(Controller):
             auth_schemas.SessionId, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service: Auth,
+        auth_service: AuthService,
     ) -> None:
         dto = auth_dto.RevokeSessionDTO(validate_access_token(request), data.session_id)
         await auth_service.revoke_session(dto)
@@ -192,7 +194,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def profile(
-        self, request: Request, auth_service: Auth
+        self, request: Request, auth_service: AuthService
     ) -> auth_schemas.Profile:
         access_token = validate_access_token(request)
         user_profile = await auth_service.profile(access_token)
@@ -205,8 +207,8 @@ class AuthController(Controller):
             auth_schemas.UpdateEmail, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service: Auth,
-        mail_service: Mail,
+        auth_service: AuthService,
+        mail_service: MailService,
     ) -> None:
         dto = auth_dto.UpdateEmailDTO(validate_access_token(request), data.new_email)
         verification_mail = await auth_service.update_email(dto)
@@ -220,7 +222,7 @@ class AuthController(Controller):
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         request: Request,
-        auth_service: Auth,
+        auth_service: AuthService,
     ) -> None:
         dto = auth_dto.UpdatePasswordDTO(
             validate_access_token(request), data.old_password, data.new_password
@@ -229,7 +231,7 @@ class AuthController(Controller):
 
     @delete("/delete-profile", status_code=204)
     async def delete_profile(
-        self, request: Request, auth_service: Auth, file_service: File
+        self, request: Request, auth_service: AuthService, file_service: FileService
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service.delete_profile(access_token)
