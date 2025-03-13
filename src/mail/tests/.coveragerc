@@ -1,4 +1,4 @@
 [run]
 source = .
-omit = proto/*, tests/*
+omit = tests/*
 branch = True

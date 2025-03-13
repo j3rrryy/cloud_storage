@@ -3,7 +3,7 @@ FROM python:3.12-slim-bullseye
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-WORKDIR /app
+WORKDIR /src/mail
 COPY requirements.txt .
 
 RUN pip3 install -U pip
