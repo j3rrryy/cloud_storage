@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 from datetime import timedelta
 from enum import Enum
+from functools import wraps
 from secrets import choice
 from typing import Awaitable, Callable, TypeVar
 
@@ -9,6 +10,7 @@ from grpc import ServicerContext, StatusCode
 from httpagentparser import simple_detect
 from jwskate import Jwt, SignedJwt
 from picologging import Logger
+from sqlalchemy.exc import IntegrityError
 
 from config import load_config
 from errors import UnauthenticatedError
@@ -47,6 +49,25 @@ class ExceptionHandler:
             )
             await context.abort(status_code, details)
             raise
+
+
+def repository_exception_handler(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            res = await func(*args, **kwargs)
+            return res
+        except IntegrityError as exc:
+            await kwargs["session"].rollback()
+            raise exc
+        except UnauthenticatedError as exc:
+            raise exc
+        except Exception as exc:
+            await kwargs["session"].rollback()
+            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
+            raise exc
+
+    return wrapper
 
 
 def generate_reset_code() -> str:

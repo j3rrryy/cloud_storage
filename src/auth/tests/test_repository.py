@@ -25,7 +25,7 @@ from .mocks import (
 async def test_register(mock_session):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
     mock_session.refresh.side_effect = lambda user: setattr(user, "user_id", USER_ID)
-    user_id = await AuthRepository.register(dto, mock_session)
+    user_id = await AuthRepository.register(dto, session=mock_session)
 
     assert user_id == USER_ID
     mock_session.add.assert_called_once()
@@ -49,22 +49,21 @@ async def test_register_exceptions(
     exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
-    mock_session.refresh.side_effect = exception
+    mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.register(dto, mock_session)
+        await AuthRepository.register(dto, session=mock_session)
 
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
     mock_session.add.assert_called_once()
     mock_session.commit.assert_called_once()
-    mock_session.refresh.assert_called_once()
     mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_verify_email(mock_session):
-    await AuthRepository.verify_email(USER_ID, mock_session)
+    await AuthRepository.verify_email(USER_ID, session=mock_session)
     mock_session.get.assert_called_once()
     mock_session.commit.assert_called_once()
 
@@ -74,12 +73,11 @@ async def test_verify_email_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.verify_email(USER_ID, mock_session)
+        await AuthRepository.verify_email(USER_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
     mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -87,7 +85,7 @@ async def test_verify_email_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.verify_email(USER_ID, mock_session)
+        await AuthRepository.verify_email(USER_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -99,7 +97,7 @@ async def test_verify_email_exception(mock_session):
 @pytest.mark.asyncio
 async def test_reset_password(mock_session):
     dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
-    await AuthRepository.reset_password(dto, mock_session)
+    await AuthRepository.reset_password(dto, session=mock_session)
     mock_session.get.assert_called_once()
     mock_session.execute.assert_called_once()
     mock_session.commit.assert_called_once()
@@ -111,12 +109,11 @@ async def test_reset_password_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.reset_password(dto, mock_session)
+        await AuthRepository.reset_password(dto, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
     mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -125,7 +122,7 @@ async def test_reset_password_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.reset_password(dto, mock_session)
+        await AuthRepository.reset_password(dto, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -140,7 +137,7 @@ async def test_log_in(mock_session):
     dto = request_dto.LogInDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
-    await AuthRepository.log_in(dto, mock_session)
+    await AuthRepository.log_in(dto, session=mock_session)
     mock_session.add.assert_called_once()
     mock_session.commit.assert_called_once()
 
@@ -166,7 +163,7 @@ async def test_log_in_exceptions(
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.log_in(dto, mock_session)
+        await AuthRepository.log_in(dto, session=mock_session)
 
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
@@ -177,7 +174,7 @@ async def test_log_in_exceptions(
 
 @pytest.mark.asyncio
 async def test_log_out(mock_session):
-    await AuthRepository.log_out(ACCESS_TOKEN, mock_session)
+    await AuthRepository.log_out(ACCESS_TOKEN, session=mock_session)
     mock_session.execute.assert_called_once()
     mock_session.delete.assert_called_once()
     mock_session.commit.assert_called_once()
@@ -188,12 +185,11 @@ async def test_log_out_not_tokens(mock_session):
     mock_session.execute.return_value.scalar_one_or_none.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.log_out(ACCESS_TOKEN, mock_session)
+        await AuthRepository.log_out(ACCESS_TOKEN, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
     mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -201,7 +197,7 @@ async def test_log_out_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.log_out(ACCESS_TOKEN, mock_session)
+        await AuthRepository.log_out(ACCESS_TOKEN, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -216,7 +212,7 @@ async def test_refresh(mock_session):
     dto = request_dto.RefreshDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
-    await AuthRepository.refresh(dto, mock_session)
+    await AuthRepository.refresh(dto, session=mock_session)
     mock_session.execute.assert_called_once()
     mock_session.add.assert_called_once()
     mock_session.commit.assert_called_once()
@@ -243,7 +239,7 @@ async def test_refresh_exceptions(
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.refresh(dto, mock_session)
+        await AuthRepository.refresh(dto, session=mock_session)
 
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
@@ -258,7 +254,7 @@ async def test_session_list(mock_session, token_pair):
     mock_session.execute.return_value.scalars.return_value.all.return_value = (
         token_pair,
     )
-    sessions = await AuthRepository.session_list(USER_ID, mock_session)
+    sessions = await AuthRepository.session_list(USER_ID, session=mock_session)
 
     assert isinstance(sessions, tuple)
     assert len(sessions) == 1
@@ -279,7 +275,7 @@ async def test_session_list_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.session_list(ACCESS_TOKEN, mock_session)
+        await AuthRepository.session_list(ACCESS_TOKEN, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -288,7 +284,7 @@ async def test_session_list_exception(mock_session):
 
 @pytest.mark.asyncio
 async def test_revoke_session(mock_session):
-    await AuthRepository.revoke_session(SESSION_ID, mock_session)
+    await AuthRepository.revoke_session(SESSION_ID, session=mock_session)
     mock_session.execute.assert_called_once()
     mock_session.commit.assert_called_once()
 
@@ -298,7 +294,7 @@ async def test_revoke_session_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.revoke_session(SESSION_ID, mock_session)
+        await AuthRepository.revoke_session(SESSION_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -309,7 +305,7 @@ async def test_revoke_session_exception(mock_session):
 
 @pytest.mark.asyncio
 async def test_validate_access_token(mock_session):
-    await AuthRepository.validate_access_token(ACCESS_TOKEN, mock_session)
+    await AuthRepository.validate_access_token(ACCESS_TOKEN, session=mock_session)
     mock_session.execute.assert_called_once()
 
 
@@ -318,7 +314,7 @@ async def test_validate_access_token_not_tokens(mock_session):
     mock_session.execute.return_value.scalar_one_or_none.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.validate_access_token(ACCESS_TOKEN, mock_session)
+        await AuthRepository.validate_access_token(ACCESS_TOKEN, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
@@ -330,7 +326,7 @@ async def test_validate_access_token_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.validate_access_token(ACCESS_TOKEN, mock_session)
+        await AuthRepository.validate_access_token(ACCESS_TOKEN, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -339,13 +335,13 @@ async def test_validate_access_token_exception(mock_session):
 
 @pytest.mark.asyncio
 async def test_validate_refresh_token_using_token(mock_session):
-    await AuthRepository.validate_refresh_token(REFRESH_TOKEN, mock_session)
+    await AuthRepository.validate_refresh_token(REFRESH_TOKEN, session=mock_session)
     mock_session.execute.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_validate_refresh_token_using_session_id(mock_session):
-    await AuthRepository.validate_refresh_token(SESSION_ID, mock_session)
+    await AuthRepository.validate_refresh_token(SESSION_ID, session=mock_session)
     mock_session.get.assert_called_once()
 
 
@@ -354,7 +350,7 @@ async def test_validate_refresh_token_not_tokens(mock_session):
     mock_session.execute.return_value.scalar_one_or_none.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.validate_refresh_token(ACCESS_TOKEN, mock_session)
+        await AuthRepository.validate_refresh_token(ACCESS_TOKEN, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
@@ -366,7 +362,7 @@ async def test_validate_refresh_token_exception(mock_session):
     mock_session.get.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.validate_refresh_token(SESSION_ID, mock_session)
+        await AuthRepository.validate_refresh_token(SESSION_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -376,7 +372,7 @@ async def test_validate_refresh_token_exception(mock_session):
 @pytest.mark.asyncio
 async def test_profile_using_username(mock_session, user):
     mock_session.execute.return_value.scalar_one_or_none.return_value = user
-    profile = await AuthRepository.profile(USERNAME, mock_session)
+    profile = await AuthRepository.profile(USERNAME, session=mock_session)
 
     assert isinstance(profile, response_dto.ProfileResponseDTO)
     assert profile.dict() == {
@@ -392,7 +388,7 @@ async def test_profile_using_username(mock_session, user):
 @pytest.mark.asyncio
 async def test_profile_using_email(mock_session, user):
     mock_session.execute.return_value.scalar_one_or_none.return_value = user
-    profile = await AuthRepository.profile(EMAIL, mock_session)
+    profile = await AuthRepository.profile(EMAIL, session=mock_session)
 
     assert isinstance(profile, response_dto.ProfileResponseDTO)
     assert profile.dict() == {
@@ -408,7 +404,7 @@ async def test_profile_using_email(mock_session, user):
 @pytest.mark.asyncio
 async def test_profile_using_user_id(mock_session, user):
     mock_session.get.return_value = user
-    profile = await AuthRepository.profile(USER_ID, mock_session)
+    profile = await AuthRepository.profile(USER_ID, session=mock_session)
 
     assert isinstance(profile, response_dto.ProfileResponseDTO)
     assert profile.dict() == {
@@ -426,7 +422,7 @@ async def test_profile_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.profile(USER_ID, mock_session)
+        await AuthRepository.profile(USER_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
@@ -438,7 +434,7 @@ async def test_profile_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.profile(EMAIL, mock_session)
+        await AuthRepository.profile(EMAIL, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -449,7 +445,7 @@ async def test_profile_exception(mock_session):
 async def test_update_email(mock_session, user):
     dto = request_dto.UpdateEmailDataRequestDTO(USER_ID, ACCESS_TOKEN, EMAIL)
     mock_session.get.return_value = user
-    username = await AuthRepository.update_email(dto, mock_session)
+    username = await AuthRepository.update_email(dto, session=mock_session)
 
     assert username == USERNAME
     mock_session.get.assert_called_once()
@@ -463,12 +459,11 @@ async def test_update_email_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.update_email(dto, mock_session)
+        await AuthRepository.update_email(dto, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
     mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -487,15 +482,14 @@ async def test_update_email_exceptions(
     exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.UpdateEmailDataRequestDTO(USER_ID, ACCESS_TOKEN, EMAIL)
-    mock_session.refresh.side_effect = exception
+    mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.update_email(dto, mock_session)
+        await AuthRepository.update_email(dto, session=mock_session)
 
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
     mock_session.commit.assert_called_once()
-    mock_session.refresh.assert_called_once()
     mock_session.rollback.assert_called_once()
 
 
@@ -505,7 +499,7 @@ async def test_update_password(mock_session, user):
         USER_ID, ACCESS_TOKEN, PASSWORD, get_hashed_password(PASSWORD)
     )
     mock_session.get.return_value = user
-    await AuthRepository.update_password(dto, mock_session)
+    await AuthRepository.update_password(dto, session=mock_session)
 
     mock_session.get.assert_called_once()
     mock_session.execute.assert_called_once()
@@ -520,12 +514,11 @@ async def test_update_password_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.update_password(dto, mock_session)
+        await AuthRepository.update_password(dto, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
     mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -537,7 +530,7 @@ async def test_update_password_exception(mock_session, user):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.update_password(dto, mock_session)
+        await AuthRepository.update_password(dto, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
@@ -550,7 +543,7 @@ async def test_update_password_exception(mock_session, user):
 @pytest.mark.asyncio
 async def test_delete_profile(mock_session):
     mock_session.execute.return_value.rowcount = 1
-    await AuthRepository.delete_profile(USER_ID, mock_session)
+    await AuthRepository.delete_profile(USER_ID, session=mock_session)
     mock_session.execute.assert_called_once()
     mock_session.commit.assert_called_once()
 
@@ -560,12 +553,11 @@ async def test_delete_profile_row_count(mock_session):
     mock_session.execute.return_value.rowcount = 0
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.delete_profile(USER_ID, mock_session)
+        await AuthRepository.delete_profile(USER_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
     mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -574,7 +566,7 @@ async def test_delete_profile_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.delete_profile(USER_ID, mock_session)
+        await AuthRepository.delete_profile(USER_ID, session=mock_session)
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"

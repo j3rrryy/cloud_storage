@@ -20,10 +20,10 @@ class FileService:
         client: S3Client,
     ) -> str:
         data = data.replace(size=int(data.size), path=data.path + data.name)
-        await FileRepository.upload_file(data, session)
+        await FileRepository.upload_file(data, session=session)
         await cache.delete(f"file_list-{data.user_id}")
 
-        upload_url = await FileStorage.upload_file(data, client)
+        upload_url = await FileStorage.upload_file(data, client=client)
         relative_url = upload_url[upload_url.find("/", 7) :]
         return relative_url
 
@@ -35,7 +35,7 @@ class FileService:
         if cached := await cache.get(f"file_info-{data.user_id}-{data.file_id}"):
             return cached
 
-        info = await FileRepository.file_info(data, session)
+        info = await FileRepository.file_info(data, session=session)
         info = info.replace(user_id=None, path=info.path[: info.path.rfind("/") + 1])
         await cache.set(f"file_info-{data.user_id}-{data.file_id}", info, 3600)
         return info
@@ -48,7 +48,7 @@ class FileService:
         if cached := await cache.get(f"file_list-{user_id}"):
             return cached
 
-        files = await FileRepository.file_list(user_id, session)
+        files = await FileRepository.file_list(user_id, session=session)
 
         files = tuple(
             file.replace(user_id=None, path=file.path[: file.path.rfind("/") + 1])
@@ -70,12 +70,12 @@ class FileService:
         info = await cache.get(f"download_file_info-{data.user_id}-{data.file_id}")
 
         if not info:
-            info = await FileRepository.file_info(data, session)
+            info = await FileRepository.file_info(data, session=session)
             await cache.set(
                 f"download_file_info-{data.user_id}-{data.file_id}", info, 3600
             )
 
-        download_url = await FileStorage.download_file(info, client)
+        download_url = await FileStorage.download_file(info, client=client)
         relative_url = download_url[download_url.find("/", 7) :]
         return relative_url
 
@@ -89,8 +89,8 @@ class FileService:
         session: AsyncSession,
         client: S3Client,
     ) -> None:
-        files = await FileRepository.delete_files(data, session)
-        await FileStorage.delete_files(files, client)
+        files = await FileRepository.delete_files(data, session=session)
+        await FileStorage.delete_files(files, client=client)
         await cache.delete(f"file_list-{data.user_id}")
 
         for file_id in data.file_ids:
@@ -105,8 +105,8 @@ class FileService:
     async def delete_all_files(
         cls, user_id: str, *, session: AsyncSession, client: S3Client
     ) -> None:
-        await FileRepository.delete_all_files(user_id, session)
-        await FileStorage.delete_all_files(user_id, client)
+        await FileRepository.delete_all_files(user_id, session=session)
+        await FileStorage.delete_all_files(user_id, client=client)
         await cache.delete(f"file_list-{user_id}")
         await cache.delete_match(f"file_info-{user_id}-*")
         await cache.delete_match(f"download_file_info-{user_id}-*")
