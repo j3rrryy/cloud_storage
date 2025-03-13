@@ -48,12 +48,6 @@ class LogInDataDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class AuthDTO(BaseDTO):
-    user_id: str
-    verified: bool = False
-
-
-@dataclass(slots=True, frozen=True)
 class RefreshDTO(BaseDTO):
     refresh_token: str
     user_ip: str

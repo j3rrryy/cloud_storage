@@ -91,7 +91,7 @@ class AuthStub(object):
         self.Auth = channel.unary_unary(
             "/auth.Auth/Auth",
             request_serializer=auth__pb2.AccessToken.SerializeToString,
-            response_deserializer=auth__pb2.AuthResponse.FromString,
+            response_deserializer=auth__pb2.UserId.FromString,
             _registered_method=True,
         )
         self.Refresh = channel.unary_unary(
@@ -283,7 +283,7 @@ def add_AuthServicer_to_server(servicer, server):
         "Auth": grpc.unary_unary_rpc_method_handler(
             servicer.Auth,
             request_deserializer=auth__pb2.AccessToken.FromString,
-            response_serializer=auth__pb2.AuthResponse.SerializeToString,
+            response_serializer=auth__pb2.UserId.SerializeToString,
         ),
         "Refresh": grpc.unary_unary_rpc_method_handler(
             servicer.Refresh,
@@ -590,7 +590,7 @@ class Auth(object):
             target,
             "/auth.Auth/Auth",
             auth__pb2.AccessToken.SerializeToString,
-            auth__pb2.AuthResponse.FromString,
+            auth__pb2.UserId.FromString,
             options,
             channel_credentials,
             insecure,

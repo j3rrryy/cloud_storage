@@ -18,14 +18,6 @@ class AccessToken(_message.Message):
     access_token: str
     def __init__(self, access_token: _Optional[str] = ...) -> None: ...
 
-class AuthResponse(_message.Message):
-    __slots__ = ("user_id", "verified")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    VERIFIED_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    verified: bool
-    def __init__(self, user_id: _Optional[str] = ..., verified: bool = ...) -> None: ...
-
 class CodeIsValid(_message.Message):
     __slots__ = ("is_valid",)
     IS_VALID_FIELD_NUMBER: _ClassVar[int]

@@ -28,12 +28,6 @@ class LogInResponseDTO(BaseResponseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class AuthResponseDTO(BaseResponseDTO):
-    user_id: str
-    verified: bool
-
-
-@dataclass(slots=True, frozen=True)
 class RefreshResponseDTO(BaseResponseDTO):
     access_token: str
     refresh_token: str

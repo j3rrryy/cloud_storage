@@ -50,8 +50,8 @@ class AuthServicer(proto.AuthServicer):
         return pb2.VerificationMail(**verification_mail.dict())
 
     async def Auth(self, request, context):
-        user_info = await self._eh(context, DBC.auth, request.access_token)
-        return pb2.AuthResponse(**user_info.dict())
+        user_id = await self._eh(context, DBC.auth, request.access_token)
+        return pb2.UserId(user_id=user_id)
 
     async def Refresh(self, request, context):
         dto = request_dto.RefreshRequestDTO.from_request(request)

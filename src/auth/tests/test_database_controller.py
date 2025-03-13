@@ -140,31 +140,14 @@ async def test_resend_verification_mail(mock_jwt_validator, mock_crud):
 
 @pytest.mark.asyncio
 @patch("controllers.database.CRUD", new_callable=create_database_crud)
-@patch("controllers.database.cache", new_callable=create_cache)
 @patch("controllers.database.validate_jwt")
-async def test_auth(mock_jwt_validator, mock_cache, mock_crud):
+async def test_auth(mock_jwt_validator, mock_crud):
+    mock_jwt_validator.return_value = USER_ID
     response = await DatabaseController.auth(ACCESS_TOKEN)  # type: ignore
 
-    assert isinstance(response, response_dto.AuthResponseDTO)
+    assert response == USER_ID
     mock_jwt_validator.assert_called_once()
     mock_crud.validate_access_token.assert_called_once()
-    mock_cache.get.assert_called_once()
-    mock_crud.profile.assert_called_once()
-    mock_cache.set.assert_called_once()
-
-
-@pytest.mark.asyncio
-@patch("controllers.database.CRUD", new_callable=create_database_crud)
-@patch("controllers.database.cache", new_callable=create_cache)
-@patch("controllers.database.validate_jwt")
-async def test_auth_cached(mock_jwt_validator, mock_cache, mock_crud):
-    mock_cache.get.return_value = response_dto.AuthResponseDTO(USER_ID, True)
-    response = await DatabaseController.auth(ACCESS_TOKEN)  # type: ignore
-
-    assert isinstance(response, response_dto.AuthResponseDTO)
-    mock_jwt_validator.assert_called_once()
-    mock_crud.validate_access_token.assert_called_once()
-    mock_cache.get.assert_called_once()
 
 
 @pytest.mark.asyncio

@@ -58,10 +58,10 @@ class Auth(RPCBase):
         return self.convert_to_dto(verification_mail, mail_dto.VerificationMailDTO)
 
     @RPCBase.handle_exception
-    async def auth(self, access_token: str) -> auth_dto.AuthDTO:
+    async def auth(self, access_token: str) -> str:
         request = pb2.AccessToken(access_token=access_token)
-        user_info = await self._stub.Auth(request)
-        return self.convert_to_dto(user_info, auth_dto.AuthDTO)
+        user_id = await self._stub.Auth(request)
+        return user_id.user_id
 
     @RPCBase.handle_exception
     async def refresh(self, data: auth_dto.RefreshDTO) -> auth_dto.TokensDTO:

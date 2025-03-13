@@ -1,11 +1,6 @@
 import msgspec
 import pytest
-from litestar.status_codes import (
-    HTTP_200_OK,
-    HTTP_201_CREATED,
-    HTTP_204_NO_CONTENT,
-    HTTP_403_FORBIDDEN,
-)
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from schemas import file
 
@@ -15,9 +10,9 @@ PREFIX = "/api/v1/file"
 
 
 @pytest.mark.asyncio
-async def test_upload_file(verified_client):
+async def test_upload_file(client):
     data = file.UploadFile(NAME, PATH, SIZE)
-    response = await verified_client.post(
+    response = await client.post(
         f"{PREFIX}/upload-file",
         content=msgspec.msgpack.encode(data),
         headers={
@@ -32,24 +27,8 @@ async def test_upload_file(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_unverified_upload_file(unverified_client):
-    data = file.UploadFile(NAME, PATH, SIZE)
-    response = await unverified_client.post(
-        f"{PREFIX}/upload-file",
-        content=msgspec.msgpack.encode(data),
-        headers={
-            "Content-Type": "application/msgpack",
-            "Authorization": f"Bearer {ACCESS_TOKEN}",
-        },
-    )
-
-    assert response.status_code == HTTP_403_FORBIDDEN
-    assert response.json() == {"status_code": 403, "detail": "Email not verified"}
-
-
-@pytest.mark.asyncio
-async def test_file_info(verified_client):
-    response = await verified_client.get(
+async def test_file_info(client):
+    response = await client.get(
         f"{PREFIX}/file-info/{FILE_ID}",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
     )
@@ -66,18 +45,8 @@ async def test_file_info(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_unverified_file_info(unverified_client):
-    response = await unverified_client.get(
-        f"{PREFIX}/file-info/{FILE_ID}",
-        headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
-    )
-    assert response.status_code == HTTP_403_FORBIDDEN
-    assert response.json() == {"status_code": 403, "detail": "Email not verified"}
-
-
-@pytest.mark.asyncio
-async def test_file_list(verified_client):
-    response = await verified_client.get(
+async def test_file_list(client):
+    response = await client.get(
         f"{PREFIX}/file-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
@@ -97,17 +66,8 @@ async def test_file_list(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_unverified_file_list(unverified_client):
-    response = await unverified_client.get(
-        f"{PREFIX}/file-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
-    )
-    assert response.status_code == HTTP_403_FORBIDDEN
-    assert response.json() == {"status_code": 403, "detail": "Email not verified"}
-
-
-@pytest.mark.asyncio
-async def test_download_file(verified_client):
-    response = await verified_client.get(
+async def test_download_file(client):
+    response = await client.get(
         f"{PREFIX}/download-file/{FILE_ID}",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
         follow_redirects=False,
@@ -116,19 +76,8 @@ async def test_download_file(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_unverified_download_file(unverified_client):
-    response = await unverified_client.get(
-        f"{PREFIX}/download-file/{FILE_ID}",
-        headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
-        follow_redirects=False,
-    )
-    assert response.status_code == HTTP_403_FORBIDDEN
-    assert response.json() == {"status_code": 403, "detail": "Email not verified"}
-
-
-@pytest.mark.asyncio
-async def test_delete_files(verified_client):
-    response = await verified_client.delete(
+async def test_delete_files(client):
+    response = await client.delete(
         f"{PREFIX}/delete-files",
         params={"file_id": (FILE_ID,)},
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
@@ -137,30 +86,9 @@ async def test_delete_files(verified_client):
 
 
 @pytest.mark.asyncio
-async def test_unverified_delete_files(unverified_client):
-    response = await unverified_client.delete(
-        f"{PREFIX}/delete-files",
-        params={"file_id": (FILE_ID,)},
-        headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
-    )
-    assert response.status_code == HTTP_403_FORBIDDEN
-    assert response.json() == {"status_code": 403, "detail": "Email not verified"}
-
-
-@pytest.mark.asyncio
-async def test_delete_all_files(verified_client):
-    response = await verified_client.delete(
+async def test_delete_all_files(client):
+    response = await client.delete(
         f"{PREFIX}/delete-all-files",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
     )
     assert response.status_code == HTTP_204_NO_CONTENT
-
-
-@pytest.mark.asyncio
-async def test_unverified_delete_all_files(unverified_client):
-    response = await unverified_client.delete(
-        f"{PREFIX}/delete-all-files",
-        headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
-    )
-    assert response.status_code == HTTP_403_FORBIDDEN
-    assert response.json() == {"status_code": 403, "detail": "Email not verified"}
