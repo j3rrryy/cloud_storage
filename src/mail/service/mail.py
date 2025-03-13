@@ -4,7 +4,7 @@ from dto import BaseMailDTO, InfoMailDTO, ResetMailDTO, VerificationMailDTO
 from mail import Mail
 
 
-class MailController:
+class MailService:
     _to_method = {
         VerificationMailDTO: Mail.verification,
         InfoMailDTO: Mail.info,

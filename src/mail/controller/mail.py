@@ -2,12 +2,12 @@ from aiokafka import AIOKafkaConsumer
 from prometheus_client import Counter, Summary
 
 from config import load_config
-from controllers import MailController as MC
 from dto import DTOFactory
 from mail import get_smtp
+from service import MailService
 
 
-class MailService:
+class MailController:
     __slots__ = "_consumer"
 
     _logger = load_config().app.logger
@@ -37,7 +37,7 @@ class MailService:
                 with self._email_processing_time.labels(message.topic).time():
                     try:
                         dto = DTOFactory.from_message(message)
-                        await MC.send_email(dto, smtp)
+                        await MailService.send_email(dto, smtp)
                         self._logger.info(f"Sent {message.topic} mail to {dto.email}")
                         self._email_sent_counter.labels(message.topic).inc()
                     except Exception as exc:

@@ -5,18 +5,18 @@ from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
 from config import load_config
+from controller import MailController
 from kafka import connect_kafka_service
-from service import MailService
 
 
 async def start_mail_server():
     config = load_config()
 
     consumer = connect_kafka_service()
-    service = MailService(consumer)
+    controller = MailController(consumer)
 
     config.app.logger.info("Server started")
-    await service.process_messages()
+    await controller.process_messages()
 
 
 async def start_prometheus_server():

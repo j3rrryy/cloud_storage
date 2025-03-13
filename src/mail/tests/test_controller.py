@@ -1,25 +1,108 @@
-from unittest.mock import AsyncMock, patch
+import pickle
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from controllers import MailController
-from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
+from controller import MailController
+from service import MailService
+from utils import MailTypes
 
 from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "mail",
-    (
-        VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN),
-        InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER),
-        ResetMailDTO(USERNAME, EMAIL, CODE),
-    ),
+    "mail_data",
+    [
+        (
+            MailTypes.VERIFICATION.name,
+            {
+                "verification_token": VERIFICATION_TOKEN,
+                "email": EMAIL,
+                "username": USERNAME,
+            },
+        ),
+        (
+            MailTypes.INFO.name,
+            {
+                "user_ip": USER_IP,
+                "browser": BROWSER,
+                "email": EMAIL,
+                "username": USERNAME,
+            },
+        ),
+        (MailTypes.RESET.name, {"code": CODE, "email": EMAIL, "username": USERNAME}),
+    ],
 )
-async def test_send_email_parametrized(mail, smtp):
-    mock_method = AsyncMock()
+@patch.object(MailController, "_email_sent_counter")
+@patch("controller.mail.DTOFactory.from_message")
+async def test_process_messages(mock_dto_factory, mock_sent_counter, mail_data):
+    topic, data = mail_data
+    mock_msg = MagicMock()
+    mock_msg.topic = topic
+    mock_msg.value = pickle.dumps(data)
 
-    with patch.object(MailController, "_to_method", {type(mail): mock_method}):
-        await MailController.send_email(mail, smtp)
-        mock_method.assert_awaited_once_with(mail, smtp)
+    async def mock_aiter(_):
+        yield mock_msg
+
+    mock_consumer = MagicMock()
+    mock_consumer.__aenter__.return_value = AsyncMock()
+    mock_consumer.__aenter__.return_value.__aiter__ = mock_aiter
+
+    mock_smtp = MagicMock()
+
+    mock_dto = MagicMock()
+    mock_dto.email = EMAIL
+    mock_dto_factory.return_value = mock_dto
+
+    with (
+        patch("controller.mail.get_smtp", new_callable=mock_smtp),
+        patch.object(MailController, "_logger", new_callable=MagicMock) as mock_logger,
+        patch.object(
+            MailService, "send_email", new_callable=AsyncMock
+        ) as mock_send_email,
+    ):
+        controller = MailController(mock_consumer)
+        await controller.process_messages()
+
+        mock_dto_factory.assert_called_once_with(mock_msg)
+        mock_send_email.assert_awaited_once()
+        mock_logger.info.assert_called_once_with(f"Sent {topic} mail to {EMAIL}")
+        mock_sent_counter.labels.assert_called_once_with(topic)
+        mock_sent_counter.labels.return_value.inc.assert_called_once()
+
+
+@pytest.mark.asyncio
+@patch.object(MailController, "_email_failed_counter")
+@patch("controller.mail.DTOFactory.from_message")
+async def test_process_messages_exception(mock_dto_factory, mock_failed_counter):
+    topic = MailTypes.VERIFICATION.name
+    mock_msg = MagicMock()
+    mock_msg.topic = topic
+    mock_msg.value = pickle.dumps(
+        {"verification_token": VERIFICATION_TOKEN, "email": EMAIL, "username": USERNAME}
+    )
+
+    async def mock_aiter(_):
+        yield mock_msg
+
+    mock_consumer = MagicMock()
+    mock_consumer.__aenter__.return_value = AsyncMock()
+    mock_consumer.__aenter__.return_value.__aiter__ = mock_aiter
+
+    mock_smtp = MagicMock()
+    
+    test_exception = Exception("Test exception")
+    mock_dto_factory.side_effect = test_exception
+
+    with (
+        patch("controller.mail.get_smtp", new_callable=mock_smtp),
+        patch.object(MailController, "_logger", new_callable=MagicMock) as mock_logger,
+    ):
+        controller = MailController(mock_consumer)
+        await controller.process_messages()
+
+        mock_dto_factory.assert_called_once_with(mock_msg)
+        mock_logger.error.assert_called_once_with(test_exception)
+        mock_failed_counter.labels.assert_called_once_with(topic)
+        mock_failed_counter.labels.return_value.inc.assert_called_once()
