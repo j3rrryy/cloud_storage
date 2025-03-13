@@ -81,7 +81,9 @@ async def test_download_file(file_controller):
         patch("service.file.cache", new_callable=create_cache),
     ):
         request = pb2.FileOperationRequest(user_id=USER_ID, file_id=FILE_ID)
-        response = await file_controller.DownloadFile(request, MagicMock(ServicerContext))
+        response = await file_controller.DownloadFile(
+            request, MagicMock(ServicerContext)
+        )
         assert response == pb2.FileURLResponse(url=RELATIVE_URL)
 
 
@@ -93,7 +95,9 @@ async def test_delete_files(file_controller):
         patch("service.file.cache", new_callable=create_cache),
     ):
         request = pb2.DeleteFilesRequest(user_id=USER_ID, file_ids=(FILE_ID,))
-        response = await file_controller.DeleteFiles(request, MagicMock(ServicerContext))
+        response = await file_controller.DeleteFiles(
+            request, MagicMock(ServicerContext)
+        )
         assert response == Empty()
 
 
