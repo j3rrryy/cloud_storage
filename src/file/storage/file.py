@@ -6,7 +6,7 @@ from dto import request as request_dto
 from dto import response as response_dto
 
 
-class CRUD:
+class FileStorage:
     _config = load_config()
     _BUCKET_NAME = _config.minio.bucket
 
@@ -72,7 +72,7 @@ class CRUD:
                 Bucket=cls._BUCKET_NAME, Prefix=f"{user_id}/"
             ):
                 if page.get("Contents", 0):
-                    delete_requests = [{"Key": obj["Key"]} for obj in page["Contents"]]
+                    delete_requests = [{"Key": obj["Key"]} for obj in page["Contents"]]  # type: ignore
 
                     await client.delete_objects(
                         Bucket=cls._BUCKET_NAME,

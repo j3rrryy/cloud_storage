@@ -9,7 +9,7 @@ from dto import response as response_dto
 from .models import File
 
 
-class CRUD:
+class FileRepository:
     @classmethod
     async def upload_file(
         cls, data: request_dto.UploadFileRequestDTO, session: AsyncSession

@@ -4,8 +4,8 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from types_aiobotocore_s3 import S3Client
 
-from database import File
-from service import FileServicer
+from controller import FileController
+from repository import File
 
 from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, USER_ID
 
@@ -50,5 +50,5 @@ def file() -> File:
 
 
 @pytest.fixture(scope="session")
-def file_servicer() -> FileServicer:
-    return FileServicer()
+def file_controller() -> FileController:
+    return FileController()

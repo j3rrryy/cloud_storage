@@ -1,14 +1,13 @@
 from functools import wraps
 
 from aiobotocore import session
-from types_aiobotocore_s3 import S3Client
 
 from config import load_config
 
 __all__ = ["get_client"]
 
 
-def _get_client() -> S3Client:
+def _get_client() -> session.ClientCreatorContext:
     config = load_config()
     aiosession = session.get_session()
     client = aiosession.create_client(
