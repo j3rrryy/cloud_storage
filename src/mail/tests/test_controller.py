@@ -91,7 +91,7 @@ async def test_process_messages_exception(mock_dto_factory, mock_failed_counter)
     mock_consumer.__aenter__.return_value.__aiter__ = mock_aiter
 
     mock_smtp = MagicMock()
-    
+
     test_exception = Exception("Test exception")
     mock_dto_factory.side_effect = test_exception
 
