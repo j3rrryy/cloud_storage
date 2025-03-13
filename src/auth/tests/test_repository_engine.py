@@ -3,12 +3,12 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import load_config
-from database.engine import _get_sessionmaker
+from repository.engine import _get_sessionmaker
 
 
-@patch("database.engine.async_sessionmaker")
-@patch("database.engine.create_async_engine")
-@patch("database.engine.URL")
+@patch("repository.engine.async_sessionmaker")
+@patch("repository.engine.create_async_engine")
+@patch("repository.engine.URL")
 def test_get_client(mock_url, mock_create_async_engine, mock_async_sessionmaker):
     config = load_config()
     mock_created_url = MagicMock()

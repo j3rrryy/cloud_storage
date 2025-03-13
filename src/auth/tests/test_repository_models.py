@@ -1,4 +1,4 @@
-from database import TokenPair, User
+from repository import TokenPair, User
 
 from .mocks import SESSION_ID, USER_ID
 

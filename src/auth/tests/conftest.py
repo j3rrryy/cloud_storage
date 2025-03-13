@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import TokenPair, User
-from service import AuthServicer
+from controller import AuthController
+from repository import TokenPair, User
 from utils import get_hashed_password
 
 from .mocks import (
@@ -61,5 +61,5 @@ def token_pair() -> TokenPair:
 
 
 @pytest.fixture(scope="session")
-def auth_servicer() -> AuthServicer:
-    return AuthServicer()
+def auth_controller() -> AuthController:
+    return AuthController()

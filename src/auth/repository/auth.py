@@ -14,7 +14,7 @@ from utils import compare_passwords
 from .models import TokenPair, User
 
 
-class CRUD:
+class AuthRepository:
     _EMAIL_REGEX = re.compile(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")
 
     @classmethod

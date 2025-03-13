@@ -11,8 +11,8 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 from uvicorn import Config, Server
 
 from config import load_config
+from controller import AuthController
 from proto import add_AuthServicer_to_server
-from service import AuthServicer
 
 
 async def start_grpc_server():
@@ -27,7 +27,7 @@ async def start_grpc_server():
         ),
         compression=grpc.Compression.Deflate,
     )
-    add_AuthServicer_to_server(AuthServicer(), server)
+    add_AuthServicer_to_server(AuthController(), server)
     server.add_insecure_port("[::]:50051")
 
     await server.start()
