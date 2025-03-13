@@ -5,7 +5,7 @@
     <img src="https://github.com/j3rrryy/cloud_storage/actions/workflows/main.yml/badge.svg" alt="СI/CD">
   </a>
   <a href="https://codecov.io/gh/j3rrryy/cloud_storage">
-    <img src="https://codecov.io/gh/j3rrryy/cloud_storage/graph/badge.svg?token=XYDO0P4U7P" alt="Codecov">
+    <img src="https://codecov.io/gh/j3rrryy/cloud_storage/graph/badge.svg?token=T84VVOKWC8" alt="Codecov">
   </a>
   <a href="https://www.python.org/downloads/release/python-3120/">
     <img src="https://img.shields.io/badge/Python-3.12-FFD64E.svg" alt="Python 3.12">
