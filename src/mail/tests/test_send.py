@@ -6,7 +6,7 @@ import pytest
 
 from config import load_config
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
-from mail import Mail
+from mail import Sender
 
 from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
@@ -14,13 +14,13 @@ config = load_config()
 
 
 @pytest.mark.asyncio
-async def test_verification(smtp):
+async def test_verification(mock_smtp):
     mail = VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN)
 
-    await Mail.verification(mail, smtp)
-    smtp.send_message.assert_awaited_once()
+    await Sender.verification(mail, mock_smtp)
+    mock_smtp.send_message.assert_awaited_once()
 
-    msg = smtp.send_message.call_args[0][0]
+    msg = mock_smtp.send_message.call_args[0][0]
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Confirm Your Email"
     assert msg["From"] == config.smtp.username
@@ -111,13 +111,13 @@ async def test_verification(smtp):
 
 
 @pytest.mark.asyncio
-async def test_info(smtp):
+async def test_info(mock_smtp):
     mail = InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER)
 
-    await Mail.info(mail, smtp)
-    smtp.send_message.assert_awaited_once()
+    await Sender.info(mail, mock_smtp)
+    mock_smtp.send_message.assert_awaited_once()
 
-    msg = smtp.send_message.call_args[0][0]
+    msg = mock_smtp.send_message.call_args[0][0]
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Login Information"
     assert msg["From"] == config.smtp.username
@@ -193,13 +193,13 @@ async def test_info(smtp):
 
 
 @pytest.mark.asyncio
-async def test_reset(smtp):
+async def test_reset(mock_smtp):
     mail = ResetMailDTO(USERNAME, EMAIL, CODE)
 
-    await Mail.reset(mail, smtp)
-    smtp.send_message.assert_awaited_once()
+    await Sender.reset(mail, mock_smtp)
+    mock_smtp.send_message.assert_awaited_once()
 
-    msg = smtp.send_message.call_args[0][0]
+    msg = mock_smtp.send_message.call_args[0][0]
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Reset Your Password"
     assert msg["From"] == config.smtp.username

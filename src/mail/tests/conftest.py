@@ -5,5 +5,5 @@ from aiosmtplib import SMTP
 
 
 @pytest.fixture
-def smtp() -> SMTP:
+def mock_smtp() -> SMTP:
     return AsyncMock(spec=SMTP)
