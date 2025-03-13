@@ -5,7 +5,7 @@ from mail import get_smtp
 
 
 @patch("mail.engine.SMTP")
-def test_connect_auth_service(mock_smtp):
+def test_connect_smtp_service(mock_smtp):
     config = load_config().smtp
     get_smtp()
     mock_smtp.assert_called_once_with(

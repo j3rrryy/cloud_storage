@@ -7,10 +7,10 @@ import main
 
 @pytest.mark.asyncio
 @patch("main.connect_kafka_service")
-@patch("main.MailService")
+@patch("main.MailController")
 @patch("main.load_config")
 async def test_start_mail_server(
-    mock_load_config, mock_mail_service, mock_connect_kafka
+    mock_load_config, mock_mail_controller, mock_connect_kafka
 ):
     mock_logger = MagicMock()
     mock_load_config.return_value.app.logger = mock_logger
@@ -19,11 +19,11 @@ async def test_start_mail_server(
     mock_connect_kafka.return_value = mock_consumer
 
     mock_service = AsyncMock()
-    mock_mail_service.return_value = mock_service
+    mock_mail_controller.return_value = mock_service
 
     await main.start_mail_server()
     mock_connect_kafka.assert_called_once()
-    mock_mail_service.assert_called_once_with(mock_consumer)
+    mock_mail_controller.assert_called_once_with(mock_consumer)
     mock_logger.info.assert_called_once_with("Server started")
     mock_service.process_messages.assert_awaited_once()
 
