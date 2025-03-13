@@ -17,9 +17,12 @@ from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
         ResetMailDTO(USERNAME, EMAIL, CODE),
     ),
 )
-async def test_send_email_parametrized(mail, smtp):
+@patch("mail.engine._smtp")
+async def test_send_email_parametrized(mock_smtp, mail):
+    smtp = AsyncMock()
     mock_method = AsyncMock()
+    mock_smtp.__aenter__.return_value = smtp
 
     with patch.object(MailService, "_to_method", {type(mail): mock_method}):
-        await MailService.send_email(mail, smtp)
+        await MailService.send_email(mail)  # type: ignore
         mock_method.assert_awaited_once_with(mail, smtp)

@@ -7,7 +7,7 @@ from config import load_config
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 
 
-class Mail:
+class Sender:
     _config = load_config()
 
     @classmethod

@@ -49,14 +49,12 @@ async def test_process_messages(mock_dto_factory, mock_sent_counter, mail_data):
     mock_consumer.__aenter__.return_value = AsyncMock()
     mock_consumer.__aenter__.return_value.__aiter__ = mock_aiter
 
-    mock_smtp = MagicMock()
-
     mock_dto = MagicMock()
     mock_dto.email = EMAIL
     mock_dto_factory.return_value = mock_dto
 
     with (
-        patch("controller.mail.get_smtp", new_callable=mock_smtp),
+        patch("service.mail.get_smtp"),
         patch.object(MailController, "_logger", new_callable=MagicMock) as mock_logger,
         patch.object(
             MailService, "send_email", new_callable=AsyncMock
@@ -90,13 +88,11 @@ async def test_process_messages_exception(mock_dto_factory, mock_failed_counter)
     mock_consumer.__aenter__.return_value = AsyncMock()
     mock_consumer.__aenter__.return_value.__aiter__ = mock_aiter
 
-    mock_smtp = MagicMock()
-
     test_exception = Exception("Test exception")
     mock_dto_factory.side_effect = test_exception
 
     with (
-        patch("controller.mail.get_smtp", new_callable=mock_smtp),
+        patch("service.mail.get_smtp"),
         patch.object(MailController, "_logger", new_callable=MagicMock) as mock_logger,
     ):
         controller = MailController(mock_consumer)
