@@ -86,29 +86,7 @@
     ```shell
     bash deploy.sh
     ```
-
-### :construction_worker: Maintenance
-
-- Run tests
-
-  - Get access to the container
-
-    ```shell
-    docker exec -it <container_name> sh
-    ```
-
-  - Install testing dependencies
-
-    ```shell
-    pip install -r ./tests/requirements.test.txt
-    ```
-
-  - Use this command
-
-    ```shell
-    pytest ./tests
-    ```
-
+    
 ### :x: Stop
 
 ```shell
