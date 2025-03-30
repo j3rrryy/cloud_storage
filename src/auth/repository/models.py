@@ -14,9 +14,13 @@ class User(Base):
     user_id: Mapped[str] = mapped_column(
         UUID(False), primary_key=True, unique=True, default=uuid4
     )
-    username: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(sa.String, nullable=False)
+    username: Mapped[str] = mapped_column(
+        sa.String(20), unique=True, index=True, nullable=False
+    )
+    email: Mapped[str] = mapped_column(
+        sa.String(255), unique=True, index=True, nullable=False
+    )
+    password: Mapped[str] = mapped_column(sa.String(60), nullable=False)
     verified: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
     registered: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=datetime.now
@@ -37,10 +41,14 @@ class TokenPair(Base):
     user_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey(User.user_id, ondelete="CASCADE"), nullable=False
     )
-    access_token: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
-    refresh_token: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
-    user_ip: Mapped[str] = mapped_column(sa.String, nullable=False)
-    browser: Mapped[str] = mapped_column(sa.String, nullable=False)
+    access_token: Mapped[str] = mapped_column(
+        sa.String(350), unique=True, index=True, nullable=False
+    )
+    refresh_token: Mapped[str] = mapped_column(
+        sa.String(350), unique=True, index=True, nullable=False
+    )
+    user_ip: Mapped[str] = mapped_column(sa.String(15), nullable=False)
+    browser: Mapped[str] = mapped_column(sa.String(150), nullable=False)
     last_accessed: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=datetime.now
     )
