@@ -8,7 +8,7 @@ from jwskate import Jwt, SignedJwt
 from picologging import Logger
 
 from config import load_config
-from errors import UnauthenticatedError
+from exceptions import UnauthenticatedException
 from utils import (
     ExceptionHandler,
     TokenTypes,
@@ -102,7 +102,7 @@ def test_validate_jwt(token_type):
 
 
 def test_validate_broken_jwt():
-    with pytest.raises(UnauthenticatedError) as exc_info:
+    with pytest.raises(UnauthenticatedException) as exc_info:
         validate_jwt("broken_token", TokenTypes.ACCESS)
 
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, "Token is invalid")
@@ -141,7 +141,7 @@ def test_validate_jwt_exceptions(
     claims.update(modified)
 
     new_token = str(Jwt.sign(claims, config.app.private_key, alg="EdDSA", typ=typ))
-    with pytest.raises(UnauthenticatedError) as exc_info:
+    with pytest.raises(UnauthenticatedException) as exc_info:
         validate_jwt(new_token, in_token_type)
 
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, expected_message)
@@ -154,7 +154,7 @@ def test_compare_passwords():
 
 def test_compare_exception():
     hashed_password = get_hashed_password(PASSWORD)
-    with pytest.raises(UnauthenticatedError) as exc_info:
+    with pytest.raises(UnauthenticatedException) as exc_info:
         compare_passwords(PASSWORD + "0", hashed_password)
 
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, "Invalid credentials")

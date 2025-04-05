@@ -1,2 +1,2 @@
-class UnauthenticatedError(Exception):
+class UnauthenticatedException(Exception):
     """Exception for problems with authentication"""

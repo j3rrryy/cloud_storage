@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from dto import request as request_dto
 from dto import response as response_dto
-from errors import UnauthenticatedError
+from exceptions import UnauthenticatedException
 from repository import AuthRepository, get_session
 from utils import (
     TokenTypes,
@@ -69,7 +69,7 @@ class AuthService:
         code = await cache.get(f"reset-{data.user_id}")
 
         if not code or code != "validated":
-            raise UnauthenticatedError(
+            raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Code is not validated"
             )
 

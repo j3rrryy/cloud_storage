@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from dto import request as request_dto
 from dto import response as response_dto
-from errors import UnauthenticatedError
+from exceptions import UnauthenticatedException
 from utils import compare_passwords, repository_exception_handler
 
 from .models import TokenPair, User
@@ -38,7 +38,9 @@ class AuthRepository:
     @repository_exception_handler
     async def verify_email(cls, user_id: str, *, session: AsyncSession) -> None:
         if not (user := await session.get(User, user_id)):
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+            raise UnauthenticatedException(
+                StatusCode.UNAUTHENTICATED, "Token is invalid"
+            )
 
         user.verified = True
         await session.commit()
@@ -49,7 +51,7 @@ class AuthRepository:
         cls, data: request_dto.ResetPasswordRequestDTO, *, session: AsyncSession
     ) -> None:
         if not (user := await session.get(User, data.user_id)):
-            raise UnauthenticatedError(
+            raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
 
@@ -89,7 +91,9 @@ class AuthRepository:
         ).scalar_one_or_none()
 
         if not token_pair:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+            raise UnauthenticatedException(
+                StatusCode.UNAUTHENTICATED, "Token is invalid"
+            )
 
         await session.delete(token_pair)
         await session.commit()
@@ -156,7 +160,9 @@ class AuthRepository:
         ).scalar_one_or_none()
 
         if not token_pair:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+            raise UnauthenticatedException(
+                StatusCode.UNAUTHENTICATED, "Token is invalid"
+            )
 
     @classmethod
     @repository_exception_handler
@@ -173,7 +179,9 @@ class AuthRepository:
             token_pair = await session.get(TokenPair, token_or_id)
 
         if not token_pair:
-            raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+            raise UnauthenticatedException(
+                StatusCode.UNAUTHENTICATED, "Token is invalid"
+            )
 
     @classmethod
     @repository_exception_handler
@@ -198,7 +206,7 @@ class AuthRepository:
                 ).scalar_one_or_none()
 
         if not user:
-            raise UnauthenticatedError(
+            raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
         return response_dto.ProfileResponseDTO.from_model(user)
@@ -209,7 +217,7 @@ class AuthRepository:
         cls, data: request_dto.UpdateEmailDataRequestDTO, *, session: AsyncSession
     ) -> str:
         if not (user := await session.get(User, data.user_id)):
-            raise UnauthenticatedError(
+            raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
 
@@ -231,7 +239,7 @@ class AuthRepository:
         cls, data: request_dto.UpdatePasswordDataRequestDTO, *, session: AsyncSession
     ) -> None:
         if not (user := await session.get(User, data.user_id)):
-            raise UnauthenticatedError(
+            raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
 
@@ -250,7 +258,7 @@ class AuthRepository:
         ).rowcount
 
         if not row_count:
-            raise UnauthenticatedError(
+            raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
         await session.commit()

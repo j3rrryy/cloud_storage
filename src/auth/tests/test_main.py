@@ -28,12 +28,10 @@ async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_
     await main.start_grpc_server()
 
     mock_grpc_server.assert_called_once_with(
-        migration_thread_pool=ANY,
         interceptors=ANY,
         compression=grpc.Compression.Deflate,
     )
     _, kwargs = mock_grpc_server.call_args
-    assert kwargs["migration_thread_pool"]._max_workers == 10
     assert len(kwargs["interceptors"]) == 2
 
     assert isinstance(kwargs["interceptors"][0], AsyncAccessLogInterceptor)
