@@ -13,7 +13,7 @@ from picologging import Logger
 from sqlalchemy.exc import IntegrityError
 
 from config import load_config
-from errors import UnauthenticatedError
+from exceptions import UnauthenticatedException
 
 T = TypeVar("T")
 
@@ -60,7 +60,7 @@ def repository_exception_handler(func):
         except IntegrityError as exc:
             await kwargs["session"].rollback()
             raise exc
-        except UnauthenticatedError as exc:
+        except UnauthenticatedException as exc:
             raise exc
         except Exception as exc:
             await kwargs["session"].rollback()
@@ -103,18 +103,18 @@ def validate_jwt(token: str, token_type: TokenTypes) -> str:
             hasattr(jwt, "typ") and jwt.typ.isdigit() and int(jwt.typ) in range(0, 3)
         )
     ):
-        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Token is invalid")
+        raise UnauthenticatedException(StatusCode.UNAUTHENTICATED, "Token is invalid")
 
     jwt_type = TokenTypes(int(jwt.typ))
 
     if jwt_type != token_type:
-        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Invalid token type")
+        raise UnauthenticatedException(StatusCode.UNAUTHENTICATED, "Invalid token type")
     elif jwt_type == TokenTypes.ACCESS and jwt.is_expired():
-        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Refresh the tokens")
+        raise UnauthenticatedException(StatusCode.UNAUTHENTICATED, "Refresh the tokens")
     elif jwt_type == TokenTypes.REFRESH and jwt.is_expired():
-        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Re-log in")
+        raise UnauthenticatedException(StatusCode.UNAUTHENTICATED, "Re-log in")
     elif jwt_type == TokenTypes.VERIFICATION and jwt.is_expired():
-        raise UnauthenticatedError(
+        raise UnauthenticatedException(
             StatusCode.UNAUTHENTICATED, "Resend the verification mail"
         )
     return jwt.subject
@@ -122,7 +122,9 @@ def validate_jwt(token: str, token_type: TokenTypes) -> str:
 
 def compare_passwords(password: str, hashed_password: str) -> None:
     if not bcrypt.checkpw(password.encode(), hashed_password.encode()):
-        raise UnauthenticatedError(StatusCode.UNAUTHENTICATED, "Invalid credentials")
+        raise UnauthenticatedException(
+            StatusCode.UNAUTHENTICATED, "Invalid credentials"
+        )
 
 
 def get_hashed_password(password: str) -> str:
