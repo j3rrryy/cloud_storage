@@ -58,7 +58,7 @@ services:
       - auth
       - file
       - mail
-    command: python ./main.py
+    command: uv run python ./main.py
     container_name: gateway_prod
 
   auth:
@@ -77,8 +77,8 @@ services:
       - auth_postgres
       - auth_redis
     command: bash -c "
-      alembic -c "./config/alembic.ini" upgrade head &&
-      python ./main.py"
+      uv run alembic -c './config/alembic.ini' upgrade head &&
+      uv run python ./main.py"
     container_name: auth_prod
 
   auth_postgres:
@@ -122,8 +122,8 @@ services:
       - file_postgres
       - file_redis
     command: bash -c "
-      alembic -c "./config/alembic.ini" upgrade head &&
-      python ./main.py"
+      uv run alembic -c './config/alembic.ini' upgrade head &&
+      uv run python ./main.py"
     container_name: file_prod
 
   minio:
@@ -229,7 +229,7 @@ services:
       - mail_network
     depends_on:
       - kafka
-    command: python ./main.py
+    command: uv run python ./main.py
     container_name: mail_prod
 
   loki:
