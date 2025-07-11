@@ -2,7 +2,7 @@ import pickle
 
 from aiokafka import ConsumerRecord
 
-from utils import MailTypes
+from enums import MailTypes
 
 from .base import BaseMailDTO
 from .dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
@@ -16,7 +16,7 @@ class DTOFactory:
     }
 
     @classmethod
-    def from_message(cls, message: ConsumerRecord) -> type[BaseMailDTO]:
+    def from_message(cls, message: ConsumerRecord) -> BaseMailDTO:
         if message.value is None:
             raise ValueError("The message is empty")
 

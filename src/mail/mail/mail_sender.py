@@ -1,22 +1,22 @@
+import os
 from datetime import date
 from email.mime import multipart, text
 
+import inject
 from aiosmtplib import SMTP
 
-from config import load_config
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 
 
-class Sender:
-    _config = load_config()
-
+class MailSender:
     @classmethod
+    @inject.autoparams()
     async def verification(cls, mail: VerificationMailDTO, smtp: SMTP) -> None:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Confirm Your Email"
-        msg["From"] = cls._config.smtp.username
+        msg["From"] = os.environ["MAIL_USERNAME"]
         msg["To"] = mail.email
-        verification_url = cls._config.app.verification_url + mail.verification_token
+        verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
 
         html_content = f"""
         <!DOCTYPE html>
@@ -82,20 +82,21 @@ class Sender:
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {cls._config.app.name}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
                 </div>
             </div>
         </body>
         </html>
         """
         msg.attach(text.MIMEText(html_content, "html"))
-        await smtp.send_message(msg)
+        await cls._send(msg, smtp)
 
     @classmethod
+    @inject.autoparams()
     async def info(cls, mail: InfoMailDTO, smtp: SMTP) -> None:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Login Information"
-        msg["From"] = cls._config.smtp.username
+        msg["From"] = os.environ["MAIL_USERNAME"]
         msg["To"] = mail.email
 
         html_content = f"""
@@ -148,20 +149,21 @@ class Sender:
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
-                    <p>&copy; {date.today().year} {cls._config.app.name}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
                 </div>
             </div>
         </body>
         </html>
         """
         msg.attach(text.MIMEText(html_content, "html"))
-        await smtp.send_message(msg)
+        await cls._send(msg, smtp)
 
     @classmethod
+    @inject.autoparams()
     async def reset(cls, mail: ResetMailDTO, smtp: SMTP) -> None:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Reset Your Password"
-        msg["From"] = cls._config.smtp.username
+        msg["From"] = os.environ["MAIL_USERNAME"]
         msg["To"] = mail.email
 
         html_content = f"""
@@ -221,11 +223,16 @@ class Sender:
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {cls._config.app.name}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
                 </div>
             </div>
         </body>
         </html>
         """
         msg.attach(text.MIMEText(html_content, "html"))
-        await smtp.send_message(msg)
+        await cls._send(msg, smtp)
+
+    @staticmethod
+    async def _send(msg: multipart.MIMEMultipart, smtp: SMTP):
+        async with smtp:
+            await smtp.send_message(msg)

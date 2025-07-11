@@ -1,36 +1,34 @@
+import os
 from datetime import date
 from email.mime import text
 from email.mime.multipart import MIMEMultipart
 
 import pytest
 
-from config import load_config
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
-from mail import Sender
+from mail import MailSender
 
 from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
-
-config = load_config()
 
 
 @pytest.mark.asyncio
 async def test_verification(mock_smtp):
     mail = VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN)
 
-    await Sender.verification(mail, mock_smtp)
+    await MailSender.verification(mail, mock_smtp)
     mock_smtp.send_message.assert_awaited_once()
 
     msg = mock_smtp.send_message.call_args[0][0]
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Confirm Your Email"
-    assert msg["From"] == config.smtp.username
+    assert msg["From"] == os.environ["MAIL_USERNAME"]
     assert msg["To"] == mail.email
 
     payload = msg.get_payload()
     assert isinstance(payload, list)
     assert len(payload) == 1
 
-    verification_url = config.app.verification_url + mail.verification_token
+    verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
     expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -95,7 +93,7 @@ async def test_verification(mock_smtp):
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {config.app.name}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -114,13 +112,13 @@ async def test_verification(mock_smtp):
 async def test_info(mock_smtp):
     mail = InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER)
 
-    await Sender.info(mail, mock_smtp)
+    await MailSender.info(mail, mock_smtp)
     mock_smtp.send_message.assert_awaited_once()
 
     msg = mock_smtp.send_message.call_args[0][0]
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Login Information"
-    assert msg["From"] == config.smtp.username
+    assert msg["From"] == os.environ["MAIL_USERNAME"]
     assert msg["To"] == mail.email
 
     payload = msg.get_payload()
@@ -177,7 +175,7 @@ async def test_info(mock_smtp):
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
-                    <p>&copy; {date.today().year} {config.app.name}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -196,13 +194,13 @@ async def test_info(mock_smtp):
 async def test_reset(mock_smtp):
     mail = ResetMailDTO(USERNAME, EMAIL, CODE)
 
-    await Sender.reset(mail, mock_smtp)
+    await MailSender.reset(mail, mock_smtp)
     mock_smtp.send_message.assert_awaited_once()
 
     msg = mock_smtp.send_message.call_args[0][0]
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Reset Your Password"
-    assert msg["From"] == config.smtp.username
+    assert msg["From"] == os.environ["MAIL_USERNAME"]
     assert msg["To"] == mail.email
 
     payload = msg.get_payload()
@@ -266,7 +264,7 @@ async def test_reset(mock_smtp):
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {config.app.name}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
                 </div>
             </div>
         </body>

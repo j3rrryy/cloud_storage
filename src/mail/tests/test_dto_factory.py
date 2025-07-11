@@ -5,7 +5,7 @@ from aiokafka import ConsumerRecord
 
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 from dto.factory import DTOFactory
-from utils import MailTypes
+from enums import MailTypes
 
 from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
