@@ -1,1 +1,1 @@
-from .mail import *  # noqa: F403
+from .mail_service import *  # noqa: F403

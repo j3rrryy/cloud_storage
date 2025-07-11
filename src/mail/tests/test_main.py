@@ -6,26 +6,20 @@ import main
 
 
 @pytest.mark.asyncio
-@patch("main.connect_kafka_service")
+@patch("main.setup_di")
+@patch("main.setup_logging")
+@patch("main.logger")
 @patch("main.MailController")
-@patch("main.load_config")
 async def test_start_mail_server(
-    mock_load_config, mock_mail_controller, mock_connect_kafka
+    mock_mail_controller, mock_logger, mock_setup_logging, mock_setup_di
 ):
-    mock_logger = MagicMock()
-    mock_load_config.return_value.app.logger = mock_logger
-
-    mock_consumer = MagicMock()
-    mock_connect_kafka.return_value = mock_consumer
-
-    mock_service = AsyncMock()
-    mock_mail_controller.return_value = mock_service
+    mock_mail_controller.process_messages = AsyncMock()
 
     await main.start_mail_server()
-    mock_connect_kafka.assert_called_once()
-    mock_mail_controller.assert_called_once_with(mock_consumer)
+    mock_setup_di.assert_called_once()
+    mock_setup_logging.assert_called_once()
     mock_logger.info.assert_called_once_with("Server started")
-    mock_service.process_messages.assert_awaited_once()
+    mock_mail_controller.process_messages.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -55,9 +49,6 @@ async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_
 @patch("main.start_mail_server")
 @patch("main.start_prometheus_server")
 async def test_main(mock_prometheus, mock_mail):
-    mock_mail.return_value = None
-    mock_prometheus.return_value = None
-
     await main.main()
     mock_mail.assert_awaited_once()
     mock_prometheus.assert_awaited_once()

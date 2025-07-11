@@ -1,22 +1,22 @@
 import asyncio
+import logging
 
 import uvloop
 from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
-from config import load_config
+from config import setup_logging
 from controller import MailController
-from kafka import connect_kafka_service
+from di import setup_di
+
+logger = logging.getLogger()
 
 
 async def start_mail_server():
-    config = load_config()
-
-    consumer = connect_kafka_service()
-    controller = MailController(consumer)
-
-    config.app.logger.info("Server started")
-    await controller.process_messages()
+    setup_di()
+    setup_logging()
+    logger.info("Server started")
+    await MailController.process_messages()  # type: ignore
 
 
 async def start_prometheus_server():
