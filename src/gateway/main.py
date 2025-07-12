@@ -1,40 +1,42 @@
+import os
+
 import uvicorn
 from litestar import Litestar
 from litestar.di import Provide
 from litestar.plugins.prometheus import PrometheusController
 
-from config import load_config
-from controller.v1.auth import auth_router as auth_v1
-from controller.v1.file import file_router as file_v1
-from service import connect_auth_service, connect_file_service, connect_mail_service
+from config import setup_cors, setup_logging, setup_openapi, setup_prometheus
+from controller.v1 import auth_router_v1, file_router_v1
+from di.v1 import auth_service_factory, file_service_factory, mail_service_factory
 
-config = load_config()
 
-app = Litestar(
-    path="/api",
-    route_handlers=(PrometheusController, auth_v1, file_v1),
-    debug=config.app.debug,
-    logging_config=config.app.litestar_logging_config,
-    cors_config=config.app.cors_config,
-    openapi_config=config.app.openapi_config,
-    middleware=(config.app.prometheus_config.middleware,),
-    request_max_body_size=None,
-    dependencies={
-        "auth_service": Provide(connect_auth_service),
-        "file_service": Provide(connect_file_service),
-        "mail_service": Provide(connect_mail_service),
-    },
-)
+def main() -> Litestar:
+    return Litestar(
+        path="/api",
+        route_handlers=(PrometheusController, auth_router_v1, file_router_v1),
+        debug=bool(int(os.environ["DEBUG"])),
+        cors_config=setup_cors(),
+        logging_config=setup_logging(),
+        middleware=(setup_prometheus().middleware,),
+        openapi_config=setup_openapi(),
+        request_max_body_size=None,
+        dependencies={
+            "auth_service": Provide(auth_service_factory),
+            "file_service": Provide(file_service_factory),
+            "mail_service": Provide(mail_service_factory),
+        },
+    )
 
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "main:main",
+        factory=True,
         loop="uvloop",
         host="0.0.0.0",
         port=8000,
         workers=10,
         limit_concurrency=1000,
         limit_max_requests=10000,
-        reload=config.app.debug,
+        reload=bool(int(os.environ["DEBUG"])),
     )

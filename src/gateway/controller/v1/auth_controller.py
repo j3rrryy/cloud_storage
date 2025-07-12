@@ -4,10 +4,9 @@ from litestar import Controller, MediaType, Request, Router, delete, get, patch,
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
 
-from dto import auth as auth_dto
-from dto import mail as mail_dto
-from schemas import auth as auth_schemas
-from service import AuthService, FileService, MailService
+from dto import auth_dto, mail_dto
+from schemas import auth_schemas
+from service.v1 import AuthService, FileService, MailService
 from utils import validate_access_token
 
 
@@ -238,4 +237,4 @@ class AuthController(Controller):
         await file_service.delete_all_files(user_id)
 
 
-auth_router = Router("/v1", route_handlers=(AuthController,), tags=("auth",))
+auth_router_v1 = Router("/v1", route_handlers=(AuthController,), tags=("auth",))

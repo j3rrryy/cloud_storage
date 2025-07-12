@@ -2,7 +2,7 @@ import msgspec
 import pytest
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from schemas import auth
+from schemas import auth_schemas
 
 from .mocks import (
     ACCESS_TOKEN,
@@ -24,7 +24,7 @@ PREFIX = "/api/v1/auth"
 
 @pytest.mark.asyncio
 async def test_register(client):
-    data = auth.Registration(USERNAME, EMAIL, PASSWORD)
+    data = auth_schemas.Registration(USERNAME, EMAIL, PASSWORD)
     response = await client.post(
         f"{PREFIX}/register",
         content=msgspec.msgpack.encode(data),
@@ -43,7 +43,7 @@ async def test_verify_email(client):
 
 @pytest.mark.asyncio
 async def test_request_reset(client):
-    data = auth.ForgotPassword(EMAIL)
+    data = auth_schemas.ForgotPassword(EMAIL)
     response = await client.post(
         f"{PREFIX}/request-reset-code",
         content=msgspec.msgpack.encode(data),
@@ -57,7 +57,7 @@ async def test_request_reset(client):
 
 @pytest.mark.asyncio
 async def test_validate_reset_code(client):
-    data = auth.ResetCode(USER_ID, CODE)
+    data = auth_schemas.ResetCode(USER_ID, CODE)
     response = await client.post(
         f"{PREFIX}/validate-reset-code",
         content=msgspec.msgpack.encode(data),
@@ -71,7 +71,7 @@ async def test_validate_reset_code(client):
 
 @pytest.mark.asyncio
 async def test_reset_password(client):
-    data = auth.ResetPassword(USER_ID, PASSWORD)
+    data = auth_schemas.ResetPassword(USER_ID, PASSWORD)
     response = await client.post(
         f"{PREFIX}/reset-password",
         content=msgspec.msgpack.encode(data),
@@ -82,7 +82,7 @@ async def test_reset_password(client):
 
 @pytest.mark.asyncio
 async def test_log_in(client):
-    data = auth.LogIn(USERNAME, PASSWORD)
+    data = auth_schemas.LogIn(USERNAME, PASSWORD)
     response = await client.post(
         f"{PREFIX}/log-in",
         content=msgspec.msgpack.encode(data),
@@ -128,7 +128,7 @@ async def test_auth(client):
 
 @pytest.mark.asyncio
 async def test_refresh(client):
-    data = auth.RefreshToken(REFRESH_TOKEN)
+    data = auth_schemas.RefreshToken(REFRESH_TOKEN)
     response = await client.post(
         f"{PREFIX}/refresh",
         content=msgspec.msgpack.encode(data),
@@ -169,7 +169,7 @@ async def test_session_list(client):
 
 @pytest.mark.asyncio
 async def test_revoke_session(client):
-    data = auth.SessionId(SESSION_ID)
+    data = auth_schemas.SessionId(SESSION_ID)
     response = await client.post(
         f"{PREFIX}/revoke-session",
         content=msgspec.msgpack.encode(data),
@@ -200,7 +200,7 @@ async def test_profile(client):
 
 @pytest.mark.asyncio
 async def test_update_email(client):
-    data = auth.UpdateEmail(EMAIL)
+    data = auth_schemas.UpdateEmail(EMAIL)
     response = await client.patch(
         f"{PREFIX}/update-email",
         content=msgspec.msgpack.encode(data),
@@ -214,7 +214,7 @@ async def test_update_email(client):
 
 @pytest.mark.asyncio
 async def test_update_password(client):
-    data = auth.UpdatePassword(PASSWORD, PASSWORD)
+    data = auth_schemas.UpdatePassword(PASSWORD, PASSWORD)
     response = await client.patch(
         f"{PREFIX}/update-password",
         content=msgspec.msgpack.encode(data),

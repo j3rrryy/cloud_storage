@@ -1,6 +1,6 @@
 import pytest
 
-from dto import auth as auth_dto
+from dto import auth_dto
 
 from .mocks import (
     ACCESS_TOKEN,

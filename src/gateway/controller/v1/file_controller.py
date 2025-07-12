@@ -6,9 +6,9 @@ from litestar.enums import RequestEncodingType
 from litestar.params import Body
 from litestar.response import Redirect
 
-from dto import file as file_dto
-from schemas import file as file_schemas
-from service import AuthService, FileService
+from dto import file_dto
+from schemas import file_schemas
+from service.v1 import AuthService, FileService
 from utils import validate_access_token
 
 
@@ -110,4 +110,4 @@ class FileController(Controller):
         await file_service.delete_all_files(user_id)
 
 
-file_router = Router("/v1", route_handlers=(FileController,), tags=("file",))
+file_router_v1 = Router("/v1", route_handlers=(FileController,), tags=("file",))

@@ -1,13 +1,5 @@
-from enum import Enum
-
 from litestar import Request
 from litestar.exceptions import NotAuthorizedException
-
-
-class MailTypes(Enum):
-    VERIFICATION = 0
-    INFO = 1
-    RESET = 2
 
 
 def validate_access_token(request: Request) -> str:

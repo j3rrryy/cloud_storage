@@ -8,6 +8,7 @@ dependencies = [
     "bcrypt==4.2.1",
     "cashews==7.4.0",
     "environs==14.1.0",
+    "greenlet>=3.2.3",
     "grpc-accesslog==0.3.0",
     "grpcio==1.69.0",
     "grpcio-tools==1.69.0",
@@ -22,7 +23,7 @@ dependencies = [
 
 [dependency-groups]
 test = [
-    "coverage==7.6.11",
+    "coverage==7.9.2",
     "pytest==8.3.4",
     "pytest-asyncio==0.25.3",
     "pytest-cov==6.0.0",
