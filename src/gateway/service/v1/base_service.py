@@ -12,7 +12,7 @@ from litestar.exceptions import (
     NotFoundException,
 )
 
-from dto.base import BaseDTO
+from dto import BaseDTO
 
 T = TypeVar("T", bound=BaseDTO)
 

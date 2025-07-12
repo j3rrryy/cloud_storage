@@ -2,7 +2,7 @@ import msgspec
 import pytest
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from schemas import file
+from schemas import file_schemas
 
 from .mocks import ACCESS_TOKEN, FILE_ID, NAME, PATH, SIZE, TIMESTAMP, URL
 
@@ -11,7 +11,7 @@ PREFIX = "/api/v1/file"
 
 @pytest.mark.asyncio
 async def test_upload_file(client):
-    data = file.UploadFile(NAME, PATH, SIZE)
+    data = file_schemas.UploadFile(NAME, PATH, SIZE)
     response = await client.post(
         f"{PREFIX}/upload-file",
         content=msgspec.msgpack.encode(data),

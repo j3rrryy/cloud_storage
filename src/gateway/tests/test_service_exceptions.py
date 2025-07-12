@@ -7,7 +7,7 @@ from litestar.exceptions import (
     NotFoundException,
 )
 
-from service.base import RPCBaseService
+from service.v1 import RPCBaseService
 
 
 @pytest.mark.asyncio

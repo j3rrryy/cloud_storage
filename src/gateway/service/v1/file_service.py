@@ -1,9 +1,9 @@
 from typing import Generator
 
-from dto import file as file_dto
+from dto import file_dto
 from proto import file_pb2 as pb2
 
-from .base import RPCBaseService
+from .base_service import RPCBaseService
 
 
 class FileService(RPCBaseService):

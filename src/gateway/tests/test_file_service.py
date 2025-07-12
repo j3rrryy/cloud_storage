@@ -1,6 +1,6 @@
 import pytest
 
-from dto import file as file_dto
+from dto import file_dto
 
 from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, URL, USER_ID
 

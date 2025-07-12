@@ -1,47 +1,48 @@
 import importlib
-from unittest.mock import ANY, patch
+import os
+from unittest.mock import patch
 
+from litestar.config.cors import CORSConfig
 from litestar.di import Provide
+from litestar.logging import LoggingConfig
+from litestar.middleware.base import DefineMiddleware
+from litestar.openapi.config import OpenAPIConfig
 from litestar.plugins.prometheus import PrometheusController
 
 import main
-from config import load_config
-from controller.v1.auth import auth_router as auth_v1
-from controller.v1.file import file_router as file_v1
-from service import connect_auth_service, connect_file_service, connect_mail_service
-
-config = load_config()
+from controller.v1 import auth_router_v1, file_router_v1
+from di.v1 import auth_service_factory, file_service_factory, mail_service_factory
 
 
 @patch("litestar.Litestar")
 def test_app(mock_litestar):
     importlib.reload(main)
+    main.main()
 
-    mock_litestar.assert_called_once_with(
-        path="/api",
-        route_handlers=(PrometheusController, auth_v1, file_v1),
-        debug=config.app.debug,
-        logging_config=config.app.litestar_logging_config,
-        cors_config=config.app.cors_config,
-        openapi_config=config.app.openapi_config,
-        middleware=ANY,
-        request_max_body_size=None,
-        dependencies={
-            "auth_service": Provide(connect_auth_service),
-            "file_service": Provide(connect_file_service),
-            "mail_service": Provide(connect_mail_service),
-        },
-    )
     _, kwargs = mock_litestar.call_args
-    assert len(kwargs["middleware"]) == 1
-    assert (
-        kwargs["middleware"][0].middleware
-        == config.app.prometheus_config.middleware.middleware
+
+    assert kwargs["path"] == "/api"
+    assert kwargs["route_handlers"] == (
+        PrometheusController,
+        auth_router_v1,
+        file_router_v1,
     )
-    assert kwargs["middleware"][0].args == config.app.prometheus_config.middleware.args
-    assert (
-        kwargs["middleware"][0].kwargs == config.app.prometheus_config.middleware.kwargs
-    )
+    assert kwargs["debug"] == bool(int(os.environ["DEBUG"]))
+    assert isinstance(kwargs["cors_config"], CORSConfig)
+    assert isinstance(kwargs["logging_config"], LoggingConfig)
+    assert isinstance(kwargs["openapi_config"], OpenAPIConfig)
+    assert kwargs["request_max_body_size"] is None
+
+    middleware = kwargs["middleware"]
+    assert isinstance(middleware, tuple)
+    assert len(middleware) == 1
+    assert isinstance(middleware[0], DefineMiddleware)
+
+    deps = kwargs["dependencies"]
+    assert isinstance(deps["auth_service"], Provide)
+    assert deps["auth_service"].dependency == auth_service_factory
+    assert deps["file_service"].dependency == file_service_factory
+    assert deps["mail_service"].dependency == mail_service_factory
 
 
 @patch("uvicorn.run")
@@ -51,12 +52,13 @@ def test_uvicorn(mock_run):
         exec(code, {"__name__": "__main__"})
 
         mock_run.assert_called_once_with(
-            "main:app",
+            "main:main",
+            factory=True,
             loop="uvloop",
             host="0.0.0.0",
             port=8000,
             workers=10,
             limit_concurrency=1000,
             limit_max_requests=10000,
-            reload=config.app.debug,
+            reload=bool(int(os.environ["DEBUG"])),
         )

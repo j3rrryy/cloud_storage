@@ -1,10 +1,9 @@
 from typing import Generator
 
-from dto import auth as auth_dto
-from dto import mail as mail_dto
+from dto import auth_dto, mail_dto
 from proto import auth_pb2 as pb2
 
-from .base import RPCBaseService
+from .base_service import RPCBaseService
 
 
 class AuthService(RPCBaseService):

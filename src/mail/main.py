@@ -12,21 +12,21 @@ from di import setup_di
 logger = logging.getLogger()
 
 
-async def start_mail_server():
+async def start_mail_server() -> None:
     setup_di()
     setup_logging()
     logger.info("Server started")
     await MailController.process_messages()  # type: ignore
 
 
-async def start_prometheus_server():
+async def start_prometheus_server() -> None:
     app = make_asgi_app()
     server_config = Config(app=app, loop="uvloop", host="0.0.0.0", port=8000)
     server = Server(server_config)
     await server.serve()
 
 
-async def main():
+async def main() -> None:
     mail_task = asyncio.create_task(start_mail_server())
     prometheus_task = asyncio.create_task(start_prometheus_server())
     await asyncio.gather(mail_task, prometheus_task)

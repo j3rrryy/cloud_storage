@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .base import BaseDTO
+from .base_dto import BaseDTO
 
 
 @dataclass(slots=True, frozen=True)
