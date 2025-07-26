@@ -1,4 +1,4 @@
-name: Lint, Test, Deploy
+name: Lint, Test
 
 on:
   push:
@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   lint:
@@ -44,15 +43,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3.3.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GH_PAT }}
-
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
+        run: docker build -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
 
       - name: Run ${{ matrix.service }} tests
         run: |
@@ -69,25 +61,3 @@ jobs:
           slug: ${{ github.repository }}
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage_${{ matrix.service }}.xml
-
-      - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
-
-  deploy:
-    if: ${{ vars.DEPLOY == 'true' }}
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Deploy the app
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSHKEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            echo "${{ secrets.PASSWORD }}" | sudo -S sh -c "
-            cd cloud_storage &&
-            docker compose -f docker-compose.prod.yml up gateway auth files mail --force-recreate -d &&
-            docker image prune -f
-            "
