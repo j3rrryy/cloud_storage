@@ -13,8 +13,8 @@ async def auth_service_factory() -> AsyncGenerator[AuthService, Any]:
     async with grpc.aio.insecure_channel(
         os.environ["AUTH_SERVICE"],
         options=[
-            ("grpc.keepalive_time_ms", 60_000),
-            ("grpc.keepalive_timeout_ms", 10_000),
+            ("grpc.keepalive_time_ms", 60000),
+            ("grpc.keepalive_timeout_ms", 10000),
             ("grpc.keepalive_permit_without_calls", 1),
         ],
         compression=grpc.Compression.Deflate,
@@ -28,8 +28,8 @@ async def file_service_factory() -> AsyncGenerator[FileService, Any]:
     async with grpc.aio.insecure_channel(
         os.environ["FILE_SERVICE"],
         options=[
-            ("grpc.keepalive_time_ms", 60_000),
-            ("grpc.keepalive_timeout_ms", 10_000),
+            ("grpc.keepalive_time_ms", 60000),
+            ("grpc.keepalive_timeout_ms", 10000),
             ("grpc.keepalive_permit_without_calls", 1),
         ],
         compression=grpc.Compression.Deflate,

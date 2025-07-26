@@ -22,8 +22,8 @@ async def test_auth_service_factory(
     mock_insecure_channel.assert_called_once_with(
         os.environ["AUTH_SERVICE"],
         options=[
-            ("grpc.keepalive_time_ms", 60_000),
-            ("grpc.keepalive_timeout_ms", 10_000),
+            ("grpc.keepalive_time_ms", 60000),
+            ("grpc.keepalive_timeout_ms", 10000),
             ("grpc.keepalive_permit_without_calls", 1),
         ],
         compression=grpc.Compression.Deflate,
@@ -51,8 +51,8 @@ async def test_file_service_factory(
     mock_insecure_channel.assert_called_once_with(
         os.environ["FILE_SERVICE"],
         options=[
-            ("grpc.keepalive_time_ms", 60_000),
-            ("grpc.keepalive_timeout_ms", 10_000),
+            ("grpc.keepalive_time_ms", 60000),
+            ("grpc.keepalive_timeout_ms", 10000),
             ("grpc.keepalive_permit_without_calls", 1),
         ],
         compression=grpc.Compression.Deflate,
