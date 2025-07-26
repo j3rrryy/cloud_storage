@@ -29,6 +29,8 @@ def test_consumer_factory(mock_consumer):
         MailTypes.RESET.name,
         bootstrap_servers=os.environ["KAFKA_SERVICE"],
         group_id="mail",
+        auto_offset_reset="earliest",
+        max_poll_records=1000,
     )
 
 

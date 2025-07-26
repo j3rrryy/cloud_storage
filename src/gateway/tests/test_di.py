@@ -52,7 +52,10 @@ async def test_mail_service_factory(mock_mail_service, mock_producer):
     mail_service = await mail_service_factory().__anext__()
 
     mock_producer.assert_called_once_with(
-        bootstrap_servers=os.environ["KAFKA_SERVICE"], compression_type="lz4"
+        bootstrap_servers=os.environ["KAFKA_SERVICE"],
+        compression_type="lz4",
+        acks=1,
+        linger_ms=10,
     )
     mock_mail_service.assert_called_once_with(
         mock_producer.return_value.__aenter__.return_value
