@@ -29,6 +29,7 @@ async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_
 
     mock_grpc_server.assert_called_once_with(
         interceptors=ANY,
+        maximum_concurrent_rpcs=1000,
         compression=grpc.Compression.Deflate,
     )
     _, kwargs = mock_grpc_server.call_args
@@ -69,7 +70,12 @@ async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_
     await main.start_prometheus_server()
     mock_make_asgi_app.assert_called_once()
     mock_config.assert_called_once_with(
-        app=mock_app, loop="uvloop", host="0.0.0.0", port=8000
+        app=mock_app,
+        loop="uvloop",
+        host="0.0.0.0",
+        port=8000,
+        limit_concurrency=50,
+        limit_max_requests=10000,
     )
     mock_server.assert_called_once_with(mock_config_instance)
     mock_server_instance.serve.assert_awaited_once()
