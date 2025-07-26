@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [gateway, auth, file, mail]
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and push Docker image
+        run: |
+          TAG_WITHOUT_V=${TAG#v}
+          docker build \
+            -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-$TAG_WITHOUT_V \
+            -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest \
+            -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
+
+          docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-$TAG_WITHOUT_V
+          docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
+
+  deploy:
+    if: ${{ vars.DEPLOY == 'true' }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy the app
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            echo "${{ secrets.PASSWORD }}" | sudo -S sh -c "
+            cd cloud_storage &&
+            docker compose -f docker-compose.prod.yml up gateway auth file mail --force-recreate -d &&
+            docker image prune -f
+            "
