@@ -1,5 +1,4 @@
-import logging
-
+import picologging as logging
 from uvicorn.config import LOGGING_CONFIG
 
 

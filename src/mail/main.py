@@ -1,6 +1,6 @@
 import asyncio
-import logging
 
+import picologging as logging
 import uvloop
 from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
