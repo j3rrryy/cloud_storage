@@ -1,6 +1,5 @@
-import logging
-
 import inject
+import picologging as logging
 from aiokafka import AIOKafkaConsumer
 from prometheus_client import Counter, Summary
 
