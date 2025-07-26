@@ -10,6 +10,7 @@ from litestar.exceptions import (
     InternalServerException,
     NotAuthorizedException,
     NotFoundException,
+    ServiceUnavailableException,
 )
 
 from dto import BaseDTO
@@ -25,9 +26,7 @@ class RPCBaseService:
         StatusCode.ALREADY_EXISTS: HTTPException(status_code=409),
         StatusCode.UNAUTHENTICATED: NotAuthorizedException,
         StatusCode.NOT_FOUND: NotFoundException,
-        StatusCode.INTERNAL: InternalServerException,
-        StatusCode.UNAVAILABLE: InternalServerException,
-        StatusCode.UNKNOWN: InternalServerException,
+        StatusCode.RESOURCE_EXHAUSTED: ServiceUnavailableException,
     }
 
     def __new__(cls, *args, **kwargs):
@@ -46,7 +45,9 @@ class RPCBaseService:
                 result = await func(*args, **kwargs)
                 return result
             except aio.AioRpcError as exc:
-                converted = cls._converted_exceptions[exc.code()]
+                converted = cls._converted_exceptions.get(
+                    exc.code(), InternalServerException
+                )
                 converted.detail = exc.details()
                 raise converted
 
