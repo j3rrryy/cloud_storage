@@ -14,7 +14,7 @@ from controller import AuthController
 from proto import add_AuthServicer_to_server
 
 
-async def start_grpc_server():
+async def start_grpc_server() -> None:
     config = load_config()
     logger = config.app.logger
 
@@ -23,6 +23,7 @@ async def start_grpc_server():
             AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),  # type: ignore
             PromAsyncServerInterceptor(enable_handling_time_histogram=True),
         ),
+        maximum_concurrent_rpcs=1000,
         compression=grpc.Compression.Deflate,
     )
     add_AuthServicer_to_server(AuthController(), server)
@@ -33,14 +34,21 @@ async def start_grpc_server():
     await server.wait_for_termination()
 
 
-async def start_prometheus_server():
+async def start_prometheus_server() -> None:
     app = make_asgi_app()
-    server_config = Config(app=app, loop="uvloop", host="0.0.0.0", port=8000)
+    server_config = Config(
+        app=app,
+        loop="uvloop",
+        host="0.0.0.0",
+        port=8000,
+        limit_concurrency=50,
+        limit_max_requests=10000,
+    )
     server = Server(server_config)
     await server.serve()
 
 
-async def main():
+async def main() -> None:
     grpc_task = asyncio.create_task(start_grpc_server())
     prometheus_task = asyncio.create_task(start_prometheus_server())
     await asyncio.gather(grpc_task, prometheus_task)
