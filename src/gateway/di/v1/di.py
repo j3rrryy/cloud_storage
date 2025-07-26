@@ -26,6 +26,9 @@ async def file_service_factory() -> AsyncGenerator[FileService, Any]:
 
 async def mail_service_factory() -> AsyncGenerator[MailService, Any]:
     async with AIOKafkaProducer(
-        bootstrap_servers=os.environ["KAFKA_SERVICE"], compression_type="lz4"
+        bootstrap_servers=os.environ["KAFKA_SERVICE"],
+        compression_type="lz4",
+        acks=1,
+        linger_ms=10,
     ) as producer:
         yield MailService(producer)
