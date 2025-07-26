@@ -17,6 +17,7 @@ def test_smtp_factory(mock_smtp):
         username=os.environ["MAIL_USERNAME"],
         password=os.environ["MAIL_PASSWORD"],
         use_tls=True,
+        timeout=15,
     )
 
 
@@ -31,6 +32,7 @@ def test_consumer_factory(mock_consumer):
         group_id="mail",
         auto_offset_reset="earliest",
         max_poll_records=1000,
+        request_timeout_ms=15000,
     )
 
 
