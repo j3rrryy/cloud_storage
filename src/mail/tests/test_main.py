@@ -6,17 +6,10 @@ import main
 
 
 @pytest.mark.asyncio
-@patch("main.setup_di")
-@patch("main.setup_logging")
 @patch("main.MailController")
-async def test_start_mail_server(
-    mock_mail_controller, mock_setup_logging, mock_setup_di
-):
+async def test_start_mail_server(mock_mail_controller):
     mock_mail_controller.process_messages = AsyncMock()
-
     await main.start_mail_server()
-    mock_setup_di.assert_called_once()
-    mock_setup_logging.assert_called_once()
     mock_mail_controller.process_messages.assert_awaited_once()
 
 
@@ -49,11 +42,18 @@ async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_
 
 
 @pytest.mark.asyncio
+@patch("main.setup_di")
+@patch("main.setup_logging")
 @patch("main.start_mail_server")
 @patch("main.start_prometheus_server")
 @patch("main.logger")
-async def test_main(mock_logger, mock_prometheus, mock_mail):
+async def test_main(
+    mock_logger, mock_prometheus, mock_mail, mock_setup_logging, mock_setup_di
+):
     await main.main()
+
+    mock_setup_di.assert_called_once()
+    mock_setup_logging.assert_called_once()
     mock_mail.assert_awaited_once()
+    mock_logger.info.assert_called_once_with("Mail server started")
     mock_prometheus.assert_awaited_once()
-    mock_logger.info.assert_called_once_with("Server started")

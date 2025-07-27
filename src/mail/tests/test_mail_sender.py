@@ -15,7 +15,7 @@ from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 async def test_verification(mock_smtp):
     mail = VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN)
 
-    await MailSender.verification(mail, mock_smtp)
+    await MailSender.verification(mail)  # type: ignore
     mock_smtp.send_message.assert_awaited_once()
 
     msg = mock_smtp.send_message.call_args[0][0]
@@ -112,7 +112,7 @@ async def test_verification(mock_smtp):
 async def test_info(mock_smtp):
     mail = InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER)
 
-    await MailSender.info(mail, mock_smtp)
+    await MailSender.info(mail)  # type: ignore
     mock_smtp.send_message.assert_awaited_once()
 
     msg = mock_smtp.send_message.call_args[0][0]
@@ -194,7 +194,7 @@ async def test_info(mock_smtp):
 async def test_reset(mock_smtp):
     mail = ResetMailDTO(USERNAME, EMAIL, CODE)
 
-    await MailSender.reset(mail, mock_smtp)
+    await MailSender.reset(mail)  # type: ignore
     mock_smtp.send_message.assert_awaited_once()
 
     msg = mock_smtp.send_message.call_args[0][0]

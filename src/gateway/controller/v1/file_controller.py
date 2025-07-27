@@ -98,7 +98,7 @@ class FileController(Controller):
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service.auth(access_token)
-        dto = file_dto.DeleteFilesDTO(user_id, tuple(map(str, file_id)))
+        dto = file_dto.DeleteFilesDTO(user_id, {str(fid) for fid in file_id})
         await file_service.delete_files(dto)
 
     @delete("/delete-all-files", status_code=204)

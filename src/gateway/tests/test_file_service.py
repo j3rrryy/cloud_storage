@@ -43,7 +43,7 @@ async def test_download_file(file_service):
 
 @pytest.mark.asyncio
 async def test_delete_files(file_service):
-    dto = file_dto.DeleteFilesDTO(USER_ID, (FILE_ID,))
+    dto = file_dto.DeleteFilesDTO(USER_ID, {FILE_ID})
     response = await file_service.delete_files(dto)
     assert response is None
 

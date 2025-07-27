@@ -1,7 +1,9 @@
+from typing import Generator
 from unittest.mock import AsyncMock, MagicMock
 
+import inject
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from types_aiobotocore_s3 import S3Client
 
 from controller import FileController
@@ -11,30 +13,21 @@ from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, USER_ID
 
 
 @pytest.fixture
-def mock_session() -> AsyncSession:
-    session = AsyncMock(AsyncSession)
-    session.add = MagicMock()
-    session.delete = AsyncMock()
-    session.refresh = AsyncMock()
-    session.commit = AsyncMock()
-    session.rollback = AsyncMock()
-    session.execute = AsyncMock(return_value=MagicMock())
-    session.execute.return_value.scalar_one_or_none = MagicMock()
-    session.execute.return_value.scalars = MagicMock(return_value=MagicMock())
-    session.execute.return_value.scalars.return_value.all = MagicMock()
-    return session
+def mock_sessionmaker() -> Generator[async_sessionmaker[AsyncSession], None, None]:
+    mock_sessionmaker = MagicMock(spec=async_sessionmaker[AsyncSession])
+    inject.clear_and_configure(
+        lambda binder: binder.bind(async_sessionmaker[AsyncSession], mock_sessionmaker)
+    )
+    yield mock_sessionmaker
+    inject.clear()
 
 
 @pytest.fixture
-def mock_client() -> S3Client:
-    client = AsyncMock(S3Client)
-    client.head_bucket = AsyncMock()
-    client.head_object = AsyncMock()
-    client.delete_object = AsyncMock()
-    client.delete_objects = AsyncMock()
-    client.generate_presigned_url = AsyncMock()
-    client.get_paginator = MagicMock(return_value=AsyncMock())
-    return client
+def mock_client() -> Generator[S3Client, None, None]:
+    mock_client = AsyncMock(spec=S3Client)
+    inject.clear_and_configure(lambda binder: binder.bind(S3Client, mock_client))
+    yield mock_client
+    inject.clear()
 
 
 @pytest.fixture

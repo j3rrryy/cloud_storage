@@ -29,9 +29,10 @@ def create_repository() -> MagicMock:
             ),
         )
     )
-    crud.delete_files = AsyncMock(
+    crud.get_file_list_to_delete = AsyncMock(
         return_value=response_dto.DeleteFilesResponseDTO(USER_ID, [PATH])
     )
+    crud.delete_files = AsyncMock()
     crud.delete_all_files = AsyncMock()
     return crud
 

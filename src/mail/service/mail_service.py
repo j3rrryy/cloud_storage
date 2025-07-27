@@ -3,8 +3,8 @@ from mail import MailSender
 
 
 class MailService:
-    @classmethod
-    async def send_email(cls, mail: BaseMailDTO) -> None:
+    @staticmethod
+    async def send_email(mail: BaseMailDTO) -> None:
         match mail:
             case VerificationMailDTO():
                 await MailSender.verification(mail)  # type: ignore

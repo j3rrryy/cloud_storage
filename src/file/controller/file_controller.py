@@ -1,6 +1,6 @@
+import picologging as logging
 from google.protobuf import empty_pb2
 
-from config import load_config
 from dto import request as request_dto
 from proto import FileServicer
 from proto import file_pb2 as pb2
@@ -9,7 +9,7 @@ from utils import ExceptionHandler
 
 
 class FileController(FileServicer):
-    _eh = ExceptionHandler(load_config().app.logger)
+    _eh = ExceptionHandler(logging.getLogger())
 
     async def UploadFile(self, request, context):
         dto = request_dto.UploadFileRequestDTO.from_request(request)

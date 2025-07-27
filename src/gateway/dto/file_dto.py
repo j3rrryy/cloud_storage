@@ -30,4 +30,4 @@ class FileInfoDTO(BaseDTO):
 @dataclass(slots=True, frozen=True)
 class DeleteFilesDTO(BaseDTO):
     user_id: str
-    file_ids: tuple[str, ...]
+    file_ids: set[str]

@@ -13,8 +13,6 @@ logger = logging.getLogger()
 
 
 async def start_mail_server() -> None:
-    setup_di()
-    setup_logging()
     await MailController.process_messages()  # type: ignore
 
 
@@ -33,9 +31,12 @@ async def start_prometheus_server() -> None:
 
 
 async def main() -> None:
+    setup_di()
+    setup_logging()
+
     mail_task = asyncio.create_task(start_mail_server())
+    logger.info("Mail server started")
     prometheus_task = asyncio.create_task(start_prometheus_server())
-    logger.info("Server started")
     await asyncio.gather(mail_task, prometheus_task)
 
 

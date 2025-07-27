@@ -10,7 +10,7 @@ from enums import MailTypes
 
 @patch("di.di.SMTP")
 def test_smtp_factory(mock_smtp):
-    smtp_factory()
+    smtp = smtp_factory()
     mock_smtp.assert_called_once_with(
         hostname=os.environ["MAIL_HOSTNAME"],
         port=int(os.environ["MAIL_PORT"]),
@@ -19,11 +19,12 @@ def test_smtp_factory(mock_smtp):
         use_tls=True,
         timeout=10,
     )
+    assert smtp == mock_smtp.return_value
 
 
 @patch("di.di.AIOKafkaConsumer")
 def test_consumer_factory(mock_consumer):
-    consumer_factory()
+    consumer = consumer_factory()
     mock_consumer.assert_called_once_with(
         MailTypes.VERIFICATION.name,
         MailTypes.INFO.name,
@@ -34,6 +35,7 @@ def test_consumer_factory(mock_consumer):
         max_poll_records=1000,
         request_timeout_ms=10000,
     )
+    assert consumer == mock_consumer.return_value
 
 
 @patch("di.di.inject.Binder")

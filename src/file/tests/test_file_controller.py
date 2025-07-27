@@ -24,9 +24,9 @@ from .mocks import (
 @pytest.mark.asyncio
 async def test_upload_file(file_controller):
     with (
-        patch("service.file.FileRepository", new_callable=create_repository),
-        patch("service.file.FileStorage", new_callable=create_storage),
-        patch("service.file.cache", new_callable=create_cache),
+        patch("service.file_service.FileRepository", new_callable=create_repository),
+        patch("service.file_service.FileStorage", new_callable=create_storage),
+        patch("service.file_service.cache", new_callable=create_cache),
     ):
         request = pb2.UploadFileRequest(
             user_id=USER_ID, name=NAME, path=PATH, size=SIZE
@@ -38,8 +38,8 @@ async def test_upload_file(file_controller):
 @pytest.mark.asyncio
 async def test_file_info(file_controller):
     with (
-        patch("service.file.FileRepository", new_callable=create_repository),
-        patch("service.file.cache", new_callable=create_cache),
+        patch("service.file_service.FileRepository", new_callable=create_repository),
+        patch("service.file_service.cache", new_callable=create_cache),
     ):
         request = pb2.FileOperationRequest(user_id=USER_ID, file_id=FILE_ID)
         response = await file_controller.FileInfo(request, MagicMock(ServicerContext))
@@ -55,8 +55,8 @@ async def test_file_info(file_controller):
 @pytest.mark.asyncio
 async def test_file_list(file_controller):
     with (
-        patch("service.file.FileRepository", new_callable=create_repository),
-        patch("service.file.cache", new_callable=create_cache),
+        patch("service.file_service.FileRepository", new_callable=create_repository),
+        patch("service.file_service.cache", new_callable=create_cache),
     ):
         request = pb2.UserId(user_id=USER_ID)
         response = await file_controller.FileList(request, MagicMock(ServicerContext))
@@ -76,9 +76,9 @@ async def test_file_list(file_controller):
 @pytest.mark.asyncio
 async def test_download_file(file_controller):
     with (
-        patch("service.file.FileRepository", new_callable=create_repository),
-        patch("service.file.FileStorage", new_callable=create_storage),
-        patch("service.file.cache", new_callable=create_cache),
+        patch("service.file_service.FileRepository", new_callable=create_repository),
+        patch("service.file_service.FileStorage", new_callable=create_storage),
+        patch("service.file_service.cache", new_callable=create_cache),
     ):
         request = pb2.FileOperationRequest(user_id=USER_ID, file_id=FILE_ID)
         response = await file_controller.DownloadFile(
@@ -90,9 +90,9 @@ async def test_download_file(file_controller):
 @pytest.mark.asyncio
 async def test_delete_files(file_controller):
     with (
-        patch("service.file.FileRepository", new_callable=create_repository),
-        patch("service.file.FileStorage", new_callable=create_storage),
-        patch("service.file.cache", new_callable=create_cache),
+        patch("service.file_service.FileRepository", new_callable=create_repository),
+        patch("service.file_service.FileStorage", new_callable=create_storage),
+        patch("service.file_service.cache", new_callable=create_cache),
     ):
         request = pb2.DeleteFilesRequest(user_id=USER_ID, file_ids=(FILE_ID,))
         response = await file_controller.DeleteFiles(
@@ -104,9 +104,9 @@ async def test_delete_files(file_controller):
 @pytest.mark.asyncio
 async def test_delete_all_files(file_controller):
     with (
-        patch("service.file.FileRepository", new_callable=create_repository),
-        patch("service.file.FileStorage", new_callable=create_storage),
-        patch("service.file.cache", new_callable=create_cache),
+        patch("service.file_service.FileRepository", new_callable=create_repository),
+        patch("service.file_service.FileStorage", new_callable=create_storage),
+        patch("service.file_service.cache", new_callable=create_cache),
     ):
         request = pb2.UserId(user_id=USER_ID)
         response = await file_controller.DeleteAllFiles(
