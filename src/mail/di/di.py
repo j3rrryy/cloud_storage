@@ -14,7 +14,7 @@ def smtp_factory() -> SMTP:
         username=os.environ["MAIL_USERNAME"],
         password=os.environ["MAIL_PASSWORD"],
         use_tls=True,
-        timeout=15,
+        timeout=10,
     )
 
 
@@ -27,7 +27,7 @@ def consumer_factory() -> AIOKafkaConsumer:
         group_id="mail",
         auto_offset_reset="earliest",
         max_poll_records=1000,
-        request_timeout_ms=15000,
+        request_timeout_ms=10000,
     )
 
 
