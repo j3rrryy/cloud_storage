@@ -24,24 +24,41 @@ networks:
 
 
 services:
-  nginx:
+  nginx-api:
     image: nginx:stable-alpine
-    restart: always
+    profiles: ["api"]
+    restart: unless-stopped
     working_dir: /app
     ports:
       - 80:80
     volumes:
-      - ./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dev/nginx.api.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - nginx_network
     depends_on:
       - gateway
-    container_name: nginx_dev
+    container_name: nginx_api_dev
+
+  nginx-all:
+    image: nginx:stable-alpine
+    profiles: ["all"]
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - 80:80
+    volumes:
+      - ./dev/nginx.all.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - nginx_network
+    depends_on:
+      - gateway
+    container_name: nginx_all_dev
 
   gateway:
     build:
       context: ./src/gateway/
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 8000
     env_file:
@@ -61,7 +78,8 @@ services:
   auth:
     build:
       context: ./src/auth/
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 50051
       - 8000
@@ -82,7 +100,8 @@ services:
 
   auth_postgres:
     image: postgres:alpine
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     env_file:
       - ./dev/.env
     volumes:
@@ -94,7 +113,8 @@ services:
 
   auth_redis:
     image: redis:alpine
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     volumes:
       - auth_redis_data:/data/
       - ./dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
@@ -107,7 +127,8 @@ services:
   file:
     build:
       context: ./src/file/
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 50051
       - 8000
@@ -129,7 +150,8 @@ services:
 
   minio:
     image: minio/minio:latest
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 9000
     env_file:
@@ -147,6 +169,7 @@ services:
 
   mc:
     image: minio/mc:latest
+    profiles: ["api", "all"]
     env_file:
       - ./dev/.env
     volumes:
@@ -160,7 +183,8 @@ services:
 
   file_postgres:
     image: postgres:alpine
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     env_file:
       - ./dev/.env
     volumes:
@@ -172,7 +196,8 @@ services:
 
   file_redis:
     image: redis:alpine
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     volumes:
       - file_redis_data:/data/
       - ./dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
@@ -184,7 +209,8 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 2181
     env_file:
@@ -199,7 +225,8 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 9092
     env_file:
@@ -222,7 +249,8 @@ services:
   mail:
     build:
       context: ./src/mail/
-    restart: always
+    profiles: ["api", "all"]
+    restart: unless-stopped
     expose:
       - 8000
     env_file:
@@ -239,7 +267,8 @@ services:
 
   loki:
     image: grafana/loki:latest
-    restart: always
+    profiles: ["all"]
+    restart: unless-stopped
     expose:
       - 3100
     env_file:
@@ -254,7 +283,8 @@ services:
 
   promtail:
     image: grafana/promtail:latest
-    restart: always
+    profiles: ["all"]
+    restart: unless-stopped
     volumes:
       - /var/log:/var/log:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -269,7 +299,8 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    restart: always
+    profiles: ["all"]
+    restart: unless-stopped
     expose:
       - 9090
     volumes:
@@ -282,7 +313,8 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    restart: always
+    profiles: ["all"]
+    restart: unless-stopped
     expose:
       - 3000
     env_file:

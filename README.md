@@ -66,9 +66,17 @@
 
 - Run the **dev ver.**
 
-  ```shell
-  docker compose -f docker-compose.dev.yml up --build -d
-  ```
+  - Only API
+
+    ```shell
+    docker compose -f docker-compose.dev.yml --profile api up --build -d
+    ```
+
+  - API + monitoring
+
+    ```shell
+    docker compose -f docker-compose.dev.yml --profile all up --build -d
+    ```
 
 - Run the **prod ver.** and get a SSL certificate
 

@@ -28,7 +28,7 @@ networks:
 services:
   nginx:
     image: nginx:stable-alpine
-    restart: always
+    restart: unless-stopped
     working_dir: /app
     ports:
       - 80:80
@@ -46,7 +46,7 @@ services:
   gateway:
     image: ghcr.io/j3rrryy/cloud_storage:gateway-latest
     pull_policy: always
-    restart: always
+    restart: unless-stopped
     expose:
       - 8000
     env_file:
@@ -64,7 +64,7 @@ services:
   auth:
     image: ghcr.io/j3rrryy/cloud_storage:auth-latest
     pull_policy: always
-    restart: always
+    restart: unless-stopped
     expose:
       - 50051
       - 8000
@@ -83,7 +83,7 @@ services:
 
   auth_postgres:
     image: postgres:alpine
-    restart: always
+    restart: unless-stopped
     env_file:
       - ./.env
     volumes:
@@ -95,7 +95,7 @@ services:
 
   auth_redis:
     image: redis:alpine
-    restart: always
+    restart: unless-stopped
     volumes:
       - auth_redis_data:/data/
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
@@ -108,7 +108,7 @@ services:
   file:
     image: ghcr.io/j3rrryy/cloud_storage:file-latest
     pull_policy: always
-    restart: always
+    restart: unless-stopped
     expose:
       - 50051
       - 8000
@@ -128,7 +128,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    restart: always
+    restart: unless-stopped
     env_file:
       - ./.env
     environment:
@@ -157,7 +157,7 @@ services:
 
   file_postgres:
     image: postgres:alpine
-    restart: always
+    restart: unless-stopped
     env_file:
       - ./.env
     volumes:
@@ -169,7 +169,7 @@ services:
 
   file_redis:
     image: redis:alpine
-    restart: always
+    restart: unless-stopped
     volumes:
       - file_redis_data:/data/
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
@@ -181,7 +181,7 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    restart: always
+    restart: unless-stopped
     expose:
       - 2181
     env_file:
@@ -196,7 +196,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
-    restart: always
+    restart: unless-stopped
     expose:
       - 9092
     env_file:
@@ -219,7 +219,7 @@ services:
   mail:
     image: ghcr.io/j3rrryy/cloud_storage:mail-latest
     pull_policy: always
-    restart: always
+    restart: unless-stopped
     expose:
       - 8000
     env_file:
@@ -234,7 +234,7 @@ services:
 
   loki:
     image: grafana/loki:latest
-    restart: always
+    restart: unless-stopped
     expose:
       - 3100
     env_file:
@@ -249,7 +249,7 @@ services:
 
   promtail:
     image: grafana/promtail:latest
-    restart: always
+    restart: unless-stopped
     volumes:
       - /var/log:/var/log:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -264,7 +264,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    restart: always
+    restart: unless-stopped
     expose:
       - 9090
     volumes:
@@ -277,7 +277,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    restart: always
+    restart: unless-stopped
     expose:
       - 3000
     env_file:
