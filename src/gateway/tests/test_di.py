@@ -76,7 +76,7 @@ async def test_mail_service_factory(mock_mail_service, mock_producer):
         compression_type="lz4",
         acks=1,
         linger_ms=10,
-        request_timeout_ms=15000,
+        request_timeout_ms=10000,
     )
     mock_mail_service.assert_called_once_with(
         mock_producer.return_value.__aenter__.return_value

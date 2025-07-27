@@ -45,6 +45,6 @@ async def mail_service_factory() -> AsyncGenerator[MailService, Any]:
         compression_type="lz4",
         acks=1,
         linger_ms=10,
-        request_timeout_ms=15000,
+        request_timeout_ms=10000,
     ) as producer:
         yield MailService(producer)
