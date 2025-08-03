@@ -1,35 +1,31 @@
+import os
 from functools import wraps
 from typing import Awaitable, Callable, TypeVar
 
 import inject
+import picologging as logging
 from grpc import ServicerContext, StatusCode
-from picologging import Logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from types_aiobotocore_s3 import S3Client
 
 T = TypeVar("T")
 
+BUCKET_NAME = os.environ["MINIO_FILE_BUCKET"]
+
+logger = logging.getLogger()
+
 
 class ExceptionHandler:
-    __slots__ = "_logger"
-
-    def __init__(self, logger: Logger):
-        self._logger = logger
-
-    async def __call__(
-        self,
-        context: ServicerContext,
-        func: Callable[..., Awaitable[T]],
-        *args,
-        **kwargs,
+    @staticmethod
+    async def handle(
+        context: ServicerContext, func: Callable[..., Awaitable[T]], *args, **kwargs
     ) -> T:
         try:
-            res = await func(*args, **kwargs)
-            return res
+            return await func(*args, **kwargs)
         except Exception as exc:
             status_code, details = exc.args
-            self._logger.error(
+            logger.error(
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
             await context.abort(status_code, details)  # type: ignore

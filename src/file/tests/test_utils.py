@@ -1,42 +1,39 @@
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from grpc import StatusCode
-from picologging import Logger
 
 from utils import ExceptionHandler
 
 
 @pytest.mark.asyncio
-async def test_exception_handler_success():
-    logger = MagicMock(spec=Logger)
-    handler = ExceptionHandler(logger)
+@patch("utils.utils.logger")
+async def test_exception_handler_success(mock_logger):
     context = AsyncMock()
 
     async def mock_func():
         return "ok"
 
-    res = await handler(context, mock_func)
+    res = await ExceptionHandler.handle(context, mock_func)
 
     assert res == "ok"
-    logger.error.assert_not_called()
+    mock_logger.error.assert_not_called()
     context.abort.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_exception_handler_exception():
-    logger = MagicMock(spec=Logger)
-    handler = ExceptionHandler(logger)
+@patch("utils.utils.logger")
+async def test_exception_handler_exception(mock_logger):
     context = AsyncMock()
 
     async def mock_func():
         raise Exception(StatusCode.UNKNOWN, "Test details")
 
     with pytest.raises(Exception) as exc_info:
-        await handler(context, mock_func)
+        await ExceptionHandler.handle(context, mock_func)
 
     assert exc_info.value.args == (StatusCode.UNKNOWN, "Test details")
-    logger.error.assert_called_once_with(
+    mock_logger.error.assert_called_once_with(
         "Status code: UNKNOWN (2), details: Test details"
     )
     context.abort.assert_awaited_once_with(StatusCode.UNKNOWN, "Test details")
