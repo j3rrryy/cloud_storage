@@ -16,7 +16,7 @@ async def test_upload_file(mock_sessionmaker):
     dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, PATH, SIZE)
     mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     await FileRepository.upload_file(dto)  # type: ignore
-    
+
     mock_session.add.assert_called_once()
     mock_session.commit.assert_awaited_once()
 
