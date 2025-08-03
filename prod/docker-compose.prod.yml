@@ -77,7 +77,7 @@ services:
       - auth_postgres
       - auth_redis
     command: bash -c "
-      uv run alembic -c './config/alembic.ini' upgrade head &&
+      uv run alembic upgrade head &&
       uv run python ./main.py"
     container_name: auth_prod
 

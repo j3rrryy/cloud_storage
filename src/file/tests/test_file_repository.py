@@ -15,8 +15,8 @@ from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, USER_ID
 async def test_upload_file(mock_sessionmaker):
     dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, PATH, SIZE)
     mock_session = mock_sessionmaker.return_value.__aenter__.return_value
-
     await FileRepository.upload_file(dto)  # type: ignore
+    
     mock_session.add.assert_called_once()
     mock_session.commit.assert_awaited_once()
 
@@ -234,6 +234,7 @@ async def test_delete_files_exception(mock_sessionmaker):
 async def test_delete_all_files(mock_sessionmaker):
     mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     await FileRepository.delete_all_files(USER_ID)  # type: ignore
+
     mock_session.execute.assert_called_once()
     mock_session.commit.assert_called_once()
 

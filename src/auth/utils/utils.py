@@ -1,71 +1,66 @@
+import os
+import re
 from datetime import datetime as dt
 from datetime import timedelta
-from enum import Enum
 from functools import wraps
 from secrets import choice
 from typing import Awaitable, Callable, TypeVar
 
 import bcrypt
+import inject
+import picologging as logging
 from grpc import ServicerContext, StatusCode
 from httpagentparser import simple_detect
-from jwskate import Jwt, SignedJwt
-from picologging import Logger
+from jwskate import Jwk, Jwt, SignedJwt
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from config import load_config
+from enums import TokenTypes
 from exceptions import UnauthenticatedException
 
 T = TypeVar("T")
 
-config = load_config()
+EMAIL_REGEX = re.compile(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")
+
+logger = logging.getLogger()
 
 
-class TokenTypes(Enum):
-    ACCESS = 0
-    REFRESH = 1
-    VERIFICATION = 2
+class KeyPair:
+    __slots__ = ("private_key", "public_key")
+
+    def __init__(self):
+        self.private_key = Jwk.from_json(os.environ["SECRET_KEY"])
+        self.public_key = self.private_key.public_jwk()
 
 
 class ExceptionHandler:
-    __slots__ = "_logger"
-
-    def __init__(self, logger: Logger):
-        self._logger = logger
-
-    async def __call__(
-        self,
-        context: ServicerContext,
-        func: Callable[..., Awaitable[T]],
-        *args,
-        **kwargs,
+    @staticmethod
+    async def handle(
+        context: ServicerContext, func: Callable[..., Awaitable[T]], *args, **kwargs
     ) -> T:
         try:
-            res = await func(*args, **kwargs)
-            return res
+            return await func(*args, **kwargs)
         except Exception as exc:
             status_code, details = exc.args
-            self._logger.error(
+            logger.error(
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
-            await context.abort(status_code, details)
+            await context.abort(status_code, details)  # type: ignore
             raise
 
 
-def repository_exception_handler(func):
+def with_transaction(func):
     @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            res = await func(*args, **kwargs)
-            return res
-        except IntegrityError as exc:
-            await kwargs["session"].rollback()
-            raise exc
-        except UnauthenticatedException as exc:
-            raise exc
-        except Exception as exc:
-            await kwargs["session"].rollback()
-            exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
-            raise exc
+    @inject.autoparams()
+    async def wrapper(*args, sessionmaker: async_sessionmaker[AsyncSession], **kwargs):
+        async with sessionmaker() as session:
+            try:
+                return await func(*args, session, **kwargs)
+            except Exception as exc:
+                await session.rollback()
+                if not isinstance(exc, (IntegrityError, UnauthenticatedException)):
+                    exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
+                raise exc
 
     return wrapper
 
@@ -74,7 +69,8 @@ def generate_reset_code() -> str:
     return "".join(choice("0123456789") for _ in range(6))
 
 
-def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
+@inject.autoparams()
+def generate_jwt(user_id: str, token_type: TokenTypes, key_pair: KeyPair) -> str:
     match token_type:
         case TokenTypes.ACCESS:
             exp_time = dt.now() + timedelta(minutes=15)
@@ -85,19 +81,25 @@ def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
         case _:  # pragma: no cover
             exp_time = None
 
-    claims = {"iss": config.app.name, "sub": user_id, "iat": dt.now(), "exp": exp_time}
+    claims = {
+        "iss": os.environ["APP_NAME"],
+        "sub": user_id,
+        "iat": dt.now(),
+        "exp": exp_time,
+    }
     return str(
-        Jwt.sign(claims, config.app.private_key, alg="EdDSA", typ=str(token_type.value))
+        Jwt.sign(claims, key_pair.private_key, alg="EdDSA", typ=str(token_type.value))
     )
 
 
-def validate_jwt(token: str, token_type: TokenTypes) -> str:
+@inject.autoparams()
+def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> str:
     jwt = Jwt(token)
 
     if (
         not isinstance(jwt, SignedJwt)
-        or not jwt.verify_signature(config.app.public_key, "EdDSA")
-        or jwt.issuer != config.app.name
+        or not jwt.verify_signature(key_pair.public_key, "EdDSA")
+        or jwt.issuer != os.environ["APP_NAME"]
         or jwt.subject is None
         or not (
             hasattr(jwt, "typ") and jwt.typ.isdigit() and int(jwt.typ) in range(0, 3)

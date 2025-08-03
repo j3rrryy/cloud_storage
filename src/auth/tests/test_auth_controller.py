@@ -29,8 +29,8 @@ from .mocks import (
 @pytest.mark.asyncio
 async def test_register(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.generate_jwt") as mock_generator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = VERIFICATION_TOKEN
         request = pb2.RegisterRequest(username=USERNAME, email=EMAIL, password=PASSWORD)
@@ -43,9 +43,9 @@ async def test_register(auth_controller):
 @pytest.mark.asyncio
 async def test_verify_email(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
     ):
         request = pb2.VerificationToken(verification_token=VERIFICATION_TOKEN)
         response = await auth_controller.VerifyEmail(
@@ -57,9 +57,9 @@ async def test_verify_email(auth_controller):
 @pytest.mark.asyncio
 async def test_request_reset_code(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.generate_reset_code") as mock_generator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.generate_reset_code") as mock_generator,
     ):
         mock_generator.return_value = CODE
         request = pb2.Email(email=EMAIL)
@@ -73,7 +73,7 @@ async def test_request_reset_code(auth_controller):
 
 @pytest.mark.asyncio
 async def test_validate_reset_code(auth_controller):
-    with patch("service.auth.cache", new_callable=create_cache) as mock_cache:
+    with patch("service.auth_service.cache", new_callable=create_cache) as mock_cache:
         mock_cache.get.return_value = CODE
         request = pb2.ResetCodeRequest(user_id=USER_ID, code=CODE)
         response = await auth_controller.ValidateResetCode(
@@ -85,8 +85,8 @@ async def test_validate_reset_code(auth_controller):
 @pytest.mark.asyncio
 async def test_reset_password(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache) as mock_cache,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache) as mock_cache,
     ):
         mock_cache.get.return_value = "validated"
         request = pb2.ResetPasswordRequest(user_id=USER_ID, new_password=PASSWORD)
@@ -99,9 +99,9 @@ async def test_reset_password(auth_controller):
 @pytest.mark.asyncio
 async def test_log_in(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.generate_jwt") as mock_generator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = ACCESS_TOKEN
         request = pb2.LogInRequest(
@@ -120,9 +120,9 @@ async def test_log_in(auth_controller):
 @pytest.mark.asyncio
 async def test_log_out(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
     ):
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.LogOut(request, MagicMock(ServicerContext))
@@ -132,9 +132,9 @@ async def test_log_out(auth_controller):
 @pytest.mark.asyncio
 async def test_resend_verification_mail(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.validate_jwt"),
-        patch("service.auth.generate_jwt") as mock_generator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = VERIFICATION_TOKEN
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
@@ -149,9 +149,9 @@ async def test_resend_verification_mail(auth_controller):
 @pytest.mark.asyncio
 async def test_auth(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt") as mock_validator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt") as mock_validator,
     ):
         mock_validator.return_value = USER_ID
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
@@ -162,10 +162,10 @@ async def test_auth(auth_controller):
 @pytest.mark.asyncio
 async def test_refresh(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
-        patch("service.auth.generate_jwt") as mock_generator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = ACCESS_TOKEN
         request = pb2.RefreshRequest(
@@ -180,9 +180,9 @@ async def test_refresh(auth_controller):
 @pytest.mark.asyncio
 async def test_session_list(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
     ):
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.SessionList(
@@ -203,9 +203,9 @@ async def test_session_list(auth_controller):
 @pytest.mark.asyncio
 async def test_revoke_session(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
     ):
         request = pb2.RevokeSessionRequest(
             access_token=ACCESS_TOKEN, session_id=SESSION_ID
@@ -219,9 +219,9 @@ async def test_revoke_session(auth_controller):
 @pytest.mark.asyncio
 async def test_profile(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
     ):
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.Profile(request, MagicMock(ServicerContext))
@@ -237,10 +237,10 @@ async def test_profile(auth_controller):
 @pytest.mark.asyncio
 async def test_update_email(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt"),
-        patch("service.auth.generate_jwt") as mock_generator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = VERIFICATION_TOKEN
         request = pb2.UpdateEmailRequest(access_token=ACCESS_TOKEN, new_email=EMAIL)
@@ -255,8 +255,8 @@ async def test_update_email(auth_controller):
 @pytest.mark.asyncio
 async def test_update_password(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.validate_jwt"),
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.validate_jwt"),
     ):
         request = pb2.UpdatePasswordRequest(
             access_token=ACCESS_TOKEN, old_password=PASSWORD, new_password=PASSWORD
@@ -270,9 +270,9 @@ async def test_update_password(auth_controller):
 @pytest.mark.asyncio
 async def test_delete_profile(auth_controller):
     with (
-        patch("service.auth.AuthRepository", new_callable=create_repository),
-        patch("service.auth.cache", new_callable=create_cache),
-        patch("service.auth.validate_jwt") as mock_validator,
+        patch("service.auth_service.AuthRepository", new_callable=create_repository),
+        patch("service.auth_service.cache", new_callable=create_cache),
+        patch("service.auth_service.validate_jwt") as mock_validator,
     ):
         mock_validator.return_value = USER_ID
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)

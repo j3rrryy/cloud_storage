@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -6,7 +7,6 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from config import load_config
 from repository import Base
 
 # this is the Alembic Config object, which provides
@@ -14,14 +14,12 @@ from repository import Base
 config = context.config
 section = config.config_ini_section
 
-env_conf = load_config()
-
-config.set_section_option(section, "POSTGRES_DRIVER", env_conf.postgres.driver)
-config.set_section_option(section, "POSTGRES_USER", env_conf.postgres.user)
-config.set_section_option(section, "POSTGRES_PASSWORD", env_conf.postgres.password)
-config.set_section_option(section, "POSTGRES_HOST", env_conf.postgres.host)
-config.set_section_option(section, "POSTGRES_PORT", str(env_conf.postgres.port))
-config.set_section_option(section, "POSTGRES_DB", env_conf.postgres.database)
+config.set_section_option(section, "POSTGRES_DRIVER", os.environ["POSTGRES_DRIVER"])
+config.set_section_option(section, "POSTGRES_USER", os.environ["POSTGRES_USER"])
+config.set_section_option(section, "POSTGRES_PASSWORD", os.environ["POSTGRES_PASSWORD"])
+config.set_section_option(section, "POSTGRES_HOST", os.environ["POSTGRES_HOST"])
+config.set_section_option(section, "POSTGRES_PORT", os.environ["POSTGRES_PORT"])
+config.set_section_option(section, "POSTGRES_DB", os.environ["POSTGRES_DB"])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

@@ -8,17 +8,14 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 )
 
 import main
-from controller import AuthController
+from controller import AuthServicer
 
 
 @pytest.mark.asyncio
+@patch("main.logger")
 @patch("grpc.aio.server")
 @patch("main.add_AuthServicer_to_server")
-@patch("main.load_config")
-async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_server):
-    mock_logger = MagicMock()
-    mock_load_config.return_value.app.logger = mock_logger
-
+async def test_start_grpc_server(mock_add_servicer, mock_grpc_server, mock_logger):
     server_mock = MagicMock(spec=grpc.aio.Server)
     server_mock.add_insecure_port.return_value = None
     server_mock.start = AsyncMock()
@@ -29,6 +26,11 @@ async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_
 
     mock_grpc_server.assert_called_once_with(
         interceptors=ANY,
+        options=[
+            ("grpc.keepalive_time_ms", 60000),
+            ("grpc.keepalive_timeout_ms", 10000),
+            ("grpc.keepalive_permit_without_calls", 1),
+        ],
         maximum_concurrent_rpcs=1000,
         compression=grpc.Compression.Deflate,
     )
@@ -44,7 +46,7 @@ async def test_start_grpc_server(mock_load_config, mock_add_servicer, mock_grpc_
 
     args, _ = mock_add_servicer.call_args
     assert len(args) == 2
-    assert isinstance(args[0], AuthController)
+    assert isinstance(args[0], AuthServicer)
     assert isinstance(args[1], grpc.aio.Server)
 
     server_mock.add_insecure_port.assert_called_once_with("[::]:50051")
@@ -82,12 +84,18 @@ async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_
 
 
 @pytest.mark.asyncio
+@patch("main.setup_di")
+@patch("main.setup_logging")
+@patch("main.setup_cache")
 @patch("main.start_grpc_server")
 @patch("main.start_prometheus_server")
-async def test_main(mock_prometheus, mock_grpc):
-    mock_grpc.return_value = None
-    mock_prometheus.return_value = None
+async def test_main(
+    mock_prometheus, mock_grpc, mock_setup_cache, mock_setup_logging, mock_setup_di
+):
     await main.main()
 
+    mock_setup_di.assert_called_once()
+    mock_setup_logging.assert_called_once()
+    mock_setup_cache.assert_called_once()
     mock_grpc.assert_awaited_once()
     mock_prometheus.assert_awaited_once()

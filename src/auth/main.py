@@ -1,6 +1,7 @@
 import asyncio
 
 import grpc
+import picologging as logging
 import uvloop
 from grpc_accesslog import AsyncAccessLogInterceptor, handlers
 from prometheus_client import make_asgi_app
@@ -9,20 +10,25 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 )
 from uvicorn import Config, Server
 
-from config import load_config
+from config import setup_cache, setup_logging
 from controller import AuthController
+from di import setup_di
 from proto import add_AuthServicer_to_server
+
+logger = logging.getLogger()
 
 
 async def start_grpc_server() -> None:
-    config = load_config()
-    logger = config.app.logger
-
     server = grpc.aio.server(
         interceptors=(
             AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),  # type: ignore
             PromAsyncServerInterceptor(enable_handling_time_histogram=True),
         ),
+        options=[
+            ("grpc.keepalive_time_ms", 60000),
+            ("grpc.keepalive_timeout_ms", 10000),
+            ("grpc.keepalive_permit_without_calls", 1),
+        ],
         maximum_concurrent_rpcs=1000,
         compression=grpc.Compression.Deflate,
     )
@@ -49,6 +55,10 @@ async def start_prometheus_server() -> None:
 
 
 async def main() -> None:
+    setup_di()
+    setup_logging()
+    setup_cache()
+
     grpc_task = asyncio.create_task(start_grpc_server())
     prometheus_task = asyncio.create_task(start_prometheus_server())
     await asyncio.gather(grpc_task, prometheus_task)
