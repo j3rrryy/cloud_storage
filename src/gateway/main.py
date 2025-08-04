@@ -3,27 +3,33 @@ import os
 import uvicorn
 from litestar import Litestar
 from litestar.di import Provide
+from litestar.exceptions import HTTPException
 from litestar.plugins.prometheus import PrometheusController
 
 from config import setup_cors, setup_logging, setup_openapi, setup_prometheus
-from controller.v1 import auth_router_v1, file_router_v1
-from di.v1 import auth_service_factory, file_service_factory, mail_service_factory
+from controller import v1 as controller_v1
+from di import v1 as di_v1
+from utils import exception_handler
 
 
 def main() -> Litestar:
     return Litestar(
         path="/api",
-        route_handlers=(PrometheusController, auth_router_v1, file_router_v1),
+        route_handlers=(
+            PrometheusController,
+            controller_v1.auth_router,
+            controller_v1.file_router,
+        ),
         debug=bool(int(os.environ["DEBUG"])),
         cors_config=setup_cors(),
         logging_config=setup_logging(),
         middleware=(setup_prometheus().middleware,),
         openapi_config=setup_openapi(),
-        request_max_body_size=None,
+        exception_handlers={HTTPException: exception_handler},
         dependencies={
-            "auth_service": Provide(auth_service_factory),
-            "file_service": Provide(file_service_factory),
-            "mail_service": Provide(mail_service_factory),
+            "auth_service_v1": Provide(di_v1.auth_service_factory),
+            "file_service_v1": Provide(di_v1.file_service_factory),
+            "mail_service_v1": Provide(di_v1.mail_service_factory),
         },
     )
 

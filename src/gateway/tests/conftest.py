@@ -7,33 +7,33 @@ from litestar import Litestar
 from litestar.di import Provide
 from litestar.testing import AsyncTestClient
 
-from controller.v1 import auth_router_v1, file_router_v1
-from service.v1 import AuthService, FileService, MailService
+from controller import v1 as controller_v1
+from service import v1 as service_v1
 
-from .mocks import create_auth_stub, create_file_stub, create_mail_producer
-
-
-async def auth_service_factory() -> AsyncGenerator[AuthService, None]:
-    yield AuthService(create_auth_stub())
+from .mocks import create_auth_stub_v1, create_file_stub_v1, create_mail_producer
 
 
-async def file_service_factory() -> AsyncGenerator[FileService, None]:
-    yield FileService(create_file_stub())
+async def auth_service_v1_factory() -> AsyncGenerator[service_v1.AuthService, None]:
+    yield service_v1.AuthService(create_auth_stub_v1())
 
 
-async def mail_service_factory() -> AsyncGenerator[MailService, None]:
-    yield MailService(create_mail_producer())
+async def file_service_v1_factory() -> AsyncGenerator[service_v1.FileService, None]:
+    yield service_v1.FileService(create_file_stub_v1())
+
+
+async def mail_service_v1_factory() -> AsyncGenerator[service_v1.MailService, None]:
+    yield service_v1.MailService(create_mail_producer())
 
 
 def create_app() -> Litestar:
     app = Litestar(
         path="/api",
-        route_handlers=(auth_router_v1, file_router_v1),
+        route_handlers=(controller_v1.auth_router, controller_v1.file_router),
         debug=bool(int(os.environ["DEBUG"])),
         dependencies={
-            "auth_service": Provide(auth_service_factory),
-            "file_service": Provide(file_service_factory),
-            "mail_service": Provide(mail_service_factory),
+            "auth_service_v1": Provide(auth_service_v1_factory),
+            "file_service_v1": Provide(file_service_v1_factory),
+            "mail_service_v1": Provide(mail_service_v1_factory),
         },
     )
     return app
@@ -46,15 +46,15 @@ async def client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
 
 
 @pytest.fixture(scope="session")
-def auth_service() -> AuthService:
-    return AuthService(create_auth_stub())
+def auth_service_v1() -> service_v1.AuthService:
+    return service_v1.AuthService(create_auth_stub_v1())
 
 
 @pytest.fixture(scope="session")
-def file_service() -> FileService:
-    return FileService(create_file_stub())
+def file_service_v1() -> service_v1.FileService:
+    return service_v1.FileService(create_file_stub_v1())
 
 
 @pytest.fixture
-def mail_service() -> MailService:
-    return MailService(create_mail_producer())
+def mail_service_v1() -> service_v1.MailService:
+    return service_v1.MailService(create_mail_producer())

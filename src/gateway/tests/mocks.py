@@ -33,7 +33,7 @@ SIZE = 123
 NAME = "test_name"
 
 
-def create_auth_stub() -> MagicMock:
+def create_auth_stub_v1() -> MagicMock:
     stub = MagicMock()
 
     stub.Register = AsyncMock(
@@ -102,7 +102,7 @@ def create_auth_stub() -> MagicMock:
     return stub
 
 
-def create_file_stub() -> MagicMock:
+def create_file_stub_v1() -> MagicMock:
     stub = MagicMock()
 
     stub.UploadFile = AsyncMock(return_value=file_pb2.FileURLResponse(url=URL))
