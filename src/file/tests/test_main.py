@@ -42,7 +42,6 @@ async def test_start_grpc_server(mock_add_servicer, mock_grpc_server, mock_logge
     assert kwargs["interceptors"][0]._handlers == [handlers.request]
 
     assert isinstance(kwargs["interceptors"][1], PromAsyncServerInterceptor)
-    assert kwargs["interceptors"][1]._enable_handling_time_histogram
 
     args, _ = mock_add_servicer.call_args
     assert len(args) == 2

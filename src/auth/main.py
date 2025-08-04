@@ -22,7 +22,7 @@ async def start_grpc_server() -> None:
     server = grpc.aio.server(
         interceptors=(
             AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),  # type: ignore
-            PromAsyncServerInterceptor(enable_handling_time_histogram=True),
+            PromAsyncServerInterceptor(),
         ),
         options=[
             ("grpc.keepalive_time_ms", 60000),
