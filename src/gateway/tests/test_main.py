@@ -3,7 +3,6 @@ import os
 from unittest.mock import patch
 
 from litestar.config.cors import CORSConfig
-from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.logging import LoggingConfig
 from litestar.middleware.base import DefineMiddleware
@@ -43,13 +42,22 @@ def test_app(mock_litestar):
     assert len(middleware) == 1
     assert isinstance(exc_handlers[HTTPException], type(exception_handler))
 
+    on_startup = kwargs["on_startup"]
+    assert on_startup == (di_v1.DIManager.setup,)
+
+    on_shutdown = kwargs["on_shutdown"]
+    assert on_shutdown == (di_v1.DIManager.close,)
+
     deps = kwargs["dependencies"]
-    assert isinstance(deps["auth_service_v1"], Provide)
-    assert isinstance(deps["file_service_v1"], Provide)
-    assert isinstance(deps["mail_service_v1"], Provide)
-    assert deps["auth_service_v1"].dependency == di_v1.auth_service_factory
-    assert deps["file_service_v1"].dependency == di_v1.file_service_factory
-    assert deps["mail_service_v1"].dependency == di_v1.mail_service_factory
+    assert deps["auth_service_v1"].use_cache
+    assert deps["file_service_v1"].use_cache
+    assert deps["mail_service_v1"].use_cache
+    assert not deps["auth_service_v1"].sync_to_thread
+    assert not deps["file_service_v1"].sync_to_thread
+    assert not deps["mail_service_v1"].sync_to_thread
+    assert deps["auth_service_v1"].dependency == di_v1.DIManager.auth_service_factory
+    assert deps["file_service_v1"].dependency == di_v1.DIManager.file_service_factory
+    assert deps["mail_service_v1"].dependency == di_v1.DIManager.mail_service_factory
 
 
 @patch("uvicorn.run")

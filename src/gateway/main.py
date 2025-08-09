@@ -26,10 +26,24 @@ def main() -> Litestar:
         middleware=(setup_prometheus().middleware,),
         openapi_config=setup_openapi(),
         exception_handlers={HTTPException: exception_handler},
+        on_startup=(di_v1.DIManager.setup,),
+        on_shutdown=(di_v1.DIManager.close,),
         dependencies={
-            "auth_service_v1": Provide(di_v1.auth_service_factory),
-            "file_service_v1": Provide(di_v1.file_service_factory),
-            "mail_service_v1": Provide(di_v1.mail_service_factory),
+            "auth_service_v1": Provide(
+                di_v1.DIManager.auth_service_factory,
+                use_cache=True,
+                sync_to_thread=False,
+            ),
+            "file_service_v1": Provide(
+                di_v1.DIManager.file_service_factory,
+                use_cache=True,
+                sync_to_thread=False,
+            ),
+            "mail_service_v1": Provide(
+                di_v1.DIManager.mail_service_factory,
+                use_cache=True,
+                sync_to_thread=False,
+            ),
         },
     )
 
