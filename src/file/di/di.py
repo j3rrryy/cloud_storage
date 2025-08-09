@@ -1,13 +1,68 @@
 import os
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator, Optional
 
+import aioboto3
 import inject
-from aiobotocore import config, session
+from aiobotocore.config import AioConfig
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from types_aiobotocore_s3 import S3Client
 
 
-def sessionmaker_factory() -> async_sessionmaker[AsyncSession]:
+class ClientManager:
+    client: Optional[S3Client] = None
+    _started = False
+
+    @classmethod
+    async def setup(cls) -> None:
+        if cls._started:
+            return
+        try:
+            session = aioboto3.Session()
+            config = AioConfig(
+                connect_timeout=5,
+                read_timeout=10,
+                max_pool_connections=30,
+                retries={"max_attempts": 3, "mode": "standard"},
+                s3={"addressing_style": "path"},
+            )
+            client = session.client(
+                "s3",
+                use_ssl=False,
+                verify=False,
+                endpoint_url=f"http://{os.environ['MINIO_HOST']}:{os.environ['MINIO_PORT']}",
+                aws_access_key_id=os.environ["MINIO_ROOT_USER"],
+                aws_secret_access_key=os.environ["MINIO_ROOT_PASSWORD"],
+                config=config,
+            )
+            cls.client = await client.__aenter__()
+            cls._started = True
+        except Exception:
+            await cls.close()
+            raise
+
+    @classmethod
+    async def close(cls) -> None:
+        if cls.client is not None:
+            try:
+                await cls.client.close()
+            finally:
+                cls.client = None
+
+        cls._started = False
+
+    @classmethod
+    def client_factory(cls) -> S3Client:
+        if not cls.client:
+            raise RuntimeError(
+                "S3Client not initialized; ClientManager.setup() was not called"
+            )
+        return cls.client
+
+
+@asynccontextmanager
+async def session_factory() -> AsyncGenerator[AsyncSession, None]:
     postgres_url = URL.create(
         os.environ["POSTGRES_DRIVER"],
         os.environ["POSTGRES_USER"],
@@ -19,39 +74,21 @@ def sessionmaker_factory() -> async_sessionmaker[AsyncSession]:
     async_engine = create_async_engine(
         postgres_url,
         pool_pre_ping=True,
-        pool_size=10,
-        max_overflow=10,
+        pool_size=20,
+        max_overflow=20,
         pool_timeout=30,
         pool_recycle=1800,
     )
     sessionmaker = async_sessionmaker(async_engine, class_=AsyncSession)
-    return sessionmaker
-
-
-def client_factory() -> session.ClientCreatorContext:
-    aiosession = session.get_session()
-    aioconfig = config.AioConfig(
-        connect_timeout=5,
-        read_timeout=10,
-        max_pool_connections=10,
-        retries={"max_attempts": 3, "mode": "standard"},
-        s3={"addressing_style": "path"},
-    )
-    client = aiosession.create_client(
-        "s3",
-        endpoint_url=f"http://{os.environ['MINIO_HOST']}:{os.environ['MINIO_PORT']}",
-        use_ssl=False,
-        aws_access_key_id=os.environ["MINIO_ROOT_USER"],
-        aws_secret_access_key=os.environ["MINIO_ROOT_PASSWORD"],
-        config=aioconfig,
-    )
-    return client
+    async with sessionmaker() as session:
+        yield session
 
 
 def configure_inject(binder: inject.Binder) -> None:
-    binder.bind_to_provider(async_sessionmaker[AsyncSession], sessionmaker_factory)
-    binder.bind_to_provider(S3Client, client_factory)
+    binder.bind_to_provider(S3Client, ClientManager.client_factory)
+    binder.bind_to_provider(AsyncSession, session_factory)
 
 
-def setup_di() -> None:
+async def setup_di() -> None:
+    await ClientManager.setup()
     inject.configure(configure_inject, once=True)

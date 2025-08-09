@@ -12,7 +12,7 @@ from uvicorn import Config, Server
 
 from config import setup_cache, setup_logging
 from controller import FileController
-from di import setup_di
+from di import ClientManager, setup_di
 from proto import add_FileServicer_to_server
 
 logger = logging.getLogger()
@@ -38,6 +38,7 @@ async def start_grpc_server() -> None:
     await server.start()
     logger.info("gRPC server started")
     await server.wait_for_termination()
+    await ClientManager.close()
 
 
 async def start_prometheus_server() -> None:
@@ -55,7 +56,7 @@ async def start_prometheus_server() -> None:
 
 
 async def main() -> None:
-    setup_di()
+    await setup_di()
     setup_logging()
     setup_cache()
 

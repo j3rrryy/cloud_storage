@@ -99,6 +99,8 @@ class FileController(Controller):
         auth_service_v1: AuthService,
         file_service_v1: FileService,
     ) -> None:
+        if not file_id:
+            return
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
         dto = file_dto.DeleteFilesDTO(user_id, {str(fid) for fid in file_id})
