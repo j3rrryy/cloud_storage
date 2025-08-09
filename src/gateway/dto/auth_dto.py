@@ -65,7 +65,7 @@ class SessionDTO(BaseDTO):
     session_id: str
     user_ip: str
     browser: str
-    last_accessed: datetime.datetime
+    created_at: datetime.datetime
 
 
 @dataclass(slots=True, frozen=True)
@@ -79,7 +79,7 @@ class ProfileDTO(BaseDTO):
     user_id: str
     username: str
     email: str
-    registered: datetime.datetime
+    registered_at: datetime.datetime
     verified: bool = False
 
 

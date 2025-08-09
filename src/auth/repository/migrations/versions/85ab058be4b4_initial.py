@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("email", sa.String(length=255), nullable=False),
         sa.Column("password", sa.String(length=60), nullable=False),
         sa.Column("verified", sa.Boolean(), nullable=False),
-        sa.Column("registered", sa.TIMESTAMP(), nullable=False),
+        sa.Column("registered_at", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("user_id"),
         sa.UniqueConstraint("user_id"),
     )
@@ -40,7 +40,7 @@ def upgrade() -> None:
         sa.Column("refresh_token", sa.String(length=350), nullable=False),
         sa.Column("user_ip", sa.String(length=15), nullable=False),
         sa.Column("browser", sa.String(length=150), nullable=False),
-        sa.Column("last_accessed", sa.TIMESTAMP(), nullable=False),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.user_id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("session_id"),
         sa.UniqueConstraint("session_id"),

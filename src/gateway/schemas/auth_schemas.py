@@ -65,7 +65,7 @@ class SessionInfo(Struct):
     session_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
     user_ip: Annotated[str, Meta(min_length=7, max_length=15)]
     browser: Annotated[str, Meta(max_length=150)]
-    last_accessed: datetime.datetime
+    created_at: datetime.datetime
 
 
 class SessionList(Struct):
@@ -79,7 +79,7 @@ class Profile(Struct):
         str, Meta(pattern=EMAIL_REGEX, max_length=255, examples=EMAIL_EXAMPLES)
     ]
     verified: bool
-    registered: datetime.datetime
+    registered_at: datetime.datetime
 
 
 class UpdateEmail(Struct):

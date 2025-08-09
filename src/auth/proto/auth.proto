@@ -56,7 +56,7 @@ message ProfileResponse {
   string username = 2;
   string email = 3;
   bool verified = 4;
-  google.protobuf.Timestamp registered = 5;
+  google.protobuf.Timestamp registered_at = 5;
 }
 
 message RefreshRequest {
@@ -100,7 +100,7 @@ message SessionInfo {
   string session_id = 1;
   string user_ip = 2;
   string browser = 3;
-  google.protobuf.Timestamp last_accessed = 4;
+  google.protobuf.Timestamp created_at = 4;
 }
 
 message Tokens {

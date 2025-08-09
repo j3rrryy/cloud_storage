@@ -41,7 +41,7 @@ class SessionInfoResponseDTO(BaseResponseDTO):
     refresh_token: str | None
     user_ip: str
     browser: str
-    last_accessed: datetime.datetime
+    created_at: datetime.datetime
 
 
 @dataclass(slots=True, frozen=True)
@@ -51,4 +51,4 @@ class ProfileResponseDTO(BaseResponseDTO):
     email: str
     password: str | None
     verified: bool
-    registered: datetime.datetime
+    registered_at: datetime.datetime

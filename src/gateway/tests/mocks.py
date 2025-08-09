@@ -77,7 +77,7 @@ def create_auth_stub_v1() -> MagicMock:
                     session_id=SESSION_ID,
                     user_ip=USER_IP,
                     browser=BROWSER,
-                    last_accessed=TIMESTAMP_MOCK,
+                    created_at=TIMESTAMP_MOCK,
                 ),
             )
         )
@@ -89,7 +89,7 @@ def create_auth_stub_v1() -> MagicMock:
             username=USERNAME,
             email=EMAIL,
             verified=True,
-            registered=TIMESTAMP_MOCK,
+            registered_at=TIMESTAMP_MOCK,
         )
     )
     stub.UpdateEmail = AsyncMock(

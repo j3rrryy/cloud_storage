@@ -59,7 +59,7 @@ def token_pair() -> TokenPair:
         refresh_token=REFRESH_TOKEN,
         user_ip=USER_IP,
         browser=BROWSER,
-        last_accessed=TIMESTAMP,
+        created_at=TIMESTAMP,
     )
 
 

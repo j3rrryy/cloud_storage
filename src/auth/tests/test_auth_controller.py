@@ -194,7 +194,7 @@ async def test_session_list(auth_controller):
                     session_id=SESSION_ID,
                     user_ip=USER_IP,
                     browser=BROWSER,
-                    last_accessed=Timestamp(seconds=int(TIMESTAMP.timestamp())),
+                    created_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
                 ),
             )
         )
@@ -230,7 +230,7 @@ async def test_profile(auth_controller):
             username=USERNAME,
             email=EMAIL,
             verified=True,
-            registered=Timestamp(seconds=int(TIMESTAMP.timestamp())),
+            registered_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
         )
 
 

@@ -102,7 +102,7 @@ async def test_session_list(auth_service_v1):
     assert first_session.session_id == SESSION_ID
     assert first_session.user_ip == USER_IP
     assert first_session.browser == BROWSER
-    assert first_session.last_accessed == TIMESTAMP
+    assert first_session.created_at == TIMESTAMP
 
 
 @pytest.mark.asyncio
@@ -119,7 +119,7 @@ async def test_profile(auth_service_v1):
     assert response.username == USERNAME
     assert response.email == EMAIL
     assert response.verified
-    assert response.registered == TIMESTAMP
+    assert response.registered_at == TIMESTAMP
 
 
 @pytest.mark.asyncio

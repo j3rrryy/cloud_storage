@@ -22,7 +22,7 @@ class User(Base):
     )
     password: Mapped[str] = mapped_column(sa.String(60), nullable=False)
     verified: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
-    registered: Mapped[datetime] = mapped_column(
+    registered_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=datetime.now
     )
 
@@ -49,7 +49,7 @@ class TokenPair(Base):
     )
     user_ip: Mapped[str] = mapped_column(sa.String(15), nullable=False)
     browser: Mapped[str] = mapped_column(sa.String(150), nullable=False)
-    last_accessed: Mapped[datetime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=datetime.now
     )
 

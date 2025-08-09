@@ -70,24 +70,24 @@ class LogInRequest(_message.Message):
     ) -> None: ...
 
 class ProfileResponse(_message.Message):
-    __slots__ = ("user_id", "username", "email", "verified", "registered")
+    __slots__ = ("user_id", "username", "email", "verified", "registered_at")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     VERIFIED_FIELD_NUMBER: _ClassVar[int]
-    REGISTERED_FIELD_NUMBER: _ClassVar[int]
+    REGISTERED_AT_FIELD_NUMBER: _ClassVar[int]
     user_id: str
     username: str
     email: str
     verified: bool
-    registered: _timestamp_pb2.Timestamp
+    registered_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
         user_id: _Optional[str] = ...,
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
         verified: bool = ...,
-        registered: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        registered_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
 
 class RefreshRequest(_message.Message):
@@ -174,21 +174,21 @@ class Sessions(_message.Message):
     ) -> None: ...
 
 class SessionInfo(_message.Message):
-    __slots__ = ("session_id", "user_ip", "browser", "last_accessed")
+    __slots__ = ("session_id", "user_ip", "browser", "created_at")
     SESSION_ID_FIELD_NUMBER: _ClassVar[int]
     USER_IP_FIELD_NUMBER: _ClassVar[int]
     BROWSER_FIELD_NUMBER: _ClassVar[int]
-    LAST_ACCESSED_FIELD_NUMBER: _ClassVar[int]
+    CREATED_AT_FIELD_NUMBER: _ClassVar[int]
     session_id: str
     user_ip: str
     browser: str
-    last_accessed: _timestamp_pb2.Timestamp
+    created_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
         session_id: _Optional[str] = ...,
         user_ip: _Optional[str] = ...,
         browser: _Optional[str] = ...,
-        last_accessed: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        created_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
 
 class Tokens(_message.Message):

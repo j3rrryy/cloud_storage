@@ -279,7 +279,7 @@ async def test_session_list(mock_session, token_pair):
         "refresh_token": REFRESH_TOKEN,
         "user_ip": USER_IP,
         "browser": BROWSER,
-        "last_accessed": TIMESTAMP,
+        "created_at": TIMESTAMP,
     }
     mock_session.execute.assert_called_once()
 

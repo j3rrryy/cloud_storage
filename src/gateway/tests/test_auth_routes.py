@@ -161,7 +161,7 @@ async def test_session_list(client):
                 "session_id": SESSION_ID,
                 "user_ip": USER_IP,
                 "browser": BROWSER,
-                "last_accessed": TIMESTAMP,
+                "created_at": TIMESTAMP,
             }
         ]
     }
@@ -193,7 +193,7 @@ async def test_profile(client):
         "user_id": USER_ID,
         "username": USERNAME,
         "email": EMAIL,
-        "registered": TIMESTAMP,
+        "registered_at": TIMESTAMP,
         "verified": True,
     }
 
