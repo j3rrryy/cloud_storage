@@ -1,9 +1,9 @@
 from typing import Generator
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 import inject
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from controller import AuthController
 from repository import TokenPair, User
@@ -24,12 +24,10 @@ from .mocks import (
 
 
 @pytest.fixture
-def mock_sessionmaker() -> Generator[async_sessionmaker[AsyncSession], None, None]:
-    mock_sessionmaker = MagicMock(spec=async_sessionmaker[AsyncSession])
-    inject.clear_and_configure(
-        lambda binder: binder.bind(async_sessionmaker[AsyncSession], mock_sessionmaker)
-    )
-    yield mock_sessionmaker
+def mock_session() -> Generator[AsyncSession, None, None]:
+    mock_session = AsyncMock(spec=AsyncSession)
+    inject.clear_and_configure(lambda binder: binder.bind(AsyncSession, mock_session))
+    yield mock_session
     inject.clear()
 
 

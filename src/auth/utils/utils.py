@@ -13,7 +13,7 @@ from grpc import ServicerContext, StatusCode
 from httpagentparser import simple_detect
 from jwskate import Jwk, Jwt, SignedJwt
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from enums import TokenTypes
 from exceptions import UnauthenticatedException
@@ -52,15 +52,14 @@ class ExceptionHandler:
 def with_transaction(func):
     @wraps(func)
     @inject.autoparams()
-    async def wrapper(*args, sessionmaker: async_sessionmaker[AsyncSession], **kwargs):
-        async with sessionmaker() as session:
-            try:
-                return await func(*args, session, **kwargs)
-            except Exception as exc:
-                await session.rollback()
-                if not isinstance(exc, (IntegrityError, UnauthenticatedException)):
-                    exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
-                raise exc
+    async def wrapper(*args, session: AsyncSession, **kwargs):
+        try:
+            return await func(*args, session, **kwargs)
+        except Exception as exc:
+            await session.rollback()
+            if not isinstance(exc, (IntegrityError, UnauthenticatedException)):
+                exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
+            raise exc
 
     return wrapper
 

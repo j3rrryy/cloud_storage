@@ -24,9 +24,8 @@ from .mocks import (
 
 
 @pytest.mark.asyncio
-async def test_register(mock_sessionmaker):
+async def test_register(mock_session):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.refresh.side_effect = lambda user: setattr(user, "user_id", USER_ID)
     user_id = await AuthRepository.register(dto)  # type: ignore
 
@@ -49,10 +48,9 @@ async def test_register(mock_sessionmaker):
     ],
 )
 async def test_register_exceptions(
-    exception, expected_status, expected_message, mock_sessionmaker
+    exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
@@ -66,8 +64,7 @@ async def test_register_exceptions(
 
 
 @pytest.mark.asyncio
-async def test_verify_email(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_verify_email(mock_session):
     await AuthRepository.verify_email(USER_ID)  # type: ignore
 
     mock_session.get.assert_called_once()
@@ -75,8 +72,7 @@ async def test_verify_email(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_verify_email_not_user(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_verify_email_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
@@ -88,8 +84,7 @@ async def test_verify_email_not_user(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_verify_email_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_verify_email_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -103,9 +98,8 @@ async def test_verify_email_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_reset_password(mock_sessionmaker):
+async def test_reset_password(mock_session):
     dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     await AuthRepository.reset_password(dto)  # type: ignore
 
     mock_session.get.assert_called_once()
@@ -114,9 +108,8 @@ async def test_reset_password(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_reset_password_not_user(mock_sessionmaker):
+async def test_reset_password_not_user(mock_session):
     dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
@@ -128,9 +121,8 @@ async def test_reset_password_not_user(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_reset_password_exception(mock_sessionmaker):
+async def test_reset_password_exception(mock_session):
     dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -145,11 +137,10 @@ async def test_reset_password_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_log_in(mock_sessionmaker):
+async def test_log_in(mock_session):
     dto = request_dto.LogInDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     await AuthRepository.log_in(dto)  # type: ignore
 
     mock_session.add.assert_called_once()
@@ -169,12 +160,11 @@ async def test_log_in(mock_sessionmaker):
     ],
 )
 async def test_log_in_exceptions(
-    exception, expected_status, expected_message, mock_sessionmaker
+    exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.LogInDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
@@ -188,8 +178,7 @@ async def test_log_in_exceptions(
 
 
 @pytest.mark.asyncio
-async def test_log_out(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_log_out(mock_session):
     await AuthRepository.log_out(ACCESS_TOKEN)  # type: ignore
 
     mock_session.execute.assert_called_once()
@@ -198,8 +187,7 @@ async def test_log_out(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_log_out_not_tokens(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_log_out_not_tokens(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
@@ -213,8 +201,7 @@ async def test_log_out_not_tokens(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_log_out_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_log_out_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -229,11 +216,10 @@ async def test_log_out_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_refresh(mock_sessionmaker):
+async def test_refresh(mock_session):
     dto = request_dto.RefreshDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     await AuthRepository.refresh(dto)  # type: ignore
 
     mock_session.execute.assert_called_once()
@@ -254,12 +240,11 @@ async def test_refresh(mock_sessionmaker):
     ],
 )
 async def test_refresh_exceptions(
-    exception, expected_status, expected_message, mock_sessionmaker
+    exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.RefreshDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
@@ -274,8 +259,7 @@ async def test_refresh_exceptions(
 
 
 @pytest.mark.asyncio
-async def test_session_list(mock_sessionmaker, token_pair):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_session_list(mock_session, token_pair):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(
             scalars=MagicMock(
@@ -301,8 +285,7 @@ async def test_session_list(mock_sessionmaker, token_pair):
 
 
 @pytest.mark.asyncio
-async def test_session_list_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_session_list_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -314,8 +297,7 @@ async def test_session_list_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_revoke_session(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_revoke_session(mock_session):
     await AuthRepository.revoke_session(SESSION_ID)  # type: ignore
 
     mock_session.execute.assert_called_once()
@@ -323,8 +305,7 @@ async def test_revoke_session(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_revoke_session_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_revoke_session_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -338,16 +319,14 @@ async def test_revoke_session_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_validate_access_token(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_access_token(mock_session):
     await AuthRepository.validate_access_token(ACCESS_TOKEN)  # type: ignore
 
     mock_session.execute.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_validate_access_token_not_tokens(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_access_token_not_tokens(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
@@ -361,8 +340,7 @@ async def test_validate_access_token_not_tokens(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_validate_access_token_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_access_token_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -374,24 +352,21 @@ async def test_validate_access_token_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_validate_refresh_token_using_token(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_refresh_token_using_token(mock_session):
     await AuthRepository.validate_refresh_token(REFRESH_TOKEN)  # type: ignore
 
     mock_session.execute.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_validate_refresh_token_using_session_id(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_refresh_token_using_session_id(mock_session):
     await AuthRepository.validate_refresh_token(SESSION_ID)  # type: ignore
 
     mock_session.get.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_validate_refresh_token_not_tokens(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_refresh_token_not_tokens(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
@@ -405,8 +380,7 @@ async def test_validate_refresh_token_not_tokens(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_validate_refresh_token_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_validate_refresh_token_exception(mock_session):
     mock_session.get.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -418,8 +392,7 @@ async def test_validate_refresh_token_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_profile_using_username(mock_sessionmaker, user):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_profile_using_username(mock_session, user):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user))
     )
@@ -437,8 +410,7 @@ async def test_profile_using_username(mock_sessionmaker, user):
 
 
 @pytest.mark.asyncio
-async def test_profile_using_email(mock_sessionmaker, user):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_profile_using_email(mock_session, user):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user))
     )
@@ -456,8 +428,7 @@ async def test_profile_using_email(mock_sessionmaker, user):
 
 
 @pytest.mark.asyncio
-async def test_profile_using_user_id(mock_sessionmaker, user):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_profile_using_user_id(mock_session, user):
     mock_session.get.return_value = user
     profile = await AuthRepository.profile(USER_ID)  # type: ignore
 
@@ -473,8 +444,7 @@ async def test_profile_using_user_id(mock_sessionmaker, user):
 
 
 @pytest.mark.asyncio
-async def test_profile_not_user(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_profile_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
@@ -486,8 +456,7 @@ async def test_profile_not_user(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_profile_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_profile_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
@@ -499,9 +468,8 @@ async def test_profile_exception(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_update_email(mock_sessionmaker, user):
+async def test_update_email(mock_session, user):
     dto = request_dto.UpdateEmailDataRequestDTO(USER_ID, ACCESS_TOKEN, EMAIL)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.get.return_value = user
     username = await AuthRepository.update_email(dto)  # type: ignore
 
@@ -512,9 +480,8 @@ async def test_update_email(mock_sessionmaker, user):
 
 
 @pytest.mark.asyncio
-async def test_update_email_not_user(mock_sessionmaker):
+async def test_update_email_not_user(mock_session):
     dto = request_dto.UpdateEmailDataRequestDTO(USER_ID, ACCESS_TOKEN, EMAIL)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
@@ -538,10 +505,9 @@ async def test_update_email_not_user(mock_sessionmaker):
     ],
 )
 async def test_update_email_exceptions(
-    exception, expected_status, expected_message, mock_sessionmaker
+    exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.UpdateEmailDataRequestDTO(USER_ID, ACCESS_TOKEN, EMAIL)
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
@@ -554,11 +520,10 @@ async def test_update_email_exceptions(
 
 
 @pytest.mark.asyncio
-async def test_update_password(mock_sessionmaker, user):
+async def test_update_password(mock_session, user):
     dto = request_dto.UpdatePasswordDataRequestDTO(
         USER_ID, ACCESS_TOKEN, PASSWORD, get_hashed_password(PASSWORD)
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.get.return_value = user
     await AuthRepository.update_password(dto)  # type: ignore
 
@@ -568,11 +533,10 @@ async def test_update_password(mock_sessionmaker, user):
 
 
 @pytest.mark.asyncio
-async def test_update_password_not_user(mock_sessionmaker):
+async def test_update_password_not_user(mock_session):
     dto = request_dto.UpdatePasswordDataRequestDTO(
         USER_ID, ACCESS_TOKEN, PASSWORD, get_hashed_password(PASSWORD)
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
@@ -584,11 +548,10 @@ async def test_update_password_not_user(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_update_password_exception(mock_sessionmaker, user):
+async def test_update_password_exception(mock_session, user):
     dto = request_dto.UpdatePasswordDataRequestDTO(
         USER_ID, ACCESS_TOKEN, PASSWORD, get_hashed_password(PASSWORD)
     )
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     mock_session.get.return_value = user
     mock_session.commit.side_effect = Exception("Details")
 
@@ -604,8 +567,7 @@ async def test_update_password_exception(mock_sessionmaker, user):
 
 
 @pytest.mark.asyncio
-async def test_delete_profile(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_delete_profile(mock_session):
     mock_session.execute.return_value.rowcount = 1
     await AuthRepository.delete_profile(USER_ID)  # type: ignore
 
@@ -614,8 +576,7 @@ async def test_delete_profile(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_delete_profile_row_count(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_delete_profile_row_count(mock_session):
     mock_session.execute.return_value.rowcount = 0
 
     with pytest.raises(Exception) as exc_info:
@@ -627,8 +588,7 @@ async def test_delete_profile_row_count(mock_sessionmaker):
 
 
 @pytest.mark.asyncio
-async def test_delete_profile_exception(mock_sessionmaker):
-    mock_session = mock_sessionmaker.return_value.__aenter__.return_value
+async def test_delete_profile_exception(mock_session):
     mock_session.execute.return_value.rowcount = 1
     mock_session.commit.side_effect = Exception("Details")
 
