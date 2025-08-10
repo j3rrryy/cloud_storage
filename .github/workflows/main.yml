@@ -44,7 +44,9 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Build Docker image
-        run: docker build -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
+        run: docker build \
+          -t ${{ matrix.service }}:test \
+          -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
 
       - name: Run ${{ matrix.service }} tests
         run: |

@@ -1,6 +1,6 @@
 services:
   gateway:
-    image: ghcr.io/j3rrryy/cloud_storage:gateway-latest
+    image: gateway:test
     env_file:
       - ./test/.env
     command: bash -c "
@@ -9,7 +9,7 @@ services:
     container_name: gateway_test
 
   auth:
-    image: ghcr.io/j3rrryy/cloud_storage:auth-latest
+    image: auth:test
     env_file:
       - ./test/.env
     command: bash -c "
@@ -18,7 +18,7 @@ services:
     container_name: auth_test
 
   file:
-    image: ghcr.io/j3rrryy/cloud_storage:file-latest
+    image: file:test
     env_file:
       - ./test/.env
     command: bash -c "
@@ -27,7 +27,7 @@ services:
     container_name: file_test
 
   mail:
-    image: ghcr.io/j3rrryy/cloud_storage:mail-latest
+    image: mail:test
     env_file:
       - ./test/.env
     command: bash -c "
