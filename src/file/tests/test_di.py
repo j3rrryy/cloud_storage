@@ -12,8 +12,10 @@ from di import ClientManager, configure_inject, session_factory, setup_di
 @patch("di.di.aioboto3.Session")
 @patch("di.di.AioConfig")
 async def test_client_manager_lifespan(mock_aioconfig, mock_session):
+    mock_context = AsyncMock()
+    mock_session.return_value.client.return_value = mock_context
     mock_client = AsyncMock()
-    mock_session.return_value.client.return_value = mock_client
+    mock_context.__aenter__.return_value = mock_client
 
     await ClientManager.setup()
     mock_session.assert_called_once()
@@ -33,11 +35,14 @@ async def test_client_manager_lifespan(mock_aioconfig, mock_session):
         aws_secret_access_key=os.environ["MINIO_ROOT_PASSWORD"],
         config=mock_aioconfig.return_value,
     )
-    assert ClientManager.client == mock_client.__aenter__.return_value
+    assert ClientManager.client == mock_client
+    assert ClientManager._context
     assert ClientManager._started
 
     await ClientManager.close()
+    mock_context.__aexit__.assert_awaited_once()
     assert not ClientManager.client
+    assert not ClientManager._context
     assert not ClientManager._started
 
 

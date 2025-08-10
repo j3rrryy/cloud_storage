@@ -5,6 +5,7 @@ from typing import AsyncGenerator, Optional
 import aioboto3
 import inject
 from aiobotocore.config import AioConfig
+from aiobotocore.session import ClientCreatorContext
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from types_aiobotocore_s3 import S3Client
@@ -12,6 +13,7 @@ from types_aiobotocore_s3 import S3Client
 
 class ClientManager:
     client: Optional[S3Client] = None
+    _context: Optional[ClientCreatorContext] = None
     _started = False
 
     @classmethod
@@ -27,7 +29,7 @@ class ClientManager:
                 retries={"max_attempts": 3, "mode": "standard"},
                 s3={"addressing_style": "path"},
             )
-            client = session.client(
+            cls._context = session.client(
                 "s3",
                 use_ssl=False,
                 verify=False,
@@ -36,7 +38,7 @@ class ClientManager:
                 aws_secret_access_key=os.environ["MINIO_ROOT_PASSWORD"],
                 config=config,
             )
-            cls.client = await client.__aenter__()
+            cls.client = await cls._context.__aenter__()
             cls._started = True
         except Exception:
             await cls.close()
@@ -44,10 +46,11 @@ class ClientManager:
 
     @classmethod
     async def close(cls) -> None:
-        if cls.client is not None:
+        if cls._context is not None:
             try:
-                await cls.client.close()
+                await cls._context.__aexit__(None, None, None)
             finally:
+                cls._context = None
                 cls.client = None
 
         cls._started = False
