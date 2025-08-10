@@ -30,11 +30,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           TAG_WITHOUT_V=${TAG#v}
-          docker build \
-            -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-$TAG_WITHOUT_V \
-            -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest \
-            -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
-
+          docker build -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-$TAG_WITHOUT_V -t ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
           docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-$TAG_WITHOUT_V
           docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
 

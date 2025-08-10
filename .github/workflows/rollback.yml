@@ -36,9 +36,7 @@ jobs:
           PREVIOUS_TAG_WITHOUT_V=${PREVIOUS_TAG#v}
 
           docker pull ghcr.io/${{ github.repository }}:${{ matrix.service }}-$PREVIOUS_TAG_WITHOUT_V
-          docker tag \
-            ghcr.io/${{ github.repository }}:${{ matrix.service }}-$PREVIOUS_TAG_WITHOUT_V \
-            ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
+          docker tag ghcr.io/${{ github.repository }}:${{ matrix.service }}-$PREVIOUS_TAG_WITHOUT_V ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
           docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
 
   rollback-deploy:
