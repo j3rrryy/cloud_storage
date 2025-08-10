@@ -29,14 +29,13 @@ class MailController:
     @classmethod
     @inject.autoparams()
     async def process_messages(cls, consumer: AIOKafkaConsumer) -> None:
-        async with consumer:
-            async for message in consumer:
-                with cls._email_processing_time.labels(message.topic).time():
-                    try:
-                        dto = DTOFactory.from_message(message)
-                        await MailService.send_email(dto)
-                        cls._logger.info(f"Sent {message.topic} mail to {dto.email}")
-                        cls._email_sent_counter.labels(message.topic).inc()
-                    except Exception as exc:
-                        cls._logger.exception(exc)
-                        cls._email_failed_counter.labels(message.topic).inc()
+        async for message in consumer:
+            with cls._email_processing_time.labels(message.topic).time():
+                try:
+                    dto = DTOFactory.from_message(message)
+                    await MailService.send_email(dto)
+                    cls._logger.info(f"Sent {message.topic} mail to {dto.email}")
+                    cls._email_sent_counter.labels(message.topic).inc()
+                except Exception as exc:
+                    cls._logger.exception(exc)
+                    cls._email_failed_counter.labels(message.topic).inc()

@@ -7,7 +7,7 @@ from uvicorn import Config, Server
 
 from config import setup_logging
 from controller import MailController
-from di import setup_di
+from di import ConsumerManager, SMTPManager, setup_di
 
 logger = logging.getLogger()
 
@@ -31,13 +31,19 @@ async def start_prometheus_server() -> None:
 
 
 async def main() -> None:
-    setup_di()
+    await setup_di()
     setup_logging()
 
     mail_task = asyncio.create_task(start_mail_server())
     logger.info("Mail server started")
     prometheus_task = asyncio.create_task(start_prometheus_server())
-    await asyncio.gather(mail_task, prometheus_task)
+    logger.info("Prometheus server started")
+
+    try:
+        await asyncio.gather(mail_task, prometheus_task)
+    finally:
+        await ConsumerManager.close()
+        await SMTPManager.close()
 
 
 if __name__ == "__main__":

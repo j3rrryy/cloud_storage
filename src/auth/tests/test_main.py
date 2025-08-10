@@ -1,4 +1,4 @@
-from unittest.mock import ANY, AsyncMock, MagicMock, patch
+from unittest.mock import ANY, AsyncMock, MagicMock, call, patch
 
 import grpc
 import pytest
@@ -50,7 +50,6 @@ async def test_start_grpc_server(mock_add_servicer, mock_grpc_server, mock_logge
 
     server_mock.add_insecure_port.assert_called_once_with("[::]:50051")
     server_mock.start.assert_awaited_once()
-    mock_logger.info.assert_called_once_with("gRPC server started")
     server_mock.wait_for_termination.assert_awaited_once()
 
 
@@ -88,8 +87,14 @@ async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_
 @patch("main.setup_cache")
 @patch("main.start_grpc_server")
 @patch("main.start_prometheus_server")
+@patch("main.logger")
 async def test_main(
-    mock_prometheus, mock_grpc, mock_setup_cache, mock_setup_logging, mock_setup_di
+    mock_logger,
+    mock_prometheus,
+    mock_grpc,
+    mock_setup_cache,
+    mock_setup_logging,
+    mock_setup_di,
 ):
     await main.main()
 
@@ -98,3 +103,6 @@ async def test_main(
     mock_setup_cache.assert_called_once()
     mock_grpc.assert_awaited_once()
     mock_prometheus.assert_awaited_once()
+    mock_logger.info.assert_has_calls(
+        [call("gRPC server started"), call("Prometheus server started")]
+    )

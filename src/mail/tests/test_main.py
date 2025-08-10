@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 
@@ -52,8 +52,39 @@ async def test_main(
 ):
     await main.main()
 
-    mock_setup_di.assert_called_once()
+    mock_setup_di.assert_awaited_once()
     mock_setup_logging.assert_called_once()
     mock_mail.assert_awaited_once()
-    mock_logger.info.assert_called_once_with("Mail server started")
     mock_prometheus.assert_awaited_once()
+    mock_logger.info.assert_has_calls(
+        [call("Mail server started"), call("Prometheus server started")]
+    )
+
+
+@pytest.mark.asyncio
+@patch("main.setup_di")
+@patch("main.setup_logging")
+@patch("main.start_mail_server")
+@patch("main.start_prometheus_server")
+@patch("main.asyncio.gather")
+@patch("main.ConsumerManager.close")
+@patch("main.SMTPManager.close")
+async def test_main_with_close(
+    mock_smtp_close,
+    mock_consumer_close,
+    mock_gather,
+    mock_mail,
+    mock_grpc,
+    mock_setup_logging,
+    mock_setup_di,
+):
+    mock_gather.side_effect = Exception("Details")
+    with pytest.raises(Exception):
+        await main.main()
+
+    mock_setup_di.assert_awaited_once()
+    mock_setup_logging.assert_called_once()
+    mock_grpc.assert_called_once()
+    mock_mail.assert_called_once()
+    mock_consumer_close.assert_awaited_once()
+    mock_smtp_close.assert_awaited_once()

@@ -52,12 +52,11 @@ class ClientManager:
             finally:
                 cls._context = None
                 cls.client = None
-
         cls._started = False
 
     @classmethod
     def client_factory(cls) -> S3Client:
-        if not cls.client:
+        if not cls.client or not cls._started:
             raise RuntimeError(
                 "S3Client not initialized; ClientManager.setup() was not called"
             )

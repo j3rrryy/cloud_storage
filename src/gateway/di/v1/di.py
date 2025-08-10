@@ -103,7 +103,7 @@ class DIManager:
 
     @classmethod
     def auth_service_factory(cls) -> AuthService:
-        if not cls.auth_service:
+        if not cls.auth_service or not cls._started:
             raise RuntimeError(
                 "AuthService not initialized; DIManager.setup() was not called"
             )
@@ -111,7 +111,7 @@ class DIManager:
 
     @classmethod
     def file_service_factory(cls) -> FileService:
-        if not cls.file_service:
+        if not cls.file_service or not cls._started:
             raise RuntimeError(
                 "FileService not initialized; DIManager.setup() was not called"
             )
@@ -119,7 +119,7 @@ class DIManager:
 
     @classmethod
     def mail_service_factory(cls) -> MailService:
-        if not cls.mail_service:
+        if not cls.mail_service or not cls._started:
             raise RuntimeError(
                 "MailService not initialized; DIManager.setup() was not called"
             )

@@ -89,7 +89,7 @@ class MailSender:
         </html>
         """
         msg.attach(text.MIMEText(html_content, "html"))
-        await cls._send(msg, smtp)
+        await smtp.send_message(msg)
 
     @classmethod
     @inject.autoparams()
@@ -156,7 +156,7 @@ class MailSender:
         </html>
         """
         msg.attach(text.MIMEText(html_content, "html"))
-        await cls._send(msg, smtp)
+        await smtp.send_message(msg)
 
     @classmethod
     @inject.autoparams()
@@ -230,9 +230,4 @@ class MailSender:
         </html>
         """
         msg.attach(text.MIMEText(html_content, "html"))
-        await cls._send(msg, smtp)
-
-    @staticmethod
-    async def _send(msg: multipart.MIMEMultipart, smtp: SMTP):
-        async with smtp:
-            await smtp.send_message(msg)
+        await smtp.send_message(msg)

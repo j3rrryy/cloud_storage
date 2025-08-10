@@ -36,7 +36,6 @@ async def start_grpc_server() -> None:
     server.add_insecure_port("[::]:50051")
 
     await server.start()
-    logger.info("gRPC server started")
     await server.wait_for_termination()
 
 
@@ -60,7 +59,10 @@ async def main() -> None:
     setup_cache()
 
     grpc_task = asyncio.create_task(start_grpc_server())
+    logger.info("gRPC server started")
     prometheus_task = asyncio.create_task(start_prometheus_server())
+    logger.info("Prometheus server started")
+
     await asyncio.gather(grpc_task, prometheus_task)
 
 

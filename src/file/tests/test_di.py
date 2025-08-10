@@ -70,14 +70,25 @@ async def test_client_manager_setup_exception(mock_close, mock_session):
 
 
 @pytest.mark.asyncio
+async def test_client_manager_close_already_closed():
+    ClientManager._context = None
+
+    await ClientManager.close()
+    assert not ClientManager.client
+    assert not ClientManager._context
+    assert not ClientManager._started
+
+
+@pytest.mark.asyncio
 @patch("di.di.ClientManager.client")
 async def test_client_factory(mock_client):
+    ClientManager._started = True
     client = ClientManager.client_factory()
     assert client == mock_client
 
 
 @pytest.mark.asyncio
-async def test_client_factory_exception():
+async def test_client_factory_not_initialized():
     ClientManager.client = None
     with pytest.raises(Exception) as exc_info:
         ClientManager.client_factory()
