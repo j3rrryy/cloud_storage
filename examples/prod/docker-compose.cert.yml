@@ -5,7 +5,7 @@ volumes:
 
 services:
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:1.28.0-alpine
     restart: unless-stopped
     working_dir: /app
     ports:
@@ -17,7 +17,7 @@ services:
     container_name: nginx_cert
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:v4.2.0
     volumes:
       - certbot_conf:/etc/letsencrypt:rw
       - certbot_www:/var/www/certbot:rw
