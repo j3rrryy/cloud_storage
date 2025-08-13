@@ -4,26 +4,25 @@ version = "2.0.1"
 requires-python = ">=3.12"
 dependencies = [
     "aioboto3>=15.0.0",
-    "alembic==1.14.0",
+    "alembic==1.16.4",
     "asyncpg==0.30.0",
-    "cashews==7.4.0",
-    "greenlet>=3.2.3",
+    "cashews[redis]==7.4.1",
+    "greenlet>=3.2.4",
     "grpc-accesslog==0.3.0",
-    "grpcio==1.69.0",
-    "grpcio-tools==1.69.0",
+    "grpcio==1.74.0",
+    "grpcio-tools==1.74.0",
     "inject>=5.3.0",
     "picologging==0.9.3",
     "py-async-grpc-prometheus==0.2.0",
-    "redis==5.2.1",
-    "sqlalchemy==2.0.37",
+    "sqlalchemy==2.0.43",
     "types-aioboto3[s3]>=15.0.0",
-    "uvicorn[standard]==0.34.0",
+    "uvicorn[standard]==0.35.0",
 ]
 
 [dependency-groups]
 test = [
-    "coverage==7.9.2",
-    "pytest==8.3.4",
-    "pytest-asyncio==0.25.3",
-    "pytest-cov==6.0.0",
+    "coverage==7.10.3",
+    "pytest==8.4.1",
+    "pytest-asyncio==1.1.0",
+    "pytest-cov==6.2.1",
 ]

@@ -1,6 +1,7 @@
+import datetime
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
 from typing import ClassVar as _ClassVar
-from typing import Iterable as _Iterable
-from typing import Mapping as _Mapping
 from typing import Optional as _Optional
 from typing import Union as _Union
 
@@ -40,7 +41,9 @@ class FileInfoResponse(_message.Message):
         name: _Optional[str] = ...,
         path: _Optional[str] = ...,
         size: _Optional[int] = ...,
-        uploaded: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        uploaded: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...
 
 class FileListResponse(_message.Message):
