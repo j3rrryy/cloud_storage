@@ -1,6 +1,7 @@
+import datetime
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
 from typing import ClassVar as _ClassVar
-from typing import Iterable as _Iterable
-from typing import Mapping as _Mapping
 from typing import Optional as _Optional
 from typing import Union as _Union
 
@@ -87,7 +88,9 @@ class ProfileResponse(_message.Message):
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
         verified: bool = ...,
-        registered_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        registered_at: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...
 
 class RefreshRequest(_message.Message):
@@ -188,7 +191,9 @@ class SessionInfo(_message.Message):
         session_id: _Optional[str] = ...,
         user_ip: _Optional[str] = ...,
         browser: _Optional[str] = ...,
-        created_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        created_at: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...
 
 class Tokens(_message.Message):
