@@ -1,7 +1,5 @@
-import asyncio
 import os
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Optional
+from typing import Optional
 
 import inject
 from aiokafka import AIOKafkaConsumer
@@ -11,8 +9,7 @@ from enums import MailTypes
 
 
 class SMTPManager:
-    _pool_size = 5
-    _smtp_pool: Optional[asyncio.Queue[SMTP]] = None
+    smtp: Optional[SMTP] = None
     _started = False
 
     @classmethod
@@ -20,12 +17,15 @@ class SMTPManager:
         if cls._started:
             return
         try:
-            cls._smtp_pool = asyncio.Queue(cls._pool_size)
-
-            for _ in range(cls._pool_size):
-                smtp = await cls._create_smtp_connection()
-                cls._smtp_pool.put_nowait(smtp)
-
+            cls.smtp = SMTP(
+                hostname=os.environ["MAIL_HOSTNAME"],
+                port=int(os.environ["MAIL_PORT"]),
+                username=os.environ["MAIL_USERNAME"],
+                password=os.environ["MAIL_PASSWORD"],
+                use_tls=True,
+                timeout=10,
+            )
+            await cls.smtp.connect()
             cls._started = True
         except Exception:
             await cls.close()
@@ -33,53 +33,20 @@ class SMTPManager:
 
     @classmethod
     async def close(cls) -> None:
-        if cls._smtp_pool is not None:
-            for _ in range(cls._pool_size):
-                try:
-                    smtp = await asyncio.wait_for(cls._smtp_pool.get(), 1.5)
-                    await smtp.quit()
-                except Exception:
-                    pass
-
-            cls._smtp_pool = None
+        if cls.smtp is not None:
+            try:
+                await cls.smtp.quit()
+            finally:
+                cls.smtp = None
         cls._started = False
 
     @classmethod
-    @asynccontextmanager
-    async def smtp_factory(cls) -> AsyncGenerator[SMTP, None]:
-        if not cls._smtp_pool or not cls._started:
+    def smtp_factory(cls) -> SMTP:
+        if not cls.smtp or not cls._started:
             raise RuntimeError(
                 "SMTP not initialized; SMTPManager.setup() was not called"
             )
-
-        smtp = await cls._smtp_pool.get()
-
-        try:
-            if not smtp.is_connected:
-                await smtp.quit()
-                smtp = await cls._create_smtp_connection()
-            yield smtp
-        except Exception:
-            try:
-                await smtp.quit()
-            except Exception:
-                pass
-            smtp = await cls._create_smtp_connection()
-        finally:
-            cls._smtp_pool.put_nowait(smtp)
-
-    @staticmethod
-    async def _create_smtp_connection() -> SMTP:
-        smtp = SMTP(
-            hostname=os.environ["MAIL_HOSTNAME"],
-            port=int(os.environ["MAIL_PORT"]),
-            username=os.environ["MAIL_USERNAME"],
-            password=os.environ["MAIL_PASSWORD"],
-            use_tls=True,
-            timeout=10,
-        )
-        await smtp.connect()
-        return smtp
+        return cls.smtp
 
 
 class ConsumerManager:
@@ -103,7 +70,7 @@ class ConsumerManager:
             )
             await cls.consumer.start()
             cls._started = True
-        except:
+        except Exception:
             await cls.close()
             raise
 

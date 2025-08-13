@@ -1,4 +1,3 @@
-import asyncio
 import os
 from unittest.mock import AsyncMock, call, patch
 
@@ -27,15 +26,13 @@ async def test_smtp_manager_lifespan(mock_smtp):
         use_tls=True,
         timeout=10,
     )
-    mock_smtp.return_value.connect.assert_awaited()
-    assert isinstance(SMTPManager._smtp_pool, asyncio.Queue)
-    current_pool_size = SMTPManager._smtp_pool.qsize()
-    assert current_pool_size == SMTPManager._pool_size
+    mock_connect.assert_awaited_once()
+    assert SMTPManager.smtp == mock_smtp.return_value
     assert SMTPManager._started
 
     await SMTPManager.close()
-    mock_smtp.return_value.quit.assert_awaited()
-    assert not SMTPManager._smtp_pool
+    mock_quit.assert_awaited_once()
+    assert not SMTPManager.smtp
     assert not SMTPManager._started
 
 
@@ -63,104 +60,35 @@ async def test_smtp_manager_setup_exception(mock_close, mock_smtp):
 
 
 @pytest.mark.asyncio
-async def test_smtp_manager_close_already_closed():
-    SMTPManager._smtp_pool = None
-
-    await SMTPManager.close()
-    assert not SMTPManager._smtp_pool
-    assert not SMTPManager._started
-
-
-@pytest.mark.asyncio
-@patch("di.di.SMTP")
+@patch("di.di.SMTPManager.smtp")
 async def test_smtp_manager_close_exception(mock_smtp):
-    SMTPManager._pool_size = 1
-    SMTPManager._smtp_pool = asyncio.Queue()
-    SMTPManager._smtp_pool.put_nowait(mock_smtp)
     mock_smtp.quit.side_effect = Exception("Details")
 
-    await SMTPManager.close()
-    assert not SMTPManager._smtp_pool
+    with pytest.raises(Exception):
+        await SMTPManager.close()
+
+    assert not SMTPManager.smtp
     assert not SMTPManager._started
 
 
 @pytest.mark.asyncio
-@patch("di.di.SMTP")
+@patch("di.di.SMTPManager.smtp")
 async def test_smtp_factory(mock_smtp):
     SMTPManager._started = True
-    SMTPManager._smtp_pool = asyncio.Queue()
-    SMTPManager._smtp_pool.put_nowait(mock_smtp)
-
-    context = SMTPManager.smtp_factory()
-    smtp = await context.__aenter__()
+    smtp = SMTPManager.smtp_factory()
     assert smtp == mock_smtp
-    assert not SMTPManager._smtp_pool.qsize()
-
-    await context.__aexit__(None, None, None)
-    assert SMTPManager._smtp_pool.qsize() == 1
 
 
 @pytest.mark.asyncio
 async def test_smtp_factory_not_initialized():
-    SMTPManager._smtp_pool = None
-
+    SMTPManager.smtp = None
     with pytest.raises(Exception) as exc_info:
-        await SMTPManager.smtp_factory().__aenter__()
+        SMTPManager.smtp_factory()
 
     assert exc_info.errisinstance(RuntimeError)
     assert exc_info.value.args == (
         "SMTP not initialized; SMTPManager.setup() was not called",
     )
-
-
-@pytest.mark.asyncio
-@patch("di.di.SMTP")
-async def test_smtp_factory_not_connected(mock_smtp):
-    SMTPManager._started = True
-    SMTPManager._smtp_pool = asyncio.Queue()
-    SMTPManager._smtp_pool.put_nowait(mock_smtp)
-    mock_smtp.quit = AsyncMock()
-    mock_smtp.return_value.connect = AsyncMock()
-    mock_smtp.is_connected = False
-
-    context = SMTPManager.smtp_factory()
-    smtp = await context.__aenter__()
-    assert smtp == mock_smtp.return_value
-    assert not SMTPManager._smtp_pool.qsize()
-    assert mock_smtp.return_value.connect.awaited_once()
-
-    await context.__aexit__(None, None, None)
-    assert SMTPManager._smtp_pool.qsize() == 1
-
-
-@pytest.mark.asyncio
-@patch("di.di.SMTP")
-async def test_smtp_factory_exception(mock_smtp):
-    SMTPManager._started = True
-    SMTPManager._smtp_pool = asyncio.Queue()
-    SMTPManager._smtp_pool.put_nowait(mock_smtp)
-    mock_smtp.quit = AsyncMock()
-
-    with pytest.raises(Exception):
-        async with SMTPManager.smtp_factory():
-            raise Exception("Details")
-
-    assert SMTPManager._smtp_pool.qsize() == 1
-
-
-@pytest.mark.asyncio
-@patch("di.di.SMTP")
-async def test_smtp_factory_double_exception(mock_smtp):
-    SMTPManager._started = True
-    SMTPManager._smtp_pool = asyncio.Queue()
-    SMTPManager._smtp_pool.put_nowait(mock_smtp)
-    mock_smtp.quit.side_effect = Exception("Quit details")
-
-    with pytest.raises(Exception):
-        async with SMTPManager.smtp_factory():
-            raise Exception("Details")
-
-    assert SMTPManager._smtp_pool.qsize() == 1
 
 
 @pytest.mark.asyncio
@@ -187,17 +115,18 @@ async def test_consumer_manager_lifespan(mock_consumer):
     assert ConsumerManager._started
 
     await ConsumerManager.close()
+    mock_stop.assert_awaited_once()
     assert not ConsumerManager.consumer
     assert not ConsumerManager._started
 
 
 @pytest.mark.asyncio
-@patch("di.di.SMTP")
-async def test_consumer_manager_setup_already_started(mock_smtp):
+@patch("di.di.AIOKafkaConsumer")
+async def test_consumer_manager_setup_already_started(mock_consumer):
     ConsumerManager._started = True
     await ConsumerManager.setup()
 
-    mock_smtp.assert_not_called()
+    mock_consumer.assert_not_called()
     assert ConsumerManager._started
 
 
