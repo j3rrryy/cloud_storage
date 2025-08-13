@@ -237,9 +237,8 @@ dependencies = [
     { name = "aiokafka", extra = ["lz4"] },
     { name = "grpcio" },
     { name = "grpcio-tools" },
-    { name = "litestar" },
+    { name = "litestar", extra = ["prometheus"] },
     { name = "picologging" },
-    { name = "prometheus-client" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -256,9 +255,8 @@ requires-dist = [
     { name = "aiokafka", extras = ["lz4"], specifier = "==0.12.0" },
     { name = "grpcio", specifier = "==1.74.0" },
     { name = "grpcio-tools", specifier = "==1.74.0" },
-    { name = "litestar", specifier = "==2.17.0" },
+    { name = "litestar", extras = ["prometheus"], specifier = "==2.17.0" },
     { name = "picologging", specifier = "==0.9.3" },
-    { name = "prometheus-client", specifier = "==0.22.1" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.35.0" },
 ]
 
@@ -429,6 +427,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3f/62/36619846adb94d24d31e1aad7a52632544f2db7b0df22c8839cfa1db0b2e/litestar-2.17.0.tar.gz", hash = "sha256:0f50c3b7063417c338b32902f9eb40b81a7b14c9802edbff921a24aec3b0ea5b", size = 372203, upload-time = "2025-08-10T13:37:41.401Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/52/04/0935667c3cee2a26152102b9319fdfe987b0f765e14e0311c17ca6698820/litestar-2.17.0-py3-none-any.whl", hash = "sha256:2e62f01f852195362d69e3305cccddaf6371f5ab0ced30a081a66fb85e1df532", size = 564343, upload-time = "2025-08-10T13:37:39.462Z" },
+]
+
+[package.optional-dependencies]
+prometheus = [
+    { name = "prometheus-client" },
 ]
 
 [[package]]
