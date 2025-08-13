@@ -1,24 +1,32 @@
 import os
 from datetime import date
-from email.mime import multipart, text
+from email.mime import text
+from email.mime.multipart import MIMEMultipart
 
-import inject
-from aiosmtplib import SMTP
+import pytest
 
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
+from mail import MailBuilder
+
+from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
 
-class MailSender:
-    @classmethod
-    @inject.autoparams()
-    async def verification(cls, mail: VerificationMailDTO, smtp: SMTP) -> None:
-        msg = multipart.MIMEMultipart("alternative")
-        msg["Subject"] = "Confirm Your Email"
-        msg["From"] = os.environ["MAIL_USERNAME"]
-        msg["To"] = mail.email
-        verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
+@pytest.mark.asyncio
+async def test_verification():
+    mail = VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN)
+    msg = MailBuilder.verification(mail)
 
-        html_content = f"""
+    assert isinstance(msg, MIMEMultipart)
+    assert msg["Subject"] == "Confirm Your Email"
+    assert msg["From"] == os.environ["MAIL_USERNAME"]
+    assert msg["To"] == mail.email
+
+    payload = msg.get_payload()
+    assert isinstance(payload, list)
+    assert len(payload) == 1
+
+    verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
+    expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -88,18 +96,30 @@ class MailSender:
         </body>
         </html>
         """
-        msg.attach(text.MIMEText(html_content, "html"))
-        await smtp.send_message(msg)
 
-    @classmethod
-    @inject.autoparams()
-    async def info(cls, mail: InfoMailDTO, smtp: SMTP) -> None:
-        msg = multipart.MIMEMultipart("alternative")
-        msg["Subject"] = "Login Information"
-        msg["From"] = os.environ["MAIL_USERNAME"]
-        msg["To"] = mail.email
+    assert isinstance(payload[0], text.MIMEText)
+    actual_html_bytes = payload[0].get_payload(decode=True)
+    charset = payload[0].get_content_charset() or "utf-8"
+    actual_html = bytes(actual_html_bytes).decode(charset)
 
-        html_content = f"""
+    assert actual_html == expected_html
+
+
+@pytest.mark.asyncio
+async def test_info():
+    mail = InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER)
+    msg = MailBuilder.info(mail)
+
+    assert isinstance(msg, MIMEMultipart)
+    assert msg["Subject"] == "Login Information"
+    assert msg["From"] == os.environ["MAIL_USERNAME"]
+    assert msg["To"] == mail.email
+
+    payload = msg.get_payload()
+    assert isinstance(payload, list)
+    assert len(payload) == 1
+
+    expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -155,18 +175,30 @@ class MailSender:
         </body>
         </html>
         """
-        msg.attach(text.MIMEText(html_content, "html"))
-        await smtp.send_message(msg)
 
-    @classmethod
-    @inject.autoparams()
-    async def reset(cls, mail: ResetMailDTO, smtp: SMTP) -> None:
-        msg = multipart.MIMEMultipart("alternative")
-        msg["Subject"] = "Reset Your Password"
-        msg["From"] = os.environ["MAIL_USERNAME"]
-        msg["To"] = mail.email
+    assert isinstance(payload[0], text.MIMEText)
+    actual_html_bytes = payload[0].get_payload(decode=True)
+    charset = payload[0].get_content_charset() or "utf-8"
+    actual_html = bytes(actual_html_bytes).decode(charset)
 
-        html_content = f"""
+    assert actual_html == expected_html
+
+
+@pytest.mark.asyncio
+async def test_reset():
+    mail = ResetMailDTO(USERNAME, EMAIL, CODE)
+    msg = MailBuilder.reset(mail)
+
+    assert isinstance(msg, MIMEMultipart)
+    assert msg["Subject"] == "Reset Your Password"
+    assert msg["From"] == os.environ["MAIL_USERNAME"]
+    assert msg["To"] == mail.email
+
+    payload = msg.get_payload()
+    assert isinstance(payload, list)
+    assert len(payload) == 1
+
+    expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -229,5 +261,10 @@ class MailSender:
         </body>
         </html>
         """
-        msg.attach(text.MIMEText(html_content, "html"))
-        await smtp.send_message(msg)
+
+    assert isinstance(payload[0], text.MIMEText)
+    actual_html_bytes = payload[0].get_payload(decode=True)
+    charset = payload[0].get_content_charset() or "utf-8"
+    actual_html = bytes(actual_html_bytes).decode(charset)
+
+    assert actual_html == expected_html

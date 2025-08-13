@@ -8,7 +8,7 @@ from service import MailService
 
 
 class MailController:
-    _logger = logging.getLogger()
+    logger = logging.getLogger()
 
     _email_sent_counter = Counter(
         "mail_service_emails_sent_total",
@@ -33,9 +33,9 @@ class MailController:
             with cls._email_processing_time.labels(message.topic).time():
                 try:
                     dto = DTOFactory.from_message(message)
-                    await MailService.send_email(dto)
-                    cls._logger.info(f"Sent {message.topic} mail to {dto.email}")
+                    await MailService.send_email(dto)  # type: ignore
+                    cls.logger.info(f"Sent {message.topic} mail to {dto.email}")
                     cls._email_sent_counter.labels(message.topic).inc()
                 except Exception as exc:
-                    cls._logger.exception(exc)
+                    cls.logger.exception(exc)
                     cls._email_failed_counter.labels(message.topic).inc()

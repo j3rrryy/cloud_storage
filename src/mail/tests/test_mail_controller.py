@@ -55,7 +55,7 @@ async def test_process_messages(mock_dto_factory, mock_sent_counter, mail_data):
     mock_dto_factory.return_value = mock_dto
 
     with (
-        patch.object(MailController, "_logger", new_callable=MagicMock) as mock_logger,
+        patch.object(MailController, "logger", new_callable=MagicMock) as mock_logger,
         patch.object(
             MailService, "send_email", new_callable=AsyncMock
         ) as mock_send_email,
@@ -91,7 +91,7 @@ async def test_process_messages_exception(mock_dto_factory, mock_failed_counter)
     test_exception = Exception("Test exception")
     mock_dto_factory.side_effect = test_exception
 
-    with patch.object(MailController, "_logger", new_callable=MagicMock) as mock_logger:
+    with patch.object(MailController, "logger", new_callable=MagicMock) as mock_logger:
         await MailController.process_messages(mock_consumer)
 
         mock_dto_factory.assert_called_once_with(mock_msg)

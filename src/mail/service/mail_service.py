@@ -1,18 +1,23 @@
+import inject
+from aiosmtplib import SMTP
+
 from dto import BaseMailDTO, InfoMailDTO, ResetMailDTO, VerificationMailDTO
-from mail import MailSender
+from mail import MailBuilder
 
 
 class MailService:
     @staticmethod
-    async def send_email(mail: BaseMailDTO) -> None:
+    @inject.autoparams()
+    async def send_email(mail: BaseMailDTO, smtp: SMTP) -> None:
         match mail:
             case VerificationMailDTO():
-                await MailSender.verification(mail)  # type: ignore
+                msg = MailBuilder.verification(mail)
             case InfoMailDTO():
-                await MailSender.info(mail)  # type: ignore
+                msg = MailBuilder.info(mail)
             case ResetMailDTO():
-                await MailSender.reset(mail)  # type: ignore
+                msg = MailBuilder.reset(mail)
             case _:
                 raise ValueError(
                     f"{mail.__class__.__name__} is an unsupported mail type"
                 )
+        await smtp.send_message(msg)

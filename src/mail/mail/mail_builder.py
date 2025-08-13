@@ -1,35 +1,20 @@
 import os
 from datetime import date
-from email.mime import text
-from email.mime.multipart import MIMEMultipart
-
-import pytest
+from email.mime import multipart, text
 
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
-from mail import MailSender
-
-from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
 
-@pytest.mark.asyncio
-async def test_verification(mock_smtp):
-    mail = VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN)
+class MailBuilder:
+    @staticmethod
+    def verification(mail: VerificationMailDTO) -> multipart.MIMEMultipart:
+        msg = multipart.MIMEMultipart("alternative")
+        msg["Subject"] = "Confirm Your Email"
+        msg["From"] = os.environ["MAIL_USERNAME"]
+        msg["To"] = mail.email
+        verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
 
-    await MailSender.verification(mail)  # type: ignore
-    mock_smtp.send_message.assert_awaited_once()
-
-    msg = mock_smtp.send_message.call_args[0][0]
-    assert isinstance(msg, MIMEMultipart)
-    assert msg["Subject"] == "Confirm Your Email"
-    assert msg["From"] == os.environ["MAIL_USERNAME"]
-    assert msg["To"] == mail.email
-
-    payload = msg.get_payload()
-    assert isinstance(payload, list)
-    assert len(payload) == 1
-
-    verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
-    expected_html = f"""
+        html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -99,33 +84,17 @@ async def test_verification(mock_smtp):
         </body>
         </html>
         """
+        msg.attach(text.MIMEText(html_content, "html"))
+        return msg
 
-    assert isinstance(payload[0], text.MIMEText)
-    actual_html_bytes = payload[0].get_payload(decode=True)
-    charset = payload[0].get_content_charset() or "utf-8"
-    actual_html = bytes(actual_html_bytes).decode(charset)
+    @staticmethod
+    def info(mail: InfoMailDTO) -> multipart.MIMEMultipart:
+        msg = multipart.MIMEMultipart("alternative")
+        msg["Subject"] = "Login Information"
+        msg["From"] = os.environ["MAIL_USERNAME"]
+        msg["To"] = mail.email
 
-    assert actual_html == expected_html
-
-
-@pytest.mark.asyncio
-async def test_info(mock_smtp):
-    mail = InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER)
-
-    await MailSender.info(mail)  # type: ignore
-    mock_smtp.send_message.assert_awaited_once()
-
-    msg = mock_smtp.send_message.call_args[0][0]
-    assert isinstance(msg, MIMEMultipart)
-    assert msg["Subject"] == "Login Information"
-    assert msg["From"] == os.environ["MAIL_USERNAME"]
-    assert msg["To"] == mail.email
-
-    payload = msg.get_payload()
-    assert isinstance(payload, list)
-    assert len(payload) == 1
-
-    expected_html = f"""
+        html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -181,33 +150,17 @@ async def test_info(mock_smtp):
         </body>
         </html>
         """
+        msg.attach(text.MIMEText(html_content, "html"))
+        return msg
 
-    assert isinstance(payload[0], text.MIMEText)
-    actual_html_bytes = payload[0].get_payload(decode=True)
-    charset = payload[0].get_content_charset() or "utf-8"
-    actual_html = bytes(actual_html_bytes).decode(charset)
+    @staticmethod
+    def reset(mail: ResetMailDTO) -> multipart.MIMEMultipart:
+        msg = multipart.MIMEMultipart("alternative")
+        msg["Subject"] = "Reset Your Password"
+        msg["From"] = os.environ["MAIL_USERNAME"]
+        msg["To"] = mail.email
 
-    assert actual_html == expected_html
-
-
-@pytest.mark.asyncio
-async def test_reset(mock_smtp):
-    mail = ResetMailDTO(USERNAME, EMAIL, CODE)
-
-    await MailSender.reset(mail)  # type: ignore
-    mock_smtp.send_message.assert_awaited_once()
-
-    msg = mock_smtp.send_message.call_args[0][0]
-    assert isinstance(msg, MIMEMultipart)
-    assert msg["Subject"] == "Reset Your Password"
-    assert msg["From"] == os.environ["MAIL_USERNAME"]
-    assert msg["To"] == mail.email
-
-    payload = msg.get_payload()
-    assert isinstance(payload, list)
-    assert len(payload) == 1
-
-    expected_html = f"""
+        html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -270,10 +223,5 @@ async def test_reset(mock_smtp):
         </body>
         </html>
         """
-
-    assert isinstance(payload[0], text.MIMEText)
-    actual_html_bytes = payload[0].get_payload(decode=True)
-    charset = payload[0].get_content_charset() or "utf-8"
-    actual_html = bytes(actual_html_bytes).decode(charset)
-
-    assert actual_html == expected_html
+        msg.attach(text.MIMEText(html_content, "html"))
+        return msg
