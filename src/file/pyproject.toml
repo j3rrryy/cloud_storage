@@ -1,6 +1,6 @@
 [project]
 name = "file"
-version = "2.0.1"
+version = "1.4.0"
 requires-python = ">=3.12"
 dependencies = [
     "aioboto3>=15.0.0",
