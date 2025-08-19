@@ -24,7 +24,6 @@ services:
     image: nginx:1.28.0-alpine
     profiles: ["api"]
     restart: unless-stopped
-    working_dir: /app
     ports:
       - 80:80
     volumes:
@@ -39,7 +38,6 @@ services:
     image: nginx:1.28.0-alpine
     profiles: ["all"]
     restart: unless-stopped
-    working_dir: /app
     ports:
       - 80:80
     volumes:
@@ -154,6 +152,9 @@ services:
       - ./dev/.env
     environment:
       MINIO_PROMETHEUS_AUTH_TYPE: public
+      MINIO_COMPRESSION_ENABLE: on
+      MINIO_COMPRESSION_EXTENSIONS: "*"
+      MINIO_COMPRESSION_MIME_TYPES: "*"
     volumes:
       - minio_data:/data
     networks:

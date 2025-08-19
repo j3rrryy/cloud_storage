@@ -7,7 +7,6 @@ services:
   nginx:
     image: nginx:1.28.0-alpine
     restart: unless-stopped
-    working_dir: /app
     ports:
       - 80:80
     volumes:

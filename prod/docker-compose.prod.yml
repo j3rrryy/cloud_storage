@@ -25,7 +25,6 @@ services:
   nginx:
     image: nginx:1.28.0-alpine
     restart: unless-stopped
-    working_dir: /app
     ports:
       - 80:80
       - 443:443
@@ -125,10 +124,15 @@ services:
   minio:
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z
     restart: unless-stopped
+    expose:
+      - 9000
     env_file:
       - ./.env
     environment:
       MINIO_PROMETHEUS_AUTH_TYPE: public
+      MINIO_COMPRESSION_ENABLE: on
+      MINIO_COMPRESSION_EXTENSIONS: "*"
+      MINIO_COMPRESSION_MIME_TYPES: "*"
     volumes:
       - minio_data:/data
     networks:

@@ -11,7 +11,7 @@ from utils import with_storage
 
 
 class FileStorage:
-    BUCKET_NAME = os.environ["MINIO_FILE_BUCKET"]
+    BUCKET_NAME = os.environ["MINIO_S3_BUCKET"]
 
     @classmethod
     @with_storage

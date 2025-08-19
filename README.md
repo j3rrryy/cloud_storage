@@ -44,7 +44,7 @@
 >
 > Docs located at `/api/docs`, but Swagger does not support MessagePack, so use another tool to send requests with this content type
 >
-> Grafana located at `/monitoring`
+> Grafana located at `/admin/grafana`
 
 ## :computer: Requirements
 
