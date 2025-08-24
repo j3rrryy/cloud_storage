@@ -43,7 +43,7 @@ class AuthStub(object):
         self.Register = channel.unary_unary(
             "/auth.Auth/Register",
             request_serializer=auth__pb2.RegisterRequest.SerializeToString,
-            response_deserializer=auth__pb2.VerificationMail.FromString,
+            response_deserializer=auth__pb2.VerificationToken.FromString,
             _registered_method=True,
         )
         self.VerifyEmail = channel.unary_unary(
@@ -243,7 +243,7 @@ def add_AuthServicer_to_server(servicer, server):
         "Register": grpc.unary_unary_rpc_method_handler(
             servicer.Register,
             request_deserializer=auth__pb2.RegisterRequest.FromString,
-            response_serializer=auth__pb2.VerificationMail.SerializeToString,
+            response_serializer=auth__pb2.VerificationToken.SerializeToString,
         ),
         "VerifyEmail": grpc.unary_unary_rpc_method_handler(
             servicer.VerifyEmail,
@@ -350,7 +350,7 @@ class Auth(object):
             target,
             "/auth.Auth/Register",
             auth__pb2.RegisterRequest.SerializeToString,
-            auth__pb2.VerificationMail.FromString,
+            auth__pb2.VerificationToken.FromString,
             options,
             channel_credentials,
             insecure,

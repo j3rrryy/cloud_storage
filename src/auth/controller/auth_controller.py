@@ -10,10 +10,10 @@ from utils import ExceptionHandler
 class AuthController(AuthServicer):
     async def Register(self, request, context):
         dto = request_dto.RegisterRequestDTO.from_request(request)
-        verification_mail = await ExceptionHandler.handle(
+        verification_token = await ExceptionHandler.handle(
             context, AuthService.register, dto
         )
-        return pb2.VerificationMail(**verification_mail.dict())
+        return pb2.VerificationToken(verification_token=verification_token)
 
     async def VerifyEmail(self, request, context):
         await ExceptionHandler.handle(

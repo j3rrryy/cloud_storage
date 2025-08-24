@@ -35,9 +35,7 @@ async def test_register(auth_controller):
         mock_generator.return_value = VERIFICATION_TOKEN
         request = pb2.RegisterRequest(username=USERNAME, email=EMAIL, password=PASSWORD)
         response = await auth_controller.Register(request, MagicMock(ServicerContext))
-        assert response == pb2.VerificationMail(
-            verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
-        )
+        assert response == pb2.VerificationToken(verification_token=VERIFICATION_TOKEN)
 
 
 @pytest.mark.asyncio

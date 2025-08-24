@@ -29,7 +29,7 @@ from .mocks import (
 async def test_register(mock_repository, mock_key_pair):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
     response = await AuthService.register(dto)
-    assert isinstance(response, response_dto.VerificationMailResponseDTO)
+    assert isinstance(response, str)
     mock_repository.register.assert_called_once()
 
 

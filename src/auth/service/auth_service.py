@@ -20,13 +20,10 @@ class AuthService:
     @staticmethod
     async def register(
         data: request_dto.RegisterRequestDTO,
-    ) -> response_dto.VerificationMailResponseDTO:
+    ) -> str:
         data = data.replace(password=get_hashed_password(data.password))
         user_id = await AuthRepository.register(data)  # type: ignore
-        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
-        return response_dto.VerificationMailResponseDTO(
-            verification_token, data.username, data.email
-        )
+        return generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
 
     @staticmethod
     async def verify_email(verification_token: str) -> None:
@@ -135,8 +132,7 @@ class AuthService:
 
         await AuthRepository.refresh(dto)  # type: ignore
         await cache.delete(f"session_list-{user_id}")
-        tokens = response_dto.RefreshResponseDTO(access_token, refresh_token)
-        return tokens
+        return response_dto.RefreshResponseDTO(access_token, refresh_token)
 
     @staticmethod
     async def session_list(

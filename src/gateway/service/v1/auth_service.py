@@ -12,8 +12,10 @@ class AuthService(RPCBaseService):
         self, data: auth_dto.RegistrationDTO
     ) -> mail_dto.VerificationMailDTO:
         request = pb2.RegisterRequest(**data.dict())
-        verification_mail = await self._stub.Register(request)
-        return self.convert_to_dto(verification_mail, mail_dto.VerificationMailDTO)
+        verification_token: pb2.VerificationToken = await self._stub.Register(request)
+        return mail_dto.VerificationMailDTO(
+            verification_token.verification_token, data.username, data.email
+        )
 
     @RPCBaseService.exception_handler
     async def verify_email(self, verification_token: str) -> None:

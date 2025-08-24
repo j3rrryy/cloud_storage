@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 package auth;
 
 service Auth {
-  rpc Register(RegisterRequest) returns (VerificationMail);
+  rpc Register(RegisterRequest) returns (VerificationToken);
   rpc VerifyEmail(VerificationToken) returns (google.protobuf.Empty);
   rpc RequestResetCode(Email) returns (ResetCodeResponse);
   rpc ValidateResetCode(ResetCodeRequest) returns (CodeIsValid);
