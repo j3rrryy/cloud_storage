@@ -19,7 +19,9 @@ class AuthRepository:
     async def register(
         data: request_dto.RegisterRequestDTO, session: AsyncSession
     ) -> str:
-        new_user = User(**data.dict())
+        new_user = User(
+            username=data.username, email=data.email, password=data.password
+        )
         session.add(new_user)
 
         try:

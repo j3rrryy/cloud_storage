@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
 from grpc import StatusCode
@@ -272,15 +272,9 @@ async def test_session_list(mock_session, token_pair):
 
     assert isinstance(sessions, tuple)
     assert len(sessions) == 1
-    assert sessions[0].dict() == {
-        "session_id": SESSION_ID,
-        "user_id": USER_ID,
-        "access_token": ACCESS_TOKEN,
-        "refresh_token": REFRESH_TOKEN,
-        "user_ip": USER_IP,
-        "browser": BROWSER,
-        "created_at": TIMESTAMP,
-    }
+    assert sessions[0] == response_dto.SessionInfoResponseDTO(
+        SESSION_ID, USER_ID, ACCESS_TOKEN, REFRESH_TOKEN, USER_IP, BROWSER, TIMESTAMP
+    )
     mock_session.execute.assert_called_once()
 
 
@@ -398,14 +392,9 @@ async def test_profile_using_username(mock_session, user):
     )
     profile = await AuthRepository.profile(USERNAME)  # type: ignore
 
-    assert isinstance(profile, response_dto.ProfileResponseDTO)
-    assert profile.dict() == {
-        "user_id": USER_ID,
-        "username": USERNAME,
-        "email": EMAIL,
-        "password": user.password,
-        "verified": True,
-    }
+    assert profile == response_dto.ProfileResponseDTO(
+        USER_ID, USERNAME, EMAIL, user.password, True, ANY
+    )
     mock_session.execute.assert_called_once()
 
 
@@ -416,14 +405,9 @@ async def test_profile_using_email(mock_session, user):
     )
     profile = await AuthRepository.profile(EMAIL)  # type: ignore
 
-    assert isinstance(profile, response_dto.ProfileResponseDTO)
-    assert profile.dict() == {
-        "user_id": USER_ID,
-        "username": USERNAME,
-        "email": EMAIL,
-        "password": user.password,
-        "verified": True,
-    }
+    assert profile == response_dto.ProfileResponseDTO(
+        USER_ID, USERNAME, EMAIL, user.password, True, ANY
+    )
     mock_session.execute.assert_called_once()
 
 
@@ -432,14 +416,9 @@ async def test_profile_using_user_id(mock_session, user):
     mock_session.get.return_value = user
     profile = await AuthRepository.profile(USER_ID)  # type: ignore
 
-    assert isinstance(profile, response_dto.ProfileResponseDTO)
-    assert profile.dict() == {
-        "user_id": USER_ID,
-        "username": USERNAME,
-        "email": EMAIL,
-        "password": user.password,
-        "verified": True,
-    }
+    assert profile == response_dto.ProfileResponseDTO(
+        USER_ID, USERNAME, EMAIL, user.password, True, ANY
+    )
     mock_session.get.assert_called_once()
 
 
