@@ -18,14 +18,29 @@ class FileController(FileServicer):
     async def FileInfo(self, request, context):
         dto = request_dto.FileOperationRequestDTO.from_request(request)
         info = await ExceptionHandler.handle(context, FileService.file_info, dto)
-        return pb2.FileInfoResponse(**info.dict())
+        return pb2.FileInfoResponse(
+            file_id=info.file_id,
+            name=info.name,
+            path=info.path,
+            size=info.size,
+            uploaded=info.uploaded,
+        )
 
     async def FileList(self, request, context):
         files = await ExceptionHandler.handle(
             context, FileService.file_list, request.user_id
         )
         return pb2.FileListResponse(
-            files=(pb2.FileInfoResponse(**file.dict()) for file in files)
+            files=(
+                pb2.FileInfoResponse(
+                    file_id=file.file_id,
+                    name=file.name,
+                    path=file.path,
+                    size=file.size,
+                    uploaded=file.uploaded,
+                )
+                for file in files
+            )
         )
 
     async def DownloadFile(self, request, context):

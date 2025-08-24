@@ -10,13 +10,11 @@ class FileService:
     @staticmethod
     async def upload_file(data: request_dto.UploadFileRequestDTO) -> str:
         data = data.replace(size=int(data.size), path=data.path + data.name)
-
         await cache.delete(f"file_list-{data.user_id}")
+
         upload_url = await FileStorage.upload_file(data)  # type: ignore
         await FileRepository.upload_file(data)  # type: ignore
-
-        relative_url = upload_url[upload_url.find("/", 7) :]
-        return relative_url
+        return upload_url[upload_url.find("/", 7) :]
 
     @staticmethod
     async def file_info(
@@ -55,8 +53,7 @@ class FileService:
             )
 
         download_url = await FileStorage.download_file(info)  # type: ignore
-        relative_url = download_url[download_url.find("/", 7) :]
-        return relative_url
+        return download_url[download_url.find("/", 7) :]
 
     @staticmethod
     async def delete_files(data: request_dto.DeleteFilesRequestDTO) -> None:

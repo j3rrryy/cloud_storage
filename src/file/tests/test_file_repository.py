@@ -54,15 +54,9 @@ async def test_file_info(mock_session, file):
     mock_session.get.return_value = file
     info = await FileRepository.file_info(dto)  # type: ignore
 
-    assert isinstance(info, response_dto.FileInfoResponseDTO)
-    assert info.dict() == {
-        "file_id": FILE_ID,
-        "user_id": USER_ID,
-        "name": NAME,
-        "path": PATH,
-        "size": SIZE,
-        "uploaded": TIMESTAMP,
-    }
+    assert info == response_dto.FileInfoResponseDTO(
+        FILE_ID, USER_ID, NAME, PATH, SIZE, TIMESTAMP
+    )
     mock_session.get.assert_called_once()
 
 
@@ -120,14 +114,9 @@ async def test_file_list(mock_session, file):
 
     assert isinstance(files, tuple)
     assert len(files) == 1
-    assert files[0].dict() == {
-        "file_id": FILE_ID,
-        "user_id": USER_ID,
-        "name": NAME,
-        "path": PATH,
-        "size": SIZE,
-        "uploaded": TIMESTAMP,
-    }
+    assert files[0] == response_dto.FileInfoResponseDTO(
+        FILE_ID, USER_ID, NAME, PATH, SIZE, TIMESTAMP
+    )
     mock_session.execute.assert_called_once()
 
 
@@ -155,9 +144,7 @@ async def test_get_file_list_to_delete(mock_session, file):
     )
 
     files = await FileRepository.get_file_list_to_delete(dto)  # type: ignore
-
-    assert isinstance(files, response_dto.DeleteFilesResponseDTO)
-    assert files.dict() == {"user_id": USER_ID, "paths": [PATH]}
+    assert files == response_dto.DeleteFilesResponseDTO(USER_ID, [PATH])
     mock_session.execute.assert_called_once()
 
 

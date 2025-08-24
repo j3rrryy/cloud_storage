@@ -1,6 +1,5 @@
-from dataclasses import asdict as dc_asdict
 from dataclasses import dataclass, replace
-from typing import Any, Type, TypeVar
+from typing import Type, TypeVar
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
@@ -13,9 +12,6 @@ Response = TypeVar("Response", bound="BaseResponseDTO")
 
 @dataclass(slots=True, frozen=True)
 class BaseDTO:
-    def dict(self) -> dict[str, Any]:
-        return {k: v for k, v in dc_asdict(self).items() if v is not None}
-
     def replace(self: T, **kwargs) -> T:
         return replace(self, **kwargs)
 
@@ -31,4 +27,5 @@ class BaseRequestDTO(BaseDTO):
 class BaseResponseDTO(BaseDTO):
     @classmethod
     def from_model(cls: Type[Response], model: DeclarativeBase) -> Response:
-        return cls(**{k: getattr(model, k) for k in model.__mapper__.c.keys()})
+        fields = [f.name for f in cls.__dataclass_fields__.values()]
+        return cls(*(getattr(model, f) for f in fields))

@@ -16,7 +16,9 @@ class FileRepository:
     async def upload_file(
         data: request_dto.UploadFileRequestDTO, session: AsyncSession
     ) -> None:
-        new_file = File(**data.dict())
+        new_file = File(
+            user_id=data.user_id, name=data.name, path=data.path, size=data.size
+        )
         session.add(new_file)
 
         try:
