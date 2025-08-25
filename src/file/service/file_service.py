@@ -24,7 +24,7 @@ class FileService:
             return cached
 
         info = await FileRepository.file_info(data)  # type: ignore
-        info = info.replace(user_id=None, path=info.path[: info.path.rfind("/") + 1])
+        info = info.replace(path=info.path[: info.path.rfind("/") + 1])
         await cache.set(f"file_info-{data.user_id}-{data.file_id}", info, 3600)
         return info
 
@@ -36,8 +36,7 @@ class FileService:
         files = await FileRepository.file_list(user_id)  # type: ignore
 
         files = tuple(
-            file.replace(user_id=None, path=file.path[: file.path.rfind("/") + 1])
-            for file in files
+            file.replace(path=file.path[: file.path.rfind("/") + 1]) for file in files
         )
         await cache.set(f"file_list-{user_id}", files, 3600)
         return files

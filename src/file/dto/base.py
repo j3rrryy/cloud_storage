@@ -8,6 +8,7 @@ from sqlalchemy.orm import DeclarativeBase
 T = TypeVar("T", bound="BaseDTO")
 Request = TypeVar("Request", bound="BaseRequestDTO")
 Response = TypeVar("Response", bound="BaseResponseDTO")
+GrpcMessage = TypeVar("GrpcMessage", bound=Message)
 
 
 @dataclass(slots=True, frozen=True)
@@ -27,5 +28,9 @@ class BaseRequestDTO(BaseDTO):
 class BaseResponseDTO(BaseDTO):
     @classmethod
     def from_model(cls: Type[Response], model: DeclarativeBase) -> Response:
-        fields = [f.name for f in cls.__dataclass_fields__.values()]
+        fields = tuple(f.name for f in cls.__dataclass_fields__.values())
         return cls(*(getattr(model, f) for f in fields))
+
+    def to_message(self, message: Type[GrpcMessage]) -> GrpcMessage:
+        fields = {f.name: getattr(self, f.name) for f in message.DESCRIPTOR.fields}
+        return message(**fields)

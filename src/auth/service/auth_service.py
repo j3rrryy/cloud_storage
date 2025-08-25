@@ -145,10 +145,6 @@ class AuthService:
             return cached
 
         sessions = await AuthRepository.session_list(user_id)  # type: ignore
-        sessions = tuple(
-            session.replace(user_id=None, access_token=None, refresh_token=None)
-            for session in sessions
-        )
         await cache.set(f"session_list-{user_id}", sessions, 3600)
         return sessions
 
@@ -169,7 +165,6 @@ class AuthService:
             return cached
 
         profile = await AuthRepository.profile(user_id)  # type: ignore
-        profile = profile.replace(password=None)
         await cache.set(f"profile-{user_id}", profile, 3600)
         return profile
 
