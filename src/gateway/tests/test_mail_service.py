@@ -13,7 +13,7 @@ async def test_verification(mail_service_v1):
     )
     await mail_service_v1.verification(dto)
     mail_service_v1._producer.send.assert_called_once_with(
-        MailTypes.VERIFICATION.name, mail_service_v1.serialize_dict(dto.dict())
+        MailTypes.VERIFICATION.name, mail_service_v1.serialize_dto(dto)
     )
 
 
@@ -24,7 +24,7 @@ async def test_info(mail_service_v1):
     )
     await mail_service_v1.info(dto)
     mail_service_v1._producer.send.assert_called_once_with(
-        MailTypes.INFO.name, mail_service_v1.serialize_dict(dto.dict())
+        MailTypes.INFO.name, mail_service_v1.serialize_dto(dto)
     )
 
 
@@ -33,5 +33,5 @@ async def test_reset(mail_service_v1):
     dto = mail_dto.ResetMailDTO(code=CODE, username=USERNAME, email=EMAIL)
     await mail_service_v1.reset(dto)
     mail_service_v1._producer.send.assert_called_once_with(
-        MailTypes.RESET.name, mail_service_v1.serialize_dict(dto.dict())
+        MailTypes.RESET.name, mail_service_v1.serialize_dto(dto)
     )

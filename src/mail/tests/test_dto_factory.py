@@ -1,5 +1,4 @@
-import pickle
-
+import msgspec
 import pytest
 from aiokafka import ConsumerRecord
 
@@ -47,7 +46,7 @@ def test_from_message(topic, data, expected_cls):
         timestamp=0,
         timestamp_type=0,
         key=None,
-        value=pickle.dumps(data),
+        value=msgspec.msgpack.encode(data),
         headers=[],
         checksum=None,
         serialized_key_size=0,

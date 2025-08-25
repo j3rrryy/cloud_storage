@@ -1,7 +1,8 @@
-import pickle
+from dataclasses import asdict
 from functools import wraps
 from typing import Type, TypeVar
 
+import msgspec
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from grpc import StatusCode, aio
@@ -72,5 +73,5 @@ class KafkaBaseService:
         self._producer = producer
 
     @staticmethod
-    def serialize_dict(d: dict[str, str]) -> bytes:
-        return pickle.dumps(d)
+    def serialize_dto(dto: BaseDTO) -> bytes:
+        return msgspec.msgpack.encode(asdict(dto))

@@ -1,5 +1,4 @@
-import pickle
-
+import msgspec
 from aiokafka import ConsumerRecord
 
 from enums import MailTypes
@@ -20,6 +19,6 @@ class DTOFactory:
         if message.value is None:
             raise ValueError("The message is empty")
 
-        mail = pickle.loads(message.value)
+        mail = msgspec.msgpack.decode(message.value, type=dict)
         mail_type = MailTypes[message.topic]
         return cls._converted_mails[mail_type](**mail)
