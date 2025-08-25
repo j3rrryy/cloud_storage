@@ -1,37 +1,37 @@
 import datetime
 from dataclasses import dataclass
 
-from .base_dto import BaseDTO
+from .base_dto import FromResponseMixin, FromSchemaMixin, ToRequestMixin, ToSchemaMixin
 
 
 @dataclass(slots=True, frozen=True)
-class RegistrationDTO(BaseDTO):
+class RegistrationDTO(FromSchemaMixin, ToRequestMixin):
     username: str
     email: str
     password: str
 
 
 @dataclass(slots=True, frozen=True)
-class ResetInfoDTO(BaseDTO):
+class ResetInfoDTO(FromResponseMixin):
     user_id: str
     username: str
     code: str
 
 
 @dataclass(slots=True, frozen=True)
-class ResetCodeDTO(BaseDTO):
+class ResetCodeDTO(FromSchemaMixin, ToRequestMixin):
     user_id: str
     code: str
 
 
 @dataclass(slots=True, frozen=True)
-class ResetPasswordDTO(BaseDTO):
+class ResetPasswordDTO(FromSchemaMixin, ToRequestMixin):
     user_id: str
     new_password: str
 
 
 @dataclass(slots=True, frozen=True)
-class LogInDTO(BaseDTO):
+class LogInDTO(ToRequestMixin):
     username: str
     password: str
     user_ip: str
@@ -39,7 +39,7 @@ class LogInDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class LogInDataDTO(BaseDTO):
+class LogInDataDTO(FromResponseMixin, ToSchemaMixin):
     access_token: str
     refresh_token: str
     email: str
@@ -48,20 +48,20 @@ class LogInDataDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class RefreshDTO(BaseDTO):
+class RefreshDTO(ToRequestMixin):
     refresh_token: str
     user_ip: str
     user_agent: str
 
 
 @dataclass(slots=True, frozen=True)
-class TokensDTO(BaseDTO):
+class TokensDTO(FromResponseMixin, ToSchemaMixin):
     access_token: str
     refresh_token: str
 
 
 @dataclass(slots=True, frozen=True)
-class SessionDTO(BaseDTO):
+class SessionDTO(FromResponseMixin, ToSchemaMixin):
     session_id: str
     user_ip: str
     browser: str
@@ -69,13 +69,13 @@ class SessionDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class RevokeSessionDTO(BaseDTO):
+class RevokeSessionDTO(ToRequestMixin):
     access_token: str
     session_id: str
 
 
 @dataclass(slots=True, frozen=True)
-class ProfileDTO(BaseDTO):
+class ProfileDTO(FromResponseMixin, ToSchemaMixin):
     user_id: str
     username: str
     email: str
@@ -84,13 +84,13 @@ class ProfileDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class UpdateEmailDTO(BaseDTO):
+class UpdateEmailDTO(ToRequestMixin):
     access_token: str
     new_email: str
 
 
 @dataclass(slots=True, frozen=True)
-class UpdatePasswordDTO(BaseDTO):
+class UpdatePasswordDTO(ToRequestMixin):
     access_token: str
     old_password: str
     new_password: str

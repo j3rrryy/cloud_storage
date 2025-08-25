@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
-from .base_dto import BaseDTO
+from .base_dto import FromResponseMixin, ToMsgpackMixin
 
 
 @dataclass(slots=True, frozen=True)
-class VerificationMailDTO(BaseDTO):
+class VerificationMailDTO(FromResponseMixin, ToMsgpackMixin):
     verification_token: str
     username: str
     email: str
 
 
 @dataclass(slots=True, frozen=True)
-class InfoMailDTO(BaseDTO):
+class InfoMailDTO(ToMsgpackMixin):
     username: str
     email: str
     user_ip: str
@@ -19,7 +19,7 @@ class InfoMailDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class ResetMailDTO(BaseDTO):
+class ResetMailDTO(ToMsgpackMixin):
     code: str
     username: str
     email: str

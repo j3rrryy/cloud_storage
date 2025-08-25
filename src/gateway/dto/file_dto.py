@@ -1,11 +1,11 @@
 import datetime
 from dataclasses import dataclass
 
-from .base_dto import BaseDTO
+from .base_dto import FromResponseMixin, ToRequestMixin, ToSchemaMixin
 
 
 @dataclass(slots=True, frozen=True)
-class UploadFileDTO(BaseDTO):
+class UploadFileDTO(ToRequestMixin):
     user_id: str
     name: str
     path: str
@@ -13,13 +13,13 @@ class UploadFileDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class FileDTO(BaseDTO):
+class FileDTO(ToRequestMixin):
     user_id: str
     file_id: str
 
 
 @dataclass(slots=True, frozen=True)
-class FileInfoDTO(BaseDTO):
+class FileInfoDTO(FromResponseMixin, ToSchemaMixin):
     file_id: str
     name: str
     path: str
@@ -28,6 +28,6 @@ class FileInfoDTO(BaseDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class DeleteFilesDTO(BaseDTO):
+class DeleteFilesDTO(ToRequestMixin):
     user_id: str
     file_ids: set[str]

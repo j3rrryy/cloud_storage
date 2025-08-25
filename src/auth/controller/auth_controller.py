@@ -25,7 +25,7 @@ class AuthController(AuthServicer):
         reset_mail = await ExceptionHandler.handle(
             context, AuthService.request_reset_code, request.email
         )
-        return reset_mail.to_message(pb2.ResetCodeResponse)
+        return reset_mail.to_response(pb2.ResetCodeResponse)
 
     async def ValidateResetCode(self, request, context):
         dto = request_dto.ResetCodeRequestDTO.from_request(request)
@@ -42,7 +42,7 @@ class AuthController(AuthServicer):
     async def LogIn(self, request, context):
         dto = request_dto.LogInRequestDTO.from_request(request)
         login_data = await ExceptionHandler.handle(context, AuthService.log_in, dto)
-        return login_data.to_message(pb2.LogInResponse)
+        return login_data.to_response(pb2.LogInResponse)
 
     async def LogOut(self, request, context):
         await ExceptionHandler.handle(
@@ -54,7 +54,7 @@ class AuthController(AuthServicer):
         verification_mail = await ExceptionHandler.handle(
             context, AuthService.resend_verification_mail, request.access_token
         )
-        return verification_mail.to_message(pb2.VerificationMail)
+        return verification_mail.to_response(pb2.VerificationMail)
 
     async def Auth(self, request, context):
         user_id = await ExceptionHandler.handle(
@@ -65,14 +65,14 @@ class AuthController(AuthServicer):
     async def Refresh(self, request, context):
         dto = request_dto.RefreshRequestDTO.from_request(request)
         tokens = await ExceptionHandler.handle(context, AuthService.refresh, dto)
-        return tokens.to_message(pb2.Tokens)
+        return tokens.to_response(pb2.Tokens)
 
     async def SessionList(self, request, context):
         sessions = await ExceptionHandler.handle(
             context, AuthService.session_list, request.access_token
         )
         return pb2.Sessions(
-            sessions=(session.to_message(pb2.SessionInfo) for session in sessions)
+            sessions=(session.to_response(pb2.SessionInfo) for session in sessions)
         )
 
     async def RevokeSession(self, request, context):
@@ -84,14 +84,14 @@ class AuthController(AuthServicer):
         profile = await ExceptionHandler.handle(
             context, AuthService.profile, request.access_token
         )
-        return profile.to_message(pb2.ProfileResponse)
+        return profile.to_response(pb2.ProfileResponse)
 
     async def UpdateEmail(self, request, context):
         dto = request_dto.UpdateEmailRequestDTO.from_request(request)
         verification_mail = await ExceptionHandler.handle(
             context, AuthService.update_email, dto
         )
-        return verification_mail.to_message(pb2.VerificationMail)
+        return verification_mail.to_response(pb2.VerificationMail)
 
     async def UpdatePassword(self, request, context):
         dto = request_dto.UpdatePasswordRequestDTO.from_request(request)

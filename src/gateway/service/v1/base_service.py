@@ -1,10 +1,5 @@
-from dataclasses import asdict
 from functools import wraps
-from typing import Type, TypeVar
 
-import msgspec
-from google.protobuf.json_format import MessageToDict
-from google.protobuf.message import Message
 from grpc import StatusCode, aio
 from litestar.exceptions import (
     HTTPException,
@@ -13,10 +8,6 @@ from litestar.exceptions import (
     NotFoundException,
     ServiceUnavailableException,
 )
-
-from dto import BaseDTO
-
-T = TypeVar("T", bound=BaseDTO)
 
 
 class RPCBaseService:
@@ -54,10 +45,6 @@ class RPCBaseService:
 
         return wrapper
 
-    @staticmethod
-    def convert_to_dto(data: Message, dto: Type[T]) -> T:
-        return dto(**MessageToDict(data, preserving_proto_field_name=True))
-
 
 class KafkaBaseService:
     __slots__ = "_producer"
@@ -71,7 +58,3 @@ class KafkaBaseService:
 
     def __init__(self, producer):
         self._producer = producer
-
-    @staticmethod
-    def serialize_dto(dto: BaseDTO) -> bytes:
-        return msgspec.msgpack.encode(asdict(dto))

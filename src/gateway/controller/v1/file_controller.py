@@ -5,6 +5,7 @@ from litestar import Controller, MediaType, Request, Router, delete, get, post
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
 from litestar.response import Redirect
+from litestar.status_codes import HTTP_307_TEMPORARY_REDIRECT
 
 from dto import file_dto
 from schemas import file_schemas
@@ -55,7 +56,7 @@ class FileController(Controller):
 
         dto = file_dto.FileDTO(user_id, str(file_id))
         file_info = await file_service_v1.file_info(dto)
-        return file_schemas.FileInfo(**file_info.dict())
+        return file_info.to_schema(file_schemas.FileInfo)
 
     @get(
         "/file-list",
@@ -73,10 +74,10 @@ class FileController(Controller):
         user_id = await auth_service_v1.auth(access_token)
         files = await file_service_v1.file_list(user_id)
         return file_schemas.FileList(
-            tuple(file_schemas.FileInfo(**file.dict()) for file in files)
+            tuple(file.to_schema(file_schemas.FileInfo) for file in files)
         )
 
-    @get("/download-file/{file_id: uuid}", status_code=200, response_class=Redirect)
+    @get("/download-file/{file_id: uuid}", status_code=307, response_class=Redirect)
     async def download_file(
         self,
         file_id: UUID,
@@ -89,7 +90,7 @@ class FileController(Controller):
 
         dto = file_dto.FileDTO(user_id, str(file_id))
         file_url = await file_service_v1.download_file(dto)
-        return Redirect(file_url)
+        return Redirect(file_url, status_code=HTTP_307_TEMPORARY_REDIRECT)
 
     @delete("/delete-files", status_code=204)
     async def delete_files(

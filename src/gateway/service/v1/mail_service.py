@@ -9,11 +9,11 @@ class MailService(KafkaBaseService):
         self, verification_mail: mail_dto.VerificationMailDTO
     ) -> None:
         await self._producer.send(
-            MailTypes.VERIFICATION.name, self.serialize_dto(verification_mail)
+            MailTypes.VERIFICATION.name, verification_mail.to_msgpack()
         )
 
     async def info(self, info_mail: mail_dto.InfoMailDTO) -> None:
-        await self._producer.send(MailTypes.INFO.name, self.serialize_dto(info_mail))
+        await self._producer.send(MailTypes.INFO.name, info_mail.to_msgpack())
 
     async def reset(self, reset_mail: mail_dto.ResetMailDTO) -> None:
-        await self._producer.send(MailTypes.RESET.name, self.serialize_dto(reset_mail))
+        await self._producer.send(MailTypes.RESET.name, reset_mail.to_msgpack())

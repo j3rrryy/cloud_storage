@@ -94,7 +94,6 @@ async def test_log_in(client):
     assert response_data == {
         "access_token": ACCESS_TOKEN,
         "refresh_token": REFRESH_TOKEN,
-        "token_type": "bearer",
     }
 
 
@@ -143,7 +142,6 @@ async def test_refresh(client):
     assert response_data == {
         "access_token": ACCESS_TOKEN,
         "refresh_token": REFRESH_TOKEN,
-        "token_type": "bearer",
     }
 
 
@@ -161,7 +159,7 @@ async def test_session_list(client):
                 "session_id": SESSION_ID,
                 "user_ip": USER_IP,
                 "browser": BROWSER,
-                "created_at": TIMESTAMP,
+                "created_at": TIMESTAMP.isoformat(),
             }
         ]
     }
@@ -193,7 +191,7 @@ async def test_profile(client):
         "user_id": USER_ID,
         "username": USERNAME,
         "email": EMAIL,
-        "registered_at": TIMESTAMP,
+        "registered_at": TIMESTAMP.isoformat(),
         "verified": True,
     }
 

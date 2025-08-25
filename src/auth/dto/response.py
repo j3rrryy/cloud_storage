@@ -36,9 +36,9 @@ class RefreshResponseDTO(BaseResponseDTO):
 @dataclass(slots=True, frozen=True)
 class SessionInfoResponseDTO(BaseResponseDTO):
     session_id: str
-    user_id: str | None
-    access_token: str | None
-    refresh_token: str | None
+    user_id: str
+    access_token: str
+    refresh_token: str
     user_ip: str
     browser: str
     created_at: datetime.datetime
@@ -49,6 +49,6 @@ class ProfileResponseDTO(BaseResponseDTO):
     user_id: str
     username: str
     email: str
-    password: str | None
+    password: str
     verified: bool
     registered_at: datetime.datetime

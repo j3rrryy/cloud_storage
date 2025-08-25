@@ -46,7 +46,6 @@ class LogIn(Struct):
 class Tokens(Struct):
     access_token: Annotated[str, Meta(max_length=350)]
     refresh_token: Annotated[str, Meta(max_length=350)]
-    token_type: str = "bearer"
 
 
 class UserId(Struct):

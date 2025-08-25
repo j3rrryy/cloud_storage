@@ -7,7 +7,7 @@ from .base import BaseResponseDTO
 @dataclass(slots=True, frozen=True)
 class FileInfoResponseDTO(BaseResponseDTO):
     file_id: str
-    user_id: str | None
+    user_id: str
     name: str
     path: str
     size: int

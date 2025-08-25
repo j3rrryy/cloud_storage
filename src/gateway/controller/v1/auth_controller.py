@@ -22,7 +22,7 @@ class AuthController(Controller):
         auth_service_v1: AuthService,
         mail_service_v1: MailService,
     ) -> None:
-        dto = auth_dto.RegistrationDTO.from_struct(data)
+        dto = auth_dto.RegistrationDTO.from_schema(data)
         verification_mail = await auth_service_v1.register(dto)
         await mail_service_v1.verification(verification_mail)
 
@@ -65,7 +65,7 @@ class AuthController(Controller):
         ],
         auth_service_v1: AuthService,
     ) -> auth_schemas.CodeIsValid:
-        dto = auth_dto.ResetCodeDTO.from_struct(data)
+        dto = auth_dto.ResetCodeDTO.from_schema(data)
         is_valid = await auth_service_v1.validate_code(dto)
         return auth_schemas.CodeIsValid(is_valid)
 
@@ -77,7 +77,7 @@ class AuthController(Controller):
         ],
         auth_service_v1: AuthService,
     ) -> None:
-        dto = auth_dto.ResetPasswordDTO.from_struct(data)
+        dto = auth_dto.ResetPasswordDTO.from_schema(data)
         await auth_service_v1.reset_password(dto)
 
     @post(
@@ -109,7 +109,7 @@ class AuthController(Controller):
             )
             await mail_service_v1.info(info_mail)
 
-        return auth_schemas.Tokens(login_data.access_token, login_data.refresh_token)
+        return login_data.to_schema(auth_schemas.Tokens)
 
     @post("/log-out", status_code=204)
     async def log_out(self, request: Request, auth_service_v1: AuthService) -> None:
@@ -160,7 +160,7 @@ class AuthController(Controller):
             request.headers.get("User-Agent", "Unknown"),
         )
         tokens = await auth_service_v1.refresh(dto)
-        return auth_schemas.Tokens(**tokens.dict())
+        return tokens.to_schema(auth_schemas.Tokens)
 
     @get(
         "/session-list",
@@ -174,7 +174,7 @@ class AuthController(Controller):
         access_token = validate_access_token(request)
         sessions = await auth_service_v1.session_list(access_token)
         return auth_schemas.SessionList(
-            tuple(auth_schemas.SessionInfo(**session.dict()) for session in sessions)
+            tuple(session.to_schema(auth_schemas.SessionInfo) for session in sessions)
         )
 
     @post("/revoke-session", status_code=204)
@@ -200,7 +200,7 @@ class AuthController(Controller):
     ) -> auth_schemas.Profile:
         access_token = validate_access_token(request)
         user_profile = await auth_service_v1.profile(access_token)
-        return auth_schemas.Profile(**user_profile.dict())
+        return user_profile.to_schema(auth_schemas.Profile)
 
     @patch("/update-email", status_code=204)
     async def update_email(

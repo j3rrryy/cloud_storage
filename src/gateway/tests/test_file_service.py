@@ -19,7 +19,7 @@ async def test_file_info(file_service_v1):
     assert response.file_id == FILE_ID
     assert response.name == NAME
     assert response.path == PATH
-    assert response.size == str(SIZE)
+    assert response.size == SIZE
     assert response.uploaded == TIMESTAMP
 
 
@@ -30,7 +30,7 @@ async def test_file_list(file_service_v1):
     assert first_file.file_id == FILE_ID
     assert first_file.name == NAME
     assert first_file.path == PATH
-    assert first_file.size == str(SIZE)
+    assert first_file.size == SIZE
     assert first_file.uploaded == TIMESTAMP
 
 

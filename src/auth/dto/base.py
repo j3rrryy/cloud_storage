@@ -1,7 +1,6 @@
 from dataclasses import dataclass, replace
 from typing import Type, TypeVar
 
-from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from sqlalchemy.orm import DeclarativeBase
 
@@ -21,16 +20,15 @@ class BaseDTO:
 class BaseRequestDTO(BaseDTO):
     @classmethod
     def from_request(cls: Type[Request], request: Message) -> Request:
-        return cls(**MessageToDict(request, preserving_proto_field_name=True))
+        return cls(*(getattr(request, f) for f in cls.__dataclass_fields__.keys()))
 
 
 @dataclass(slots=True, frozen=True)
 class BaseResponseDTO(BaseDTO):
     @classmethod
     def from_model(cls: Type[Response], model: DeclarativeBase) -> Response:
-        fields = tuple(f.name for f in cls.__dataclass_fields__.values())
-        return cls(*(getattr(model, f) for f in fields))
+        return cls(*(getattr(model, f) for f in cls.__dataclass_fields__.keys()))
 
-    def to_message(self, message: Type[GrpcMessage]) -> GrpcMessage:
+    def to_response(self, message: Type[GrpcMessage]) -> GrpcMessage:
         fields = {f.name: getattr(self, f.name) for f in message.DESCRIPTOR.fields}
         return message(**fields)

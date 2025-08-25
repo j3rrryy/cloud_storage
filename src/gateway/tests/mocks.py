@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 from google.protobuf.empty_pb2 import Empty
@@ -5,7 +6,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from proto import auth_pb2, file_pb2
 
-TIMESTAMP = "1970-01-01T00:02:03Z"
+TIMESTAMP = datetime.datetime(1970, 1, 1, 0, 2, 3)
 TIMESTAMP_MOCK = Timestamp(seconds=123)
 
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
