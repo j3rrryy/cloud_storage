@@ -28,9 +28,9 @@ async def test_upload_file(mock_cache, mock_repository, mock_storage):
     response = await FileService.upload_file(dto)
 
     assert response == RELATIVE_URL
-    mock_cache.delete.assert_called_once()
-    mock_storage.upload_file.assert_called_once()
-    mock_repository.upload_file.assert_called_once()
+    mock_cache.delete.assert_awaited_once()
+    mock_storage.upload_file.assert_awaited_once()
+    mock_repository.upload_file.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -41,9 +41,9 @@ async def test_file_info(mock_cache, mock_repository):
     response = await FileService.file_info(dto)
 
     assert isinstance(response, response_dto.FileInfoResponseDTO)
-    mock_cache.get.assert_called_once()
-    mock_repository.file_info.assert_called_once()
-    mock_cache.set.assert_called_once()
+    mock_cache.get.assert_awaited_once()
+    mock_repository.file_info.assert_awaited_once()
+    mock_cache.set.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -55,7 +55,7 @@ async def test_file_info_cached(mock_cache, mock_repository):
     response = await FileService.file_info(dto)
 
     assert isinstance(response, response_dto.FileInfoResponseDTO)
-    mock_cache.get.assert_called_once()
+    mock_cache.get.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -67,9 +67,9 @@ async def test_file_list(mock_cache, mock_repository):
     assert isinstance(response, tuple)
     assert len(response) == 1
     assert isinstance(response[0], response_dto.FileInfoResponseDTO)
-    mock_cache.get.assert_called_once()
-    mock_repository.file_list.assert_called_once()
-    mock_cache.set.assert_called_once()
+    mock_cache.get.assert_awaited_once()
+    mock_repository.file_list.assert_awaited_once()
+    mock_cache.set.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -82,7 +82,7 @@ async def test_file_list_cached(mock_cache, mock_repository):
     assert isinstance(response, tuple)
     assert len(response) == 1
     assert isinstance(response[0], response_dto.FileInfoResponseDTO)
-    mock_cache.get.assert_called_once()
+    mock_cache.get.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -94,10 +94,10 @@ async def test_download_file(mock_cache, mock_repository, mock_storage):
     response = await FileService.download_file(dto)
 
     assert response == RELATIVE_URL
-    mock_cache.get.assert_called_once()
-    mock_repository.file_info.assert_called_once()
-    mock_cache.set.assert_called_once()
-    mock_storage.download_file.assert_called_once()
+    mock_cache.get.assert_awaited_once()
+    mock_repository.file_info.assert_awaited_once()
+    mock_cache.set.assert_awaited_once()
+    mock_storage.download_file.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -110,8 +110,8 @@ async def test_download_file_cached(mock_cache, mock_repository, mock_storage):
     response = await FileService.download_file(dto)
 
     assert response == RELATIVE_URL
-    mock_cache.get.assert_called_once()
-    mock_storage.download_file.assert_called_once()
+    mock_cache.get.assert_awaited_once()
+    mock_storage.download_file.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -122,11 +122,11 @@ async def test_delete_files(mock_cache, mock_repository, mock_storage):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
     await FileService.delete_files(dto)
 
-    mock_cache.delete.assert_called_once()
-    mock_repository.delete_files.assert_called_once()
-    mock_storage.delete_files.assert_called_once()
-    mock_repository.delete_files.assert_called_once()
-    mock_cache.delete_many.assert_called_once()
+    mock_cache.delete.assert_awaited_once()
+    mock_repository.delete_files.assert_awaited_once()
+    mock_storage.delete_files.assert_awaited_once()
+    mock_repository.delete_files.assert_awaited_once()
+    mock_cache.delete_many.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -136,7 +136,7 @@ async def test_delete_files(mock_cache, mock_repository, mock_storage):
 async def test_delete_all_files(mock_cache, mock_repository, mock_storage):
     await FileService.delete_all_files(USER_ID)
 
-    mock_cache.delete.assert_called_once()
+    mock_cache.delete.assert_awaited_once()
     assert mock_cache.delete_match.call_count == 2
-    mock_storage.delete_all_files.assert_called_once()
-    mock_repository.delete_all_files.assert_called_once()
+    mock_storage.delete_all_files.assert_awaited_once()
+    mock_repository.delete_all_files.assert_awaited_once()

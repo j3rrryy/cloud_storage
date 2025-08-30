@@ -31,8 +31,8 @@ async def test_register(mock_session):
 
     assert user_id == USER_ID
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.refresh.assert_called_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -59,16 +59,16 @@ async def test_register_exceptions(
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_verify_email(mock_session):
     await AuthRepository.verify_email(USER_ID)  # type: ignore
 
-    mock_session.get.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -80,8 +80,8 @@ async def test_verify_email_not_user(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
-    mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -93,9 +93,9 @@ async def test_verify_email_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.get.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -107,9 +107,9 @@ async def test_reset_password(mock_session):
     assert isinstance(deleted_access_tokens, tuple)
     assert len(deleted_access_tokens) == 1
     assert deleted_access_tokens[0] == ACCESS_TOKEN
-    mock_session.get.assert_called_once()
-    mock_session.scalars.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.scalars.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -122,8 +122,8 @@ async def test_reset_password_not_user(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
-    mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -136,10 +136,10 @@ async def test_reset_password_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.get.assert_called_once()
-    mock_session.scalars.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.scalars.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -150,7 +150,7 @@ async def test_log_in(mock_session):
     await AuthRepository.log_in(dto)  # type: ignore
 
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -179,17 +179,17 @@ async def test_log_in_exceptions(
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_log_out(mock_session):
     await AuthRepository.log_out(ACCESS_TOKEN)  # type: ignore
 
-    mock_session.execute.assert_called_once()
-    mock_session.delete.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.delete.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -203,8 +203,8 @@ async def test_log_out_not_tokens(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -216,10 +216,10 @@ async def test_log_out_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.delete.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.delete.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -233,9 +233,9 @@ async def test_refresh(mock_session):
     deleted_access_token = await AuthRepository.refresh(dto)  # type: ignore
 
     assert deleted_access_token == ACCESS_TOKEN
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -252,8 +252,8 @@ async def test_refresh_not_tokens(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -281,10 +281,10 @@ async def test_refresh_exceptions(
 
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -297,7 +297,7 @@ async def test_session_list(mock_session, token_pair):
     assert sessions[0] == response_dto.SessionInfoResponseDTO(
         SESSION_ID, USER_ID, ACCESS_TOKEN, REFRESH_TOKEN, USER_IP, BROWSER, TIMESTAMP
     )
-    mock_session.scalars.assert_called_once()
+    mock_session.scalars.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -309,8 +309,8 @@ async def test_session_list_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.scalars.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.scalars.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -321,8 +321,8 @@ async def test_revoke_session(mock_session):
     deleted_access_token = await AuthRepository.revoke_session(SESSION_ID)  # type: ignore
 
     assert deleted_access_token == ACCESS_TOKEN
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -336,8 +336,8 @@ async def test_revoke_session_not_tokens(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.NOT_FOUND
     assert exc_info.value.args[1] == "Session ID not found"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -349,16 +349,16 @@ async def test_revoke_session_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_validate_access_token(mock_session):
     await AuthRepository.validate_access_token(ACCESS_TOKEN)  # type: ignore
 
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -372,8 +372,8 @@ async def test_validate_access_token_not_tokens(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Token is invalid"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -385,8 +385,8 @@ async def test_validate_access_token_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -399,7 +399,7 @@ async def test_profile_using_username(mock_session, user):
     assert profile == response_dto.ProfileResponseDTO(
         USER_ID, USERNAME, EMAIL, user.password, True, ANY
     )
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -412,7 +412,7 @@ async def test_profile_using_email(mock_session, user):
     assert profile == response_dto.ProfileResponseDTO(
         USER_ID, USERNAME, EMAIL, user.password, True, ANY
     )
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -423,7 +423,7 @@ async def test_profile_using_user_id(mock_session, user):
     assert profile == response_dto.ProfileResponseDTO(
         USER_ID, USERNAME, EMAIL, user.password, True, ANY
     )
-    mock_session.get.assert_called_once()
+    mock_session.get.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -435,8 +435,8 @@ async def test_profile_not_user(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
-    mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -448,8 +448,8 @@ async def test_profile_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -459,9 +459,9 @@ async def test_update_email(mock_session, user):
     username = await AuthRepository.update_email(dto)  # type: ignore
 
     assert username == USERNAME
-    mock_session.get.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.refresh.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -474,8 +474,8 @@ async def test_update_email_not_user(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
-    mock_session.get.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -501,8 +501,8 @@ async def test_update_email_exceptions(
 
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -517,9 +517,9 @@ async def test_update_password(mock_session, user):
     assert isinstance(deleted_access_tokens, tuple)
     assert len(deleted_access_tokens) == 1
     assert deleted_access_tokens[0] == ACCESS_TOKEN
-    mock_session.get.assert_called_once()
-    mock_session.scalars.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.scalars.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -534,7 +534,7 @@ async def test_update_password_not_user(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
-    mock_session.get.assert_called_once()
+    mock_session.get.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -550,10 +550,10 @@ async def test_update_password_exception(mock_session, user):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.get.assert_called_once()
-    mock_session.scalars.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.scalars.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -566,8 +566,8 @@ async def test_delete_profile(mock_session):
     assert isinstance(deleted_access_tokens, tuple)
     assert len(deleted_access_tokens) == 1
     assert deleted_access_tokens[0] == ACCESS_TOKEN
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -581,8 +581,8 @@ async def test_delete_profile_zero_rows(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -597,6 +597,6 @@ async def test_delete_profile_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()

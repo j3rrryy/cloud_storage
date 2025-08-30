@@ -44,8 +44,8 @@ async def test_upload_file_exceptions(
     assert exc_info.value.args[0] == expected_status
     assert exc_info.value.args[1] == expected_message
     mock_session.add.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -57,7 +57,7 @@ async def test_file_info(mock_session, file):
     assert info == response_dto.FileInfoResponseDTO(
         FILE_ID, USER_ID, NAME, PATH, SIZE, TIMESTAMP
     )
-    mock_session.get.assert_called_once()
+    mock_session.get.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -70,7 +70,8 @@ async def test_file_info_not_file(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.NOT_FOUND
     assert exc_info.value.args[1] == "File not found"
-    mock_session.get.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -84,7 +85,8 @@ async def test_file_info_not_belongs(mock_session, file):
 
     assert exc_info.value.args[0] == StatusCode.NOT_FOUND
     assert exc_info.value.args[1] == "File not found"
-    mock_session.get.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -97,7 +99,8 @@ async def test_file_info_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.get.assert_called_once()
+    mock_session.get.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -117,7 +120,7 @@ async def test_file_list(mock_session, file):
     assert files[0] == response_dto.FileInfoResponseDTO(
         FILE_ID, USER_ID, NAME, PATH, SIZE, TIMESTAMP
     )
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -129,7 +132,8 @@ async def test_file_list_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -145,7 +149,7 @@ async def test_get_file_list_to_delete(mock_session, file):
 
     files = await FileRepository.get_file_list_to_delete(dto)  # type: ignore
     assert files == response_dto.DeleteFilesResponseDTO(USER_ID, [PATH])
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -164,7 +168,8 @@ async def test_get_file_list_to_delete_found_less(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.NOT_FOUND
     assert exc_info.value.args[1] == "One or more files not found"
-    mock_session.execute.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -177,8 +182,8 @@ async def test_get_file_list_to_delete_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -186,8 +191,8 @@ async def test_delete_files(mock_session, file):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
     await FileRepository.delete_files(dto)  # type: ignore
 
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -200,16 +205,16 @@ async def test_delete_files_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_delete_all_files(mock_session):
     await FileRepository.delete_all_files(USER_ID)  # type: ignore
 
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -221,6 +226,6 @@ async def test_delete_all_files_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_called_once()
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_called_once()
+    mock_session.execute.assert_awaited_once()
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_awaited_once()

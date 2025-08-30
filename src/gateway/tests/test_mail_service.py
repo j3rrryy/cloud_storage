@@ -12,7 +12,7 @@ async def test_verification(mail_service_v1):
         verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
     )
     await mail_service_v1.verification(dto)
-    mail_service_v1._producer.send.assert_called_once_with(
+    mail_service_v1._producer.send.assert_awaited_once_with(
         MailTypes.VERIFICATION.name, dto.to_msgpack()
     )
 
@@ -23,7 +23,7 @@ async def test_info(mail_service_v1):
         username=USERNAME, email=EMAIL, user_ip=USER_IP, browser=BROWSER
     )
     await mail_service_v1.info(dto)
-    mail_service_v1._producer.send.assert_called_once_with(
+    mail_service_v1._producer.send.assert_awaited_once_with(
         MailTypes.INFO.name, dto.to_msgpack()
     )
 
@@ -32,6 +32,6 @@ async def test_info(mail_service_v1):
 async def test_reset(mail_service_v1):
     dto = mail_dto.ResetMailDTO(code=CODE, username=USERNAME, email=EMAIL)
     await mail_service_v1.reset(dto)
-    mail_service_v1._producer.send.assert_called_once_with(
+    mail_service_v1._producer.send.assert_awaited_once_with(
         MailTypes.RESET.name, dto.to_msgpack()
     )
