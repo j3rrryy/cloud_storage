@@ -16,7 +16,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from enums import TokenTypes
-from exceptions import UnauthenticatedException
+from exceptions import NotFoundException, UnauthenticatedException
 
 T = TypeVar("T")
 
@@ -57,7 +57,9 @@ def with_transaction(func):
             return await func(*args, session, **kwargs)
         except Exception as exc:
             await session.rollback()
-            if not isinstance(exc, (IntegrityError, UnauthenticatedException)):
+            if not isinstance(
+                exc, (IntegrityError, NotFoundException, UnauthenticatedException)
+            ):
                 exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
@@ -92,7 +94,7 @@ def generate_jwt(user_id: str, token_type: TokenTypes, key_pair: KeyPair) -> str
 
 
 @inject.autoparams()
-def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> str:
+def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> Jwt:
     jwt = Jwt(token)
 
     if (
@@ -118,7 +120,11 @@ def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> str:
         raise UnauthenticatedException(
             StatusCode.UNAUTHENTICATED, "Resend the verification mail"
         )
-    return jwt.subject
+    return jwt
+
+
+def validate_jwt_and_get_user_id(token: str, token_type: TokenTypes) -> str:
+    return validate_jwt(token, token_type).subject  # type: ignore
 
 
 def compare_passwords(password: str, hashed_password: str) -> None:

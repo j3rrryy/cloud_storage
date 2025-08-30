@@ -17,6 +17,7 @@ from utils import (
     generate_reset_code,
     get_hashed_password,
     validate_jwt,
+    validate_jwt_and_get_user_id,
 )
 
 from .mocks import PASSWORD, USER_ID
@@ -92,8 +93,8 @@ def test_generate_jwt(token_type, mock_key_pair):
 )
 def test_validate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
-    user_id = validate_jwt(token, token_type)  # type: ignore
-    assert user_id == USER_ID
+    jwt = validate_jwt(token, token_type)  # type: ignore
+    assert jwt.subject == USER_ID
 
 
 def test_validate_broken_jwt(mock_key_pair):
@@ -101,6 +102,15 @@ def test_validate_broken_jwt(mock_key_pair):
         validate_jwt("broken_token", TokenTypes.ACCESS)  # type: ignore
 
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, "Token is invalid")
+
+
+@pytest.mark.parametrize(
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+)
+def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
+    token = generate_jwt(USER_ID, token_type)  # type: ignore
+    user_id = validate_jwt_and_get_user_id(token, token_type)
+    assert user_id == USER_ID
 
 
 @pytest.mark.parametrize(

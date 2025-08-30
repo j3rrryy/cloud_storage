@@ -47,7 +47,6 @@ def create_repository() -> MagicMock:
     )
     crud.revoke_session = AsyncMock()
     crud.validate_access_token = AsyncMock()
-    crud.validate_refresh_token = AsyncMock()
     crud.profile = AsyncMock(
         return_value=response_dto.ProfileResponseDTO(
             USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), True, TIMESTAMP

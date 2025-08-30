@@ -1,2 +1,6 @@
+class NotFoundException(Exception):
+    """Resource not found"""
+
+
 class UnauthenticatedException(Exception):
-    """Exception for problems with authentication"""
+    """Problems with authentication"""

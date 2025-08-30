@@ -1,3 +1,5 @@
+from time import time
+
 from cashews import cache
 from grpc import StatusCode
 
@@ -13,10 +15,14 @@ from utils import (
     generate_reset_code,
     get_hashed_password,
     validate_jwt,
+    validate_jwt_and_get_user_id,
 )
 
 
 class AuthService:
+    CACHE_SAFETY_MARGIN = 30
+    MIN_CACHE_TTL = 30
+
     @staticmethod
     async def register(
         data: request_dto.RegisterRequestDTO,
@@ -27,32 +33,34 @@ class AuthService:
 
     @staticmethod
     async def verify_email(verification_token: str) -> None:
-        user_id = validate_jwt(verification_token, TokenTypes.VERIFICATION)  # type: ignore
+        user_id = validate_jwt_and_get_user_id(
+            verification_token, TokenTypes.VERIFICATION
+        )
         await AuthRepository.verify_email(user_id)  # type: ignore
-        await cache.delete_many(f"auth-{user_id}", f"profile-{user_id}")
+        await cache.delete_many(f"auth:{user_id}", f"profile:{user_id}")
 
     @staticmethod
     async def request_reset_code(email: str) -> response_dto.ResetCodeResponseDTO:
         profile = await AuthRepository.profile(email)  # type: ignore
         code = generate_reset_code()
-        await cache.set(f"reset-{profile.user_id}", code, 600)
+        await cache.set(f"reset:{profile.user_id}", code, 600)
         return response_dto.ResetCodeResponseDTO(
             profile.user_id, profile.username, code
         )
 
     @staticmethod
     async def validate_reset_code(data: request_dto.ResetCodeRequestDTO) -> bool:
-        code = await cache.get(f"reset-{data.user_id}")
+        code = await cache.get(f"reset:{data.user_id}")
 
         if not code or data.code != code:
             return False
 
-        await cache.set(f"reset-{data.user_id}", "validated", 600)
+        await cache.set(f"reset:{data.user_id}", "validated", 600)
         return True
 
-    @staticmethod
-    async def reset_password(data: request_dto.ResetPasswordRequestDTO) -> None:
-        code = await cache.get(f"reset-{data.user_id}")
+    @classmethod
+    async def reset_password(cls, data: request_dto.ResetPasswordRequestDTO) -> None:
+        code = await cache.get(f"reset:{data.user_id}")
 
         if not code or code != "validated":
             raise UnauthenticatedException(
@@ -60,8 +68,9 @@ class AuthService:
             )
 
         data = data.replace(new_password=get_hashed_password(data.new_password))
-        await AuthRepository.reset_password(data)  # type: ignore
-        await cache.delete(f"reset-{data.user_id}")
+        deleted_access_tokens = await AuthRepository.reset_password(data)  # type: ignore
+        await cls._delete_cached_access_tokens(*deleted_access_tokens)
+        await cache.delete_many(f"session-list:{data.user_id}", f"reset:{data.user_id}")
 
     @staticmethod
     async def log_in(
@@ -79,48 +88,42 @@ class AuthService:
         )
 
         await AuthRepository.log_in(dto)  # type: ignore
-        await cache.delete(f"session_list-{profile.user_id}")
+        await cache.delete(f"session-list:{profile.user_id}")
         return response_dto.LogInResponseDTO(
             access_token, refresh_token, profile.email, browser, profile.verified
         )
 
-    @staticmethod
-    async def log_out(access_token: str) -> None:
-        user_id = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
+    @classmethod
+    async def log_out(cls, access_token: str) -> None:
+        user_id = await cls._cached_access_token(access_token)
         await AuthRepository.log_out(access_token)  # type: ignore
-        await cache.delete(f"session_list-{user_id}")
+        await cls._delete_cached_access_tokens(access_token)
+        await cache.delete(f"session-list:{user_id}")
 
-    @staticmethod
+    @classmethod
     async def resend_verification_mail(
-        access_token: str,
+        cls, access_token: str
     ) -> response_dto.VerificationMailResponseDTO:
-        user_id = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
-
+        user_id = await cls._cached_access_token(access_token)
         profile = await AuthRepository.profile(user_id)  # type: ignore
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
         return response_dto.VerificationMailResponseDTO(
             verification_token, profile.username, profile.email
         )
 
-    @staticmethod
-    async def auth(access_token: str) -> str:
-        user_id = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
+    @classmethod
+    async def auth(cls, access_token: str) -> str:
+        user_id = await cls._cached_access_token(access_token)
         return user_id
 
-    @staticmethod
+    @classmethod
     async def refresh(
-        data: request_dto.RefreshRequestDTO,
+        cls, data: request_dto.RefreshRequestDTO
     ) -> response_dto.RefreshResponseDTO:
-        user_id = validate_jwt(data.refresh_token, TokenTypes.REFRESH)  # type: ignore
-        await AuthRepository.validate_refresh_token(data.refresh_token)  # type: ignore
-
+        user_id = validate_jwt_and_get_user_id(data.refresh_token, TokenTypes.REFRESH)
         access_token = generate_jwt(user_id, TokenTypes.ACCESS)  # type: ignore
         refresh_token = generate_jwt(user_id, TokenTypes.REFRESH)  # type: ignore
         browser = convert_user_agent(data.user_agent)
-
         dto = request_dto.RefreshDataRequestDTO(
             access_token,
             refresh_token,
@@ -130,79 +133,94 @@ class AuthService:
             browser,
         )
 
-        await AuthRepository.refresh(dto)  # type: ignore
-        await cache.delete(f"session_list-{user_id}")
+        deleted_access_token = await AuthRepository.refresh(dto)  # type: ignore
+        await cls._delete_cached_access_tokens(deleted_access_token)
+        await cache.delete(f"session-list:{user_id}")
         return response_dto.RefreshResponseDTO(access_token, refresh_token)
 
-    @staticmethod
+    @classmethod
     async def session_list(
-        access_token: str,
+        cls, access_token: str
     ) -> tuple[response_dto.SessionInfoResponseDTO, ...]:
-        user_id = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
+        user_id = await cls._cached_access_token(access_token)
 
-        if cached := await cache.get(f"session_list-{user_id}"):
+        if cached := await cache.get(f"session-list:{user_id}"):
             return cached
 
         sessions = await AuthRepository.session_list(user_id)  # type: ignore
-        await cache.set(f"session_list-{user_id}", sessions, 3600)
+        await cache.set(f"session-list:{user_id}", sessions, 3600)
         return sessions
 
-    @staticmethod
-    async def revoke_session(data: request_dto.RevokeSessionRequestDTO) -> None:
-        user_id = validate_jwt(data.access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(data.access_token)  # type: ignore
-        await AuthRepository.validate_refresh_token(data.session_id)  # type: ignore
-        await AuthRepository.revoke_session(data.session_id)  # type: ignore
-        await cache.delete(f"session_list-{user_id}")
+    @classmethod
+    async def revoke_session(cls, data: request_dto.RevokeSessionRequestDTO) -> None:
+        user_id = await cls._cached_access_token(data.access_token)
+        deleted_access_token = await AuthRepository.revoke_session(data.session_id)  # type: ignore
+        await cls._delete_cached_access_tokens(deleted_access_token)
+        await cache.delete(f"session-list:{user_id}")
 
-    @staticmethod
-    async def profile(access_token: str) -> response_dto.ProfileResponseDTO:
-        user_id = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
+    @classmethod
+    async def profile(cls, access_token: str) -> response_dto.ProfileResponseDTO:
+        user_id = await cls._cached_access_token(access_token)
 
-        if cached := await cache.get(f"profile-{user_id}"):
+        if cached := await cache.get(f"profile:{user_id}"):
             return cached
 
         profile = await AuthRepository.profile(user_id)  # type: ignore
-        await cache.set(f"profile-{user_id}", profile, 3600)
+        await cache.set(f"profile:{user_id}", profile, 3600)
         return profile
 
-    @staticmethod
+    @classmethod
     async def update_email(
-        data: request_dto.UpdateEmailRequestDTO,
+        cls, data: request_dto.UpdateEmailRequestDTO
     ) -> response_dto.VerificationMailResponseDTO:
-        user_id = validate_jwt(data.access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(data.access_token)  # type: ignore
-
+        user_id = await cls._cached_access_token(data.access_token)
         dto = request_dto.UpdateEmailDataRequestDTO(
             user_id, data.access_token, data.new_email
         )
 
         username = await AuthRepository.update_email(dto)  # type: ignore
-        await cache.delete_many(f"auth-{user_id}", f"profile-{user_id}")
+        await cache.delete_many(f"auth:{user_id}", f"profile:{user_id}")
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
         return response_dto.VerificationMailResponseDTO(
             verification_token, username, data.new_email
         )
 
-    @staticmethod
-    async def update_password(data: request_dto.UpdatePasswordRequestDTO) -> None:
-        user_id = validate_jwt(data.access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(data.access_token)  # type: ignore
-
+    @classmethod
+    async def update_password(cls, data: request_dto.UpdatePasswordRequestDTO) -> None:
+        user_id = await cls._cached_access_token(data.access_token)
         dto = request_dto.UpdatePasswordDataRequestDTO(
             user_id,
             data.access_token,
             data.old_password,
             get_hashed_password(data.new_password),
         )
-        await AuthRepository.update_password(dto)  # type: ignore
+        deleted_access_tokens = await AuthRepository.update_password(dto)  # type: ignore
+        await cls._delete_cached_access_tokens(*deleted_access_tokens)
+
+    @classmethod
+    async def delete_profile(cls, access_token: str) -> str:
+        user_id = await cls._cached_access_token(access_token)
+        deleted_access_tokens = await AuthRepository.delete_profile(user_id)  # type: ignore
+        await cls._delete_cached_access_tokens(*deleted_access_tokens)
+        await cache.delete_match(rf"\w+:{user_id}")
+        return user_id
+
+    @classmethod
+    async def _cached_access_token(cls, access_token: str) -> str:
+        if cached := await cache.get(f"access-token:{access_token}"):
+            return cached
+
+        jwt = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
+        await AuthRepository.validate_access_token(access_token)  # type: ignore
+
+        ttl = max(0, jwt.exp - int(time()) - cls.CACHE_SAFETY_MARGIN)
+        if ttl > cls.MIN_CACHE_TTL:
+            await cache.set(f"access-token:{access_token}", jwt.subject, ttl)
+
+        return jwt.subject
 
     @staticmethod
-    async def delete_profile(access_token: str) -> str:
-        user_id = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
-        await AuthRepository.delete_profile(user_id)  # type: ignore
-        await cache.delete_match(rf"\w+-{user_id}")
-        return user_id
+    async def _delete_cached_access_tokens(*access_tokens: str) -> None:
+        if access_tokens:
+            keys = (f"access-token:{access_token}" for access_token in access_tokens)
+            await cache.delete_many(*keys)

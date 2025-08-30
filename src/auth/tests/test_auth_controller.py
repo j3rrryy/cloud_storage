@@ -43,7 +43,7 @@ async def test_verify_email(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.validate_jwt_and_get_user_id"),
     ):
         request = pb2.VerificationToken(verification_token=VERIFICATION_TOKEN)
         response = await auth_controller.VerifyEmail(
@@ -120,7 +120,7 @@ async def test_log_out(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
     ):
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.LogOut(request, MagicMock(ServicerContext))
@@ -131,7 +131,7 @@ async def test_log_out(auth_controller):
 async def test_resend_verification_mail(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
         patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = VERIFICATION_TOKEN
@@ -149,9 +149,11 @@ async def test_auth(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt") as mock_validator,
+        patch(
+            "service.auth_service.AuthService._cached_access_token"
+        ) as mock_cached_access_token,
     ):
-        mock_validator.return_value = USER_ID
+        mock_cached_access_token.return_value = USER_ID
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.Auth(request, MagicMock(ServicerContext))
         assert response == pb2.UserId(user_id=USER_ID)
@@ -162,7 +164,7 @@ async def test_refresh(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.validate_jwt_and_get_user_id"),
         patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = ACCESS_TOKEN
@@ -180,7 +182,7 @@ async def test_session_list(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
     ):
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.SessionList(
@@ -203,7 +205,7 @@ async def test_revoke_session(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
     ):
         request = pb2.RevokeSessionRequest(
             access_token=ACCESS_TOKEN, session_id=SESSION_ID
@@ -219,7 +221,7 @@ async def test_profile(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
     ):
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.Profile(request, MagicMock(ServicerContext))
@@ -237,7 +239,7 @@ async def test_update_email(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
         patch("service.auth_service.generate_jwt") as mock_generator,
     ):
         mock_generator.return_value = VERIFICATION_TOKEN
@@ -254,7 +256,7 @@ async def test_update_email(auth_controller):
 async def test_update_password(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
-        patch("service.auth_service.validate_jwt"),
+        patch("service.auth_service.AuthService._cached_access_token"),
     ):
         request = pb2.UpdatePasswordRequest(
             access_token=ACCESS_TOKEN, old_password=PASSWORD, new_password=PASSWORD
@@ -270,9 +272,11 @@ async def test_delete_profile(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.validate_jwt") as mock_validator,
+        patch(
+            "service.auth_service.AuthService._cached_access_token"
+        ) as mock_cached_access_token,
     ):
-        mock_validator.return_value = USER_ID
+        mock_cached_access_token.return_value = USER_ID
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
         response = await auth_controller.DeleteProfile(
             request, MagicMock(ServicerContext)
