@@ -12,7 +12,7 @@ from uvicorn import Config, Server
 
 from config import setup_cache, setup_logging
 from controller import FileController
-from di import ClientManager, setup_di
+from di import ClientManager, SessionManager, setup_di
 from proto import add_FileServicer_to_server
 
 logger = logging.getLogger()
@@ -66,6 +66,7 @@ async def main() -> None:
     try:
         await asyncio.gather(grpc_task, prometheus_task)
     finally:
+        await SessionManager.close()
         await ClientManager.close()
 
 

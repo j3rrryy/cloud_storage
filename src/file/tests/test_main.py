@@ -115,9 +115,11 @@ async def test_main(
 @patch("main.start_grpc_server")
 @patch("main.start_prometheus_server")
 @patch("main.asyncio.gather")
+@patch("main.SessionManager.close")
 @patch("main.ClientManager.close")
 async def test_main_with_close(
-    mock_close,
+    mock_client_close,
+    mock_session_close,
     mock_gather,
     mock_prometheus,
     mock_grpc,
@@ -134,4 +136,5 @@ async def test_main_with_close(
     mock_setup_cache.assert_called_once()
     mock_grpc.assert_called_once()
     mock_prometheus.assert_called_once()
-    mock_close.assert_awaited_once()
+    mock_session_close.assert_awaited_once()
+    mock_client_close.assert_awaited_once()

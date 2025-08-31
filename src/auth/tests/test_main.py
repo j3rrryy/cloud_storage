@@ -98,7 +98,7 @@ async def test_main(
 ):
     await main.main()
 
-    mock_setup_di.assert_called_once()
+    mock_setup_di.assert_awaited_once()
     mock_setup_logging.assert_called_once()
     mock_setup_cache.assert_called_once()
     mock_grpc.assert_awaited_once()
@@ -106,3 +106,31 @@ async def test_main(
     mock_logger.info.assert_has_calls(
         [call("gRPC server started"), call("Prometheus server started")]
     )
+
+
+@patch("main.setup_di")
+@patch("main.setup_logging")
+@patch("main.setup_cache")
+@patch("main.start_grpc_server")
+@patch("main.start_prometheus_server")
+@patch("main.asyncio.gather")
+@patch("main.SessionManager.close")
+async def test_main_with_close(
+    mock_session_close,
+    mock_gather,
+    mock_prometheus,
+    mock_grpc,
+    mock_setup_cache,
+    mock_setup_logging,
+    mock_setup_di,
+):
+    mock_gather.side_effect = Exception("Details")
+    with pytest.raises(Exception):
+        await main.main()
+
+    mock_setup_di.assert_awaited_once()
+    mock_setup_logging.assert_called_once()
+    mock_setup_cache.assert_called_once()
+    mock_grpc.assert_called_once()
+    mock_prometheus.assert_called_once()
+    mock_session_close.assert_awaited_once()

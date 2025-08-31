@@ -461,7 +461,6 @@ async def test_update_email(mock_session, user):
     assert username == USERNAME
     mock_session.get.assert_awaited_once()
     mock_session.commit.assert_awaited_once()
-    mock_session.refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio

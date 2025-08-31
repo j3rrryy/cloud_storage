@@ -12,7 +12,7 @@ from uvicorn import Config, Server
 
 from config import setup_cache, setup_logging
 from controller import AuthController
-from di import setup_di
+from di import SessionManager, setup_di
 from proto import add_AuthServicer_to_server
 
 logger = logging.getLogger()
@@ -54,7 +54,7 @@ async def start_prometheus_server() -> None:
 
 
 async def main() -> None:
-    setup_di()
+    await setup_di()
     setup_logging()
     setup_cache()
 
@@ -63,7 +63,10 @@ async def main() -> None:
     prometheus_task = asyncio.create_task(start_prometheus_server())
     logger.info("Prometheus server started")
 
-    await asyncio.gather(grpc_task, prometheus_task)
+    try:
+        await asyncio.gather(grpc_task, prometheus_task)
+    finally:
+        await SessionManager.close()
 
 
 if __name__ == "__main__":

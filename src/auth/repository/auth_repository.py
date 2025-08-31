@@ -226,8 +226,6 @@ class AuthRepository:
         except IntegrityError as exc:
             exc.args = (StatusCode.ALREADY_EXISTS, "Email address is already in use")
             raise exc
-
-        await session.refresh(user)
         return user.username
 
     @staticmethod
