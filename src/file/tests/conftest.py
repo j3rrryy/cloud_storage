@@ -13,18 +13,18 @@ from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, USER_ID
 
 
 @pytest.fixture
-def mock_client() -> Generator[S3Client, None, None]:
-    mock_client = AsyncMock(spec=S3Client)
-    inject.clear_and_configure(lambda binder: binder.bind(S3Client, mock_client))
-    yield mock_client
-    inject.clear()
-
-
-@pytest.fixture
 def mock_session() -> Generator[AsyncSession, None, None]:
     mock_session = AsyncMock(spec=AsyncSession)
     inject.clear_and_configure(lambda binder: binder.bind(AsyncSession, mock_session))
     yield mock_session
+    inject.clear()
+
+
+@pytest.fixture
+def mock_client() -> Generator[S3Client, None, None]:
+    mock_client = AsyncMock(spec=S3Client)
+    inject.clear_and_configure(lambda binder: binder.bind(S3Client, mock_client))
+    yield mock_client
     inject.clear()
 
 
