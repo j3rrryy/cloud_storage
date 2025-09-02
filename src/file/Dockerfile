@@ -10,5 +10,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-cache --compile-bytecode --link-mode copy
 
 COPY . .
-RUN uv run python -m compileall -q -x '\.venv' .
-RUN chmod +x .venv/bin/alembic
+RUN uv run python -m compileall -q -x '\.venv' . && chmod +x .venv/bin/alembic
+
+ENTRYPOINT ["sh", "-c"]
+CMD ["uv run alembic upgrade head && uv run python ./main.py"]

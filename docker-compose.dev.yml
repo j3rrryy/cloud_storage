@@ -66,7 +66,6 @@ services:
       - auth
       - file
       - mail
-    command: uv run python ./main.py
     container_name: gateway_dev
 
   auth:
@@ -87,9 +86,6 @@ services:
     depends_on:
       - auth_postgres
       - auth_redis
-    command: bash -c "
-      uv run alembic upgrade head &&
-      uv run python ./main.py"
     container_name: auth_dev
 
   auth_postgres:
@@ -137,9 +133,6 @@ services:
       - minio
       - file_postgres
       - file_redis
-    command: bash -c "
-      uv run alembic upgrade head &&
-      uv run python ./main.py"
     container_name: file_dev
 
   minio:
@@ -246,7 +239,6 @@ services:
       - mail_network
     depends_on:
       - kafka
-    command: uv run python ./main.py
     container_name: mail_dev
 
   loki:

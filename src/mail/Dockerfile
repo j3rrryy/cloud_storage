@@ -11,3 +11,6 @@ RUN uv sync --frozen --no-cache --compile-bytecode --link-mode copy
 
 COPY . .
 RUN uv run python -m compileall -q -x '\.venv' .
+
+ENTRYPOINT ["sh", "-c"]
+CMD ["uv run python ./main.py"]
