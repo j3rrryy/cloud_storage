@@ -142,7 +142,9 @@ class AuthRepository:
         user_id: str, session: AsyncSession
     ) -> tuple[response_dto.SessionInfoResponseDTO, ...]:
         token_pairs = await session.scalars(
-            select(TokenPair).filter(TokenPair.user_id == user_id)
+            select(TokenPair)
+            .filter(TokenPair.user_id == user_id)
+            .order_by(TokenPair.created_at.desc())
         )
         return tuple(
             response_dto.SessionInfoResponseDTO.from_model(token_pair)
