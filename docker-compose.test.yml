@@ -3,34 +3,34 @@ services:
     image: gateway:test
     env_file:
       - ./test/.env
-    command: >
+    command: sh -c "
       uv sync --group test &&
-      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100
+      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: gateway_test
 
   auth:
     image: auth:test
     env_file:
       - ./test/.env
-    command: >
+    command: sh -c "
       uv sync --group test &&
-      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100
+      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: auth_test
 
   file:
     image: file:test
     env_file:
       - ./test/.env
-    command: >
+    command: sh -c "
       uv sync --group test &&
-      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100
+      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: file_test
 
   mail:
     image: mail:test
     env_file:
       - ./test/.env
-    command: >
+    command: sh -c "
       uv sync --group test &&
-      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100
+      uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: mail_test
