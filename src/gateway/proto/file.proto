@@ -6,47 +6,113 @@ import "google/protobuf/timestamp.proto";
 package file;
 
 service File {
-  rpc UploadFile(UploadFileRequest) returns (FileURLResponse);
-  rpc FileInfo(FileOperationRequest) returns (FileInfoResponse);
-  rpc FileList(UserId) returns (FileListResponse);
-  rpc DownloadFile(FileOperationRequest) returns (FileURLResponse);
+  // User
+  rpc Register(UserId) returns (google.protobuf.Empty);
+  rpc DeleteProfile(UserId) returns (google.protobuf.Empty);
+
+  // Folder
+  rpc CreateFolder(CreateFolderRequest) returns (google.protobuf.Empty);
+  rpc ListFolder(ListFolderRequest) returns (ListFolderResponse);
+  rpc RenameFolder(RenameFolderRequest) returns (google.protobuf.Empty);
+  rpc MoveFolder(MoveFolderRequest) returns (google.protobuf.Empty);
+  rpc DeleteFolders(DeleteFoldersRequest) returns (google.protobuf.Empty);
+
+  // File
+  rpc UploadFile(UploadFileRequest) returns (FileURL);
+  rpc DownloadFile(FileRef) returns (FileURL);
+  rpc RenameFile(RenameFileRequest) returns (google.protobuf.Empty);
+  rpc MoveFile(MoveFileRequest) returns (google.protobuf.Empty);
   rpc DeleteFiles(DeleteFilesRequest) returns (google.protobuf.Empty);
-  rpc DeleteAllFiles(UserId) returns (google.protobuf.Empty);
+}
+
+// User
+message UserId {
+  string user_id = 1;
+}
+
+// Folder
+message CreateFolderRequest {
+  FolderRef folder = 1;
+  string name = 2;
+}
+
+message FolderRef {
+  string user_id = 1;
+  string folder_id = 2;
+}
+
+message ListFolderRequest {
+  FolderRef folder = 1;
+  int32 page_size = 2;
+  string cursor = 3;
+}
+
+message ListFolderResponse {
+  repeated Entry entries = 1;
+  string next_cursor = 2;
+}
+
+message Entry {
+  string id = 1;
+  string name = 2;
+  oneof data {
+    FileData file_data = 3;
+    FolderData folder_data = 4;
+  }
+}
+
+message FolderData {
+  string parent_id = 1;
+}
+
+message FileData {
+  uint64 size = 1;
+  google.protobuf.Timestamp uploaded_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+message RenameFolderRequest {
+  FolderRef folder = 1;
+  string new_name = 2;
+}
+
+message MoveFolderRequest {
+  FolderRef folder = 1;
+  string new_parent_folder_id = 2;
+}
+
+message DeleteFoldersRequest {
+  string user_id = 1;
+  repeated string folder_ids = 2;
+}
+
+// File
+message UploadFileRequest {
+  FolderRef folder = 1;
+  string name = 2;
+  uint64 size = 3;
+}
+
+message FileURL {
+  string url = 1;
+}
+
+message FileRef {
+  FolderRef folder = 1;
+  string file_id = 2;
+}
+
+message RenameFileRequest {
+  FileRef file = 1;
+  string new_name = 2;
+}
+
+message MoveFileRequest {
+  FileRef file = 1;
+  string new_folder_id = 2;
 }
 
 message DeleteFilesRequest {
   string user_id = 1;
   repeated string file_ids = 2;
-}
-
-message FileInfoResponse {
-  string file_id = 1;
-  string name = 2;
-  string path = 3;
-  uint64 size = 4;
-  google.protobuf.Timestamp uploaded = 5;
-}
-
-message FileListResponse {
-  repeated FileInfoResponse files = 1;
-}
-
-message FileOperationRequest {
-  string user_id = 1;
-  string file_id = 2;
-}
-
-message FileURLResponse {
-  string url = 1;
-}
-
-message UploadFileRequest {
-  string user_id = 1;
-  string name = 2;
-  string path = 3;
-  uint64 size = 4;
-}
-
-message UserId {
-  string user_id = 1;
 }

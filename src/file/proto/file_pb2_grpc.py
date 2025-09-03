@@ -40,28 +40,70 @@ class FileStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.Register = channel.unary_unary(
+            "/file.File/Register",
+            request_serializer=file__pb2.UserId.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.DeleteProfile = channel.unary_unary(
+            "/file.File/DeleteProfile",
+            request_serializer=file__pb2.UserId.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.CreateFolder = channel.unary_unary(
+            "/file.File/CreateFolder",
+            request_serializer=file__pb2.CreateFolderRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.ListFolder = channel.unary_unary(
+            "/file.File/ListFolder",
+            request_serializer=file__pb2.ListFolderRequest.SerializeToString,
+            response_deserializer=file__pb2.ListFolderResponse.FromString,
+            _registered_method=True,
+        )
+        self.RenameFolder = channel.unary_unary(
+            "/file.File/RenameFolder",
+            request_serializer=file__pb2.RenameFolderRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.MoveFolder = channel.unary_unary(
+            "/file.File/MoveFolder",
+            request_serializer=file__pb2.MoveFolderRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.DeleteFolders = channel.unary_unary(
+            "/file.File/DeleteFolders",
+            request_serializer=file__pb2.DeleteFoldersRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
         self.UploadFile = channel.unary_unary(
             "/file.File/UploadFile",
             request_serializer=file__pb2.UploadFileRequest.SerializeToString,
-            response_deserializer=file__pb2.FileURLResponse.FromString,
-            _registered_method=True,
-        )
-        self.FileInfo = channel.unary_unary(
-            "/file.File/FileInfo",
-            request_serializer=file__pb2.FileOperationRequest.SerializeToString,
-            response_deserializer=file__pb2.FileInfoResponse.FromString,
-            _registered_method=True,
-        )
-        self.FileList = channel.unary_unary(
-            "/file.File/FileList",
-            request_serializer=file__pb2.UserId.SerializeToString,
-            response_deserializer=file__pb2.FileListResponse.FromString,
+            response_deserializer=file__pb2.FileURL.FromString,
             _registered_method=True,
         )
         self.DownloadFile = channel.unary_unary(
             "/file.File/DownloadFile",
-            request_serializer=file__pb2.FileOperationRequest.SerializeToString,
-            response_deserializer=file__pb2.FileURLResponse.FromString,
+            request_serializer=file__pb2.FileRef.SerializeToString,
+            response_deserializer=file__pb2.FileURL.FromString,
+            _registered_method=True,
+        )
+        self.RenameFile = channel.unary_unary(
+            "/file.File/RenameFile",
+            request_serializer=file__pb2.RenameFileRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.MoveFile = channel.unary_unary(
+            "/file.File/MoveFile",
+            request_serializer=file__pb2.MoveFileRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.DeleteFiles = channel.unary_unary(
@@ -70,36 +112,72 @@ class FileStub(object):
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
-        self.DeleteAllFiles = channel.unary_unary(
-            "/file.File/DeleteAllFiles",
-            request_serializer=file__pb2.UserId.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            _registered_method=True,
-        )
 
 
 class FileServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def Register(self, request, context):
+        """User"""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def DeleteProfile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def CreateFolder(self, request, context):
+        """Folder"""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def ListFolder(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def RenameFolder(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def MoveFolder(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def DeleteFolders(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
     def UploadFile(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details("Method not implemented!")
-        raise NotImplementedError("Method not implemented!")
-
-    def FileInfo(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details("Method not implemented!")
-        raise NotImplementedError("Method not implemented!")
-
-    def FileList(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """File"""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
     def DownloadFile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def RenameFile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def MoveFile(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -111,43 +189,67 @@ class FileServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def DeleteAllFiles(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details("Method not implemented!")
-        raise NotImplementedError("Method not implemented!")
-
 
 def add_FileServicer_to_server(servicer, server):
     rpc_method_handlers = {
+        "Register": grpc.unary_unary_rpc_method_handler(
+            servicer.Register,
+            request_deserializer=file__pb2.UserId.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "DeleteProfile": grpc.unary_unary_rpc_method_handler(
+            servicer.DeleteProfile,
+            request_deserializer=file__pb2.UserId.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "CreateFolder": grpc.unary_unary_rpc_method_handler(
+            servicer.CreateFolder,
+            request_deserializer=file__pb2.CreateFolderRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "ListFolder": grpc.unary_unary_rpc_method_handler(
+            servicer.ListFolder,
+            request_deserializer=file__pb2.ListFolderRequest.FromString,
+            response_serializer=file__pb2.ListFolderResponse.SerializeToString,
+        ),
+        "RenameFolder": grpc.unary_unary_rpc_method_handler(
+            servicer.RenameFolder,
+            request_deserializer=file__pb2.RenameFolderRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "MoveFolder": grpc.unary_unary_rpc_method_handler(
+            servicer.MoveFolder,
+            request_deserializer=file__pb2.MoveFolderRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "DeleteFolders": grpc.unary_unary_rpc_method_handler(
+            servicer.DeleteFolders,
+            request_deserializer=file__pb2.DeleteFoldersRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
         "UploadFile": grpc.unary_unary_rpc_method_handler(
             servicer.UploadFile,
             request_deserializer=file__pb2.UploadFileRequest.FromString,
-            response_serializer=file__pb2.FileURLResponse.SerializeToString,
-        ),
-        "FileInfo": grpc.unary_unary_rpc_method_handler(
-            servicer.FileInfo,
-            request_deserializer=file__pb2.FileOperationRequest.FromString,
-            response_serializer=file__pb2.FileInfoResponse.SerializeToString,
-        ),
-        "FileList": grpc.unary_unary_rpc_method_handler(
-            servicer.FileList,
-            request_deserializer=file__pb2.UserId.FromString,
-            response_serializer=file__pb2.FileListResponse.SerializeToString,
+            response_serializer=file__pb2.FileURL.SerializeToString,
         ),
         "DownloadFile": grpc.unary_unary_rpc_method_handler(
             servicer.DownloadFile,
-            request_deserializer=file__pb2.FileOperationRequest.FromString,
-            response_serializer=file__pb2.FileURLResponse.SerializeToString,
+            request_deserializer=file__pb2.FileRef.FromString,
+            response_serializer=file__pb2.FileURL.SerializeToString,
+        ),
+        "RenameFile": grpc.unary_unary_rpc_method_handler(
+            servicer.RenameFile,
+            request_deserializer=file__pb2.RenameFileRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "MoveFile": grpc.unary_unary_rpc_method_handler(
+            servicer.MoveFile,
+            request_deserializer=file__pb2.MoveFileRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "DeleteFiles": grpc.unary_unary_rpc_method_handler(
             servicer.DeleteFiles,
             request_deserializer=file__pb2.DeleteFilesRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-        ),
-        "DeleteAllFiles": grpc.unary_unary_rpc_method_handler(
-            servicer.DeleteAllFiles,
-            request_deserializer=file__pb2.UserId.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
     }
@@ -161,6 +263,216 @@ def add_FileServicer_to_server(servicer, server):
 # This class is part of an EXPERIMENTAL API.
 class File(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Register(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/Register",
+            file__pb2.UserId.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def DeleteProfile(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/DeleteProfile",
+            file__pb2.UserId.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def CreateFolder(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/CreateFolder",
+            file__pb2.CreateFolderRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def ListFolder(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/ListFolder",
+            file__pb2.ListFolderRequest.SerializeToString,
+            file__pb2.ListFolderResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def RenameFolder(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/RenameFolder",
+            file__pb2.RenameFolderRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def MoveFolder(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/MoveFolder",
+            file__pb2.MoveFolderRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def DeleteFolders(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/DeleteFolders",
+            file__pb2.DeleteFoldersRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
 
     @staticmethod
     def UploadFile(
@@ -180,67 +492,7 @@ class File(object):
             target,
             "/file.File/UploadFile",
             file__pb2.UploadFileRequest.SerializeToString,
-            file__pb2.FileURLResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True,
-        )
-
-    @staticmethod
-    def FileInfo(
-        request,
-        target,
-        options=(),
-        channel_credentials=None,
-        call_credentials=None,
-        insecure=False,
-        compression=None,
-        wait_for_ready=None,
-        timeout=None,
-        metadata=None,
-    ):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            "/file.File/FileInfo",
-            file__pb2.FileOperationRequest.SerializeToString,
-            file__pb2.FileInfoResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True,
-        )
-
-    @staticmethod
-    def FileList(
-        request,
-        target,
-        options=(),
-        channel_credentials=None,
-        call_credentials=None,
-        insecure=False,
-        compression=None,
-        wait_for_ready=None,
-        timeout=None,
-        metadata=None,
-    ):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            "/file.File/FileList",
-            file__pb2.UserId.SerializeToString,
-            file__pb2.FileListResponse.FromString,
+            file__pb2.FileURL.FromString,
             options,
             channel_credentials,
             insecure,
@@ -269,8 +521,68 @@ class File(object):
             request,
             target,
             "/file.File/DownloadFile",
-            file__pb2.FileOperationRequest.SerializeToString,
-            file__pb2.FileURLResponse.FromString,
+            file__pb2.FileRef.SerializeToString,
+            file__pb2.FileURL.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def RenameFile(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/RenameFile",
+            file__pb2.RenameFileRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def MoveFile(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/MoveFile",
+            file__pb2.MoveFileRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -300,36 +612,6 @@ class File(object):
             target,
             "/file.File/DeleteFiles",
             file__pb2.DeleteFilesRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True,
-        )
-
-    @staticmethod
-    def DeleteAllFiles(
-        request,
-        target,
-        options=(),
-        channel_credentials=None,
-        call_credentials=None,
-        insecure=False,
-        compression=None,
-        wait_for_ready=None,
-        timeout=None,
-        metadata=None,
-    ):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            "/file.File/DeleteAllFiles",
-            file__pb2.UserId.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
