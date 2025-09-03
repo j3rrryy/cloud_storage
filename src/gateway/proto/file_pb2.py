@@ -23,7 +23,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\nfile.proto\x12\x04\x66ile\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto"7\n\x12\x44\x65leteFilesRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ile_ids\x18\x02 \x03(\t"{\n\x10\x46ileInfoResponse\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04path\x18\x03 \x01(\t\x12\x0c\n\x04size\x18\x04 \x01(\x04\x12,\n\x08uploaded\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"9\n\x10\x46ileListResponse\x12%\n\x05\x66iles\x18\x01 \x03(\x0b\x32\x16.file.FileInfoResponse"8\n\x14\x46ileOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t"\x1e\n\x0f\x46ileURLResponse\x12\x0b\n\x03url\x18\x01 \x01(\t"N\n\x11UploadFileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04path\x18\x03 \x01(\t\x12\x0c\n\x04size\x18\x04 \x01(\x04"\x19\n\x06UserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t2\xf2\x02\n\x04\x46ile\x12<\n\nUploadFile\x12\x17.file.UploadFileRequest\x1a\x15.file.FileURLResponse\x12>\n\x08\x46ileInfo\x12\x1a.file.FileOperationRequest\x1a\x16.file.FileInfoResponse\x12\x30\n\x08\x46ileList\x12\x0c.file.UserId\x1a\x16.file.FileListResponse\x12\x41\n\x0c\x44ownloadFile\x12\x1a.file.FileOperationRequest\x1a\x15.file.FileURLResponse\x12?\n\x0b\x44\x65leteFiles\x12\x18.file.DeleteFilesRequest\x1a\x16.google.protobuf.Empty\x12\x36\n\x0e\x44\x65leteAllFiles\x12\x0c.file.UserId\x1a\x16.google.protobuf.Emptyb\x06proto3'
+    b'\n\nfile.proto\x12\x04\x66ile\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto"\x19\n\x06UserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t"D\n\x13\x43reateFolderRequest\x12\x1f\n\x06\x66older\x18\x01 \x01(\x0b\x32\x0f.file.FolderRef\x12\x0c\n\x04name\x18\x02 \x01(\t"/\n\tFolderRef\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x11\n\tfolder_id\x18\x02 \x01(\t"W\n\x11ListFolderRequest\x12\x1f\n\x06\x66older\x18\x01 \x01(\x0b\x32\x0f.file.FolderRef\x12\x11\n\tpage_size\x18\x02 \x01(\x05\x12\x0e\n\x06\x63ursor\x18\x03 \x01(\t"G\n\x12ListFolderResponse\x12\x1c\n\x07\x65ntries\x18\x01 \x03(\x0b\x32\x0b.file.Entry\x12\x13\n\x0bnext_cursor\x18\x02 \x01(\t"w\n\x05\x45ntry\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12#\n\tfile_data\x18\x03 \x01(\x0b\x32\x0e.file.FileDataH\x00\x12\'\n\x0b\x66older_data\x18\x04 \x01(\x0b\x32\x10.file.FolderDataH\x00\x42\x06\n\x04\x64\x61ta"\x1f\n\nFolderData\x12\x11\n\tparent_id\x18\x01 \x01(\t"y\n\x08\x46ileData\x12\x0c\n\x04size\x18\x01 \x01(\x04\x12/\n\x0buploaded_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"H\n\x13RenameFolderRequest\x12\x1f\n\x06\x66older\x18\x01 \x01(\x0b\x32\x0f.file.FolderRef\x12\x10\n\x08new_name\x18\x02 \x01(\t"R\n\x11MoveFolderRequest\x12\x1f\n\x06\x66older\x18\x01 \x01(\x0b\x32\x0f.file.FolderRef\x12\x1c\n\x14new_parent_folder_id\x18\x02 \x01(\t";\n\x14\x44\x65leteFoldersRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x12\n\nfolder_ids\x18\x02 \x03(\t"P\n\x11UploadFileRequest\x12\x1f\n\x06\x66older\x18\x01 \x01(\x0b\x32\x0f.file.FolderRef\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x04"\x16\n\x07\x46ileURL\x12\x0b\n\x03url\x18\x01 \x01(\t";\n\x07\x46ileRef\x12\x1f\n\x06\x66older\x18\x01 \x01(\x0b\x32\x0f.file.FolderRef\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t"B\n\x11RenameFileRequest\x12\x1b\n\x04\x66ile\x18\x01 \x01(\x0b\x32\r.file.FileRef\x12\x10\n\x08new_name\x18\x02 \x01(\t"E\n\x0fMoveFileRequest\x12\x1b\n\x04\x66ile\x18\x01 \x01(\x0b\x32\r.file.FileRef\x12\x15\n\rnew_folder_id\x18\x02 \x01(\t"7\n\x12\x44\x65leteFilesRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ile_ids\x18\x02 \x03(\t2\xd9\x05\n\x04\x46ile\x12\x30\n\x08Register\x12\x0c.file.UserId\x1a\x16.google.protobuf.Empty\x12\x35\n\rDeleteProfile\x12\x0c.file.UserId\x1a\x16.google.protobuf.Empty\x12\x41\n\x0c\x43reateFolder\x12\x19.file.CreateFolderRequest\x1a\x16.google.protobuf.Empty\x12?\n\nListFolder\x12\x17.file.ListFolderRequest\x1a\x18.file.ListFolderResponse\x12\x41\n\x0cRenameFolder\x12\x19.file.RenameFolderRequest\x1a\x16.google.protobuf.Empty\x12=\n\nMoveFolder\x12\x17.file.MoveFolderRequest\x1a\x16.google.protobuf.Empty\x12\x43\n\rDeleteFolders\x12\x1a.file.DeleteFoldersRequest\x1a\x16.google.protobuf.Empty\x12\x34\n\nUploadFile\x12\x17.file.UploadFileRequest\x1a\r.file.FileURL\x12,\n\x0c\x44ownloadFile\x12\r.file.FileRef\x1a\r.file.FileURL\x12=\n\nRenameFile\x12\x17.file.RenameFileRequest\x1a\x16.google.protobuf.Empty\x12\x39\n\x08MoveFile\x12\x15.file.MoveFileRequest\x1a\x16.google.protobuf.Empty\x12?\n\x0b\x44\x65leteFiles\x12\x18.file.DeleteFilesRequest\x1a\x16.google.protobuf.Emptyb\x06proto3'
 )
 
 _globals = globals()
@@ -31,20 +31,40 @@ _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "file_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
-    _globals["_DELETEFILESREQUEST"]._serialized_start = 82
-    _globals["_DELETEFILESREQUEST"]._serialized_end = 137
-    _globals["_FILEINFORESPONSE"]._serialized_start = 139
-    _globals["_FILEINFORESPONSE"]._serialized_end = 262
-    _globals["_FILELISTRESPONSE"]._serialized_start = 264
-    _globals["_FILELISTRESPONSE"]._serialized_end = 321
-    _globals["_FILEOPERATIONREQUEST"]._serialized_start = 323
-    _globals["_FILEOPERATIONREQUEST"]._serialized_end = 379
-    _globals["_FILEURLRESPONSE"]._serialized_start = 381
-    _globals["_FILEURLRESPONSE"]._serialized_end = 411
-    _globals["_UPLOADFILEREQUEST"]._serialized_start = 413
-    _globals["_UPLOADFILEREQUEST"]._serialized_end = 491
-    _globals["_USERID"]._serialized_start = 493
-    _globals["_USERID"]._serialized_end = 518
-    _globals["_FILE"]._serialized_start = 521
-    _globals["_FILE"]._serialized_end = 891
+    _globals["_USERID"]._serialized_start = 82
+    _globals["_USERID"]._serialized_end = 107
+    _globals["_CREATEFOLDERREQUEST"]._serialized_start = 109
+    _globals["_CREATEFOLDERREQUEST"]._serialized_end = 177
+    _globals["_FOLDERREF"]._serialized_start = 179
+    _globals["_FOLDERREF"]._serialized_end = 226
+    _globals["_LISTFOLDERREQUEST"]._serialized_start = 228
+    _globals["_LISTFOLDERREQUEST"]._serialized_end = 315
+    _globals["_LISTFOLDERRESPONSE"]._serialized_start = 317
+    _globals["_LISTFOLDERRESPONSE"]._serialized_end = 388
+    _globals["_ENTRY"]._serialized_start = 390
+    _globals["_ENTRY"]._serialized_end = 509
+    _globals["_FOLDERDATA"]._serialized_start = 511
+    _globals["_FOLDERDATA"]._serialized_end = 542
+    _globals["_FILEDATA"]._serialized_start = 544
+    _globals["_FILEDATA"]._serialized_end = 665
+    _globals["_RENAMEFOLDERREQUEST"]._serialized_start = 667
+    _globals["_RENAMEFOLDERREQUEST"]._serialized_end = 739
+    _globals["_MOVEFOLDERREQUEST"]._serialized_start = 741
+    _globals["_MOVEFOLDERREQUEST"]._serialized_end = 823
+    _globals["_DELETEFOLDERSREQUEST"]._serialized_start = 825
+    _globals["_DELETEFOLDERSREQUEST"]._serialized_end = 884
+    _globals["_UPLOADFILEREQUEST"]._serialized_start = 886
+    _globals["_UPLOADFILEREQUEST"]._serialized_end = 966
+    _globals["_FILEURL"]._serialized_start = 968
+    _globals["_FILEURL"]._serialized_end = 990
+    _globals["_FILEREF"]._serialized_start = 992
+    _globals["_FILEREF"]._serialized_end = 1051
+    _globals["_RENAMEFILEREQUEST"]._serialized_start = 1053
+    _globals["_RENAMEFILEREQUEST"]._serialized_end = 1119
+    _globals["_MOVEFILEREQUEST"]._serialized_start = 1121
+    _globals["_MOVEFILEREQUEST"]._serialized_end = 1190
+    _globals["_DELETEFILESREQUEST"]._serialized_start = 1192
+    _globals["_DELETEFILESREQUEST"]._serialized_end = 1247
+    _globals["_FILE"]._serialized_start = 1250
+    _globals["_FILE"]._serialized_end = 1979
 # @@protoc_insertion_point(module_scope)
