@@ -13,7 +13,9 @@ class Folder(Base):
     __tablename__ = "folders"
 
     folder_id: Mapped[str] = mapped_column(UUID(False), primary_key=True, default=uuid4)
-    user_id: Mapped[str] = mapped_column(UUID(False), index=True, nullable=False)
+    user_id: Mapped[str] = mapped_column(
+        UUID(False), index=True, nullable=False, server_default=""
+    )
     parent_id: Mapped[Optional[str]] = mapped_column(
         UUID(False),
         sa.ForeignKey("folders.folder_id", ondelete="CASCADE"),

@@ -10,6 +10,26 @@ from storage import FileStorage
 
 class FileService:
     @staticmethod
+    async def register(user_id: str) -> None:
+        await FileRepository.register(user_id)  # type: ignore
+
+    @staticmethod
+    async def delete_profile(user_id: str) -> None:
+        await FileRepository.delete_profile(user_id)  # type: ignore
+
+    @staticmethod
+    async def create_folder(user_id: str) -> None: ...
+
+    @staticmethod
+    async def list_folder(user_id: str) -> None: ...
+
+    @staticmethod
+    async def rename_folder(user_id: str) -> None: ...
+
+    @staticmethod
+    async def delete_folders(user_id: str) -> None: ...
+
+    @staticmethod
     async def upload_file(data: request_dto.UploadFileRequestDTO) -> str:
         data = data.replace(size=int(data.size), path=data.path + data.name)
         await cache.delete(f"file-list:{data.user_id}")

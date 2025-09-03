@@ -24,7 +24,7 @@ def upgrade() -> None:
         sa.Column("folder_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("user_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("parent_id", sa.UUID(as_uuid=False), nullable=True),
-        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False, server_default=""),
         sa.ForeignKeyConstraint(
             ["parent_id"], ["folders.folder_id"], ondelete="CASCADE"
         ),

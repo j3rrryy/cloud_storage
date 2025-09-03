@@ -8,25 +8,26 @@ from utils import ExceptionHandler
 
 
 class FileController(FileServicer):
+    async def Register(self, request, context):
+        await ExceptionHandler.handle(context, FileService.register, request.user_id)
+
+    async def DeleteProfile(self, request, context):
+        await ExceptionHandler.handle(
+            context, FileService.delete_profile, request.user_id
+        )
+
+    async def CreateFolder(self, request, context): ...
+    async def ListFolder(self, request, context): ...
+    async def RenameFolder(self, request, context): ...
+    async def MoveFolder(self, request, context): ...
+    async def DeleteFolders(self, request, context): ...
+
     async def UploadFile(self, request, context):
         dto = request_dto.UploadFileRequestDTO.from_request(request)
         upload_url = await ExceptionHandler.handle(
             context, FileService.upload_file, dto
         )
-        return pb2.FileURLResponse(url=upload_url)
-
-    async def FileInfo(self, request, context):
-        dto = request_dto.FileOperationRequestDTO.from_request(request)
-        info = await ExceptionHandler.handle(context, FileService.file_info, dto)
-        return info.to_response(pb2.FileInfoResponse)
-
-    async def FileList(self, request, context):
-        files = await ExceptionHandler.handle(
-            context, FileService.file_list, request.user_id
-        )
-        return pb2.FileListResponse(
-            files=(file.to_response(pb2.FileInfoResponse) for file in files)
-        )
+        return pb2.FileURL(url=upload_url)
 
     async def DownloadFile(self, request, context):
         dto = request_dto.FileOperationRequestDTO.from_request(request)
@@ -35,13 +36,10 @@ class FileController(FileServicer):
         )
         return pb2.FileURLResponse(url=file_url)
 
+    async def RenameFile(self, request, context): ...
+    async def MoveFile(self, request, context): ...
+
     async def DeleteFiles(self, request, context):
         dto = request_dto.DeleteFilesRequestDTO.from_request(request)
         await ExceptionHandler.handle(context, FileService.delete_files, dto)
-        return empty_pb2.Empty()
-
-    async def DeleteAllFiles(self, request, context):
-        await ExceptionHandler.handle(
-            context, FileService.delete_all_files, request.user_id
-        )
         return empty_pb2.Empty()
