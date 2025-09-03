@@ -7,17 +7,38 @@ from dto import request as request_dto
 from dto import response as response_dto
 from utils import with_transaction
 
-from .models import File
+from .models import File, Folder
 
 
 class FileRepository:
+    @staticmethod
+    @with_transaction
+    async def register(user_id: str, session: AsyncSession) -> None:
+        user_root_folder = Folder(user_id=user_id)
+        session.add(user_root_folder)
+
+        try:
+            await session.commit()
+        except IntegrityError as exc:
+            exc.args = (StatusCode.ALREADY_EXISTS, "User already exists")
+            raise exc
+
+    @staticmethod
+    @with_transaction
+    async def delete_profile(user_id: str, session: AsyncSession) -> None:
+        await session.execute(delete(Folder).filter(Folder.user_id == user_id))
+        await session.commit()
+
     @staticmethod
     @with_transaction
     async def upload_file(
         data: request_dto.UploadFileRequestDTO, session: AsyncSession
     ) -> None:
         new_file = File(
-            user_id=data.user_id, name=data.name, path=data.path, size=data.size
+            user_id=data.user_id,
+            name=data.name,
+            directory=data.directory,
+            size=data.size,
         )
         session.add(new_file)
 
@@ -41,11 +62,17 @@ class FileRepository:
 
     @staticmethod
     @with_transaction
-    async def file_list(
-        user_id: str, session: AsyncSession
+    async def list_directory(
+        user_id: str, directory: str, session: AsyncSession
     ) -> tuple[response_dto.FileInfoResponseDTO, ...]:
         files = (
-            (await session.execute(select(File).filter(File.user_id == user_id)))
+            (
+                await session.execute(
+                    select(File)
+                    .filter(File.user_id == user_id, File.directory == directory)
+                    .order_by(File.name)
+                )
+            )
             .scalars()
             .all()
         )
@@ -74,7 +101,9 @@ class FileRepository:
             raise FileNotFoundError(StatusCode.NOT_FOUND, "One or more files not found")
 
         return response_dto.DeleteFilesResponseDTO(
-            user_id=data.user_id, paths=[file.path for file in files]
+            file_paths=tuple(
+                f"{file.user_id}/{file.directory}/{file.name}" for file in files
+            ),
         )
 
     @staticmethod
