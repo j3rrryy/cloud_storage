@@ -141,6 +141,7 @@ services:
       - ./.env
     volumes:
       - ./create_buckets.sh:/create_buckets.sh
+      - ./lifecycle.json:/lifecycle.json
     networks:
       - file_network
     depends_on:
