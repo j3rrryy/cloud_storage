@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime as dt
 from datetime import timedelta
+from enum import Enum
 from functools import wraps
 from secrets import choice
 from typing import Awaitable, Callable, TypeVar
@@ -47,6 +48,10 @@ class ExceptionHandler:
             )
             await context.abort(status_code, details)  # type: ignore
             raise
+
+
+class ResetCodeStatus(Enum):
+    VALIDATED = "validated"
 
 
 def with_transaction(func):
@@ -141,3 +146,27 @@ def get_hashed_password(password: str) -> str:
 def convert_user_agent(user_agent: str) -> str:
     parsed_data = simple_detect(user_agent)
     return f"{parsed_data[1]}, {parsed_data[0]}"
+
+
+def user_profile_key(user_id: str) -> str:
+    return f"user:{user_id}:profile"
+
+
+def user_session_list_key(user_id: str) -> str:
+    return f"user:{user_id}:session_list"
+
+
+def user_reset_key(user_id: str) -> str:
+    return f"user:{user_id}:reset"
+
+
+def access_token_key(access_token: str) -> str:
+    return f"token:access:{access_token}"
+
+
+def user_all_keys(user_id: str) -> tuple[str, ...]:
+    return (
+        user_profile_key(user_id),
+        user_session_list_key(user_id),
+        user_reset_key(user_id),
+    )

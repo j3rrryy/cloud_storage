@@ -9,11 +9,17 @@ from enums import TokenTypes
 from exceptions import UnauthenticatedException
 from repository import AuthRepository
 from utils import (
+    ResetCodeStatus,
+    access_token_key,
     compare_passwords,
     convert_user_agent,
     generate_jwt,
     generate_reset_code,
     get_hashed_password,
+    user_all_keys,
+    user_profile_key,
+    user_reset_key,
+    user_session_list_key,
     validate_jwt,
     validate_jwt_and_get_user_id,
 )
@@ -37,32 +43,34 @@ class AuthService:
             verification_token, TokenTypes.VERIFICATION
         )
         await AuthRepository.verify_email(user_id)  # type: ignore
-        await cache.delete_many(f"auth:{user_id}", f"profile:{user_id}")
+        await cache.delete(user_profile_key(user_id))
 
     @staticmethod
     async def request_reset_code(email: str) -> response_dto.ResetCodeResponseDTO:
         profile = await AuthRepository.profile(email)  # type: ignore
         code = generate_reset_code()
-        await cache.set(f"reset:{profile.user_id}", code, 600)
+        await cache.set(user_reset_key(profile.user_id), code, 600)
         return response_dto.ResetCodeResponseDTO(
             profile.user_id, profile.username, code
         )
 
     @staticmethod
     async def validate_reset_code(data: request_dto.ResetCodeRequestDTO) -> bool:
-        code = await cache.get(f"reset:{data.user_id}")
+        reset_key = user_reset_key(data.user_id)
+        code = await cache.get(reset_key)
 
         if not code or data.code != code:
             return False
 
-        await cache.set(f"reset:{data.user_id}", "validated", 600)
+        await cache.set(reset_key, ResetCodeStatus.VALIDATED.value, 600)
         return True
 
     @classmethod
     async def reset_password(cls, data: request_dto.ResetPasswordRequestDTO) -> None:
-        code = await cache.get(f"reset:{data.user_id}")
+        reset_key = user_reset_key(data.user_id)
+        code = await cache.get(reset_key)
 
-        if not code or code != "validated":
+        if not code or code != ResetCodeStatus.VALIDATED.value:
             raise UnauthenticatedException(
                 StatusCode.UNAUTHENTICATED, "Code is not validated"
             )
@@ -70,7 +78,7 @@ class AuthService:
         data = data.replace(new_password=get_hashed_password(data.new_password))
         deleted_access_tokens = await AuthRepository.reset_password(data)  # type: ignore
         await cls._delete_cached_access_tokens(*deleted_access_tokens)
-        await cache.delete_many(f"session-list:{data.user_id}", f"reset:{data.user_id}")
+        await cache.delete_many(user_session_list_key(data.user_id), reset_key)
 
     @staticmethod
     async def log_in(
@@ -88,7 +96,7 @@ class AuthService:
         )
 
         await AuthRepository.log_in(dto)  # type: ignore
-        await cache.delete(f"session-list:{profile.user_id}")
+        await cache.delete(user_session_list_key(profile.user_id))
         return response_dto.LogInResponseDTO(
             access_token, refresh_token, profile.email, browser, profile.verified
         )
@@ -98,7 +106,7 @@ class AuthService:
         user_id = await cls._cached_access_token(access_token)
         await AuthRepository.log_out(access_token)  # type: ignore
         await cls._delete_cached_access_tokens(access_token)
-        await cache.delete(f"session-list:{user_id}")
+        await cache.delete(user_session_list_key(user_id))
 
     @classmethod
     async def resend_verification_mail(
@@ -135,7 +143,7 @@ class AuthService:
 
         deleted_access_token = await AuthRepository.refresh(dto)  # type: ignore
         await cls._delete_cached_access_tokens(deleted_access_token)
-        await cache.delete(f"session-list:{user_id}")
+        await cache.delete(user_session_list_key(user_id))
         return response_dto.RefreshResponseDTO(access_token, refresh_token)
 
     @classmethod
@@ -143,12 +151,13 @@ class AuthService:
         cls, access_token: str
     ) -> tuple[response_dto.SessionInfoResponseDTO, ...]:
         user_id = await cls._cached_access_token(access_token)
+        session_list_key = user_session_list_key(user_id)
 
-        if cached := await cache.get(f"session-list:{user_id}"):
+        if cached := await cache.get(session_list_key):
             return cached
 
         sessions = await AuthRepository.session_list(user_id)  # type: ignore
-        await cache.set(f"session-list:{user_id}", sessions, 3600)
+        await cache.set(session_list_key, sessions, 3600)
         return sessions
 
     @classmethod
@@ -156,17 +165,18 @@ class AuthService:
         user_id = await cls._cached_access_token(data.access_token)
         deleted_access_token = await AuthRepository.revoke_session(data.session_id)  # type: ignore
         await cls._delete_cached_access_tokens(deleted_access_token)
-        await cache.delete(f"session-list:{user_id}")
+        await cache.delete(user_session_list_key(user_id))
 
     @classmethod
     async def profile(cls, access_token: str) -> response_dto.ProfileResponseDTO:
         user_id = await cls._cached_access_token(access_token)
+        profile_key = user_profile_key(user_id)
 
-        if cached := await cache.get(f"profile:{user_id}"):
+        if cached := await cache.get(profile_key):
             return cached
 
         profile = await AuthRepository.profile(user_id)  # type: ignore
-        await cache.set(f"profile:{user_id}", profile, 3600)
+        await cache.set(profile_key, profile, 3600)
         return profile
 
     @classmethod
@@ -179,7 +189,7 @@ class AuthService:
         )
 
         username = await AuthRepository.update_email(dto)  # type: ignore
-        await cache.delete_many(f"auth:{user_id}", f"profile:{user_id}")
+        await cache.delete(user_profile_key(user_id))
         verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
         return response_dto.VerificationMailResponseDTO(
             verification_token, username, data.new_email
@@ -202,12 +212,13 @@ class AuthService:
         user_id = await cls._cached_access_token(access_token)
         deleted_access_tokens = await AuthRepository.delete_profile(user_id)  # type: ignore
         await cls._delete_cached_access_tokens(*deleted_access_tokens)
-        await cache.delete_match(rf"\w+:{user_id}")
+        await cache.delete_many(*user_all_keys(user_id))
         return user_id
 
     @classmethod
     async def _cached_access_token(cls, access_token: str) -> str:
-        if cached := await cache.get(f"access-token:{access_token}"):
+        key = access_token_key(access_token)
+        if cached := await cache.get(key):
             return cached
 
         jwt = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
@@ -215,12 +226,12 @@ class AuthService:
 
         ttl = max(0, jwt.exp - int(time()) - cls.CACHE_SAFETY_MARGIN)
         if ttl > cls.MIN_CACHE_TTL:
-            await cache.set(f"access-token:{access_token}", jwt.subject, ttl)
+            await cache.set(key, jwt.subject, ttl)
 
         return jwt.subject
 
     @staticmethod
     async def _delete_cached_access_tokens(*access_tokens: str) -> None:
         if access_tokens:
-            keys = (f"access-token:{access_token}" for access_token in access_tokens)
+            keys = (access_token_key(access_token) for access_token in access_tokens)
             await cache.delete_many(*keys)

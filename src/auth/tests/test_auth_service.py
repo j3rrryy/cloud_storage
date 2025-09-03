@@ -7,6 +7,7 @@ from grpc import StatusCode
 from dto import request as request_dto
 from dto import response as response_dto
 from service import AuthService
+from utils import ResetCodeStatus, access_token_key
 
 from .mocks import (
     ACCESS_TOKEN,
@@ -42,7 +43,7 @@ async def test_verify_email(mock_jwt_validator, mock_cache, mock_repository):
     await AuthService.verify_email(VERIFICATION_TOKEN)
     mock_jwt_validator.assert_called_once()
     mock_repository.verify_email.assert_awaited_once()
-    mock_cache.delete_many.assert_awaited_once()
+    mock_cache.delete.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -84,7 +85,7 @@ async def test_reset_password(
     mock_delete_cached_access_tokens, mock_cache, mock_repository
 ):
     dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
-    mock_cache.get.return_value = "validated"
+    mock_cache.get.return_value = ResetCodeStatus.VALIDATED.value
     await AuthService.reset_password(dto)
 
     mock_cache.get.assert_awaited_once()
@@ -276,7 +277,7 @@ async def test_update_email(
     assert isinstance(response, response_dto.VerificationMailResponseDTO)
     mock_cached_access_token.assert_awaited_once()
     mock_repository.update_email.assert_awaited_once()
-    mock_cache.delete_many.assert_awaited_once()
+    mock_cache.delete.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -301,7 +302,7 @@ async def test_delete_profile(mock_cached_access_token, mock_cache, mock_reposit
     assert response == USER_ID
     mock_cached_access_token.assert_awaited_once()
     mock_repository.delete_profile.assert_awaited_once()
-    mock_cache.delete_match.assert_awaited_once()
+    mock_cache.delete_many.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -360,7 +361,7 @@ async def test_cached_access_token_cached(mock_cache):
 async def test_delete_cached_access_tokens(mock_cache):
     await AuthService._delete_cached_access_tokens(ACCESS_TOKEN)
 
-    mock_cache.delete_many.assert_awaited_once_with(f"access-token:{ACCESS_TOKEN}")
+    mock_cache.delete_many.assert_awaited_once_with(access_token_key(ACCESS_TOKEN))
 
 
 @pytest.mark.asyncio
