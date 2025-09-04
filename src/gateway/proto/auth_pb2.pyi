@@ -13,11 +13,57 @@ from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class AccessToken(_message.Message):
-    __slots__ = ("access_token",)
-    ACCESS_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    access_token: str
-    def __init__(self, access_token: _Optional[str] = ...) -> None: ...
+class RegisterRequest(_message.Message):
+    __slots__ = ("username", "email", "password")
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    EMAIL_FIELD_NUMBER: _ClassVar[int]
+    PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    username: str
+    email: str
+    password: str
+    def __init__(
+        self,
+        username: _Optional[str] = ...,
+        email: _Optional[str] = ...,
+        password: _Optional[str] = ...,
+    ) -> None: ...
+
+class VerificationToken(_message.Message):
+    __slots__ = ("verification_token",)
+    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
+    verification_token: str
+    def __init__(self, verification_token: _Optional[str] = ...) -> None: ...
+
+class Email(_message.Message):
+    __slots__ = ("email",)
+    EMAIL_FIELD_NUMBER: _ClassVar[int]
+    email: str
+    def __init__(self, email: _Optional[str] = ...) -> None: ...
+
+class ResetCodeResponse(_message.Message):
+    __slots__ = ("user_id", "username", "code")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    username: str
+    code: str
+    def __init__(
+        self,
+        user_id: _Optional[str] = ...,
+        username: _Optional[str] = ...,
+        code: _Optional[str] = ...,
+    ) -> None: ...
+
+class ResetCodeRequest(_message.Message):
+    __slots__ = ("user_id", "code")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    code: str
+    def __init__(
+        self, user_id: _Optional[str] = ..., code: _Optional[str] = ...
+    ) -> None: ...
 
 class CodeIsValid(_message.Message):
     __slots__ = ("is_valid",)
@@ -25,11 +71,33 @@ class CodeIsValid(_message.Message):
     is_valid: bool
     def __init__(self, is_valid: bool = ...) -> None: ...
 
-class Email(_message.Message):
-    __slots__ = ("email",)
-    EMAIL_FIELD_NUMBER: _ClassVar[int]
-    email: str
-    def __init__(self, email: _Optional[str] = ...) -> None: ...
+class ResetPasswordRequest(_message.Message):
+    __slots__ = ("user_id", "new_password")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    NEW_PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    new_password: str
+    def __init__(
+        self, user_id: _Optional[str] = ..., new_password: _Optional[str] = ...
+    ) -> None: ...
+
+class LogInRequest(_message.Message):
+    __slots__ = ("username", "password", "user_ip", "user_agent")
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    USER_IP_FIELD_NUMBER: _ClassVar[int]
+    USER_AGENT_FIELD_NUMBER: _ClassVar[int]
+    username: str
+    password: str
+    user_ip: str
+    user_agent: str
+    def __init__(
+        self,
+        username: _Optional[str] = ...,
+        password: _Optional[str] = ...,
+        user_ip: _Optional[str] = ...,
+        user_agent: _Optional[str] = ...,
+    ) -> None: ...
 
 class LogInResponse(_message.Message):
     __slots__ = ("access_token", "refresh_token", "email", "browser", "verified")
@@ -52,46 +120,32 @@ class LogInResponse(_message.Message):
         verified: bool = ...,
     ) -> None: ...
 
-class LogInRequest(_message.Message):
-    __slots__ = ("username", "password", "user_ip", "user_agent")
-    USERNAME_FIELD_NUMBER: _ClassVar[int]
-    PASSWORD_FIELD_NUMBER: _ClassVar[int]
-    USER_IP_FIELD_NUMBER: _ClassVar[int]
-    USER_AGENT_FIELD_NUMBER: _ClassVar[int]
-    username: str
-    password: str
-    user_ip: str
-    user_agent: str
-    def __init__(
-        self,
-        username: _Optional[str] = ...,
-        password: _Optional[str] = ...,
-        user_ip: _Optional[str] = ...,
-        user_agent: _Optional[str] = ...,
-    ) -> None: ...
+class AccessToken(_message.Message):
+    __slots__ = ("access_token",)
+    ACCESS_TOKEN_FIELD_NUMBER: _ClassVar[int]
+    access_token: str
+    def __init__(self, access_token: _Optional[str] = ...) -> None: ...
 
-class ProfileResponse(_message.Message):
-    __slots__ = ("user_id", "username", "email", "verified", "registered_at")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
+class VerificationMail(_message.Message):
+    __slots__ = ("verification_token", "username", "email")
+    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
-    VERIFIED_FIELD_NUMBER: _ClassVar[int]
-    REGISTERED_AT_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
+    verification_token: str
     username: str
     email: str
-    verified: bool
-    registered_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
-        user_id: _Optional[str] = ...,
+        verification_token: _Optional[str] = ...,
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
-        verified: bool = ...,
-        registered_at: _Optional[
-            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
-        ] = ...,
     ) -> None: ...
+
+class UserId(_message.Message):
+    __slots__ = ("user_id",)
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    def __init__(self, user_id: _Optional[str] = ...) -> None: ...
 
 class RefreshRequest(_message.Message):
     __slots__ = ("refresh_token", "user_ip", "user_agent")
@@ -108,64 +162,14 @@ class RefreshRequest(_message.Message):
         user_agent: _Optional[str] = ...,
     ) -> None: ...
 
-class RegisterRequest(_message.Message):
-    __slots__ = ("username", "email", "password")
-    USERNAME_FIELD_NUMBER: _ClassVar[int]
-    EMAIL_FIELD_NUMBER: _ClassVar[int]
-    PASSWORD_FIELD_NUMBER: _ClassVar[int]
-    username: str
-    email: str
-    password: str
-    def __init__(
-        self,
-        username: _Optional[str] = ...,
-        email: _Optional[str] = ...,
-        password: _Optional[str] = ...,
-    ) -> None: ...
-
-class ResetCodeRequest(_message.Message):
-    __slots__ = ("user_id", "code")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    CODE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    code: str
-    def __init__(
-        self, user_id: _Optional[str] = ..., code: _Optional[str] = ...
-    ) -> None: ...
-
-class ResetCodeResponse(_message.Message):
-    __slots__ = ("user_id", "username", "code")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    USERNAME_FIELD_NUMBER: _ClassVar[int]
-    CODE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    username: str
-    code: str
-    def __init__(
-        self,
-        user_id: _Optional[str] = ...,
-        username: _Optional[str] = ...,
-        code: _Optional[str] = ...,
-    ) -> None: ...
-
-class ResetPasswordRequest(_message.Message):
-    __slots__ = ("user_id", "new_password")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    NEW_PASSWORD_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    new_password: str
-    def __init__(
-        self, user_id: _Optional[str] = ..., new_password: _Optional[str] = ...
-    ) -> None: ...
-
-class RevokeSessionRequest(_message.Message):
-    __slots__ = ("access_token", "session_id")
+class Tokens(_message.Message):
+    __slots__ = ("access_token", "refresh_token")
     ACCESS_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    SESSION_ID_FIELD_NUMBER: _ClassVar[int]
+    REFRESH_TOKEN_FIELD_NUMBER: _ClassVar[int]
     access_token: str
-    session_id: str
+    refresh_token: str
     def __init__(
-        self, access_token: _Optional[str] = ..., session_id: _Optional[str] = ...
+        self, access_token: _Optional[str] = ..., refresh_token: _Optional[str] = ...
     ) -> None: ...
 
 class Sessions(_message.Message):
@@ -196,14 +200,37 @@ class SessionInfo(_message.Message):
         ] = ...,
     ) -> None: ...
 
-class Tokens(_message.Message):
-    __slots__ = ("access_token", "refresh_token")
+class RevokeSessionRequest(_message.Message):
+    __slots__ = ("access_token", "session_id")
     ACCESS_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    REFRESH_TOKEN_FIELD_NUMBER: _ClassVar[int]
+    SESSION_ID_FIELD_NUMBER: _ClassVar[int]
     access_token: str
-    refresh_token: str
+    session_id: str
     def __init__(
-        self, access_token: _Optional[str] = ..., refresh_token: _Optional[str] = ...
+        self, access_token: _Optional[str] = ..., session_id: _Optional[str] = ...
+    ) -> None: ...
+
+class ProfileResponse(_message.Message):
+    __slots__ = ("user_id", "username", "email", "verified", "registered_at")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    EMAIL_FIELD_NUMBER: _ClassVar[int]
+    VERIFIED_FIELD_NUMBER: _ClassVar[int]
+    REGISTERED_AT_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    username: str
+    email: str
+    verified: bool
+    registered_at: _timestamp_pb2.Timestamp
+    def __init__(
+        self,
+        user_id: _Optional[str] = ...,
+        username: _Optional[str] = ...,
+        email: _Optional[str] = ...,
+        verified: bool = ...,
+        registered_at: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...
 
 class UpdateEmailRequest(_message.Message):
@@ -230,30 +257,3 @@ class UpdatePasswordRequest(_message.Message):
         old_password: _Optional[str] = ...,
         new_password: _Optional[str] = ...,
     ) -> None: ...
-
-class UserId(_message.Message):
-    __slots__ = ("user_id",)
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    def __init__(self, user_id: _Optional[str] = ...) -> None: ...
-
-class VerificationMail(_message.Message):
-    __slots__ = ("verification_token", "username", "email")
-    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    USERNAME_FIELD_NUMBER: _ClassVar[int]
-    EMAIL_FIELD_NUMBER: _ClassVar[int]
-    verification_token: str
-    username: str
-    email: str
-    def __init__(
-        self,
-        verification_token: _Optional[str] = ...,
-        username: _Optional[str] = ...,
-        email: _Optional[str] = ...,
-    ) -> None: ...
-
-class VerificationToken(_message.Message):
-    __slots__ = ("verification_token",)
-    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    verification_token: str
-    def __init__(self, verification_token: _Optional[str] = ...) -> None: ...

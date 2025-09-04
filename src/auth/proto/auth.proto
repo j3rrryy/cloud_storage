@@ -24,16 +24,45 @@ service Auth {
   rpc DeleteProfile(AccessToken) returns (UserId);
 }
 
-message AccessToken {
-  string access_token = 1;
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message VerificationToken {
+  string verification_token = 1;
+}
+
+message Email {
+  string email = 1;
+}
+
+message ResetCodeResponse {
+  string user_id = 1;
+  string username = 2;
+  string code = 3;
+}
+
+message ResetCodeRequest {
+  string user_id = 1;
+  string code = 2;
 }
 
 message CodeIsValid {
   bool is_valid = 1;
 }
 
-message Email {
-  string email = 1;
+message ResetPasswordRequest {
+  string user_id = 1;
+  string new_password = 2;
+}
+
+message LogInRequest {
+  string username = 1;
+  string password = 2;
+  string user_ip = 3;
+  string user_agent = 4;
 }
 
 message LogInResponse {
@@ -44,19 +73,18 @@ message LogInResponse {
   bool verified = 5;
 }
 
-message LogInRequest {
-  string username = 1;
-  string password = 2;
-  string user_ip = 3;
-  string user_agent = 4;
+message AccessToken {
+  string access_token = 1;
 }
 
-message ProfileResponse {
-  string user_id = 1;
+message VerificationMail {
+  string verification_token = 1;
   string username = 2;
   string email = 3;
-  bool verified = 4;
-  google.protobuf.Timestamp registered_at = 5;
+}
+
+message UserId {
+  string user_id = 1;
 }
 
 message RefreshRequest {
@@ -65,31 +93,9 @@ message RefreshRequest {
   string user_agent = 3;
 }
 
-message RegisterRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
-}
-
-message ResetCodeRequest {
-  string user_id = 1;
-  string code = 2;
-}
-
-message ResetCodeResponse {
-  string user_id = 1;
-  string username = 2;
-  string code = 3;
-}
-
-message ResetPasswordRequest {
-  string user_id = 1;
-  string new_password = 2;
-}
-
-message RevokeSessionRequest {
+message Tokens {
   string access_token = 1;
-  string session_id = 2;
+  string refresh_token = 2;
 }
 
 message Sessions {
@@ -103,9 +109,17 @@ message SessionInfo {
   google.protobuf.Timestamp created_at = 4;
 }
 
-message Tokens {
+message RevokeSessionRequest {
   string access_token = 1;
-  string refresh_token = 2;
+  string session_id = 2;
+}
+
+message ProfileResponse {
+  string user_id = 1;
+  string username = 2;
+  string email = 3;
+  bool verified = 4;
+  google.protobuf.Timestamp registered_at = 5;
 }
 
 message UpdateEmailRequest {
@@ -117,18 +131,4 @@ message UpdatePasswordRequest {
   string access_token = 1;
   string old_password = 2;
   string new_password = 3;
-}
-
-message UserId {
-  string user_id = 1;
-}
-
-message VerificationMail {
-  string verification_token = 1;
-  string username = 2;
-  string email = 3;
-}
-
-message VerificationToken {
-  string verification_token = 1;
 }
