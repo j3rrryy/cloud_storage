@@ -261,9 +261,11 @@ services:
     env_file:
       - ./.env
     environment:
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/admin/grafana"
       GF_SERVER_SERVE_FROM_SUB_PATH: true
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
     networks:
       - nginx_network
       - main_network
