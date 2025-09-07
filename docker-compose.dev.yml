@@ -11,12 +11,11 @@ volumes:
   grafana_data:
 
 networks:
-  nginx_network:
-  main_network:
-  auth_network:
-  file_network:
-  mail_network:
-  grafana_network:
+  nginx:
+  backend:
+  auth:
+  file:
+  monitoring:
 
 
 services:
@@ -29,7 +28,7 @@ services:
     volumes:
       - ./dev/nginx.api.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
-      - nginx_network
+      - nginx
     depends_on:
       - gateway
     container_name: nginx_api_dev
@@ -43,7 +42,7 @@ services:
     volumes:
       - ./dev/nginx.all.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
-      - nginx_network
+      - nginx
     depends_on:
       - gateway
     container_name: nginx_all_dev
@@ -60,8 +59,8 @@ services:
     volumes:
       - ./src/gateway/:/src/gateway/
     networks:
-      - nginx_network
-      - main_network
+      - nginx
+      - backend
     depends_on:
       - auth
       - file
@@ -81,8 +80,8 @@ services:
     volumes:
       - ./src/auth/:/src/auth/
     networks:
-      - main_network
-      - auth_network
+      - backend
+      - auth
     depends_on:
       - auth_postgres
       - auth_redis
@@ -97,7 +96,7 @@ services:
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data/
     networks:
-      - auth_network
+      - auth
     hostname: postgres
     container_name: auth_postgres_dev
 
@@ -109,7 +108,7 @@ services:
       - auth_redis_data:/data/
       - ./dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
-      - auth_network
+      - auth
     hostname: redis
     command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     container_name: auth_redis_dev
@@ -127,8 +126,8 @@ services:
     volumes:
       - ./src/file/:/src/file/
     networks:
-      - main_network
-      - file_network
+      - backend
+      - file
     depends_on:
       - minio
       - file_postgres
@@ -151,9 +150,9 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - nginx_network
-      - file_network
-      - grafana_network
+      - nginx
+      - file
+      - monitoring
     command: server /data
     container_name: minio_dev
 
@@ -165,7 +164,7 @@ services:
     volumes:
       - ./dev/create_buckets.sh:/create_buckets.sh
     networks:
-      - file_network
+      - file
     depends_on:
       - minio
     entrypoint: bash ./create_buckets.sh
@@ -180,7 +179,7 @@ services:
     volumes:
       - file_postgres_data:/var/lib/postgresql/data/
     networks:
-      - file_network
+      - file
     hostname: postgres
     container_name: file_postgres_dev
 
@@ -192,7 +191,7 @@ services:
       - file_redis_data:/data/
       - ./dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
-      - file_network
+      - file
     hostname: redis
     command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     container_name: file_redis_dev
@@ -219,8 +218,7 @@ services:
       - kafka_data:/var/lib/kafka/data
       - kafka_secrets:/etc/kafka/secrets
     networks:
-      - main_network
-      - mail_network
+      - backend
     container_name: kafka_dev
 
   mail:
@@ -235,8 +233,7 @@ services:
     volumes:
       - ./src/mail/:/src/mail/
     networks:
-      - main_network
-      - mail_network
+      - backend
     depends_on:
       - kafka
     container_name: mail_dev
@@ -251,7 +248,7 @@ services:
       - loki_data:/loki
       - ./dev/loki.yml:/etc/loki/loki.yml:ro
     networks:
-      - grafana_network
+      - monitoring
     command: --config.file=/etc/loki/loki.yml --config.expand-env=true
     container_name: loki_dev
 
@@ -265,7 +262,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - ./dev/promtail.yml:/etc/promtail/docker-config.yml:ro
     networks:
-      - grafana_network
+      - monitoring
     depends_on:
       - loki
     command: --config.file=/etc/promtail/docker-config.yml
@@ -281,7 +278,8 @@ services:
       - prometheus_data:/prometheus
       - ./dev/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
-      - grafana_network
+      - backend
+      - monitoring
     command: --config.file=/etc/prometheus/prometheus.yml
     container_name: prometheus_dev
 
@@ -300,9 +298,8 @@ services:
       - grafana_data:/var/lib/grafana
       - ./dev/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
     networks:
-      - nginx_network
-      - main_network
-      - grafana_network
+      - nginx
+      - monitoring
     depends_on:
       - loki
       - promtail
