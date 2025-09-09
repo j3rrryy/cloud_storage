@@ -30,8 +30,12 @@ class Folder(Base):
         passive_deletes=True,
         remote_side=[folder_id],
     )
-    subfolders: Mapped[list["Folder"]] = relationship("Folder", back_populates="parent")
-    files: Mapped[list["File"]] = relationship("File", back_populates="folder")
+    subfolders: Mapped[list["Folder"]] = relationship(
+        "Folder", back_populates="parent", passive_deletes=True
+    )
+    files: Mapped[list["File"]] = relationship(
+        "File", back_populates="folder", passive_deletes=True
+    )
 
     __table_args__ = (
         sa.UniqueConstraint(user_id, parent_id, name),
