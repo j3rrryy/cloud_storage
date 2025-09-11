@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import uuid4
 
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import INET, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -41,7 +41,7 @@ class TokenPair(Base):
     refresh_token: Mapped[str] = mapped_column(
         sa.String(350), unique=True, nullable=False
     )
-    user_ip: Mapped[str] = mapped_column(INET, nullable=False)
+    user_ip: Mapped[str] = mapped_column(sa.String(45), nullable=False)
     browser: Mapped[str] = mapped_column(sa.String(150), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP(True), index=True, nullable=False, server_default=sa.func.now()

@@ -10,7 +10,6 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = "7b8c27dc79cf"
@@ -43,7 +42,7 @@ def upgrade() -> None:
         sa.Column("user_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("access_token", sa.String(length=350), nullable=False),
         sa.Column("refresh_token", sa.String(length=350), nullable=False),
-        sa.Column("user_ip", postgresql.INET(), nullable=False),
+        sa.Column("user_ip", sa.String(length=45), nullable=False),
         sa.Column("browser", sa.String(length=150), nullable=False),
         sa.Column(
             "created_at",
