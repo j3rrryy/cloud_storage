@@ -79,7 +79,7 @@ async def test_verify_email_not_user(mock_session):
         await AuthRepository.verify_email(USER_ID)  # type: ignore
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
-    assert exc_info.value.args[1] == "Token is invalid"
+    assert exc_info.value.args[1] == "Invalid credentials"
     mock_session.get.assert_awaited_once()
     mock_session.rollback.assert_awaited_once()
 

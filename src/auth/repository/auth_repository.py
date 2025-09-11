@@ -33,27 +33,19 @@ class AuthRepository:
         await session.refresh(new_user)
         return new_user.user_id
 
-    @staticmethod
+    @classmethod
     @with_transaction
-    async def verify_email(user_id: str, session: AsyncSession) -> None:
-        if not (user := await session.get(User, user_id)):
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Token is invalid"
-            )
-
+    async def verify_email(cls, user_id: str, session: AsyncSession) -> None:
+        user = await cls._get_user(user_id, session)
         user.verified = True
         await session.commit()
 
-    @staticmethod
+    @classmethod
     @with_transaction
     async def reset_password(
-        data: request_dto.ResetPasswordRequestDTO, session: AsyncSession
+        cls, data: request_dto.ResetPasswordRequestDTO, session: AsyncSession
     ) -> tuple[str, ...]:
-        if not (user := await session.get(User, data.user_id)):
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
-
+        user = await cls._get_user(data.user_id, session)
         user.password = data.new_password
         deleted_access_tokens = tuple(
             await session.scalars(
@@ -210,16 +202,12 @@ class AuthRepository:
             )
         return response_dto.ProfileResponseDTO.from_model(user)
 
-    @staticmethod
+    @classmethod
     @with_transaction
     async def update_email(
-        data: request_dto.UpdateEmailDataRequestDTO, session: AsyncSession
+        cls, data: request_dto.UpdateEmailDataRequestDTO, session: AsyncSession
     ) -> str:
-        if not (user := await session.get(User, data.user_id)):
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
-
+        user = await cls._get_user(data.user_id, session)
         user.email = data.new_email
         user.verified = False
 
@@ -230,16 +218,12 @@ class AuthRepository:
             raise exc
         return user.username
 
-    @staticmethod
+    @classmethod
     @with_transaction
     async def update_password(
-        data: request_dto.UpdatePasswordDataRequestDTO, session: AsyncSession
+        cls, data: request_dto.UpdatePasswordDataRequestDTO, session: AsyncSession
     ) -> tuple[str, ...]:
-        if not (user := await session.get(User, data.user_id)):
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
-
+        user = await cls._get_user(data.user_id, session)
         compare_passwords(data.old_password, user.password)
         user.password = data.new_password
 
@@ -282,3 +266,12 @@ class AuthRepository:
         deleted_access_tokens = tuple(r[1] for r in rows if r[1] is not None)
         await session.commit()
         return deleted_access_tokens
+
+    @staticmethod
+    async def _get_user(user_id: str, session: AsyncSession) -> User:
+        user = await session.get(User, user_id)
+        if not user:
+            raise UnauthenticatedException(
+                StatusCode.UNAUTHENTICATED, "Invalid credentials"
+            )
+        return user
