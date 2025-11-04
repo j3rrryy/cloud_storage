@@ -15,10 +15,19 @@ class RPCBaseService:
 
     _instance = None
     _converted_exceptions = {
-        StatusCode.ALREADY_EXISTS: HTTPException(status_code=409),
-        StatusCode.UNAUTHENTICATED: NotAuthorizedException,
-        StatusCode.NOT_FOUND: NotFoundException,
-        StatusCode.RESOURCE_EXHAUSTED: ServiceUnavailableException,
+        StatusCode.ALREADY_EXISTS: lambda detail: HTTPException(
+            detail=detail, status_code=409
+        ),
+        StatusCode.UNAUTHENTICATED: lambda detail: NotAuthorizedException(
+            detail=detail
+        ),
+        StatusCode.NOT_FOUND: lambda detail: NotFoundException(detail=detail),
+        StatusCode.RESOURCE_EXHAUSTED: lambda detail: ServiceUnavailableException(
+            detail=detail
+        ),
+        StatusCode.UNAVAILABLE: lambda detail: ServiceUnavailableException(
+            detail=detail
+        ),
     }
 
     def __new__(cls, *args, **kwargs):
@@ -38,10 +47,10 @@ class RPCBaseService:
                 return result
             except aio.AioRpcError as exc:
                 converted = cls._converted_exceptions.get(
-                    exc.code(), InternalServerException
+                    exc.code(), lambda detail: InternalServerException(detail=detail)
                 )
                 converted.detail = exc.details()
-                raise converted
+                raise converted(exc.details())
 
         return wrapper
 
