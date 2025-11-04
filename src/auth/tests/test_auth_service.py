@@ -6,8 +6,9 @@ from grpc import StatusCode
 
 from dto import request as request_dto
 from dto import response as response_dto
+from enums import ResetCodeStatus
 from service import AuthService
-from utils import ResetCodeStatus, access_token_key
+from utils import access_token_key
 
 from .mocks import (
     ACCESS_TOKEN,

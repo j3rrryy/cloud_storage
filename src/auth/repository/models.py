@@ -32,7 +32,7 @@ class TokenPair(Base):
     session_id: Mapped[str] = mapped_column(
         UUID(False), primary_key=True, default=uuid4
     )
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         sa.ForeignKey(User.user_id, ondelete="CASCADE"), index=True, nullable=False
     )
     access_token: Mapped[str] = mapped_column(

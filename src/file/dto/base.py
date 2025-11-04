@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from typing import Type, TypeVar
 
 from google.protobuf.message import Message
@@ -7,6 +7,7 @@ from sqlalchemy.orm import DeclarativeBase
 T = TypeVar("T", bound="BaseDTO")
 Request = TypeVar("Request", bound="BaseRequestDTO")
 Response = TypeVar("Response", bound="BaseResponseDTO")
+Model = TypeVar("Model", bound=DeclarativeBase)
 GrpcMessage = TypeVar("GrpcMessage", bound=Message)
 
 
@@ -21,6 +22,9 @@ class BaseRequestDTO(BaseDTO):
     @classmethod
     def from_request(cls: Type[Request], request: Message) -> Request:
         return cls(*(getattr(request, f) for f in cls.__dataclass_fields__.keys()))
+
+    def to_model(self, model: type[Model]) -> Model:
+        return model(**asdict(self))
 
 
 @dataclass(slots=True, frozen=True)

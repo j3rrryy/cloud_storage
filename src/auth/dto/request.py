@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .base import BaseRequestDTO
+from .base import BaseRequestDTO, Model
 
 
 @dataclass(slots=True, frozen=True)
@@ -54,6 +54,15 @@ class RefreshDataRequestDTO(BaseRequestDTO):
     user_id: str
     user_ip: str
     browser: str
+
+    def to_model(self, model: type[Model]) -> Model:
+        return model(
+            access_token=self.access_token,
+            refresh_token=self.refresh_token,
+            user_id=self.user_id,
+            user_ip=self.user_ip,
+            browser=self.browser,
+        )
 
 
 @dataclass(slots=True, frozen=True)

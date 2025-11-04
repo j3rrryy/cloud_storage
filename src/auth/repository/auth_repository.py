@@ -19,9 +19,7 @@ class AuthRepository:
     async def register(
         data: request_dto.RegisterRequestDTO, session: AsyncSession
     ) -> str:
-        new_user = User(
-            username=data.username, email=data.email, password=data.password
-        )
+        new_user = data.to_model(User)
         session.add(new_user)
 
         try:
@@ -62,13 +60,7 @@ class AuthRepository:
     async def log_in(
         data: request_dto.LogInDataRequestDTO, session: AsyncSession
     ) -> None:
-        new_token_pair = TokenPair(
-            user_id=data.user_id,
-            access_token=data.access_token,
-            refresh_token=data.refresh_token,
-            user_ip=data.user_ip,
-            browser=data.browser,
-        )
+        new_token_pair = data.to_model(TokenPair)
         session.add(new_token_pair)
 
         try:
@@ -112,13 +104,7 @@ class AuthRepository:
                 StatusCode.UNAUTHENTICATED, "Token is invalid"
             )
 
-        new_token_pair = TokenPair(
-            user_id=data.user_id,
-            access_token=data.access_token,
-            refresh_token=data.refresh_token,
-            user_ip=data.user_ip,
-            browser=data.browser,
-        )
+        new_token_pair = data.to_model(TokenPair)
         session.add(new_token_pair)
 
         try:

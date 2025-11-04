@@ -2,7 +2,6 @@ import os
 import re
 from datetime import datetime as dt
 from datetime import timedelta
-from enum import Enum
 from functools import wraps
 from secrets import choice
 from typing import Awaitable, Callable, TypeVar
@@ -48,10 +47,6 @@ class ExceptionHandler:
             )
             await context.abort(status_code, details)  # type: ignore
             raise
-
-
-class ResetCodeStatus(Enum):
-    VALIDATED = "validated"
 
 
 def with_transaction(func):

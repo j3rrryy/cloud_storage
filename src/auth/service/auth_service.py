@@ -5,11 +5,10 @@ from grpc import StatusCode
 
 from dto import request as request_dto
 from dto import response as response_dto
-from enums import TokenTypes
+from enums import ResetCodeStatus, TokenTypes
 from exceptions import UnauthenticatedException
 from repository import AuthRepository
 from utils import (
-    ResetCodeStatus,
     access_token_key,
     compare_passwords,
     convert_user_agent,
