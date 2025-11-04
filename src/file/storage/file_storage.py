@@ -42,7 +42,11 @@ class FileStorage:
 
         url = await client.generate_presigned_url(
             "get_object",
-            Params={"Bucket": cls.BUCKET_NAME, "Key": key},
+            Params={
+                "Bucket": cls.BUCKET_NAME,
+                "Key": key,
+                "ResponseContentDisposition": f'attachment; filename="{data.name}"',
+            },
             ExpiresIn=60,
         )
         return url
