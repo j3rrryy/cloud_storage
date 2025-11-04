@@ -1,6 +1,5 @@
 import os
-from datetime import datetime as dt
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -81,11 +80,11 @@ def test_generate_jwt(token_type, mock_key_pair):
 
     match token_type:
         case TokenTypes.ACCESS:
-            assert exp <= dt.now() + timedelta(minutes=15)
+            assert exp <= datetime.now() + timedelta(minutes=15)
         case TokenTypes.REFRESH:
-            assert exp <= dt.now() + timedelta(days=30)
+            assert exp <= datetime.now() + timedelta(days=30)
         case TokenTypes.VERIFICATION:
-            assert exp <= dt.now() + timedelta(days=3)
+            assert exp <= datetime.now() + timedelta(days=3)
 
 
 @pytest.mark.parametrize(
@@ -125,10 +124,15 @@ def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
         ({"sub": None}, TokenTypes.ACCESS, TokenTypes.ACCESS, "Token is invalid"),
         ({}, TokenTypes.ACCESS, None, "Token is invalid"),
         ({}, TokenTypes.ACCESS, TokenTypes.REFRESH, "Invalid token type"),
-        ({"exp": dt.now()}, TokenTypes.ACCESS, TokenTypes.ACCESS, "Refresh the tokens"),
-        ({"exp": dt.now()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
         (
-            {"exp": dt.now()},
+            {"exp": datetime.now()},
+            TokenTypes.ACCESS,
+            TokenTypes.ACCESS,
+            "Refresh the tokens",
+        ),
+        ({"exp": datetime.now()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
+        (
+            {"exp": datetime.now()},
             TokenTypes.VERIFICATION,
             TokenTypes.VERIFICATION,
             "Resend the verification mail",

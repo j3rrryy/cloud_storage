@@ -1,9 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import uuid4
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
+
+from utils import utc_now_naive
 
 Base = declarative_base()
 
@@ -17,7 +19,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(sa.String(128), nullable=False)
     verified: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
     registered_at: Mapped[datetime] = mapped_column(
-        sa.TIMESTAMP, nullable=False, default=lambda: datetime.now(timezone.utc)
+        sa.TIMESTAMP, nullable=False, default=utc_now_naive
     )
 
     tokens: Mapped[list["TokenPair"]] = relationship(
@@ -46,10 +48,7 @@ class TokenPair(Base):
     user_ip: Mapped[str] = mapped_column(sa.String(45), nullable=False)
     browser: Mapped[str] = mapped_column(sa.String(150), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        sa.TIMESTAMP,
-        index=True,
-        nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        sa.TIMESTAMP, index=True, nullable=False, default=utc_now_naive
     )
 
     user: Mapped[User] = relationship(

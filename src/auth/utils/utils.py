@@ -1,7 +1,6 @@
 import os
 import re
-from datetime import datetime as dt
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from secrets import choice
 from typing import Awaitable, Callable, TypeVar
@@ -66,6 +65,10 @@ def with_transaction(func):
     return wrapper
 
 
+def utc_now_naive() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 def generate_reset_code() -> str:
     return "".join(choice("0123456789") for _ in range(6))
 
@@ -74,18 +77,18 @@ def generate_reset_code() -> str:
 def generate_jwt(user_id: str, token_type: TokenTypes, key_pair: KeyPair) -> str:
     match token_type:
         case TokenTypes.ACCESS:
-            exp_time = dt.now() + timedelta(minutes=15)
+            exp_time = datetime.now() + timedelta(minutes=15)
         case TokenTypes.REFRESH:
-            exp_time = dt.now() + timedelta(days=30)
+            exp_time = datetime.now() + timedelta(days=30)
         case TokenTypes.VERIFICATION:
-            exp_time = dt.now() + timedelta(days=3)
+            exp_time = datetime.now() + timedelta(days=3)
         case _:  # pragma: no cover
             exp_time = None
 
     claims = {
         "iss": os.environ["APP_NAME"],
         "sub": user_id,
-        "iat": dt.now(),
+        "iat": datetime.now(),
         "exp": exp_time,
     }
     return str(

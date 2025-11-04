@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from functools import wraps
 from typing import Awaitable, Callable, TypeVar
 
@@ -58,6 +59,10 @@ def with_storage(func):
             raise exc
 
     return wrapper
+
+
+def utc_now_naive() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def file_list_key(user_id: str) -> str:
