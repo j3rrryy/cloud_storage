@@ -4,6 +4,7 @@ services:
     env_file:
       - ./test/.env
     command: sh -c "
+      set -e &&
       uv sync --group test &&
       uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: gateway_test
@@ -13,6 +14,7 @@ services:
     env_file:
       - ./test/.env
     command: sh -c "
+      set -e &&
       uv sync --group test &&
       uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: auth_test
@@ -22,6 +24,7 @@ services:
     env_file:
       - ./test/.env
     command: sh -c "
+      set -e &&
       uv sync --group test &&
       uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: file_test
@@ -31,6 +34,7 @@ services:
     env_file:
       - ./test/.env
     command: sh -c "
+      set -e &&
       uv sync --group test &&
       uv run --group test pytest ./tests --cov=. --cov-config=./tests/.coveragerc --cov-report=xml --cov-fail-under=100"
     container_name: mail_test
