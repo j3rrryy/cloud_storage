@@ -24,7 +24,7 @@ class FileInfoDTO(FromResponseMixin, ToSchemaMixin):
     name: str
     path: str
     size: int
-    uploaded: datetime.datetime
+    uploaded_at: datetime.datetime
 
 
 @dataclass(slots=True, frozen=True)

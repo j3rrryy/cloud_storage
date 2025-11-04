@@ -29,7 +29,7 @@ class FileInfo(Struct):
         str, Meta(pattern=PATH_REGEX, max_length=257, examples=PATH_EXAMPLES)
     ]
     size: int
-    uploaded: datetime.datetime
+    uploaded_at: datetime.datetime
 
 
 class FileList(Struct):

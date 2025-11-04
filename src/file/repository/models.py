@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import sqlalchemy as sa
@@ -18,8 +18,8 @@ class File(Base):
     name: Mapped[str] = mapped_column(sa.String(255), nullable=False)
     path: Mapped[str] = mapped_column(sa.String(512), unique=True, nullable=False)
     size: Mapped[int] = mapped_column(sa.BigInteger, nullable=False)
-    uploaded: Mapped[datetime] = mapped_column(
-        sa.TIMESTAMP, nullable=False, default=datetime.now
+    uploaded_at: Mapped[datetime] = mapped_column(
+        sa.TIMESTAMP, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
 
     def __str__(self) -> str:

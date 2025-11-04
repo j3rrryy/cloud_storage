@@ -24,24 +24,24 @@ class DeleteFilesRequest(_message.Message):
     ) -> None: ...
 
 class FileInfoResponse(_message.Message):
-    __slots__ = ("file_id", "name", "path", "size", "uploaded")
+    __slots__ = ("file_id", "name", "path", "size", "uploaded_at")
     FILE_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     PATH_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
-    UPLOADED_FIELD_NUMBER: _ClassVar[int]
+    UPLOADED_AT_FIELD_NUMBER: _ClassVar[int]
     file_id: str
     name: str
     path: str
     size: int
-    uploaded: _timestamp_pb2.Timestamp
+    uploaded_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
         file_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
         path: _Optional[str] = ...,
         size: _Optional[int] = ...,
-        uploaded: _Optional[
+        uploaded_at: _Optional[
             _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
         ] = ...,
     ) -> None: ...

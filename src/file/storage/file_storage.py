@@ -1,6 +1,7 @@
 import asyncio
 import os
 
+import picologging as logging
 from botocore.exceptions import ClientError
 from grpc import StatusCode
 from types_aiobotocore_s3 import S3Client
@@ -13,6 +14,8 @@ from utils import with_storage
 
 class FileStorage:
     BUCKET_NAME = os.environ["MINIO_S3_BUCKET"]
+    chunk_semaphore = asyncio.Semaphore(5)
+    logger = logging.getLogger()
 
     @classmethod
     @with_storage
@@ -64,7 +67,7 @@ class FileStorage:
             task = asyncio.create_task(cls._delete_chunk(chunk, client))
             tasks.append(task)
 
-        await cls._raise_on_exceptions(tasks)
+        await cls._log_exceptions(tasks)
 
     @classmethod
     @with_storage
@@ -82,18 +85,19 @@ class FileStorage:
                 task = asyncio.create_task(cls._delete_chunk(chunk, client))
                 tasks.append(task)
 
-        await cls._raise_on_exceptions(tasks)
+        await cls._log_exceptions(tasks)
 
     @classmethod
     async def _delete_chunk(cls, chunk: list[dict[str, str]], client: S3Client):
-        await client.delete_objects(
-            Bucket=cls.BUCKET_NAME,
-            Delete={"Objects": chunk},  # type: ignore
-        )
+        async with cls.chunk_semaphore:
+            await client.delete_objects(
+                Bucket=cls.BUCKET_NAME,
+                Delete={"Objects": chunk},  # type: ignore
+            )
 
-    @staticmethod
-    async def _raise_on_exceptions(tasks: list[asyncio.Task]):
+    @classmethod
+    async def _log_exceptions(cls, tasks: list[asyncio.Task]):
         results = await asyncio.gather(*tasks, return_exceptions=True)
         for r in results:
             if isinstance(r, Exception):
-                raise r
+                cls.logger.error(str(r))

@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("path", sa.String(length=512), nullable=False),
         sa.Column("size", sa.BigInteger(), nullable=False),
-        sa.Column("uploaded", sa.TIMESTAMP(), nullable=False),
+        sa.Column("uploaded_at", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("file_id"),
         sa.UniqueConstraint("file_id"),
         sa.UniqueConstraint("path"),

@@ -48,7 +48,7 @@ async def test_file_info(file_controller):
             name=NAME,
             path=PATH,
             size=SIZE,
-            uploaded=Timestamp(seconds=int(TIMESTAMP.timestamp())),
+            uploaded_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
         )
 
 
@@ -67,7 +67,7 @@ async def test_file_list(file_controller):
                     name=NAME,
                     path=PATH,
                     size=SIZE,
-                    uploaded=Timestamp(seconds=int(TIMESTAMP.timestamp())),
+                    uploaded_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
                 ),
             )
         )

@@ -72,7 +72,8 @@ def test_uvicorn(mock_run):
             loop="uvloop",
             host="0.0.0.0",
             port=8000,
-            limit_concurrency=1000,
-            limit_max_requests=10000,
+            workers=2,
+            limit_concurrency=500,
+            limit_max_requests=50000,
             reload=bool(int(os.environ["DEBUG"])),
         )

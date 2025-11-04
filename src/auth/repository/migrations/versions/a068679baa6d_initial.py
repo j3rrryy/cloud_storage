@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: 7b8c27dc79cf
+Revision ID: a068679baa6d
 Revises:
-Create Date: 2025-09-02 20:38:22.320731
+Create Date: 2025-11-04 01:55:24.904406
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "7b8c27dc79cf"
+revision: str = "a068679baa6d"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,12 +26,7 @@ def upgrade() -> None:
         sa.Column("email", sa.String(length=255), nullable=False),
         sa.Column("password", sa.String(length=128), nullable=False),
         sa.Column("verified", sa.Boolean(), nullable=False),
-        sa.Column(
-            "registered_at",
-            sa.TIMESTAMP(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
+        sa.Column("registered_at", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("user_id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("username"),
@@ -44,12 +39,7 @@ def upgrade() -> None:
         sa.Column("refresh_token", sa.String(length=350), nullable=False),
         sa.Column("user_ip", sa.String(length=45), nullable=False),
         sa.Column("browser", sa.String(length=150), nullable=False),
-        sa.Column(
-            "created_at",
-            sa.TIMESTAMP(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.user_id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("session_id"),
         sa.UniqueConstraint("access_token"),

@@ -40,7 +40,7 @@ async def test_file_info(client):
         "name": NAME,
         "path": PATH,
         "size": SIZE,
-        "uploaded": TIMESTAMP.isoformat(),
+        "uploaded_at": TIMESTAMP.isoformat(),
     }
 
 
@@ -59,7 +59,7 @@ async def test_file_list(client):
                 "name": NAME,
                 "path": PATH,
                 "size": SIZE,
-                "uploaded": TIMESTAMP.isoformat(),
+                "uploaded_at": TIMESTAMP.isoformat(),
             }
         ]
     }

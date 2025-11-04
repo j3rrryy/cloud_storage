@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import sqlalchemy as sa
@@ -17,7 +17,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(sa.String(128), nullable=False)
     verified: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
     registered_at: Mapped[datetime] = mapped_column(
-        sa.TIMESTAMP(True), nullable=False, server_default=sa.func.now()
+        sa.TIMESTAMP, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
 
     tokens: Mapped[list["TokenPair"]] = relationship(
@@ -46,7 +46,10 @@ class TokenPair(Base):
     user_ip: Mapped[str] = mapped_column(sa.String(45), nullable=False)
     browser: Mapped[str] = mapped_column(sa.String(150), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        sa.TIMESTAMP(True), index=True, nullable=False, server_default=sa.func.now()
+        sa.TIMESTAMP,
+        index=True,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
 
     user: Mapped[User] = relationship(

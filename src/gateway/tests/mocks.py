@@ -109,7 +109,7 @@ def create_file_stub_v1() -> MagicMock:
     stub.UploadFile = AsyncMock(return_value=file_pb2.FileURLResponse(url=URL))
     stub.FileInfo = AsyncMock(
         return_value=file_pb2.FileInfoResponse(
-            file_id=FILE_ID, name=NAME, path=PATH, size=SIZE, uploaded=TIMESTAMP_MOCK
+            file_id=FILE_ID, name=NAME, path=PATH, size=SIZE, uploaded_at=TIMESTAMP_MOCK
         )
     )
     stub.FileList = AsyncMock(
@@ -120,7 +120,7 @@ def create_file_stub_v1() -> MagicMock:
                     name=NAME,
                     path=PATH,
                     size=SIZE,
-                    uploaded=TIMESTAMP_MOCK,
+                    uploaded_at=TIMESTAMP_MOCK,
                 ),
             )
         )

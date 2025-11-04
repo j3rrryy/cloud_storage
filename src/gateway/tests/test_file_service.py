@@ -20,7 +20,7 @@ async def test_file_info(file_service_v1):
     assert response.name == NAME
     assert response.path == PATH
     assert response.size == SIZE
-    assert response.uploaded == TIMESTAMP
+    assert response.uploaded_at == TIMESTAMP
 
 
 @pytest.mark.asyncio
@@ -31,7 +31,7 @@ async def test_file_list(file_service_v1):
     assert first_file.name == NAME
     assert first_file.path == PATH
     assert first_file.size == SIZE
-    assert first_file.uploaded == TIMESTAMP
+    assert first_file.uploaded_at == TIMESTAMP
 
 
 @pytest.mark.asyncio

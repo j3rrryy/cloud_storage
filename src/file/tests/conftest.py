@@ -36,7 +36,7 @@ def file() -> File:
         name=NAME,
         path=PATH,
         size=SIZE,
-        uploaded=TIMESTAMP,
+        uploaded_at=TIMESTAMP,
     )
 
 

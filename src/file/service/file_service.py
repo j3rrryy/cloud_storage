@@ -1,3 +1,5 @@
+import asyncio
+
 from cashews import cache
 
 from dto import request as request_dto
@@ -72,5 +74,5 @@ class FileService:
         await cache.delete(f"file-list:{user_id}")
         await cache.delete_match(f"file-info:{user_id}:*")
         await cache.delete_match(f"download-file-info:{user_id}:*")
-        await FileStorage.delete_all_files(user_id)  # type: ignore
+        asyncio.create_task(FileStorage.delete_all_files(user_id))  # type: ignore
         await FileRepository.delete_all_files(user_id)  # type: ignore
