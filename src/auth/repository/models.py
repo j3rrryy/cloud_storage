@@ -20,7 +20,9 @@ class User(Base):
         sa.TIMESTAMP(True), nullable=False, server_default=sa.func.now()
     )
 
-    tokens: Mapped[list["TokenPair"]] = relationship("TokenPair", back_populates="user")
+    tokens: Mapped[list["TokenPair"]] = relationship(
+        "TokenPair", back_populates="user", passive_deletes=True
+    )
 
     def __str__(self) -> str:
         return f"<User: {self.user_id}>"
