@@ -135,8 +135,6 @@ async def test_delete_files(mock_cache, mock_repository, mock_storage):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_delete_all_files(mock_cache, mock_repository, mock_storage):
     await FileService.delete_all_files(USER_ID)
-
-    mock_cache.delete.assert_awaited_once()
-    assert mock_cache.delete_match.call_count == 2
-    mock_storage.delete_all_files.assert_awaited_once()
+    mock_cache.delete_match.assert_awaited_once()
+    mock_storage.delete_all_files.assert_called_once()
     mock_repository.delete_all_files.assert_awaited_once()

@@ -116,15 +116,12 @@ async def test_delete_files(mock_client):
 @pytest.mark.asyncio
 async def test_delete_files_exception(mock_client):
     dto = response_dto.DeleteFilesResponseDTO(USER_ID, [PATH])
+    FileStorage.logger = MagicMock()
     delete_objects = mock_client.delete_objects
     delete_objects.side_effect = Exception("Details")
 
-    with pytest.raises(Exception) as exc_info:
-        await FileStorage.delete_files(dto)  # type: ignore
-
-    assert exc_info.value.args[0] == StatusCode.INTERNAL
-    assert exc_info.value.args[1] == "Internal storage error, Details"
-    delete_objects.assert_awaited_once()
+    await FileStorage.delete_files(dto)  # type: ignore
+    FileStorage.logger.error.assert_called_once_with("Details")
 
 
 @pytest.mark.asyncio
@@ -161,14 +158,10 @@ async def test_delete_all_files_exception(mock_client):
         yield {"Contents": [{"Key": f"{USER_ID}{PATH}{NAME}"}]}
 
     mock_paginator = MagicMock()
+    FileStorage.logger = MagicMock()
     mock_paginator.paginate = mock_paginate
     mock_client.get_paginator = MagicMock(return_value=mock_paginator)
     mock_client.delete_objects.side_effect = Exception("Details")
 
-    with pytest.raises(Exception) as exc_info:
-        await FileStorage.delete_all_files(USER_ID)  # type: ignore
-
-    assert exc_info.value.args[0] == StatusCode.INTERNAL
-    assert exc_info.value.args[1] == "Internal storage error, Details"
-    mock_client.get_paginator.assert_called_once()
-    mock_client.delete_objects.assert_awaited_once()
+    await FileStorage.delete_all_files(USER_ID)  # type: ignore
+    FileStorage.logger.error.assert_called_once_with("Details")
