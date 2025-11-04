@@ -15,12 +15,12 @@ from service.v1 import RPCBaseService
 @pytest.mark.parametrize(
     "status_code, expected_exception",
     (
-        (StatusCode.ALREADY_EXISTS, HTTPException),
+        (StatusCode.ALREADY_EXISTS, HTTPException(status_code=409)),
         (StatusCode.UNAUTHENTICATED, NotAuthorizedException),
         (StatusCode.NOT_FOUND, NotFoundException),
         (StatusCode.RESOURCE_EXHAUSTED, ServiceUnavailableException),
+        (StatusCode.UNAVAILABLE, ServiceUnavailableException),
         (StatusCode.INTERNAL, InternalServerException),
-        (StatusCode.UNAVAILABLE, InternalServerException),
         (StatusCode.UNKNOWN, InternalServerException),
     ),
 )
@@ -37,7 +37,8 @@ async def test_handle_exception(status_code, expected_exception):
     async def mock_function():
         raise exception
 
-    with pytest.raises(expected_exception) as exc_info:
+    with pytest.raises(HTTPException) as exc_info:
         await mock_function()
 
     assert exc_info.value.detail == DETAILS
+    assert exc_info.value.status_code == expected_exception.status_code

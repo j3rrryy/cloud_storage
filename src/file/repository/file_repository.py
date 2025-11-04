@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from dto import request as request_dto
 from dto import response as response_dto
+from exceptions import FileNotFoundException
 from utils import with_transaction
 
 from .models import File
@@ -33,7 +34,7 @@ class FileRepository:
         file = await session.get(File, data.file_id)
 
         if not file or file.user_id != data.user_id:
-            raise FileNotFoundError(StatusCode.NOT_FOUND, "File not found")
+            raise FileNotFoundException(StatusCode.NOT_FOUND, "File not found")
 
         return response_dto.FileInfoResponseDTO.from_model(file)
 
@@ -69,7 +70,9 @@ class FileRepository:
         )
 
         if len(files) != len(data.file_ids):
-            raise FileNotFoundError(StatusCode.NOT_FOUND, "One or more files not found")
+            raise FileNotFoundException(
+                StatusCode.NOT_FOUND, "One or more files not found"
+            )
 
         return response_dto.DeleteFilesResponseDTO(
             user_id=data.user_id, paths=[file.path for file in files]

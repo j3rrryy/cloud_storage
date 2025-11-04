@@ -8,6 +8,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from types_aiobotocore_s3 import S3Client
 
+from exceptions import FileNotFoundException
+
 T = TypeVar("T")
 
 logger = logging.getLogger()
@@ -37,7 +39,7 @@ def with_transaction(func):
             return await func(*args, session, **kwargs)
         except Exception as exc:
             await session.rollback()
-            if not isinstance(exc, (IntegrityError, FileNotFoundError)):
+            if not isinstance(exc, (IntegrityError, FileNotFoundException)):
                 exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
@@ -51,7 +53,7 @@ def with_storage(func):
         try:
             return await func(*args, client, **kwargs)
         except Exception as exc:
-            if not isinstance(exc, FileNotFoundError):
+            if not isinstance(exc, FileNotFoundException):
                 exc.args = (StatusCode.INTERNAL, f"Internal storage error, {exc}")
             raise exc
 

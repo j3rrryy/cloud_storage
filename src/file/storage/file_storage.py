@@ -7,6 +7,7 @@ from types_aiobotocore_s3 import S3Client
 
 from dto import request as request_dto
 from dto import response as response_dto
+from exceptions import FileNotFoundException
 from utils import with_storage
 
 
@@ -36,7 +37,7 @@ class FileStorage:
             await client.head_object(Bucket=cls.BUCKET_NAME, Key=key)
         except ClientError as exc:
             if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
-                raise FileNotFoundError(StatusCode.NOT_FOUND, "File not found")
+                raise FileNotFoundException(StatusCode.NOT_FOUND, "File not found")
             raise
 
         url = await client.generate_presigned_url(
