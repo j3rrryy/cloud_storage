@@ -2,7 +2,6 @@ from unittest.mock import ANY, AsyncMock, MagicMock, call, patch
 
 import grpc
 import pytest
-from grpc_accesslog import AsyncAccessLogInterceptor, handlers
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
     PromAsyncServerInterceptor,
 )
@@ -35,13 +34,8 @@ async def test_start_grpc_server(mock_add_servicer, mock_grpc_server, mock_logge
         compression=grpc.Compression.Deflate,
     )
     _, kwargs = mock_grpc_server.call_args
-    assert len(kwargs["interceptors"]) == 2
-
-    assert isinstance(kwargs["interceptors"][0], AsyncAccessLogInterceptor)
-    assert kwargs["interceptors"][0]._logger == mock_logger
-    assert kwargs["interceptors"][0]._handlers == [handlers.request]
-
-    assert isinstance(kwargs["interceptors"][1], PromAsyncServerInterceptor)
+    assert len(kwargs["interceptors"]) == 1
+    assert isinstance(kwargs["interceptors"][0], PromAsyncServerInterceptor)
 
     args, _ = mock_add_servicer.call_args
     assert len(args) == 2

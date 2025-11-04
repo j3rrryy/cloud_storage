@@ -3,7 +3,6 @@ import asyncio
 import grpc
 import picologging as logging
 import uvloop
-from grpc_accesslog import AsyncAccessLogInterceptor, handlers
 from prometheus_client import make_asgi_app
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
     PromAsyncServerInterceptor,
@@ -20,10 +19,7 @@ logger = logging.getLogger()
 
 async def start_grpc_server() -> None:
     server = grpc.aio.server(
-        interceptors=(
-            AsyncAccessLogInterceptor(logger=logger, handlers=[handlers.request]),  # type: ignore
-            PromAsyncServerInterceptor(),
-        ),
+        interceptors=(PromAsyncServerInterceptor(),),
         options=[
             ("grpc.keepalive_time_ms", 60000),
             ("grpc.keepalive_timeout_ms", 10000),

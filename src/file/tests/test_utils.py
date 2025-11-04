@@ -1,9 +1,10 @@
+from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from grpc import StatusCode
 
-from utils import ExceptionHandler
+from utils import ExceptionHandler, utc_now_naive
 
 
 @pytest.mark.asyncio
@@ -37,3 +38,10 @@ async def test_exception_handler_exception(mock_logger):
         "Status code: UNKNOWN (2), details: Test details"
     )
     context.abort.assert_awaited_once_with(StatusCode.UNKNOWN, "Test details")
+
+
+def test_utc_now_naive():
+    now = utc_now_naive()
+
+    assert isinstance(now, datetime)
+    assert now.tzinfo is None

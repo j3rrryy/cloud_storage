@@ -8,7 +8,6 @@ dependencies = [
     "asyncpg==0.30.0",
     "cashews[redis]==7.4.1",
     "greenlet>=3.2.4",
-    "grpc-accesslog==0.3.0",
     "grpcio==1.74.0",
     "grpcio-tools==1.74.0",
     "inject>=5.3.0",

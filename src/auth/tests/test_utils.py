@@ -15,6 +15,7 @@ from utils import (
     generate_jwt,
     generate_reset_code,
     get_hashed_password,
+    utc_now_naive,
     validate_jwt,
     validate_jwt_and_get_user_id,
 )
@@ -53,6 +54,13 @@ async def test_exception_handler_exception(mock_logger):
         "Status code: UNKNOWN (2), details: Test details"
     )
     context.abort.assert_awaited_once_with(StatusCode.UNKNOWN, "Test details")
+
+
+def test_utc_now_naive():
+    now = utc_now_naive()
+
+    assert isinstance(now, datetime)
+    assert now.tzinfo is None
 
 
 def test_generate_reset_code():
