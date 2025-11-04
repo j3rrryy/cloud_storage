@@ -163,7 +163,6 @@ services:
       - ./dev/.env
     volumes:
       - ./dev/create_buckets.sh:/create_buckets.sh
-      - ./dev/lifecycle.json:/lifecycle.json
     networks:
       - file
     depends_on:
