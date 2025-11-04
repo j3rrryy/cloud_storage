@@ -7,7 +7,6 @@ from .base import BaseRequestDTO
 class UploadFileRequestDTO(BaseRequestDTO):
     user_id: str
     name: str
-    path: str
     size: str | int
 
 

@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 from dto import response as response_dto
 
-PATH = "/"
 SIZE = 123
 NAME = "test_name"
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
@@ -19,19 +18,15 @@ def create_repository() -> MagicMock:
     crud.upload_file = AsyncMock()
     crud.file_info = AsyncMock(
         return_value=response_dto.FileInfoResponseDTO(
-            FILE_ID, USER_ID, NAME, PATH + NAME, SIZE, TIMESTAMP
+            FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
         )
     )
     crud.file_list = AsyncMock(
         return_value=(
-            response_dto.FileInfoResponseDTO(
-                FILE_ID, USER_ID, NAME, PATH + NAME, SIZE, TIMESTAMP
-            ),
+            response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP),
         )
     )
-    crud.get_file_list_to_delete = AsyncMock(
-        return_value=response_dto.DeleteFilesResponseDTO(USER_ID, [PATH])
-    )
+    crud.validate_user_files = AsyncMock()
     crud.delete_files = AsyncMock()
     crud.delete_all_files = AsyncMock()
     return crud

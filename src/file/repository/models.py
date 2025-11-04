@@ -13,16 +13,15 @@ Base = declarative_base()
 class File(Base):
     __tablename__ = "files"
 
-    file_id: Mapped[str] = mapped_column(
-        UUID(False), primary_key=True, unique=True, default=uuid4
-    )
+    file_id: Mapped[str] = mapped_column(UUID(False), primary_key=True, default=uuid4)
     user_id: Mapped[str] = mapped_column(UUID(False), index=True, nullable=False)
     name: Mapped[str] = mapped_column(sa.String(255), nullable=False)
-    path: Mapped[str] = mapped_column(sa.String(512), unique=True, nullable=False)
     size: Mapped[int] = mapped_column(sa.BigInteger, nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=utc_now_naive
     )
+
+    __table_args__ = (sa.UniqueConstraint("user_id", "name"),)
 
     def __str__(self) -> str:
         return f"<File: {self.file_id}>"

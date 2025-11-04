@@ -8,16 +8,19 @@ from dto import request as request_dto
 from dto import response as response_dto
 from repository import FileRepository
 
-from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, USER_ID
+from .mocks import FILE_ID, NAME, SIZE, TIMESTAMP, USER_ID
 
 
 @pytest.mark.asyncio
 async def test_upload_file(mock_session):
-    dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, PATH, SIZE)
-    await FileRepository.upload_file(dto)  # type: ignore
+    dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, SIZE)
+    mock_session.refresh.side_effect = lambda user: setattr(user, "file_id", FILE_ID)
+    file_id = await FileRepository.upload_file(dto)  # type: ignore
 
+    assert file_id == FILE_ID
     mock_session.add.assert_called_once()
     mock_session.commit.assert_awaited_once()
+    mock_session.refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -35,7 +38,7 @@ async def test_upload_file(mock_session):
 async def test_upload_file_exceptions(
     exception, expected_status, expected_message, mock_session
 ):
-    dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, PATH, SIZE)
+    dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, SIZE)
     mock_session.commit.side_effect = exception
 
     with pytest.raises(Exception) as exc_info:
@@ -55,7 +58,7 @@ async def test_file_info(mock_session, file):
     info = await FileRepository.file_info(dto)  # type: ignore
 
     assert info == response_dto.FileInfoResponseDTO(
-        FILE_ID, USER_ID, NAME, PATH, SIZE, TIMESTAMP
+        FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
     )
     mock_session.get.assert_awaited_once()
 
@@ -118,7 +121,7 @@ async def test_file_list(mock_session, file):
     assert isinstance(files, tuple)
     assert len(files) == 1
     assert files[0] == response_dto.FileInfoResponseDTO(
-        FILE_ID, USER_ID, NAME, PATH, SIZE, TIMESTAMP
+        FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
     )
     mock_session.execute.assert_awaited_once()
 
@@ -137,34 +140,23 @@ async def test_file_list_exception(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_get_file_list_to_delete(mock_session, file):
-    dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+async def test_validate_user_files(mock_session):
     mock_session.execute = AsyncMock(
-        return_value=MagicMock(
-            scalars=MagicMock(
-                return_value=MagicMock(all=MagicMock(return_value=(file,)))
-            )
-        )
+        return_value=MagicMock(scalar_one=MagicMock(return_value=1))
     )
 
-    files = await FileRepository.get_file_list_to_delete(dto)  # type: ignore
-    assert files == response_dto.DeleteFilesResponseDTO(USER_ID, [PATH])
+    await FileRepository.validate_user_files(USER_ID, [FILE_ID])  # type: ignore
     mock_session.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
-async def test_get_file_list_to_delete_found_less(mock_session):
-    dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+async def test_validate_user_files_fail(mock_session):
     mock_session.execute = AsyncMock(
-        return_value=MagicMock(
-            scalars=MagicMock(
-                return_value=MagicMock(all=MagicMock(return_value=tuple()))
-            )
-        )
+        return_value=MagicMock(scalar_one=MagicMock(return_value=0))
     )
 
     with pytest.raises(Exception) as exc_info:
-        await FileRepository.get_file_list_to_delete(dto)  # type: ignore
+        await FileRepository.validate_user_files(USER_ID, [FILE_ID])  # type: ignore
 
     assert exc_info.value.args[0] == StatusCode.NOT_FOUND
     assert exc_info.value.args[1] == "One or more files not found"
@@ -173,12 +165,11 @@ async def test_get_file_list_to_delete_found_less(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_get_file_list_to_delete_exception(mock_session):
-    dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+async def test_validate_user_files_exception(mock_session):
     mock_session.execute.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await FileRepository.get_file_list_to_delete(dto)  # type: ignore
+        await FileRepository.validate_user_files(USER_ID, [FILE_ID])  # type: ignore
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"

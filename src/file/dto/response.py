@@ -9,12 +9,5 @@ class FileInfoResponseDTO(BaseResponseDTO):
     file_id: str
     user_id: str
     name: str
-    path: str
     size: int
     uploaded_at: datetime.datetime
-
-
-@dataclass(slots=True, frozen=True)
-class DeleteFilesResponseDTO(BaseResponseDTO):
-    user_id: str
-    paths: list[str]

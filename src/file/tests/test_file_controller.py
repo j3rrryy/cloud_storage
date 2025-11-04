@@ -10,7 +10,6 @@ from proto import file_pb2 as pb2
 from .mocks import (
     FILE_ID,
     NAME,
-    PATH,
     RELATIVE_URL,
     SIZE,
     TIMESTAMP,
@@ -28,9 +27,7 @@ async def test_upload_file(file_controller):
         patch("service.file_service.FileStorage", new_callable=create_storage),
         patch("service.file_service.cache", new_callable=create_cache),
     ):
-        request = pb2.UploadFileRequest(
-            user_id=USER_ID, name=NAME, path=PATH, size=SIZE
-        )
+        request = pb2.UploadFileRequest(user_id=USER_ID, name=NAME, size=SIZE)
         response = await file_controller.UploadFile(request, MagicMock(ServicerContext))
         assert response == pb2.FileURLResponse(url=RELATIVE_URL)
 
@@ -46,7 +43,6 @@ async def test_file_info(file_controller):
         assert response == pb2.FileInfoResponse(
             file_id=FILE_ID,
             name=NAME,
-            path=PATH,
             size=SIZE,
             uploaded_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
         )
@@ -65,7 +61,6 @@ async def test_file_list(file_controller):
                 pb2.FileInfoResponse(
                     file_id=FILE_ID,
                     name=NAME,
-                    path=PATH,
                     size=SIZE,
                     uploaded_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
                 ),

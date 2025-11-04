@@ -34,7 +34,7 @@ class FileController(Controller):
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
 
-        dto = file_dto.UploadFileDTO(user_id, data.name, data.path, data.size)
+        dto = file_dto.UploadFileDTO(user_id, data.name, data.size)
         upload_url = await file_service_v1.upload_file(dto)
         return file_schemas.UploadURL(upload_url)
 

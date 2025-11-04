@@ -9,7 +9,7 @@ from types_aiobotocore_s3 import S3Client
 from controller import FileController
 from repository import File
 
-from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, USER_ID
+from .mocks import FILE_ID, NAME, SIZE, TIMESTAMP, USER_ID
 
 
 @pytest.fixture
@@ -34,7 +34,6 @@ def file() -> File:
         file_id=FILE_ID,
         user_id=USER_ID,
         name=NAME,
-        path=PATH,
         size=SIZE,
         uploaded_at=TIMESTAMP,
     )

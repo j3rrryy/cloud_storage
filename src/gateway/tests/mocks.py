@@ -29,7 +29,6 @@ BROWSER = "Firefox 47.0, Windows 7"
 
 URL = "/file/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
 FILE_ID = "b8a47c8d-9203-456a-aa58-ceab64b13cbb"
-PATH = "/"
 SIZE = 123
 NAME = "test_name"
 
@@ -109,7 +108,7 @@ def create_file_stub_v1() -> MagicMock:
     stub.UploadFile = AsyncMock(return_value=file_pb2.FileURLResponse(url=URL))
     stub.FileInfo = AsyncMock(
         return_value=file_pb2.FileInfoResponse(
-            file_id=FILE_ID, name=NAME, path=PATH, size=SIZE, uploaded_at=TIMESTAMP_MOCK
+            file_id=FILE_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP_MOCK
         )
     )
     stub.FileList = AsyncMock(
@@ -118,7 +117,6 @@ def create_file_stub_v1() -> MagicMock:
                 file_pb2.FileInfoResponse(
                     file_id=FILE_ID,
                     name=NAME,
-                    path=PATH,
                     size=SIZE,
                     uploaded_at=TIMESTAMP_MOCK,
                 ),

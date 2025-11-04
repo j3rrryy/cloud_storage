@@ -13,46 +13,26 @@ from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class DeleteFilesRequest(_message.Message):
-    __slots__ = ("user_id", "file_ids")
+class UploadFileRequest(_message.Message):
+    __slots__ = ("user_id", "name", "size")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
-    FILE_IDS_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    file_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(
-        self, user_id: _Optional[str] = ..., file_ids: _Optional[_Iterable[str]] = ...
-    ) -> None: ...
-
-class FileInfoResponse(_message.Message):
-    __slots__ = ("file_id", "name", "path", "size", "uploaded_at")
-    FILE_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
-    PATH_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
-    UPLOADED_AT_FIELD_NUMBER: _ClassVar[int]
-    file_id: str
+    user_id: str
     name: str
-    path: str
     size: int
-    uploaded_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
-        file_id: _Optional[str] = ...,
+        user_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
-        path: _Optional[str] = ...,
         size: _Optional[int] = ...,
-        uploaded_at: _Optional[
-            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
-        ] = ...,
     ) -> None: ...
 
-class FileListResponse(_message.Message):
-    __slots__ = ("files",)
-    FILES_FIELD_NUMBER: _ClassVar[int]
-    files: _containers.RepeatedCompositeFieldContainer[FileInfoResponse]
-    def __init__(
-        self, files: _Optional[_Iterable[_Union[FileInfoResponse, _Mapping]]] = ...
-    ) -> None: ...
+class FileURLResponse(_message.Message):
+    __slots__ = ("url",)
+    URL_FIELD_NUMBER: _ClassVar[int]
+    url: str
+    def __init__(self, url: _Optional[str] = ...) -> None: ...
 
 class FileOperationRequest(_message.Message):
     __slots__ = ("user_id", "file_id")
@@ -64,28 +44,24 @@ class FileOperationRequest(_message.Message):
         self, user_id: _Optional[str] = ..., file_id: _Optional[str] = ...
     ) -> None: ...
 
-class FileURLResponse(_message.Message):
-    __slots__ = ("url",)
-    URL_FIELD_NUMBER: _ClassVar[int]
-    url: str
-    def __init__(self, url: _Optional[str] = ...) -> None: ...
-
-class UploadFileRequest(_message.Message):
-    __slots__ = ("user_id", "name", "path", "size")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
+class FileInfoResponse(_message.Message):
+    __slots__ = ("file_id", "name", "size", "uploaded_at")
+    FILE_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
-    PATH_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
+    UPLOADED_AT_FIELD_NUMBER: _ClassVar[int]
+    file_id: str
     name: str
-    path: str
     size: int
+    uploaded_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
-        user_id: _Optional[str] = ...,
+        file_id: _Optional[str] = ...,
         name: _Optional[str] = ...,
-        path: _Optional[str] = ...,
         size: _Optional[int] = ...,
+        uploaded_at: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...
 
 class UserId(_message.Message):
@@ -93,3 +69,21 @@ class UserId(_message.Message):
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     user_id: str
     def __init__(self, user_id: _Optional[str] = ...) -> None: ...
+
+class FileListResponse(_message.Message):
+    __slots__ = ("files",)
+    FILES_FIELD_NUMBER: _ClassVar[int]
+    files: _containers.RepeatedCompositeFieldContainer[FileInfoResponse]
+    def __init__(
+        self, files: _Optional[_Iterable[_Union[FileInfoResponse, _Mapping]]] = ...
+    ) -> None: ...
+
+class DeleteFilesRequest(_message.Message):
+    __slots__ = ("user_id", "file_ids")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    FILE_IDS_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    file_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(
+        self, user_id: _Optional[str] = ..., file_ids: _Optional[_Iterable[str]] = ...
+    ) -> None: ...

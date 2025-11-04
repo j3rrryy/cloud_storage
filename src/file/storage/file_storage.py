@@ -6,7 +6,6 @@ from botocore.exceptions import ClientError
 from grpc import StatusCode
 from types_aiobotocore_s3 import S3Client
 
-from dto import request as request_dto
 from dto import response as response_dto
 from exceptions import FileNotFoundException
 from utils import with_storage
@@ -19,12 +18,10 @@ class FileStorage:
 
     @classmethod
     @with_storage
-    async def upload_file(
-        cls, data: request_dto.UploadFileRequestDTO, client: S3Client
-    ) -> str:
+    async def upload_file(cls, file_id: str, client: S3Client) -> str:
         url = await client.generate_presigned_url(
             "put_object",
-            Params={"Bucket": cls.BUCKET_NAME, "Key": f"{data.user_id}{data.path}"},
+            Params={"Bucket": cls.BUCKET_NAME, "Key": file_id},
             ExpiresIn=60,
         )
         return url
@@ -34,10 +31,8 @@ class FileStorage:
     async def download_file(
         cls, data: response_dto.FileInfoResponseDTO, client: S3Client
     ) -> str:
-        key = f"{data.user_id}{data.path}"
-
         try:
-            await client.head_object(Bucket=cls.BUCKET_NAME, Key=key)
+            await client.head_object(Bucket=cls.BUCKET_NAME, Key=data.file_id)
         except ClientError as exc:
             if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
                 raise FileNotFoundException(StatusCode.NOT_FOUND, "File not found")
@@ -47,7 +42,7 @@ class FileStorage:
             "get_object",
             Params={
                 "Bucket": cls.BUCKET_NAME,
-                "Key": key,
+                "Key": data.file_id,
                 "ResponseContentDisposition": f'attachment; filename="{data.name}"',
             },
             ExpiresIn=60,
@@ -56,10 +51,8 @@ class FileStorage:
 
     @classmethod
     @with_storage
-    async def delete_files(
-        cls, data: response_dto.DeleteFilesResponseDTO, client: S3Client
-    ) -> None:
-        keys = [{"Key": f"{data.user_id}{path}"} for path in data.paths]
+    async def delete_files(cls, file_ids: tuple[str, ...], client: S3Client) -> None:
+        keys = [{"Key": file_id} for file_id in file_ids]
         tasks = []
 
         for i in range(0, len(keys), 1000):
@@ -67,7 +60,7 @@ class FileStorage:
             task = asyncio.create_task(cls._delete_chunk(chunk, client))
             tasks.append(task)
 
-        await cls._log_exceptions(tasks)
+        await cls._gather_tasks(tasks)
 
     @classmethod
     @with_storage
@@ -85,7 +78,7 @@ class FileStorage:
                 task = asyncio.create_task(cls._delete_chunk(chunk, client))
                 tasks.append(task)
 
-        await cls._log_exceptions(tasks)
+        await cls._gather_tasks(tasks)
 
     @classmethod
     async def _delete_chunk(cls, chunk: list[dict[str, str]], client: S3Client):
@@ -96,7 +89,7 @@ class FileStorage:
             )
 
     @classmethod
-    async def _log_exceptions(cls, tasks: list[asyncio.Task]):
+    async def _gather_tasks(cls, tasks: list[asyncio.Task]):
         results = await asyncio.gather(*tasks, return_exceptions=True)
         for r in results:
             if isinstance(r, Exception):

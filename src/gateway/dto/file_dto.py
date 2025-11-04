@@ -8,7 +8,6 @@ from .base_dto import FromResponseMixin, ToRequestMixin, ToSchemaMixin
 class UploadFileDTO(ToRequestMixin):
     user_id: str
     name: str
-    path: str
     size: int
 
 
@@ -22,7 +21,6 @@ class FileDTO(ToRequestMixin):
 class FileInfoDTO(FromResponseMixin, ToSchemaMixin):
     file_id: str
     name: str
-    path: str
     size: int
     uploaded_at: datetime.datetime
 

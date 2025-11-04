@@ -2,12 +2,12 @@ import pytest
 
 from dto import file_dto
 
-from .mocks import FILE_ID, NAME, PATH, SIZE, TIMESTAMP, URL, USER_ID
+from .mocks import FILE_ID, NAME, SIZE, TIMESTAMP, URL, USER_ID
 
 
 @pytest.mark.asyncio
 async def test_upload_file(file_service_v1):
-    dto = file_dto.UploadFileDTO(USER_ID, NAME, PATH, SIZE)
+    dto = file_dto.UploadFileDTO(USER_ID, NAME, SIZE)
     response = await file_service_v1.upload_file(dto)
     assert response == URL
 
@@ -18,7 +18,6 @@ async def test_file_info(file_service_v1):
     response = await file_service_v1.file_info(dto)
     assert response.file_id == FILE_ID
     assert response.name == NAME
-    assert response.path == PATH
     assert response.size == SIZE
     assert response.uploaded_at == TIMESTAMP
 
@@ -29,7 +28,6 @@ async def test_file_list(file_service_v1):
     first_file = next(response)
     assert first_file.file_id == FILE_ID
     assert first_file.name == NAME
-    assert first_file.path == PATH
     assert first_file.size == SIZE
     assert first_file.uploaded_at == TIMESTAMP
 

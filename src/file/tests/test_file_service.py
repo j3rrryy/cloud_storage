@@ -9,7 +9,6 @@ from service import FileService
 from .mocks import (
     FILE_ID,
     NAME,
-    PATH,
     RELATIVE_URL,
     SIZE,
     USER_ID,
@@ -24,7 +23,7 @@ from .mocks import (
 @patch("service.file_service.FileRepository", new_callable=create_repository)
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_upload_file(mock_cache, mock_repository, mock_storage):
-    dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, PATH, SIZE)
+    dto = request_dto.UploadFileRequestDTO(USER_ID, NAME, SIZE)
     response = await FileService.upload_file(dto)
 
     assert response == RELATIVE_URL
@@ -127,6 +126,21 @@ async def test_delete_files(mock_cache, mock_repository, mock_storage):
     mock_storage.delete_files.assert_awaited_once()
     mock_repository.delete_files.assert_awaited_once()
     mock_cache.delete_many.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("service.file_service.FileStorage", new_callable=create_storage)
+@patch("service.file_service.FileRepository", new_callable=create_repository)
+@patch("service.file_service.cache", new_callable=create_cache)
+async def test_delete_files_empty_list(mock_cache, mock_repository, mock_storage):
+    dto = request_dto.DeleteFilesRequestDTO(USER_ID, [])
+    await FileService.delete_files(dto)
+
+    mock_cache.delete.assert_not_awaited()
+    mock_repository.delete_files.assert_not_awaited()
+    mock_storage.delete_files.assert_not_awaited()
+    mock_repository.delete_files.assert_not_awaited()
+    mock_cache.delete_many.assert_not_awaited()
 
 
 @pytest.mark.asyncio

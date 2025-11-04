@@ -1,5 +1,5 @@
 from grpc import StatusCode
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +16,7 @@ class FileRepository:
     @with_transaction
     async def upload_file(
         data: request_dto.UploadFileRequestDTO, session: AsyncSession
-    ) -> None:
+    ) -> str:
         new_file = data.to_model(File)
         session.add(new_file)
 
@@ -25,6 +25,9 @@ class FileRepository:
         except IntegrityError as exc:
             exc.args = (StatusCode.ALREADY_EXISTS, "File already exists")
             raise exc
+
+        await session.refresh(new_file)
+        return new_file.file_id
 
     @staticmethod
     @with_transaction
@@ -54,29 +57,20 @@ class FileRepository:
 
     @staticmethod
     @with_transaction
-    async def get_file_list_to_delete(
-        data: request_dto.DeleteFilesRequestDTO, session: AsyncSession
-    ) -> response_dto.DeleteFilesResponseDTO:
-        files = (
-            (
-                await session.execute(
-                    select(File).where(
-                        File.file_id.in_(data.file_ids), File.user_id == data.user_id
-                    )
-                )
+    async def validate_user_files(
+        user_id: str, file_ids: list[str], session: AsyncSession
+    ) -> None:
+        row_count = (
+            await session.execute(
+                select(func.count())
+                .select_from(File)
+                .where(File.user_id == user_id, File.file_id.in_(file_ids))
             )
-            .scalars()
-            .all()
-        )
-
-        if len(files) != len(data.file_ids):
+        ).scalar_one()
+        if row_count != len(file_ids):
             raise FileNotFoundException(
                 StatusCode.NOT_FOUND, "One or more files not found"
             )
-
-        return response_dto.DeleteFilesResponseDTO(
-            user_id=data.user_id, paths=[file.path for file in files]
-        )
 
     @staticmethod
     @with_transaction
@@ -85,7 +79,7 @@ class FileRepository:
     ) -> None:
         await session.execute(
             delete(File).where(
-                File.file_id.in_(data.file_ids), File.user_id == data.user_id
+                File.user_id == data.user_id, File.file_id.in_(data.file_ids)
             )
         )
         await session.commit()

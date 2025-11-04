@@ -12,11 +12,11 @@ from utils import file_all_keys, file_download_key, file_info_key, file_list_key
 class FileService:
     @staticmethod
     async def upload_file(data: request_dto.UploadFileRequestDTO) -> str:
-        data = data.replace(size=int(data.size), path=data.path + data.name)
+        data = data.replace(size=int(data.size))
         await cache.delete(file_list_key(data.user_id))
 
-        upload_url = await FileStorage.upload_file(data)  # type: ignore
-        await FileRepository.upload_file(data)  # type: ignore
+        file_id = await FileRepository.upload_file(data)  # type: ignore
+        upload_url = await FileStorage.upload_file(file_id)  # type: ignore
         return upload_url[upload_url.find("/", 7) :]
 
     @staticmethod
@@ -28,7 +28,6 @@ class FileService:
             return cached
 
         info = await FileRepository.file_info(data)  # type: ignore
-        info = info.replace(path=info.path[: info.path.rfind("/") + 1])
         await cache.set(info_key, info, 3600)
         return info
 
@@ -39,10 +38,6 @@ class FileService:
             return cached
 
         files = await FileRepository.file_list(user_id)  # type: ignore
-
-        files = tuple(
-            file.replace(path=file.path[: file.path.rfind("/") + 1]) for file in files
-        )
         await cache.set(list_key, files, 3600)
         return files
 
@@ -60,9 +55,12 @@ class FileService:
 
     @staticmethod
     async def delete_files(data: request_dto.DeleteFilesRequestDTO) -> None:
+        if not data.file_ids:
+            return
+
         await cache.delete(file_list_key(data.user_id))
-        files = await FileRepository.get_file_list_to_delete(data)  # type: ignore
-        await FileStorage.delete_files(files)  # type: ignore
+        await FileRepository.validate_user_files(data.user_id, data.file_ids)  # type: ignore
+        await FileStorage.delete_files(data.file_ids)  # type: ignore
         await FileRepository.delete_files(data)  # type: ignore
 
         for file_id in data.file_ids:

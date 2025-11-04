@@ -4,14 +4,14 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 
 from schemas import file_schemas
 
-from .mocks import ACCESS_TOKEN, FILE_ID, NAME, PATH, SIZE, TIMESTAMP, URL
+from .mocks import ACCESS_TOKEN, FILE_ID, NAME, SIZE, TIMESTAMP, URL
 
 PREFIX = "/api/v1/file"
 
 
 @pytest.mark.asyncio
 async def test_upload_file(client):
-    data = file_schemas.UploadFile(NAME, PATH, SIZE)
+    data = file_schemas.UploadFile(NAME, SIZE)
     response = await client.post(
         f"{PREFIX}/upload-file",
         content=msgspec.msgpack.encode(data),
@@ -38,7 +38,6 @@ async def test_file_info(client):
     assert response_data == {
         "file_id": FILE_ID,
         "name": NAME,
-        "path": PATH,
         "size": SIZE,
         "uploaded_at": TIMESTAMP.isoformat(),
     }
@@ -57,7 +56,6 @@ async def test_file_list(client):
             {
                 "file_id": FILE_ID,
                 "name": NAME,
-                "path": PATH,
                 "size": SIZE,
                 "uploaded_at": TIMESTAMP.isoformat(),
             }
