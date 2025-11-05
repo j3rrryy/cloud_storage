@@ -13,7 +13,7 @@ from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class UploadFileRequest(_message.Message):
+class InitiateUploadRequest(_message.Message):
     __slots__ = ("user_id", "name", "size")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -28,13 +28,67 @@ class UploadFileRequest(_message.Message):
         size: _Optional[int] = ...,
     ) -> None: ...
 
-class FileURLResponse(_message.Message):
-    __slots__ = ("url",)
-    URL_FIELD_NUMBER: _ClassVar[int]
-    url: str
-    def __init__(self, url: _Optional[str] = ...) -> None: ...
+class InitiateUploadResponse(_message.Message):
+    __slots__ = ("upload_id", "part_size", "parts")
+    UPLOAD_ID_FIELD_NUMBER: _ClassVar[int]
+    PART_SIZE_FIELD_NUMBER: _ClassVar[int]
+    PARTS_FIELD_NUMBER: _ClassVar[int]
+    upload_id: str
+    part_size: int
+    parts: _containers.RepeatedCompositeFieldContainer[UploadPart]
+    def __init__(
+        self,
+        upload_id: _Optional[str] = ...,
+        part_size: _Optional[int] = ...,
+        parts: _Optional[_Iterable[_Union[UploadPart, _Mapping]]] = ...,
+    ) -> None: ...
 
-class FileOperationRequest(_message.Message):
+class UploadPart(_message.Message):
+    __slots__ = ("part_number", "url")
+    PART_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    URL_FIELD_NUMBER: _ClassVar[int]
+    part_number: int
+    url: str
+    def __init__(
+        self, part_number: _Optional[int] = ..., url: _Optional[str] = ...
+    ) -> None: ...
+
+class CompleteUploadRequest(_message.Message):
+    __slots__ = ("user_id", "upload_id", "parts")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    UPLOAD_ID_FIELD_NUMBER: _ClassVar[int]
+    PARTS_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    upload_id: str
+    parts: _containers.RepeatedCompositeFieldContainer[CompletePart]
+    def __init__(
+        self,
+        user_id: _Optional[str] = ...,
+        upload_id: _Optional[str] = ...,
+        parts: _Optional[_Iterable[_Union[CompletePart, _Mapping]]] = ...,
+    ) -> None: ...
+
+class CompletePart(_message.Message):
+    __slots__ = ("part_number", "etag")
+    PART_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    ETAG_FIELD_NUMBER: _ClassVar[int]
+    part_number: int
+    etag: str
+    def __init__(
+        self, part_number: _Optional[int] = ..., etag: _Optional[str] = ...
+    ) -> None: ...
+
+class AbortUploadRequest(_message.Message):
+    __slots__ = ("user_id", "upload_id")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    UPLOAD_ID_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    upload_id: str
+    def __init__(
+        self, user_id: _Optional[str] = ..., upload_id: _Optional[str] = ...
+    ) -> None: ...
+
+class FileRequest(_message.Message):
     __slots__ = ("user_id", "file_id")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     FILE_ID_FIELD_NUMBER: _ClassVar[int]
@@ -78,7 +132,13 @@ class FileListResponse(_message.Message):
         self, files: _Optional[_Iterable[_Union[FileInfoResponse, _Mapping]]] = ...
     ) -> None: ...
 
-class DeleteFilesRequest(_message.Message):
+class URL(_message.Message):
+    __slots__ = ("url",)
+    URL_FIELD_NUMBER: _ClassVar[int]
+    url: str
+    def __init__(self, url: _Optional[str] = ...) -> None: ...
+
+class DeleteRequest(_message.Message):
     __slots__ = ("user_id", "file_ids")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     FILE_IDS_FIELD_NUMBER: _ClassVar[int]

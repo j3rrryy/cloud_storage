@@ -28,7 +28,7 @@
 - Fast serialization with MessagePack
 - Access and refresh JWT tokens
 - Active sessions control
-- Multipart file upload & range download
+- Multipart file upload & download
 - Emails with new login info
 - Main DB - PostgreSQL
 - DB for cache - Redis

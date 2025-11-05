@@ -40,15 +40,27 @@ class FileStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.UploadFile = channel.unary_unary(
-            "/file.File/UploadFile",
-            request_serializer=file__pb2.UploadFileRequest.SerializeToString,
-            response_deserializer=file__pb2.FileURLResponse.FromString,
+        self.InitiateUpload = channel.unary_unary(
+            "/file.File/InitiateUpload",
+            request_serializer=file__pb2.InitiateUploadRequest.SerializeToString,
+            response_deserializer=file__pb2.InitiateUploadResponse.FromString,
+            _registered_method=True,
+        )
+        self.CompleteUpload = channel.unary_unary(
+            "/file.File/CompleteUpload",
+            request_serializer=file__pb2.CompleteUploadRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            _registered_method=True,
+        )
+        self.AbortUpload = channel.unary_unary(
+            "/file.File/AbortUpload",
+            request_serializer=file__pb2.AbortUploadRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
         self.FileInfo = channel.unary_unary(
             "/file.File/FileInfo",
-            request_serializer=file__pb2.FileOperationRequest.SerializeToString,
+            request_serializer=file__pb2.FileRequest.SerializeToString,
             response_deserializer=file__pb2.FileInfoResponse.FromString,
             _registered_method=True,
         )
@@ -58,20 +70,20 @@ class FileStub(object):
             response_deserializer=file__pb2.FileListResponse.FromString,
             _registered_method=True,
         )
-        self.DownloadFile = channel.unary_unary(
-            "/file.File/DownloadFile",
-            request_serializer=file__pb2.FileOperationRequest.SerializeToString,
-            response_deserializer=file__pb2.FileURLResponse.FromString,
+        self.Download = channel.unary_unary(
+            "/file.File/Download",
+            request_serializer=file__pb2.FileRequest.SerializeToString,
+            response_deserializer=file__pb2.URL.FromString,
             _registered_method=True,
         )
-        self.DeleteFiles = channel.unary_unary(
-            "/file.File/DeleteFiles",
-            request_serializer=file__pb2.DeleteFilesRequest.SerializeToString,
+        self.Delete = channel.unary_unary(
+            "/file.File/Delete",
+            request_serializer=file__pb2.DeleteRequest.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
-        self.DeleteAllFiles = channel.unary_unary(
-            "/file.File/DeleteAllFiles",
+        self.DeleteAll = channel.unary_unary(
+            "/file.File/DeleteAll",
             request_serializer=file__pb2.UserId.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
@@ -81,7 +93,19 @@ class FileStub(object):
 class FileServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def UploadFile(self, request, context):
+    def InitiateUpload(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def CompleteUpload(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def AbortUpload(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -99,19 +123,19 @@ class FileServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def DownloadFile(self, request, context):
+    def Download(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def DeleteFiles(self, request, context):
+    def Delete(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def DeleteAllFiles(self, request, context):
+    def DeleteAll(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -120,14 +144,24 @@ class FileServicer(object):
 
 def add_FileServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "UploadFile": grpc.unary_unary_rpc_method_handler(
-            servicer.UploadFile,
-            request_deserializer=file__pb2.UploadFileRequest.FromString,
-            response_serializer=file__pb2.FileURLResponse.SerializeToString,
+        "InitiateUpload": grpc.unary_unary_rpc_method_handler(
+            servicer.InitiateUpload,
+            request_deserializer=file__pb2.InitiateUploadRequest.FromString,
+            response_serializer=file__pb2.InitiateUploadResponse.SerializeToString,
+        ),
+        "CompleteUpload": grpc.unary_unary_rpc_method_handler(
+            servicer.CompleteUpload,
+            request_deserializer=file__pb2.CompleteUploadRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        ),
+        "AbortUpload": grpc.unary_unary_rpc_method_handler(
+            servicer.AbortUpload,
+            request_deserializer=file__pb2.AbortUploadRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "FileInfo": grpc.unary_unary_rpc_method_handler(
             servicer.FileInfo,
-            request_deserializer=file__pb2.FileOperationRequest.FromString,
+            request_deserializer=file__pb2.FileRequest.FromString,
             response_serializer=file__pb2.FileInfoResponse.SerializeToString,
         ),
         "FileList": grpc.unary_unary_rpc_method_handler(
@@ -135,18 +169,18 @@ def add_FileServicer_to_server(servicer, server):
             request_deserializer=file__pb2.UserId.FromString,
             response_serializer=file__pb2.FileListResponse.SerializeToString,
         ),
-        "DownloadFile": grpc.unary_unary_rpc_method_handler(
-            servicer.DownloadFile,
-            request_deserializer=file__pb2.FileOperationRequest.FromString,
-            response_serializer=file__pb2.FileURLResponse.SerializeToString,
+        "Download": grpc.unary_unary_rpc_method_handler(
+            servicer.Download,
+            request_deserializer=file__pb2.FileRequest.FromString,
+            response_serializer=file__pb2.URL.SerializeToString,
         ),
-        "DeleteFiles": grpc.unary_unary_rpc_method_handler(
-            servicer.DeleteFiles,
-            request_deserializer=file__pb2.DeleteFilesRequest.FromString,
+        "Delete": grpc.unary_unary_rpc_method_handler(
+            servicer.Delete,
+            request_deserializer=file__pb2.DeleteRequest.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
-        "DeleteAllFiles": grpc.unary_unary_rpc_method_handler(
-            servicer.DeleteAllFiles,
+        "DeleteAll": grpc.unary_unary_rpc_method_handler(
+            servicer.DeleteAll,
             request_deserializer=file__pb2.UserId.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
@@ -163,7 +197,7 @@ class File(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def UploadFile(
+    def InitiateUpload(
         request,
         target,
         options=(),
@@ -178,9 +212,69 @@ class File(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/file.File/UploadFile",
-            file__pb2.UploadFileRequest.SerializeToString,
-            file__pb2.FileURLResponse.FromString,
+            "/file.File/InitiateUpload",
+            file__pb2.InitiateUploadRequest.SerializeToString,
+            file__pb2.InitiateUploadResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def CompleteUpload(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/CompleteUpload",
+            file__pb2.CompleteUploadRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def AbortUpload(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/file.File/AbortUpload",
+            file__pb2.AbortUploadRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -209,7 +303,7 @@ class File(object):
             request,
             target,
             "/file.File/FileInfo",
-            file__pb2.FileOperationRequest.SerializeToString,
+            file__pb2.FileRequest.SerializeToString,
             file__pb2.FileInfoResponse.FromString,
             options,
             channel_credentials,
@@ -253,7 +347,7 @@ class File(object):
         )
 
     @staticmethod
-    def DownloadFile(
+    def Download(
         request,
         target,
         options=(),
@@ -268,9 +362,9 @@ class File(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/file.File/DownloadFile",
-            file__pb2.FileOperationRequest.SerializeToString,
-            file__pb2.FileURLResponse.FromString,
+            "/file.File/Download",
+            file__pb2.FileRequest.SerializeToString,
+            file__pb2.URL.FromString,
             options,
             channel_credentials,
             insecure,
@@ -283,7 +377,7 @@ class File(object):
         )
 
     @staticmethod
-    def DeleteFiles(
+    def Delete(
         request,
         target,
         options=(),
@@ -298,8 +392,8 @@ class File(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/file.File/DeleteFiles",
-            file__pb2.DeleteFilesRequest.SerializeToString,
+            "/file.File/Delete",
+            file__pb2.DeleteRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -313,7 +407,7 @@ class File(object):
         )
 
     @staticmethod
-    def DeleteAllFiles(
+    def DeleteAll(
         request,
         target,
         options=(),
@@ -328,7 +422,7 @@ class File(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/file.File/DeleteAllFiles",
+            "/file.File/DeleteAll",
             file__pb2.UserId.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,

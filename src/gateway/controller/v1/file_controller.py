@@ -14,32 +14,69 @@ from utils import validate_access_token
 
 
 class FileController(Controller):
-    path = "/file"
+    path = "/files"
 
     @post(
-        "/upload-file",
-        status_code=201,
-        response_model=file_schemas.UploadURL,
+        "/initiate-upload",
+        status_code=200,
+        response_model=file_schemas.InitiatedUpload,
         media_type=MediaType.MESSAGEPACK,
     )
-    async def upload_file(
+    async def initiate_upload(
         self,
         data: Annotated[
-            file_schemas.UploadFile, Body(media_type=RequestEncodingType.MESSAGEPACK)
+            file_schemas.InitiateUpload,
+            Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         request: Request,
         auth_service_v1: AuthService,
         file_service_v1: FileService,
-    ) -> file_schemas.UploadURL:
+    ) -> file_schemas.InitiatedUpload:
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
 
-        dto = file_dto.UploadFileDTO(user_id, data.name, data.size)
-        upload_url = await file_service_v1.upload_file(dto)
-        return file_schemas.UploadURL(upload_url)
+        dto = file_dto.InitiateUploadDTO(user_id, data.name, data.size)
+        upload = await file_service_v1.initiate_upload(dto)
+        return upload.to_schema(file_schemas.InitiatedUpload)
+
+    @post("/complete-upload", status_code=201)
+    async def complete_upload(
+        self,
+        data: Annotated[
+            file_schemas.CompleteUpload,
+            Body(media_type=RequestEncodingType.MESSAGEPACK),
+        ],
+        request: Request,
+        auth_service_v1: AuthService,
+        file_service_v1: FileService,
+    ) -> None:
+        access_token = validate_access_token(request)
+        user_id = await auth_service_v1.auth(access_token)
+        dto = file_dto.CompleteUploadDTO(
+            user_id,
+            data.upload_id,
+            [
+                file_dto.CompletePartDTO(part.part_number, part.etag)
+                for part in data.parts
+            ],
+        )
+        await file_service_v1.complete_upload(dto)
+
+    @delete("/abort-upload/{upload_id: uuid}", status_code=204)
+    async def abort_upload(
+        self,
+        upload_id: UUID,
+        request: Request,
+        auth_service_v1: AuthService,
+        file_service_v1: FileService,
+    ) -> None:
+        access_token = validate_access_token(request)
+        user_id = await auth_service_v1.auth(access_token)
+        dto = file_dto.AbortUploadDTO(user_id, str(upload_id))
+        await file_service_v1.abort_upload(dto)
 
     @get(
-        "/file-info/{file_id: uuid}",
+        "/{file_id: uuid}",
         status_code=200,
         response_model=file_schemas.FileInfo,
         media_type=MediaType.MESSAGEPACK,
@@ -59,7 +96,7 @@ class FileController(Controller):
         return file_info.to_schema(file_schemas.FileInfo)
 
     @get(
-        "/file-list",
+        "/",
         status_code=200,
         response_model=file_schemas.FileList,
         media_type=MediaType.MESSAGEPACK,
@@ -77,8 +114,8 @@ class FileController(Controller):
             tuple(file.to_schema(file_schemas.FileInfo) for file in files)
         )
 
-    @get("/download-file/{file_id: uuid}", status_code=307, response_class=Redirect)
-    async def download_file(
+    @get("/download/{file_id: uuid}", status_code=307, response_class=Redirect)
+    async def download(
         self,
         file_id: UUID,
         request: Request,
@@ -89,11 +126,11 @@ class FileController(Controller):
         user_id = await auth_service_v1.auth(access_token)
 
         dto = file_dto.FileDTO(user_id, str(file_id))
-        file_url = await file_service_v1.download_file(dto)
+        file_url = await file_service_v1.download(dto)
         return Redirect(file_url, status_code=HTTP_307_TEMPORARY_REDIRECT)
 
-    @delete("/delete-files", status_code=204)
-    async def delete_files(
+    @delete("/", status_code=204)
+    async def delete_file(
         self,
         file_id: list[UUID],
         request: Request,
@@ -102,11 +139,11 @@ class FileController(Controller):
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
-        dto = file_dto.DeleteFilesDTO(user_id, {str(fid) for fid in file_id})
-        await file_service_v1.delete_files(dto)
+        dto = file_dto.DeleteDTO(user_id, {str(fid) for fid in file_id})
+        await file_service_v1.delete(dto)
 
-    @delete("/delete-all-files", status_code=204)
-    async def delete_all_files(
+    @delete("/all", status_code=204)
+    async def delete_all(
         self,
         request: Request,
         auth_service_v1: AuthService,
@@ -114,7 +151,7 @@ class FileController(Controller):
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
-        await file_service_v1.delete_all_files(user_id)
+        await file_service_v1.delete_all(user_id)
 
 
 file_router = Router("/v1", route_handlers=(FileController,), tags=("file",))

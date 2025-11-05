@@ -23,7 +23,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\nfile.proto\x12\x04\x66ile\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto"@\n\x11UploadFileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x04"\x1e\n\x0f\x46ileURLResponse\x12\x0b\n\x03url\x18\x01 \x01(\t"8\n\x14\x46ileOperationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t"p\n\x10\x46ileInfoResponse\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x04\x12/\n\x0buploaded_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"\x19\n\x06UserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t"9\n\x10\x46ileListResponse\x12%\n\x05\x66iles\x18\x01 \x03(\x0b\x32\x16.file.FileInfoResponse"7\n\x12\x44\x65leteFilesRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ile_ids\x18\x02 \x03(\t2\xf2\x02\n\x04\x46ile\x12<\n\nUploadFile\x12\x17.file.UploadFileRequest\x1a\x15.file.FileURLResponse\x12>\n\x08\x46ileInfo\x12\x1a.file.FileOperationRequest\x1a\x16.file.FileInfoResponse\x12\x30\n\x08\x46ileList\x12\x0c.file.UserId\x1a\x16.file.FileListResponse\x12\x41\n\x0c\x44ownloadFile\x12\x1a.file.FileOperationRequest\x1a\x15.file.FileURLResponse\x12?\n\x0b\x44\x65leteFiles\x12\x18.file.DeleteFilesRequest\x1a\x16.google.protobuf.Empty\x12\x36\n\x0e\x44\x65leteAllFiles\x12\x0c.file.UserId\x1a\x16.google.protobuf.Emptyb\x06proto3'
+    b'\n\nfile.proto\x12\x04\x66ile\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto"D\n\x15InitiateUploadRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x04"_\n\x16InitiateUploadResponse\x12\x11\n\tupload_id\x18\x01 \x01(\t\x12\x11\n\tpart_size\x18\x02 \x01(\r\x12\x1f\n\x05parts\x18\x03 \x03(\x0b\x32\x10.file.UploadPart".\n\nUploadPart\x12\x13\n\x0bpart_number\x18\x01 \x01(\r\x12\x0b\n\x03url\x18\x02 \x01(\t"^\n\x15\x43ompleteUploadRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x11\n\tupload_id\x18\x02 \x01(\t\x12!\n\x05parts\x18\x03 \x03(\x0b\x32\x12.file.CompletePart"1\n\x0c\x43ompletePart\x12\x13\n\x0bpart_number\x18\x01 \x01(\r\x12\x0c\n\x04\x65tag\x18\x02 \x01(\t"8\n\x12\x41\x62ortUploadRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x11\n\tupload_id\x18\x02 \x01(\t"/\n\x0b\x46ileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t"p\n\x10\x46ileInfoResponse\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x04\x12/\n\x0buploaded_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"\x19\n\x06UserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t"9\n\x10\x46ileListResponse\x12%\n\x05\x66iles\x18\x01 \x03(\x0b\x32\x16.file.FileInfoResponse"\x12\n\x03URL\x12\x0b\n\x03url\x18\x01 \x01(\t"2\n\rDeleteRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ile_ids\x18\x02 \x03(\t2\xd8\x03\n\x04\x46ile\x12K\n\x0eInitiateUpload\x12\x1b.file.InitiateUploadRequest\x1a\x1c.file.InitiateUploadResponse\x12\x45\n\x0e\x43ompleteUpload\x12\x1b.file.CompleteUploadRequest\x1a\x16.google.protobuf.Empty\x12?\n\x0b\x41\x62ortUpload\x12\x18.file.AbortUploadRequest\x1a\x16.google.protobuf.Empty\x12\x35\n\x08\x46ileInfo\x12\x11.file.FileRequest\x1a\x16.file.FileInfoResponse\x12\x30\n\x08\x46ileList\x12\x0c.file.UserId\x1a\x16.file.FileListResponse\x12(\n\x08\x44ownload\x12\x11.file.FileRequest\x1a\t.file.URL\x12\x35\n\x06\x44\x65lete\x12\x13.file.DeleteRequest\x1a\x16.google.protobuf.Empty\x12\x31\n\tDeleteAll\x12\x0c.file.UserId\x1a\x16.google.protobuf.Emptyb\x06proto3'
 )
 
 _globals = globals()
@@ -31,20 +31,30 @@ _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "file_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
-    _globals["_UPLOADFILEREQUEST"]._serialized_start = 82
-    _globals["_UPLOADFILEREQUEST"]._serialized_end = 146
-    _globals["_FILEURLRESPONSE"]._serialized_start = 148
-    _globals["_FILEURLRESPONSE"]._serialized_end = 178
-    _globals["_FILEOPERATIONREQUEST"]._serialized_start = 180
-    _globals["_FILEOPERATIONREQUEST"]._serialized_end = 236
-    _globals["_FILEINFORESPONSE"]._serialized_start = 238
-    _globals["_FILEINFORESPONSE"]._serialized_end = 350
-    _globals["_USERID"]._serialized_start = 352
-    _globals["_USERID"]._serialized_end = 377
-    _globals["_FILELISTRESPONSE"]._serialized_start = 379
-    _globals["_FILELISTRESPONSE"]._serialized_end = 436
-    _globals["_DELETEFILESREQUEST"]._serialized_start = 438
-    _globals["_DELETEFILESREQUEST"]._serialized_end = 493
-    _globals["_FILE"]._serialized_start = 496
-    _globals["_FILE"]._serialized_end = 866
+    _globals["_INITIATEUPLOADREQUEST"]._serialized_start = 82
+    _globals["_INITIATEUPLOADREQUEST"]._serialized_end = 150
+    _globals["_INITIATEUPLOADRESPONSE"]._serialized_start = 152
+    _globals["_INITIATEUPLOADRESPONSE"]._serialized_end = 247
+    _globals["_UPLOADPART"]._serialized_start = 249
+    _globals["_UPLOADPART"]._serialized_end = 295
+    _globals["_COMPLETEUPLOADREQUEST"]._serialized_start = 297
+    _globals["_COMPLETEUPLOADREQUEST"]._serialized_end = 391
+    _globals["_COMPLETEPART"]._serialized_start = 393
+    _globals["_COMPLETEPART"]._serialized_end = 442
+    _globals["_ABORTUPLOADREQUEST"]._serialized_start = 444
+    _globals["_ABORTUPLOADREQUEST"]._serialized_end = 500
+    _globals["_FILEREQUEST"]._serialized_start = 502
+    _globals["_FILEREQUEST"]._serialized_end = 549
+    _globals["_FILEINFORESPONSE"]._serialized_start = 551
+    _globals["_FILEINFORESPONSE"]._serialized_end = 663
+    _globals["_USERID"]._serialized_start = 665
+    _globals["_USERID"]._serialized_end = 690
+    _globals["_FILELISTRESPONSE"]._serialized_start = 692
+    _globals["_FILELISTRESPONSE"]._serialized_end = 749
+    _globals["_URL"]._serialized_start = 751
+    _globals["_URL"]._serialized_end = 769
+    _globals["_DELETEREQUEST"]._serialized_start = 771
+    _globals["_DELETEREQUEST"]._serialized_end = 821
+    _globals["_FILE"]._serialized_start = 824
+    _globals["_FILE"]._serialized_end = 1296
 # @@protoc_insertion_point(module_scope)
