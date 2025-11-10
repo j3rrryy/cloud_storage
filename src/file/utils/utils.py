@@ -65,6 +65,10 @@ def utc_now_naive() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+def file_upload_key(user_id: str, upload_id: str) -> str:
+    return f"file:{user_id}:{upload_id}:upload"
+
+
 def file_list_key(user_id: str) -> str:
     return f"file:{user_id}:list"
 

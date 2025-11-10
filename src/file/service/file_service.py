@@ -1,23 +1,69 @@
 import asyncio
+import os
 
 from cashews import cache
+from grpc import StatusCode
 
 from dto import request as request_dto
 from dto import response as response_dto
+from exceptions import (
+    FileNotFoundException,
+    FileTooLargeException,
+    NoUploadedPartsException,
+)
 from repository import FileRepository
 from storage import FileStorage
-from utils import file_all_keys, file_download_key, file_info_key, file_list_key
+from utils import (
+    file_all_keys,
+    file_download_key,
+    file_info_key,
+    file_list_key,
+    file_upload_key,
+)
 
 
 class FileService:
-    @staticmethod
-    async def upload_file(data: request_dto.UploadFileRequestDTO) -> str:
-        data = data.replace(size=int(data.size))
-        await cache.delete(file_list_key(data.user_id))
+    MAX_FILE_SIZE = int(os.environ["MAX_FILE_SIZE"])
 
-        file_id = await FileRepository.upload_file(data)  # type: ignore
-        upload_url = await FileStorage.upload_file(file_id)  # type: ignore
-        return upload_url[upload_url.find("/", 7) :]
+    @classmethod
+    async def initiate_upload(
+        cls, data: request_dto.InitiateUploadRequestDTO
+    ) -> response_dto.InitiateUploadResponseDTO:
+        if data.size > cls.MAX_FILE_SIZE:
+            raise FileTooLargeException(
+                StatusCode.FAILED_PRECONDITION, "File too large"
+            )
+
+        await FileRepository.check_if_name_is_taken(data)  # type: ignore
+        upload = await FileStorage.initiate_upload(data)  # type: ignore
+
+        initiated_upload = request_dto.InitiatedUploadRequestDTO(
+            upload.file_id, data.user_id, data.name, data.size
+        )
+        await cache.set(
+            file_upload_key(data.user_id, upload.upload_id), initiated_upload, 3600 * 24
+        )
+        return upload
+
+    @classmethod
+    async def complete_upload(cls, data: request_dto.CompleteUploadRequestDTO) -> None:
+        if not data.parts:
+            raise NoUploadedPartsException(
+                StatusCode.INVALID_ARGUMENT, "Uploaded parts list cannot be empty"
+            )
+
+        upload_key = file_upload_key(data.user_id, data.upload_id)
+        upload = await cls._get_upload(upload_key)
+        await FileStorage.complete_upload(upload.file_id, data)  # type: ignore
+        await FileRepository.complete_upload(upload)  # type: ignore
+        await cache.delete(upload_key)
+
+    @classmethod
+    async def abort_upload(cls, data: request_dto.AbortUploadRequestDTO) -> None:
+        upload_key = file_upload_key(data.user_id, data.upload_id)
+        upload = await cls._get_upload(upload_key)
+        await FileStorage.abort_upload(upload.file_id, data.upload_id)  # type: ignore
+        await cache.delete(upload_key)
 
     @staticmethod
     async def file_info(
@@ -42,7 +88,7 @@ class FileService:
         return files
 
     @staticmethod
-    async def download_file(data: request_dto.FileOperationRequestDTO) -> str:
+    async def download(data: request_dto.FileOperationRequestDTO) -> str:
         download_key = file_download_key(data.user_id, data.file_id)
         info = await cache.get(download_key)
 
@@ -50,11 +96,11 @@ class FileService:
             info = await FileRepository.file_info(data)  # type: ignore
             await cache.set(download_key, info, 3600)
 
-        download_url = await FileStorage.download_file(info)  # type: ignore
+        download_url = await FileStorage.download(info)  # type: ignore
         return download_url[download_url.find("/", 7) :]
 
     @staticmethod
-    async def delete_files(data: request_dto.DeleteFilesRequestDTO) -> None:
+    async def delete(data: request_dto.DeleteFilesRequestDTO) -> None:
         if not data.file_ids:
             return
 
@@ -70,7 +116,15 @@ class FileService:
             )
 
     @staticmethod
-    async def delete_all_files(user_id: str) -> None:
+    async def delete_all(user_id: str) -> None:
         await cache.delete_match(file_all_keys(user_id))
-        asyncio.create_task(FileStorage.delete_all_files(user_id))  # type: ignore
-        await FileRepository.delete_all_files(user_id)  # type: ignore
+        asyncio.create_task(FileStorage.delete_all(user_id))  # type: ignore
+        await FileRepository.delete_all(user_id)  # type: ignore
+
+    @staticmethod
+    async def _get_upload(upload_key: str) -> request_dto.InitiatedUploadRequestDTO:
+        if not (upload := await cache.get(upload_key)):
+            raise FileNotFoundException(
+                StatusCode.NOT_FOUND, "Uploading file not found"
+            )
+        return upload
