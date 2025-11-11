@@ -1,6 +1,7 @@
 import asyncio
 import math
 import os
+from urllib.parse import urlparse
 from uuid import uuid4
 
 import picologging as logging
@@ -38,18 +39,19 @@ class FileStorage:
 
         async def gen_url(part_number: int):
             async with semaphore:
+                url = await client.generate_presigned_url(
+                    "upload_part",
+                    Params={
+                        "Bucket": cls.BUCKET_NAME,
+                        "Key": file_id,
+                        "UploadId": upload["UploadId"],
+                        "PartNumber": part_number,
+                    },
+                    ExpiresIn=3600 * 24,
+                )
+                parsed = urlparse(url)
                 return response_dto.UploadPartResponseDTO(
-                    part_number,
-                    await client.generate_presigned_url(
-                        "upload_part",
-                        Params={
-                            "Bucket": cls.BUCKET_NAME,
-                            "Key": file_id,
-                            "UploadId": upload["UploadId"],
-                            "PartNumber": part_number,
-                        },
-                        ExpiresIn=3600 * 24,
-                    ),
+                    part_number, f"{parsed.path}?{parsed.query}"
                 )
 
         parts = await asyncio.gather(*(gen_url(i) for i in range(1, part_count + 1)))
@@ -121,9 +123,10 @@ class FileStorage:
                 "Key": data.file_id,
                 "ResponseContentDisposition": f'attachment; filename="{data.name}"',
             },
-            ExpiresIn=60,
+            ExpiresIn=300,
         )
-        return url
+        parsed = urlparse(url)
+        return f"{parsed.path}?{parsed.query}"
 
     @classmethod
     @with_storage

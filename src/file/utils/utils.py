@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from types_aiobotocore_s3 import S3Client
 
-from exceptions import FileNotFoundException
+from exceptions import FileNameIsAlreadyTakenException, FileNotFoundException
 
 T = TypeVar("T")
 
@@ -40,7 +40,14 @@ def with_transaction(func):
             return await func(*args, session, **kwargs)
         except Exception as exc:
             await session.rollback()
-            if not isinstance(exc, (IntegrityError, FileNotFoundException)):
+            if not isinstance(
+                exc,
+                (
+                    IntegrityError,
+                    FileNameIsAlreadyTakenException,
+                    FileNotFoundException,
+                ),
+            ):
                 exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 

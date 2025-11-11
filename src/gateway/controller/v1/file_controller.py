@@ -62,17 +62,17 @@ class FileController(Controller):
         )
         await file_service_v1.complete_upload(dto)
 
-    @delete("/abort-upload/{upload_id: uuid}", status_code=204)
+    @delete("/abort-upload/{upload_id: str}", status_code=204)
     async def abort_upload(
         self,
-        upload_id: UUID,
+        upload_id: str,
         request: Request,
         auth_service_v1: AuthService,
         file_service_v1: FileService,
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
-        dto = file_dto.AbortUploadDTO(user_id, str(upload_id))
+        dto = file_dto.AbortUploadDTO(user_id, upload_id)
         await file_service_v1.abort_upload(dto)
 
     @get(

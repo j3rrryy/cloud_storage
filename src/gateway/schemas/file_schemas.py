@@ -18,7 +18,7 @@ class UploadPart(Struct):
 
 
 class InitiatedUpload(Struct):
-    upload_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
+    upload_id: str
     part_size: Annotated[int, Meta(gt=0)]
     parts: list[UploadPart]
 
@@ -29,7 +29,7 @@ class CompletePart(Struct):
 
 
 class CompleteUpload(Struct):
-    upload_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
+    upload_id: str
     parts: list[CompletePart]
 
 

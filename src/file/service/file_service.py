@@ -56,7 +56,7 @@ class FileService:
         upload = await cls._get_upload(upload_key)
         await FileStorage.complete_upload(upload.file_id, data)  # type: ignore
         await FileRepository.complete_upload(upload)  # type: ignore
-        await cache.delete(upload_key)
+        await cache.delete_many(file_list_key(data.user_id), upload_key)
 
     @classmethod
     async def abort_upload(cls, data: request_dto.AbortUploadRequestDTO) -> None:
@@ -96,19 +96,18 @@ class FileService:
             info = await FileRepository.file_info(data)  # type: ignore
             await cache.set(download_key, info, 3600)
 
-        download_url = await FileStorage.download(info)  # type: ignore
-        return download_url[download_url.find("/", 7) :]
+        return await FileStorage.download(info)  # type: ignore
 
     @staticmethod
     async def delete(data: request_dto.DeleteFilesRequestDTO) -> None:
         if not data.file_ids:
             return
 
-        await cache.delete(file_list_key(data.user_id))
         await FileRepository.validate_user_files(data.user_id, data.file_ids)  # type: ignore
-        await FileStorage.delete_files(data.file_ids)  # type: ignore
-        await FileRepository.delete_files(data)  # type: ignore
+        await FileStorage.delete(data.file_ids)  # type: ignore
+        await FileRepository.delete(data)  # type: ignore
 
+        await cache.delete(file_list_key(data.user_id))
         for file_id in data.file_ids:
             await cache.delete_many(
                 file_info_key(data.user_id, file_id),
@@ -117,9 +116,9 @@ class FileService:
 
     @staticmethod
     async def delete_all(user_id: str) -> None:
-        await cache.delete_match(file_all_keys(user_id))
         asyncio.create_task(FileStorage.delete_all(user_id))  # type: ignore
         await FileRepository.delete_all(user_id)  # type: ignore
+        await cache.delete_match(file_all_keys(user_id))
 
     @staticmethod
     async def _get_upload(upload_key: str) -> request_dto.InitiatedUploadRequestDTO:
