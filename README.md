@@ -103,3 +103,19 @@
 ```shell
 docker compose -f docker-compose.<dev/prod>.yml stop
 ```
+
+### :chart_with_upwards_trend: Load testing
+
+- Install Locust
+
+```shell
+pip install locust
+```
+
+- Run the script
+
+```shell
+locust --host localhost -f ./load_testing/load_test.py
+```
+
+- Open the [console](http://localhost:8089)
