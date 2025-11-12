@@ -312,11 +312,7 @@ async def test_delete_profile(mock_cached_access_token, mock_cache, mock_reposit
 @patch("service.auth_service.validate_jwt")
 async def test_cached_access_token(mock_validate_jwt, mock_cache, mock_repository):
     mock_validate_jwt.return_value = MagicMock(
-        exp=int(time())
-        + AuthService.CACHE_SAFETY_MARGIN
-        + AuthService.MIN_CACHE_TTL
-        + 1,
-        subject=USER_ID,
+        exp=int(time()) + AuthService.MIN_CACHE_TTL + 1, subject=USER_ID
     )
     user_id = await AuthService._cached_access_token(ACCESS_TOKEN)
 
@@ -335,8 +331,7 @@ async def test_cached_access_token_not_cached(
     mock_validate_jwt, mock_cache, mock_repository
 ):
     mock_validate_jwt.return_value = MagicMock(
-        exp=int(time()) + AuthService.CACHE_SAFETY_MARGIN + AuthService.MIN_CACHE_TTL,
-        subject=USER_ID,
+        exp=int(time()) + AuthService.MIN_CACHE_TTL, subject=USER_ID
     )
     user_id = await AuthService._cached_access_token(ACCESS_TOKEN)
 
