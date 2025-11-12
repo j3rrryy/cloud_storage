@@ -41,4 +41,4 @@ class FileInfo(Struct):
 
 
 class FileList(Struct):
-    files: tuple[FileInfo, ...]
+    files: list[FileInfo]

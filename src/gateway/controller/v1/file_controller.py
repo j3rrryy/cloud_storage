@@ -111,7 +111,7 @@ class FileController(Controller):
         user_id = await auth_service_v1.auth(access_token)
         files = await file_service_v1.file_list(user_id)
         return file_schemas.FileList(
-            tuple(file.to_schema(file_schemas.FileInfo) for file in files)
+            [file.to_schema(file_schemas.FileInfo) for file in files]
         )
 
     @get("/download/{file_id: uuid}", status_code=307, response_class=Redirect)

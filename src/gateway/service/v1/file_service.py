@@ -1,5 +1,3 @@
-from typing import Generator
-
 from dto import file_dto
 from proto import file_pb2 as pb2
 
@@ -32,12 +30,10 @@ class FileService(RPCBaseService):
         return file_dto.FileInfoDTO.from_response(file_info)
 
     @RPCBaseService.exception_handler
-    async def file_list(
-        self, user_id: str
-    ) -> Generator[file_dto.FileInfoDTO, None, None]:
+    async def file_list(self, user_id: str) -> list[file_dto.FileInfoDTO]:
         request = pb2.UserId(user_id=user_id)
         files: pb2.FileListResponse = await self._stub.FileList(request)
-        return (file_dto.FileInfoDTO.from_response(file) for file in files.files)
+        return [file_dto.FileInfoDTO.from_response(file) for file in files.files]
 
     @RPCBaseService.exception_handler
     async def download(self, data: file_dto.FileDTO) -> str:
