@@ -59,7 +59,7 @@ class AbortUploadRequestDTO(BaseRequestDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class FileOperationRequestDTO(BaseRequestDTO):
+class FileRequestDTO(BaseRequestDTO):
     user_id: str
     file_id: str
 

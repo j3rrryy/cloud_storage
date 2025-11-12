@@ -26,7 +26,7 @@ class FileController(FileServicer):
         return empty_pb2.Empty()
 
     async def FileInfo(self, request, context):
-        dto = request_dto.FileOperationRequestDTO.from_request(request)
+        dto = request_dto.FileRequestDTO.from_request(request)
         info = await ExceptionHandler.handle(context, FileService.file_info, dto)
         return info.to_response(pb2.FileInfoResponse)
 
@@ -39,7 +39,7 @@ class FileController(FileServicer):
         )
 
     async def Download(self, request, context):
-        dto = request_dto.FileOperationRequestDTO.from_request(request)
+        dto = request_dto.FileRequestDTO.from_request(request)
         file_url = await ExceptionHandler.handle(context, FileService.download, dto)
         return pb2.URL(url=file_url)
 

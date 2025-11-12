@@ -30,9 +30,7 @@ class FileService:
         cls, data: request_dto.InitiateUploadRequestDTO
     ) -> response_dto.InitiateUploadResponseDTO:
         if data.size > cls.MAX_FILE_SIZE:
-            raise FileTooLargeException(
-                StatusCode.FAILED_PRECONDITION, "File too large"
-            )
+            raise FileTooLargeException(StatusCode.INVALID_ARGUMENT, "File too large")
 
         await FileRepository.check_if_name_is_taken(data)  # type: ignore
         upload = await FileStorage.initiate_upload(data)  # type: ignore
@@ -67,7 +65,7 @@ class FileService:
 
     @staticmethod
     async def file_info(
-        data: request_dto.FileOperationRequestDTO,
+        data: request_dto.FileRequestDTO,
     ) -> response_dto.FileInfoResponseDTO:
         info_key = file_info_key(data.user_id, data.file_id)
         if cached := await cache.get(info_key):
@@ -88,7 +86,7 @@ class FileService:
         return files
 
     @staticmethod
-    async def download(data: request_dto.FileOperationRequestDTO) -> str:
+    async def download(data: request_dto.FileRequestDTO) -> str:
         download_key = file_download_key(data.user_id, data.file_id)
         info = await cache.get(download_key)
 

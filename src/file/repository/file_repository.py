@@ -46,7 +46,7 @@ class FileRepository:
     @staticmethod
     @with_transaction
     async def file_info(
-        data: request_dto.FileOperationRequestDTO, session: AsyncSession
+        data: request_dto.FileRequestDTO, session: AsyncSession
     ) -> response_dto.FileInfoResponseDTO:
         file = await session.get(File, data.file_id)
 
