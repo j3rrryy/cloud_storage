@@ -7,6 +7,7 @@ from litestar.exceptions import (
     NotAuthorizedException,
     NotFoundException,
     ServiceUnavailableException,
+    ValidationException,
 )
 
 
@@ -22,6 +23,7 @@ class RPCBaseService:
             detail=detail
         ),
         StatusCode.NOT_FOUND: lambda detail: NotFoundException(detail=detail),
+        StatusCode.INVALID_ARGUMENT: lambda detail: ValidationException(detail=detail),
         StatusCode.RESOURCE_EXHAUSTED: lambda detail: ServiceUnavailableException(
             detail=detail
         ),

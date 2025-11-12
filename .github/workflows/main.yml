@@ -48,7 +48,7 @@ jobs:
 
       - name: Run ${{ matrix.service }} tests
         run: |
-          docker compose -f ./docker-compose.test.yml up ${{ matrix.service }}
+          docker compose -f ./docker-compose.test.yml up --exit-code-from ${{ matrix.service }} ${{ matrix.service }}
           docker cp ${{ matrix.service }}_test:./src/${{ matrix.service }}/coverage.xml ./coverage_${{ matrix.service }}.xml
 
       - name: Upload coverage to Codecov

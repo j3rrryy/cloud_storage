@@ -25,8 +25,7 @@ from utils import (
 
 
 class AuthService:
-    CACHE_SAFETY_MARGIN = 30
-    MIN_CACHE_TTL = 30
+    MIN_CACHE_TTL = 5
 
     @staticmethod
     async def register(
@@ -223,7 +222,7 @@ class AuthService:
         jwt = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
         await AuthRepository.validate_access_token(access_token)  # type: ignore
 
-        ttl = max(0, jwt.exp - int(time()) - cls.CACHE_SAFETY_MARGIN)
+        ttl = jwt.exp - int(time())
         if ttl > cls.MIN_CACHE_TTL:
             await cache.set(key, jwt.subject, ttl)
 

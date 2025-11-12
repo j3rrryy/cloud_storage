@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from types_aiobotocore_s3 import S3Client
 
-from exceptions import FileNotFoundException
+from exceptions import FileNameIsAlreadyTakenException, FileNotFoundException
 
 T = TypeVar("T")
 
@@ -40,7 +40,14 @@ def with_transaction(func):
             return await func(*args, session, **kwargs)
         except Exception as exc:
             await session.rollback()
-            if not isinstance(exc, (IntegrityError, FileNotFoundException)):
+            if not isinstance(
+                exc,
+                (
+                    IntegrityError,
+                    FileNameIsAlreadyTakenException,
+                    FileNotFoundException,
+                ),
+            ):
                 exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
             raise exc
 
@@ -63,6 +70,10 @@ def with_storage(func):
 
 def utc_now_naive() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def file_upload_key(user_id: str, upload_id: str) -> str:
+    return f"file:{user_id}:{upload_id}:upload"
 
 
 def file_list_key(user_id: str) -> str:

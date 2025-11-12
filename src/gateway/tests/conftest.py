@@ -45,12 +45,12 @@ async def client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
         yield client
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def auth_service_v1() -> service_v1.AuthService:
     return service_v1.AuthService(create_auth_stub_v1())
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def file_service_v1() -> service_v1.FileService:
     return service_v1.FileService(create_file_stub_v1())
 

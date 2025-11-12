@@ -240,7 +240,7 @@ class AuthController(Controller):
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.delete_profile(access_token)
-        await file_service_v1.delete_all_files(user_id)
+        await file_service_v1.delete_all(user_id)
 
 
 auth_router = Router("/v1", route_handlers=(AuthController,), tags=("auth",))

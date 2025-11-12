@@ -6,6 +6,7 @@ from litestar.exceptions import (
     NotAuthorizedException,
     NotFoundException,
     ServiceUnavailableException,
+    ValidationException,
 )
 
 from service.v1 import RPCBaseService
@@ -18,6 +19,7 @@ from service.v1 import RPCBaseService
         (StatusCode.ALREADY_EXISTS, HTTPException(status_code=409)),
         (StatusCode.UNAUTHENTICATED, NotAuthorizedException),
         (StatusCode.NOT_FOUND, NotFoundException),
+        (StatusCode.INVALID_ARGUMENT, ValidationException),
         (StatusCode.RESOURCE_EXHAUSTED, ServiceUnavailableException),
         (StatusCode.UNAVAILABLE, ServiceUnavailableException),
         (StatusCode.INTERNAL, InternalServerException),

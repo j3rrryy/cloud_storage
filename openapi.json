@@ -1,0 +1,1729 @@
+{
+    "info": {
+        "title": "Cloud Storage",
+        "version": "1.5.0"
+    },
+    "openapi": "3.1.0",
+    "servers": [
+        {
+            "url": "/"
+        }
+    ],
+    "paths": {
+        "/api/metrics": {
+            "get": {
+                "summary": "Get",
+                "operationId": "ApiMetricsGet",
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/auth": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "AuthUser",
+                "operationId": "ApiV1AuthAuthUser",
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserId"
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/delete-profile": {
+            "delete": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "DeleteProfile",
+                "operationId": "ApiV1AuthDeleteProfileDeleteProfile",
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/log-in": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "LogIn",
+                "operationId": "ApiV1AuthLogInLogIn",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LogIn"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Tokens"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/log-out": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "LogOut",
+                "operationId": "ApiV1AuthLogOutLogOut",
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/profile": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Profile",
+                "operationId": "ApiV1AuthProfileProfile",
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile"
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/refresh": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh",
+                "operationId": "ApiV1AuthRefreshRefresh",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefreshToken"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Document created, URL follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Tokens"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register",
+                "operationId": "ApiV1AuthRegisterRegister",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Registration"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Document created, URL follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/request-reset-code": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "RequestResetCode",
+                "operationId": "ApiV1AuthRequestResetCodeRequestResetCode",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPassword"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserId"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/resend-verification-mail": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "ResendVerificationMail",
+                "operationId": "ApiV1AuthResendVerificationMailResendVerificationMail",
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "ResetPassword",
+                "operationId": "ApiV1AuthResetPasswordResetPassword",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPassword"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/revoke-session": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "RevokeSession",
+                "operationId": "ApiV1AuthRevokeSessionRevokeSession",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SessionId"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/session-list": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SessionList",
+                "operationId": "ApiV1AuthSessionListSessionList",
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SessionList"
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/update-email": {
+            "patch": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "UpdateEmail",
+                "operationId": "ApiV1AuthUpdateEmailUpdateEmail",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateEmail"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/update-password": {
+            "patch": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "UpdatePassword",
+                "operationId": "ApiV1AuthUpdatePasswordUpdatePassword",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePassword"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/validate-reset-code": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "ValidateResetCode",
+                "operationId": "ApiV1AuthValidateResetCodeValidateResetCode",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetCode"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CodeIsValid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/auth/verify-email": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "VerifyEmail",
+                "operationId": "ApiV1AuthVerifyEmailVerifyEmail",
+                "parameters": [
+                    {
+                        "name": "verification_token",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "deprecated": false,
+                        "allowEmptyValue": false,
+                        "allowReserved": false
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files/abort-upload/{upload_id}": {
+            "delete": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "AbortUpload",
+                "operationId": "ApiV1FilesAbortUploadUploadIdAbortUpload",
+                "parameters": [
+                    {
+                        "name": "upload_id",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "deprecated": false
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files/complete-upload": {
+            "post": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "CompleteUpload",
+                "operationId": "ApiV1FilesCompleteUploadCompleteUpload",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteUpload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Document created, URL follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files/all": {
+            "delete": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "DeleteAll",
+                "operationId": "ApiV1FilesAllDeleteAll",
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files": {
+            "get": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "FileList",
+                "operationId": "ApiV1FilesFileList",
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FileList"
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "DeleteFile",
+                "operationId": "ApiV1FilesDeleteFile",
+                "parameters": [
+                    {
+                        "name": "file_id",
+                        "in": "query",
+                        "schema": {
+                            "items": {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            "type": "array"
+                        },
+                        "required": true,
+                        "deprecated": false,
+                        "allowEmptyValue": false,
+                        "allowReserved": false
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request fulfilled, nothing follows",
+                        "headers": {}
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files/download/{file_id}": {
+            "get": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "Download",
+                "operationId": "ApiV1FilesDownloadFileIdDownload",
+                "parameters": [
+                    {
+                        "name": "file_id",
+                        "in": "path",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true,
+                        "deprecated": false
+                    }
+                ],
+                "responses": {
+                    "307": {
+                        "description": "Redirect Response",
+                        "headers": {
+                            "location": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "target path for the redirect",
+                                "required": false,
+                                "deprecated": false
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files/{file_id}": {
+            "get": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "FileInfo",
+                "operationId": "ApiV1FilesFileIdFileInfo",
+                "parameters": [
+                    {
+                        "name": "file_id",
+                        "in": "path",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true,
+                        "deprecated": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FileInfo"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/v1/files/initiate-upload": {
+            "post": {
+                "tags": [
+                    "file"
+                ],
+                "summary": "InitiateUpload",
+                "operationId": "ApiV1FilesInitiateUploadInitiateUpload",
+                "requestBody": {
+                    "content": {
+                        "application/x-msgpack": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InitiateUpload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request fulfilled, document follows",
+                        "headers": {},
+                        "content": {
+                            "application/x-msgpack": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InitiatedUpload"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request syntax or unsupported method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status_code": {
+                                            "type": "integer"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        },
+                                        "extra": {
+                                            "additionalProperties": {},
+                                            "type": [
+                                                "null",
+                                                "object",
+                                                "array"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object",
+                                    "required": [
+                                        "detail",
+                                        "status_code"
+                                    ],
+                                    "description": "Validation Exception",
+                                    "examples": [
+                                        {
+                                            "status_code": 400,
+                                            "detail": "Bad Request",
+                                            "extra": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CodeIsValid": {
+                "properties": {
+                    "is_valid": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "is_valid"
+                ],
+                "title": "CodeIsValid"
+            },
+            "CompletePart": {
+                "properties": {
+                    "part_number": {
+                        "type": "integer"
+                    },
+                    "etag": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "etag",
+                    "part_number"
+                ],
+                "title": "CompletePart"
+            },
+            "CompleteUpload": {
+                "properties": {
+                    "upload_id": {
+                        "type": "string"
+                    },
+                    "parts": {
+                        "items": {
+                            "$ref": "#/components/schemas/CompletePart"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "parts",
+                    "upload_id"
+                ],
+                "title": "CompleteUpload"
+            },
+            "FileInfo": {
+                "properties": {
+                    "file_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-42d3-a456-426614174000"
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "uploaded_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file_id",
+                    "name",
+                    "size",
+                    "uploaded_at"
+                ],
+                "title": "FileInfo"
+            },
+            "FileList": {
+                "properties": {
+                    "files": {
+                        "items": {
+                            "$ref": "#/components/schemas/FileInfo"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "files"
+                ],
+                "title": "FileList"
+            },
+            "ForgotPassword": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "pattern": "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+                        "examples": [
+                            "example@gmail.com"
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email"
+                ],
+                "title": "ForgotPassword"
+            },
+            "InitiateUpload": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "size": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "size"
+                ],
+                "title": "InitiateUpload"
+            },
+            "InitiatedUpload": {
+                "properties": {
+                    "upload_id": {
+                        "type": "string"
+                    },
+                    "part_size": {
+                        "type": "integer"
+                    },
+                    "parts": {
+                        "items": {
+                            "$ref": "#/components/schemas/UploadPart"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "part_size",
+                    "parts",
+                    "upload_id"
+                ],
+                "title": "InitiatedUpload"
+            },
+            "LogIn": {
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "pattern": "^\\w{3,20}$"
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 8
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "password",
+                    "username"
+                ],
+                "title": "LogIn"
+            },
+            "Profile": {
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-12d3-a456-426614174000"
+                        ]
+                    },
+                    "username": {
+                        "type": "string",
+                        "pattern": "^\\w{3,20}$"
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "pattern": "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+                        "examples": [
+                            "example@gmail.com"
+                        ]
+                    },
+                    "verified": {
+                        "type": "boolean"
+                    },
+                    "registered_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email",
+                    "registered_at",
+                    "user_id",
+                    "username",
+                    "verified"
+                ],
+                "title": "Profile"
+            },
+            "RefreshToken": {
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "maxLength": 350
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "refresh_token"
+                ],
+                "title": "RefreshToken"
+            },
+            "Registration": {
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "pattern": "^\\w{3,20}$"
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "pattern": "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+                        "examples": [
+                            "example@gmail.com"
+                        ]
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 8
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email",
+                    "password",
+                    "username"
+                ],
+                "title": "Registration"
+            },
+            "ResetCode": {
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-12d3-a456-426614174000"
+                        ]
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 6,
+                        "minLength": 6,
+                        "examples": [
+                            "123456"
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code",
+                    "user_id"
+                ],
+                "title": "ResetCode"
+            },
+            "ResetPassword": {
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-12d3-a456-426614174000"
+                        ]
+                    },
+                    "new_password": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 8
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_password",
+                    "user_id"
+                ],
+                "title": "ResetPassword"
+            },
+            "SessionId": {
+                "properties": {
+                    "session_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-12d3-a456-426614174000"
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "session_id"
+                ],
+                "title": "SessionId"
+            },
+            "SessionInfo": {
+                "properties": {
+                    "session_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-12d3-a456-426614174000"
+                        ]
+                    },
+                    "user_ip": {
+                        "type": "string",
+                        "maxLength": 15,
+                        "minLength": 7
+                    },
+                    "browser": {
+                        "type": "string",
+                        "maxLength": 150
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "browser",
+                    "created_at",
+                    "session_id",
+                    "user_ip"
+                ],
+                "title": "SessionInfo"
+            },
+            "SessionList": {
+                "properties": {
+                    "sessions": {
+                        "items": {
+                            "$ref": "#/components/schemas/SessionInfo"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "sessions"
+                ],
+                "title": "SessionList"
+            },
+            "Tokens": {
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "maxLength": 350
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "maxLength": 350
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "access_token",
+                    "refresh_token"
+                ],
+                "title": "Tokens"
+            },
+            "UpdateEmail": {
+                "properties": {
+                    "new_email": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+                        "examples": [
+                            "example@gmail.com"
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_email"
+                ],
+                "title": "UpdateEmail"
+            },
+            "UpdatePassword": {
+                "properties": {
+                    "old_password": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 8
+                    },
+                    "new_password": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 8
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_password",
+                    "old_password"
+                ],
+                "title": "UpdatePassword"
+            },
+            "UploadPart": {
+                "properties": {
+                    "part_number": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "part_number",
+                    "url"
+                ],
+                "title": "UploadPart"
+            },
+            "UserId": {
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+                        "examples": [
+                            "123e4567-e89b-12d3-a456-426614174000"
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "user_id"
+                ],
+                "title": "UserId"
+            }
+        }
+    },
+    "security": [
+        {
+            "BearerToken": []
+        }
+    ]
+}

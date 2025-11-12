@@ -1,6 +1,6 @@
 [project]
 name = "gateway"
-version = "1.4.0"
+version = "1.5.0"
 requires-python = ">=3.12"
 dependencies = [
     "aiokafka[lz4]==0.12.0",

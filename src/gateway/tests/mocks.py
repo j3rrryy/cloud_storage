@@ -27,7 +27,9 @@ USER_AGENT = (
 BROWSER = "Firefox 47.0, Windows 7"
 
 
-URL = "/file/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
+UPLOAD_ID = "YjUzZjE5MzktY2U2Zi00NmNiLWE3Y2ItNmUwY2M2ODE3NDA5LjBmNzcyN2I0LTNkZjgtNGQ0ZS1hNTc3LTRiMmRjOTFjOTc2ZXgxNzYyOTAwNTgxNzg3NDgwOTI5"
+URL = "/s3-files/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
+ETAG = "fac024381d213f9949facd263b44aea4"
 FILE_ID = "b8a47c8d-9203-456a-aa58-ceab64b13cbb"
 SIZE = 123
 NAME = "test_name"
@@ -105,7 +107,15 @@ def create_auth_stub_v1() -> MagicMock:
 def create_file_stub_v1() -> MagicMock:
     stub = MagicMock()
 
-    stub.UploadFile = AsyncMock(return_value=file_pb2.FileURLResponse(url=URL))
+    stub.InitiateUpload = AsyncMock(
+        return_value=file_pb2.InitiateUploadResponse(
+            upload_id=UPLOAD_ID,
+            part_size=SIZE,
+            parts=[file_pb2.UploadPart(part_number=1, url=URL)],
+        )
+    )
+    stub.CompleteUpload = AsyncMock(return_value=Empty())
+    stub.AbortUpload = AsyncMock(return_value=Empty())
     stub.FileInfo = AsyncMock(
         return_value=file_pb2.FileInfoResponse(
             file_id=FILE_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP_MOCK
@@ -123,9 +133,9 @@ def create_file_stub_v1() -> MagicMock:
             )
         )
     )
-    stub.DownloadFile = AsyncMock(return_value=file_pb2.FileURLResponse(url=URL))
-    stub.DeleteFiles = AsyncMock(return_value=Empty())
-    stub.DeleteAllFiles = AsyncMock(return_value=Empty())
+    stub.Download = AsyncMock(return_value=file_pb2.URL(url=URL))
+    stub.Delete = AsyncMock(return_value=Empty())
+    stub.DeleteAll = AsyncMock(return_value=Empty())
     return stub
 
 
