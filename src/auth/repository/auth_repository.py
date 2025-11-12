@@ -42,10 +42,10 @@ class AuthRepository:
     @with_transaction
     async def reset_password(
         cls, data: request_dto.ResetPasswordRequestDTO, session: AsyncSession
-    ) -> tuple[str, ...]:
+    ) -> list[str]:
         user = await cls._get_user(data.user_id, session)
         user.password = data.new_password
-        deleted_access_tokens = tuple(
+        deleted_access_tokens = list(
             await session.scalars(
                 delete(TokenPair)
                 .filter(TokenPair.user_id == user.user_id)
@@ -118,16 +118,16 @@ class AuthRepository:
     @with_transaction
     async def session_list(
         user_id: str, session: AsyncSession
-    ) -> tuple[response_dto.SessionInfoResponseDTO, ...]:
+    ) -> list[response_dto.SessionInfoResponseDTO]:
         token_pairs = await session.scalars(
             select(TokenPair)
             .filter(TokenPair.user_id == user_id)
             .order_by(TokenPair.created_at.desc())
         )
-        return tuple(
+        return [
             response_dto.SessionInfoResponseDTO.from_model(token_pair)
             for token_pair in token_pairs
-        )
+        ]
 
     @staticmethod
     @with_transaction
@@ -208,12 +208,12 @@ class AuthRepository:
     @with_transaction
     async def update_password(
         cls, data: request_dto.UpdatePasswordDataRequestDTO, session: AsyncSession
-    ) -> tuple[str, ...]:
+    ) -> list[str]:
         user = await cls._get_user(data.user_id, session)
         compare_passwords(data.old_password, user.password)
         user.password = data.new_password
 
-        deleted_access_tokens = tuple(
+        deleted_access_tokens = list(
             await session.scalars(
                 delete(TokenPair)
                 .filter(TokenPair.user_id == user.user_id)
@@ -225,7 +225,7 @@ class AuthRepository:
 
     @staticmethod
     @with_transaction
-    async def delete_profile(user_id: str, session: AsyncSession) -> tuple[str, ...]:
+    async def delete_profile(user_id: str, session: AsyncSession) -> list[str]:
         tokens_cte = (
             delete(TokenPair)
             .where(TokenPair.user_id == user_id)
@@ -249,7 +249,7 @@ class AuthRepository:
                 StatusCode.UNAUTHENTICATED, "Invalid credentials"
             )
 
-        deleted_access_tokens = tuple(r[1] for r in rows if r[1] is not None)
+        deleted_access_tokens = [r[1] for r in rows if r[1] is not None]
         await session.commit()
         return deleted_access_tokens
 

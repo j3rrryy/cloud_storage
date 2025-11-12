@@ -175,7 +175,6 @@ async def test_file_info_cached(mock_cache, mock_repository):
 async def test_file_list(mock_cache, mock_repository):
     response = await FileService.file_list(USER_ID)
 
-    assert isinstance(response, tuple)
     assert len(response) == 1
     assert isinstance(response[0], response_dto.FileInfoResponseDTO)
     mock_cache.get.assert_awaited_once()
@@ -190,7 +189,6 @@ async def test_file_list_cached(mock_cache, mock_repository):
     mock_cache.get.return_value = mock_repository.file_list.return_value
     response = await FileService.file_list(USER_ID)
 
-    assert isinstance(response, tuple)
     assert len(response) == 1
     assert isinstance(response[0], response_dto.FileInfoResponseDTO)
     mock_cache.get.assert_awaited_once()

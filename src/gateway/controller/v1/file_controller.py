@@ -139,7 +139,7 @@ class FileController(Controller):
     ) -> None:
         access_token = validate_access_token(request)
         user_id = await auth_service_v1.auth(access_token)
-        dto = file_dto.DeleteDTO(user_id, {str(fid) for fid in file_id})
+        dto = file_dto.DeleteDTO(user_id, list({str(fid) for fid in file_id}))
         await file_service_v1.delete(dto)
 
     @delete("/all", status_code=204)

@@ -59,15 +59,13 @@ class FileRepository:
     @with_transaction
     async def file_list(
         user_id: str, session: AsyncSession
-    ) -> tuple[response_dto.FileInfoResponseDTO, ...]:
+    ) -> list[response_dto.FileInfoResponseDTO]:
         files = (
             (await session.execute(select(File).filter(File.user_id == user_id)))
             .scalars()
             .all()
         )
-        return tuple(
-            response_dto.FileInfoResponseDTO.from_model(file) for file in files
-        )
+        return [response_dto.FileInfoResponseDTO.from_model(file) for file in files]
 
     @staticmethod
     @with_transaction

@@ -147,7 +147,7 @@ class AuthService:
     @classmethod
     async def session_list(
         cls, access_token: str
-    ) -> tuple[response_dto.SessionInfoResponseDTO, ...]:
+    ) -> list[response_dto.SessionInfoResponseDTO]:
         user_id = await cls._cached_access_token(access_token)
         session_list_key = user_session_list_key(user_id)
 

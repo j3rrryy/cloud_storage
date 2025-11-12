@@ -1,5 +1,3 @@
-from typing import Generator
-
 from dto import auth_dto, mail_dto
 from proto import auth_pb2 as pb2
 
@@ -73,14 +71,12 @@ class AuthService(RPCBaseService):
         return auth_dto.TokensDTO.from_response(tokens)
 
     @RPCBaseService.exception_handler
-    async def session_list(
-        self, access_token: str
-    ) -> Generator[auth_dto.SessionDTO, None, None]:
+    async def session_list(self, access_token: str) -> list[auth_dto.SessionDTO]:
         request = pb2.AccessToken(access_token=access_token)
         sessions: pb2.Sessions = await self._stub.SessionList(request)
-        return (
+        return [
             auth_dto.SessionDTO.from_response(session) for session in sessions.sessions
-        )
+        ]
 
     @RPCBaseService.exception_handler
     async def revoke_session(self, data: auth_dto.RevokeSessionDTO) -> None:

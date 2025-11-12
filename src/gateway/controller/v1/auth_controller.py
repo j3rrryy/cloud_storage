@@ -174,7 +174,7 @@ class AuthController(Controller):
         access_token = validate_access_token(request)
         sessions = await auth_service_v1.session_list(access_token)
         return auth_schemas.SessionList(
-            tuple(session.to_schema(auth_schemas.SessionInfo) for session in sessions)
+            [session.to_schema(auth_schemas.SessionInfo) for session in sessions]
         )
 
     @post("/revoke-session", status_code=204)

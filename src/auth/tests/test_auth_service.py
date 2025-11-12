@@ -192,7 +192,6 @@ async def test_refresh(
 async def test_session_list(mock_cached_access_token, mock_cache, mock_repository):
     response = await AuthService.session_list(ACCESS_TOKEN)
 
-    assert isinstance(response, tuple)
     assert len(response) == 1
     assert isinstance(response[0], response_dto.SessionInfoResponseDTO)
     mock_cached_access_token.assert_awaited_once()
@@ -211,7 +210,6 @@ async def test_session_list_cached(
     mock_cache.get.return_value = mock_repository.session_list.return_value
     response = await AuthService.session_list(ACCESS_TOKEN)
 
-    assert isinstance(response, tuple)
     assert len(response) == 1
     assert isinstance(response[0], response_dto.SessionInfoResponseDTO)
     mock_cached_access_token.assert_awaited_once()

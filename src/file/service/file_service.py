@@ -76,7 +76,7 @@ class FileService:
         return info
 
     @staticmethod
-    async def file_list(user_id: str) -> tuple[response_dto.FileInfoResponseDTO, ...]:
+    async def file_list(user_id: str) -> list[response_dto.FileInfoResponseDTO]:
         list_key = file_list_key(user_id)
         if cached := await cache.get(list_key):
             return cached

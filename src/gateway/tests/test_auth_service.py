@@ -98,11 +98,10 @@ async def test_refresh(auth_service_v1):
 @pytest.mark.asyncio
 async def test_session_list(auth_service_v1):
     response = await auth_service_v1.session_list(ACCESS_TOKEN)
-    first_session = next(response)
-    assert first_session.session_id == SESSION_ID
-    assert first_session.user_ip == USER_IP
-    assert first_session.browser == BROWSER
-    assert first_session.created_at == TIMESTAMP
+    assert response[0].session_id == SESSION_ID
+    assert response[0].user_ip == USER_IP
+    assert response[0].browser == BROWSER
+    assert response[0].created_at == TIMESTAMP
 
 
 @pytest.mark.asyncio

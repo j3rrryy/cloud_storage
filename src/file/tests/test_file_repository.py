@@ -153,7 +153,6 @@ async def test_file_list(mock_session, file):
     )
     files = await FileRepository.file_list(USER_ID)  # type: ignore
 
-    assert isinstance(files, tuple)
     assert len(files) == 1
     assert files[0] == response_dto.FileInfoResponseDTO(
         FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP

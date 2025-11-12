@@ -92,4 +92,4 @@ class FileInfoDTO(FromResponseMixin, ToSchemaMixin):
 @dataclass(slots=True, frozen=True)
 class DeleteDTO(ToRequestMixin):
     user_id: str
-    file_ids: set[str]
+    file_ids: list[str]

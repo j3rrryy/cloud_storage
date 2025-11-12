@@ -68,7 +68,7 @@ class SessionInfo(Struct):
 
 
 class SessionList(Struct):
-    sessions: tuple[SessionInfo, ...]
+    sessions: list[SessionInfo]
 
 
 class Profile(Struct):

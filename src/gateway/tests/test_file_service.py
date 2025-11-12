@@ -61,14 +61,14 @@ async def test_download(file_service_v1):
 
 @pytest.mark.asyncio
 async def test_delete(file_service_v1):
-    dto = file_dto.DeleteDTO(USER_ID, {FILE_ID})
+    dto = file_dto.DeleteDTO(USER_ID, [FILE_ID])
     response = await file_service_v1.delete(dto)
     assert response is None
 
 
 @pytest.mark.asyncio
 async def test_delete_with_no_files(file_service_v1):
-    dto = file_dto.DeleteDTO(USER_ID, set())
+    dto = file_dto.DeleteDTO(USER_ID, [])
     response = await file_service_v1.delete(dto)
     assert response is None
     file_service_v1._stub.Delete.assert_not_called()

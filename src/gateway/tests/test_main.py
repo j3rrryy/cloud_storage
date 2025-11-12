@@ -34,7 +34,6 @@ def test_app(mock_litestar):
     assert isinstance(kwargs["openapi_config"], OpenAPIConfig)
 
     middleware = kwargs["middleware"]
-    assert isinstance(middleware, tuple)
     assert len(middleware) == 1
     assert isinstance(middleware[0], DefineMiddleware)
 

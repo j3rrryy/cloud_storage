@@ -104,7 +104,6 @@ async def test_reset_password(mock_session):
     mock_session.scalars = AsyncMock(return_value=(ACCESS_TOKEN,))
     deleted_access_tokens = await AuthRepository.reset_password(dto)  # type: ignore
 
-    assert isinstance(deleted_access_tokens, tuple)
     assert len(deleted_access_tokens) == 1
     assert deleted_access_tokens[0] == ACCESS_TOKEN
     mock_session.get.assert_awaited_once()
@@ -292,7 +291,6 @@ async def test_session_list(mock_session, token_pair):
     mock_session.scalars = AsyncMock(return_value=(token_pair,))
     sessions = await AuthRepository.session_list(USER_ID)  # type: ignore
 
-    assert isinstance(sessions, tuple)
     assert len(sessions) == 1
     assert sessions[0] == response_dto.SessionInfoResponseDTO(
         SESSION_ID, USER_ID, ACCESS_TOKEN, REFRESH_TOKEN, USER_IP, BROWSER, TIMESTAMP
@@ -513,7 +511,6 @@ async def test_update_password(mock_session, user):
     mock_session.scalars = AsyncMock(return_value=(ACCESS_TOKEN,))
     deleted_access_tokens = await AuthRepository.update_password(dto)  # type: ignore
 
-    assert isinstance(deleted_access_tokens, tuple)
     assert len(deleted_access_tokens) == 1
     assert deleted_access_tokens[0] == ACCESS_TOKEN
     mock_session.get.assert_awaited_once()
@@ -562,7 +559,6 @@ async def test_delete_profile(mock_session):
     )
     deleted_access_tokens = await AuthRepository.delete_profile(USER_ID)  # type: ignore
 
-    assert isinstance(deleted_access_tokens, tuple)
     assert len(deleted_access_tokens) == 1
     assert deleted_access_tokens[0] == ACCESS_TOKEN
     mock_session.execute.assert_awaited_once()

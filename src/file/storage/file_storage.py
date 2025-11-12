@@ -130,7 +130,7 @@ class FileStorage:
 
     @classmethod
     @with_storage
-    async def delete(cls, file_ids: tuple[str, ...], client: S3Client) -> None:
+    async def delete(cls, file_ids: list[str], client: S3Client) -> None:
         semaphore = asyncio.Semaphore(5)
         keys = [{"Key": file_id} for file_id in file_ids]
         tasks = []
