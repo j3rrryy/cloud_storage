@@ -27,6 +27,7 @@ from .mocks import (
 async def test_register(mock_session):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
     mock_session.refresh.side_effect = lambda user: setattr(user, "user_id", USER_ID)
+
     user_id = await AuthRepository.register(dto)  # type: ignore
 
     assert user_id == USER_ID
@@ -101,7 +102,8 @@ async def test_verify_email_exception(mock_session):
 @pytest.mark.asyncio
 async def test_reset_password(mock_session):
     dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
-    mock_session.scalars = AsyncMock(return_value=(ACCESS_TOKEN,))
+    mock_session.scalars = AsyncMock(return_value=[ACCESS_TOKEN])
+
     deleted_access_tokens = await AuthRepository.reset_password(dto)  # type: ignore
 
     assert len(deleted_access_tokens) == 1
@@ -146,6 +148,7 @@ async def test_log_in(mock_session):
     dto = request_dto.LogInDataRequestDTO(
         ACCESS_TOKEN, REFRESH_TOKEN, USER_ID, USER_IP, BROWSER
     )
+
     await AuthRepository.log_in(dto)  # type: ignore
 
     mock_session.add.assert_called_once()
@@ -229,6 +232,7 @@ async def test_refresh(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=ACCESS_TOKEN))
     )
+
     deleted_access_token = await AuthRepository.refresh(dto)  # type: ignore
 
     assert deleted_access_token == ACCESS_TOKEN
@@ -288,7 +292,8 @@ async def test_refresh_exceptions(
 
 @pytest.mark.asyncio
 async def test_session_list(mock_session, token_pair):
-    mock_session.scalars = AsyncMock(return_value=(token_pair,))
+    mock_session.scalars = AsyncMock(return_value=[token_pair])
+
     sessions = await AuthRepository.session_list(USER_ID)  # type: ignore
 
     assert len(sessions) == 1
@@ -316,6 +321,7 @@ async def test_revoke_session(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=ACCESS_TOKEN))
     )
+
     deleted_access_token = await AuthRepository.revoke_session(SESSION_ID)  # type: ignore
 
     assert deleted_access_token == ACCESS_TOKEN
@@ -392,6 +398,7 @@ async def test_profile_using_username(mock_session, user):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user))
     )
+
     profile = await AuthRepository.profile(USERNAME)  # type: ignore
 
     assert profile == response_dto.ProfileResponseDTO(
@@ -405,6 +412,7 @@ async def test_profile_using_email(mock_session, user):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user))
     )
+
     profile = await AuthRepository.profile(EMAIL)  # type: ignore
 
     assert profile == response_dto.ProfileResponseDTO(
@@ -416,6 +424,7 @@ async def test_profile_using_email(mock_session, user):
 @pytest.mark.asyncio
 async def test_profile_using_user_id(mock_session, user):
     mock_session.get.return_value = user
+
     profile = await AuthRepository.profile(USER_ID)  # type: ignore
 
     assert profile == response_dto.ProfileResponseDTO(
@@ -454,6 +463,7 @@ async def test_profile_exception(mock_session):
 async def test_update_email(mock_session, user):
     dto = request_dto.UpdateEmailDataRequestDTO(USER_ID, ACCESS_TOKEN, EMAIL)
     mock_session.get.return_value = user
+
     username = await AuthRepository.update_email(dto)  # type: ignore
 
     assert username == USERNAME
@@ -508,7 +518,8 @@ async def test_update_password(mock_session, user):
         USER_ID, ACCESS_TOKEN, PASSWORD, get_hashed_password(PASSWORD)
     )
     mock_session.get.return_value = user
-    mock_session.scalars = AsyncMock(return_value=(ACCESS_TOKEN,))
+    mock_session.scalars = AsyncMock(return_value=[ACCESS_TOKEN])
+
     deleted_access_tokens = await AuthRepository.update_password(dto)  # type: ignore
 
     assert len(deleted_access_tokens) == 1
@@ -557,6 +568,7 @@ async def test_delete_profile(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(all=MagicMock(return_value=((None, ACCESS_TOKEN),)))
     )
+
     deleted_access_tokens = await AuthRepository.delete_profile(USER_ID)  # type: ignore
 
     assert len(deleted_access_tokens) == 1

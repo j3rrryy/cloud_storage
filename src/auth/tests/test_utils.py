@@ -65,6 +65,7 @@ def test_utc_now_naive():
 
 def test_generate_reset_code():
     code = generate_reset_code()
+
     assert isinstance(code, str)
     assert code.isdigit()
     assert len(code) == 6
@@ -75,17 +76,15 @@ def test_generate_reset_code():
 )
 def test_generate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
-    jwt = Jwt(token)
 
+    jwt = Jwt(token)
     assert isinstance(token, str)
     assert isinstance(jwt, SignedJwt)
     assert jwt.verify_signature(mock_key_pair.public_key, "EdDSA")
     assert jwt.issuer == os.environ["APP_NAME"]
     assert jwt.expires_at is not None
     assert jwt.subject is not None
-
     exp = jwt.expires_at.replace(tzinfo=None)
-
     match token_type:
         case TokenTypes.ACCESS:
             assert exp <= datetime.now() + timedelta(minutes=15)
@@ -100,7 +99,9 @@ def test_generate_jwt(token_type, mock_key_pair):
 )
 def test_validate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
+
     jwt = validate_jwt(token, token_type)  # type: ignore
+
     assert jwt.subject == USER_ID
 
 
@@ -116,7 +117,9 @@ def test_validate_broken_jwt(mock_key_pair):
 )
 def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
+
     user_id = validate_jwt_and_get_user_id(token, token_type)
+
     assert user_id == USER_ID
 
 
@@ -150,14 +153,12 @@ def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
 def test_validate_jwt_exceptions(
     modified, in_token_type, out_token_type, expected_message, mock_key_pair
 ):
-    token = generate_jwt(USER_ID, in_token_type)  # type: ignore
-    jwt = Jwt(token)
-
+    jwt = Jwt(generate_jwt(USER_ID, in_token_type))  # type: ignore
     claims = jwt.claims  # type: ignore
     typ = str(out_token_type.value) if out_token_type else None
     claims.update(modified)
-
     new_token = str(Jwt.sign(claims, mock_key_pair.private_key, alg="EdDSA", typ=typ))
+
     with pytest.raises(UnauthenticatedException) as exc_info:
         validate_jwt(new_token, in_token_type)  # type: ignore
 
@@ -166,11 +167,13 @@ def test_validate_jwt_exceptions(
 
 def test_compare_passwords():
     hashed_password = get_hashed_password(PASSWORD)
+
     compare_passwords(PASSWORD, hashed_password)
 
 
 def test_compare_exception():
     hashed_password = get_hashed_password(PASSWORD)
+
     with pytest.raises(UnauthenticatedException) as exc_info:
         compare_passwords(PASSWORD + "0", hashed_password)
 
@@ -179,6 +182,7 @@ def test_compare_exception():
 
 def test_get_hashed_password():
     hashed_password = get_hashed_password(PASSWORD)
+
     assert hashed_password != PASSWORD
 
 
@@ -186,4 +190,5 @@ def test_convert_user_agent():
     user_agent = convert_user_agent(
         "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
     )
+
     assert user_agent == "Firefox 47.0, Windows 7"

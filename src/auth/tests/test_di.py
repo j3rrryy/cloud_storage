@@ -21,6 +21,7 @@ async def test_session_manager_lifespan(
     mock_engine.dispose = mock_dispose
 
     await SessionManager.setup()
+
     mock_url.create.assert_called_once_with(
         os.environ["POSTGRES_DRIVER"],
         os.environ["POSTGRES_USER"],
@@ -47,6 +48,7 @@ async def test_session_manager_lifespan(
     assert SessionManager._started
 
     await SessionManager.close()
+
     mock_dispose.assert_awaited_once()
     assert not SessionManager.sessionmaker
     assert not SessionManager._engine
@@ -57,6 +59,7 @@ async def test_session_manager_lifespan(
 @patch("di.di.URL")
 async def test_session_manager_setup_already_started(mock_url):
     SessionManager._started = True
+
     await SessionManager.setup()
 
     mock_url.assert_not_called()
@@ -81,6 +84,7 @@ async def test_session_manager_close_already_closed():
     SessionManager._engine = None
 
     await SessionManager.close()
+
     assert not SessionManager.sessionmaker
     assert not SessionManager._engine
     assert not SessionManager._started
@@ -91,6 +95,7 @@ async def test_session_manager_close_already_closed():
 async def test_session_factory(mock_sessionmaker):
     mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     SessionManager._started = True
+
     async with SessionManager.session_factory() as session:
         assert session == mock_session
 
@@ -98,9 +103,10 @@ async def test_session_factory(mock_sessionmaker):
 @pytest.mark.asyncio
 async def test_session_factory_not_initialized():
     SessionManager.sessionmaker = None
+
     with pytest.raises(Exception) as exc_info:
         async with SessionManager.session_factory():
-            ...
+            pass
 
     assert exc_info.errisinstance(RuntimeError)
     assert exc_info.value.args == (
@@ -111,6 +117,7 @@ async def test_session_factory_not_initialized():
 @patch("di.di.KeyPair")
 def test_key_pair_factory(mock_key_pair):
     key_pair_factory()
+
     mock_key_pair.assert_called_once()
 
 
@@ -124,7 +131,6 @@ def test_configure_inject(mock_key_pair_factory, mock_session_manager, mock_bind
         call(AsyncSession, mock_session_manager.session_factory),
         call(KeyPair, mock_key_pair_factory),
     ]
-
     mock_binder.bind_to_provider.assert_has_calls(expected_calls, any_order=True)
     assert mock_binder.bind_to_provider.call_count == 2
 
@@ -137,6 +143,7 @@ async def test_setup_di(
     mock_configure_inject, mock_inject_configure, mock_session_manager
 ):
     mock_session_manager.setup = AsyncMock()
+
     await setup_di()
 
     mock_session_manager.setup.assert_awaited_once()
