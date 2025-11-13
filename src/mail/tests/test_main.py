@@ -9,7 +9,9 @@ import main
 @patch("main.MailController")
 async def test_start_mail_server(mock_mail_controller):
     mock_mail_controller.process_messages = AsyncMock()
+
     await main.start_mail_server()
+
     mock_mail_controller.process_messages.assert_awaited_once()
 
 
@@ -20,14 +22,13 @@ async def test_start_mail_server(mock_mail_controller):
 async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_app):
     mock_app = MagicMock()
     mock_make_asgi_app.return_value = mock_app
-
     mock_config_instance = MagicMock()
     mock_config.return_value = mock_config_instance
-
     mock_server_instance = AsyncMock()
     mock_server.return_value = mock_server_instance
 
     await main.start_prometheus_server()
+
     mock_make_asgi_app.assert_called_once()
     mock_config.assert_called_once_with(
         app=mock_app,
@@ -79,6 +80,7 @@ async def test_main_with_close(
     mock_setup_di,
 ):
     mock_gather.side_effect = Exception("Details")
+
     with pytest.raises(Exception):
         await main.main()
 

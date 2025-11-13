@@ -54,8 +54,8 @@ def test_from_message(topic, data, expected_cls):
     )
 
     res = DTOFactory.from_message(record)
-    assert isinstance(res, expected_cls)
 
+    assert isinstance(res, expected_cls)
     for key, value in data.items():
         assert getattr(res, key) == value
 

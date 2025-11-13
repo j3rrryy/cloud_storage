@@ -14,17 +14,16 @@ from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 @pytest.mark.asyncio
 async def test_verification():
     mail = VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN)
+
     msg = MailBuilder.verification(mail)
 
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Confirm Your Email"
     assert msg["From"] == os.environ["MAIL_USERNAME"]
     assert msg["To"] == mail.email
-
     payload = msg.get_payload()
     assert isinstance(payload, list)
     assert len(payload) == 1
-
     verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
     expected_html = f"""
         <!DOCTYPE html>
@@ -96,29 +95,26 @@ async def test_verification():
         </body>
         </html>
         """
-
     assert isinstance(payload[0], text.MIMEText)
     actual_html_bytes = payload[0].get_payload(decode=True)
     charset = payload[0].get_content_charset() or "utf-8"
     actual_html = bytes(actual_html_bytes).decode(charset)
-
     assert actual_html == expected_html
 
 
 @pytest.mark.asyncio
 async def test_info():
     mail = InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER)
+
     msg = MailBuilder.info(mail)
 
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Login Information"
     assert msg["From"] == os.environ["MAIL_USERNAME"]
     assert msg["To"] == mail.email
-
     payload = msg.get_payload()
     assert isinstance(payload, list)
     assert len(payload) == 1
-
     expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -175,29 +171,26 @@ async def test_info():
         </body>
         </html>
         """
-
     assert isinstance(payload[0], text.MIMEText)
     actual_html_bytes = payload[0].get_payload(decode=True)
     charset = payload[0].get_content_charset() or "utf-8"
     actual_html = bytes(actual_html_bytes).decode(charset)
-
     assert actual_html == expected_html
 
 
 @pytest.mark.asyncio
 async def test_reset():
     mail = ResetMailDTO(USERNAME, EMAIL, CODE)
+
     msg = MailBuilder.reset(mail)
 
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Reset Your Password"
     assert msg["From"] == os.environ["MAIL_USERNAME"]
     assert msg["To"] == mail.email
-
     payload = msg.get_payload()
     assert isinstance(payload, list)
     assert len(payload) == 1
-
     expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -261,10 +254,8 @@ async def test_reset():
         </body>
         </html>
         """
-
     assert isinstance(payload[0], text.MIMEText)
     actual_html_bytes = payload[0].get_payload(decode=True)
     charset = payload[0].get_content_charset() or "utf-8"
     actual_html = bytes(actual_html_bytes).decode(charset)
-
     assert actual_html == expected_html

@@ -29,6 +29,7 @@ async def test_send_email_parametrized(mail, attr_name, mock_smtp):
         patch.object(MailBuilder, "reset", mock_reset),
     ):
         await MailService.send_email(mail)  # type: ignore
+
         getattr(locals()[f"mock_{attr_name}"], "assert_called_once_with")(mail)
         mock_smtp.send_message.assert_awaited_once_with(attr_name)
 

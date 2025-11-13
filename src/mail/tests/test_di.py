@@ -18,6 +18,7 @@ async def test_smtp_manager_lifespan(mock_smtp):
     mock_smtp.return_value.quit = mock_quit
 
     await SMTPManager.setup()
+
     mock_smtp.assert_called_with(
         hostname=os.environ["MAIL_HOSTNAME"],
         port=int(os.environ["MAIL_PORT"]),
@@ -31,6 +32,7 @@ async def test_smtp_manager_lifespan(mock_smtp):
     assert SMTPManager._started
 
     await SMTPManager.close()
+
     mock_quit.assert_awaited_once()
     assert not SMTPManager.smtp
     assert not SMTPManager._started
@@ -40,6 +42,7 @@ async def test_smtp_manager_lifespan(mock_smtp):
 @patch("di.di.SMTP")
 async def test_smtp_manager_setup_already_started(mock_smtp):
     SMTPManager._started = True
+
     await SMTPManager.setup()
 
     mock_smtp.assert_not_called()
@@ -75,13 +78,16 @@ async def test_smtp_manager_close_exception(mock_smtp):
 @patch("di.di.SMTPManager.smtp")
 async def test_smtp_factory(mock_smtp):
     SMTPManager._started = True
+
     smtp = SMTPManager.smtp_factory()
+
     assert smtp == mock_smtp
 
 
 @pytest.mark.asyncio
 async def test_smtp_factory_not_initialized():
     SMTPManager.smtp = None
+
     with pytest.raises(Exception) as exc_info:
         SMTPManager.smtp_factory()
 
@@ -100,6 +106,7 @@ async def test_consumer_manager_lifespan(mock_consumer):
     mock_consumer.return_value.stop = mock_stop
 
     await ConsumerManager.setup()
+
     mock_consumer.assert_called_once_with(
         MailTypes.VERIFICATION.name,
         MailTypes.INFO.name,
@@ -115,6 +122,7 @@ async def test_consumer_manager_lifespan(mock_consumer):
     assert ConsumerManager._started
 
     await ConsumerManager.close()
+
     mock_stop.assert_awaited_once()
     assert not ConsumerManager.consumer
     assert not ConsumerManager._started
@@ -124,6 +132,7 @@ async def test_consumer_manager_lifespan(mock_consumer):
 @patch("di.di.AIOKafkaConsumer")
 async def test_consumer_manager_setup_already_started(mock_consumer):
     ConsumerManager._started = True
+
     await ConsumerManager.setup()
 
     mock_consumer.assert_not_called()
@@ -159,13 +168,16 @@ async def test_consumer_manager_close_exception(mock_consumer):
 @patch("di.di.ConsumerManager.consumer")
 async def test_consumer_factory(mock_consumer):
     ConsumerManager._started = True
+
     consumer = ConsumerManager.consumer_factory()
+
     assert consumer == mock_consumer
 
 
 @pytest.mark.asyncio
 async def test_consumer_factory_not_initialized():
     ConsumerManager.consumer = None
+
     with pytest.raises(Exception) as exc_info:
         ConsumerManager.consumer_factory()
 
@@ -185,7 +197,6 @@ def test_configure_inject(mock_consumer_manager, mock_smtp_manager, mock_binder)
         call(SMTP, mock_smtp_manager.smtp_factory),
         call(AIOKafkaConsumer, mock_consumer_manager.consumer_factory),
     ]
-
     mock_binder.bind_to_provider.assert_has_calls(expected_calls, any_order=True)
     assert mock_binder.bind_to_provider.call_count == 2
 
@@ -203,6 +214,7 @@ async def test_setup_di(
 ):
     mock_smtp_manager.setup = AsyncMock()
     mock_consumer_manager.setup = AsyncMock()
+
     await setup_di()
 
     mock_smtp_manager.setup.assert_awaited_once()

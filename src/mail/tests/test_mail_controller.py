@@ -41,18 +41,17 @@ async def test_process_messages(mock_dto_factory, mock_sent_counter, mail_data):
     mock_msg = MagicMock()
     mock_msg.topic = topic
     mock_msg.value = pickle.dumps(data)
+    mock_consumer = MagicMock()
+    mock_consumer.__aenter__ = AsyncMock()
+    mock_consumer.__aexit__ = AsyncMock()
+    mock_dto = MagicMock()
+    mock_dto.email = EMAIL
+    mock_dto_factory.return_value = mock_dto
 
     async def mock_aiter(_):
         yield mock_msg
 
-    mock_consumer = MagicMock()
-    mock_consumer.__aenter__ = AsyncMock()
-    mock_consumer.__aexit__ = AsyncMock()
     mock_consumer.__aiter__ = mock_aiter
-
-    mock_dto = MagicMock()
-    mock_dto.email = EMAIL
-    mock_dto_factory.return_value = mock_dto
 
     with (
         patch.object(MailController, "logger", new_callable=MagicMock) as mock_logger,
@@ -79,17 +78,16 @@ async def test_process_messages_exception(mock_dto_factory, mock_failed_counter)
     mock_msg.value = pickle.dumps(
         {"verification_token": VERIFICATION_TOKEN, "email": EMAIL, "username": USERNAME}
     )
+    mock_consumer = MagicMock()
+    mock_consumer.__aenter__ = AsyncMock()
+    mock_consumer.__aexit__ = AsyncMock()
+    test_exception = Exception("Test exception")
+    mock_dto_factory.side_effect = test_exception
 
     async def mock_aiter(_):
         yield mock_msg
 
-    mock_consumer = MagicMock()
-    mock_consumer.__aenter__ = AsyncMock()
-    mock_consumer.__aexit__ = AsyncMock()
     mock_consumer.__aiter__ = mock_aiter
-
-    test_exception = Exception("Test exception")
-    mock_dto_factory.side_effect = test_exception
 
     with patch.object(MailController, "logger", new_callable=MagicMock) as mock_logger:
         await MailController.process_messages(mock_consumer)
