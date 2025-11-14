@@ -17,7 +17,9 @@ async def test_check_if_name_is_taken(mock_session):
         return_value=MagicMock(scalar_one=MagicMock(return_value=0))
     )
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
+
     await FileRepository.check_if_name_is_taken(dto)  # type: ignore
+
     mock_session.execute.assert_awaited_once()
 
 
@@ -54,7 +56,9 @@ async def test_check_if_name_is_taken_exception(mock_session):
 @pytest.mark.asyncio
 async def test_complete_upload(mock_session):
     dto = request_dto.InitiatedUploadRequestDTO(FILE_ID, USER_ID, NAME, SIZE)
+
     await FileRepository.complete_upload(dto)  # type: ignore
+
     mock_session.add.assert_called_once()
     mock_session.commit.assert_awaited_once()
 
@@ -91,6 +95,7 @@ async def test_complete_upload_exceptions(
 async def test_file_info(mock_session, file):
     dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
     mock_session.get.return_value = file
+
     info = await FileRepository.file_info(dto)  # type: ignore
 
     assert info == response_dto.FileInfoResponseDTO(
@@ -151,6 +156,7 @@ async def test_file_list(mock_session, file):
             )
         )
     )
+
     files = await FileRepository.file_list(USER_ID)  # type: ignore
 
     assert len(files) == 1
@@ -178,7 +184,9 @@ async def test_validate_user_files(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one=MagicMock(return_value=1))
     )
+
     await FileRepository.validate_user_files(USER_ID, [FILE_ID])  # type: ignore
+
     mock_session.execute.assert_awaited_once()
 
 
@@ -213,7 +221,9 @@ async def test_validate_user_files_exception(mock_session):
 @pytest.mark.asyncio
 async def test_delete(mock_session):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+
     await FileRepository.delete(dto)  # type: ignore
+
     mock_session.execute.assert_awaited_once()
     mock_session.commit.assert_awaited_once()
 
@@ -236,6 +246,7 @@ async def test_delete_exception(mock_session):
 @pytest.mark.asyncio
 async def test_delete_all(mock_session):
     await FileRepository.delete_all(USER_ID)  # type: ignore
+
     mock_session.execute.assert_awaited_once()
     mock_session.commit.assert_awaited_once()
 

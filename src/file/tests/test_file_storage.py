@@ -31,6 +31,7 @@ async def test_initiate_upload(mock_client):
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
 
     upload = await FileStorage.initiate_upload(dto)  # type: ignore
+
     assert upload == response_dto.InitiateUploadResponseDTO(
         FILE_ID, UPLOAD_ID, SIZE, [response_dto.UploadPartResponseDTO(1, RELATIVE_URL)]
     )
@@ -57,7 +58,9 @@ async def test_complete_upload(mock_client):
     dto = request_dto.CompleteUploadRequestDTO(
         USER_ID, UPLOAD_ID, [request_dto.CompletePartRequestDTO(1, ETAG)]
     )
+
     await FileStorage.complete_upload(FILE_ID, dto)  # type: ignore
+
     mock_client.complete_multipart_upload.assert_awaited_once()
 
 
@@ -103,6 +106,7 @@ async def test_complete_upload_client_error_exception(mock_client):
 @pytest.mark.asyncio
 async def test_abort_upload(mock_client):
     await FileStorage.abort_upload(FILE_ID, UPLOAD_ID)  # type: ignore
+
     mock_client.abort_multipart_upload.assert_awaited_once()
 
 
@@ -144,6 +148,7 @@ async def test_download(mock_client):
     generate_presigned_url = mock_client.generate_presigned_url
     generate_presigned_url.return_value = RELATIVE_URL
     dto = response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP)
+
     url = await FileStorage.download(dto)  # type: ignore
 
     assert url == RELATIVE_URL
@@ -203,6 +208,7 @@ async def test_download_exception(mock_client):
 @pytest.mark.asyncio
 async def test_delete(mock_client):
     await FileStorage.delete([FILE_ID])  # type: ignore
+
     mock_client.delete_objects.assert_awaited_once()
 
 
@@ -213,47 +219,54 @@ async def test_delete_exception(mock_client):
     delete_objects.side_effect = Exception("Details")
 
     await FileStorage.delete([FILE_ID])  # type: ignore
+
     FileStorage.logger.error.assert_called_once_with("Details")
 
 
 @pytest.mark.asyncio
 async def test_delete_all(mock_client):
-    async def mock_paginate(*args, **kwargs):
-        yield {"Contents": [{"Key": FILE_ID}]}
-
     mock_paginator = MagicMock()
-    mock_paginator.paginate = mock_paginate
     mock_client.get_paginator = MagicMock(return_value=mock_paginator)
     mock_client.delete_objects = AsyncMock()
 
+    async def mock_paginate(*args, **kwargs):
+        yield {"Contents": [{"Key": FILE_ID}]}
+
+    mock_paginator.paginate = mock_paginate
+
     await FileStorage.delete_all(USER_ID)  # type: ignore
+
     mock_client.get_paginator.assert_called_once()
     mock_client.delete_objects.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_delete_all_empty(mock_client):
+    mock_paginator = MagicMock()
+    mock_client.get_paginator = MagicMock(return_value=mock_paginator)
+
     async def mock_paginate(*args, **kwargs):
         yield {}
 
-    mock_paginator = MagicMock()
     mock_paginator.paginate = mock_paginate
-    mock_client.get_paginator = MagicMock(return_value=mock_paginator)
 
     await FileStorage.delete_all(USER_ID)  # type: ignore
+
     mock_client.get_paginator.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_delete_all_exception(mock_client):
-    async def mock_paginate(*args, **kwargs):
-        yield {"Contents": [{"Key": FILE_ID}]}
-
     mock_paginator = MagicMock()
     FileStorage.logger = MagicMock()
-    mock_paginator.paginate = mock_paginate
     mock_client.get_paginator = MagicMock(return_value=mock_paginator)
     mock_client.delete_objects.side_effect = Exception("Details")
 
+    async def mock_paginate(*args, **kwargs):
+        yield {"Contents": [{"Key": FILE_ID}]}
+
+    mock_paginator.paginate = mock_paginate
+
     await FileStorage.delete_all(USER_ID)  # type: ignore
+
     FileStorage.logger.error.assert_called_once_with("Details")

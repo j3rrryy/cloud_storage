@@ -36,12 +36,10 @@ async def test_start_grpc_server(mock_add_servicer, mock_grpc_server, mock_logge
     _, kwargs = mock_grpc_server.call_args
     assert len(kwargs["interceptors"]) == 1
     assert isinstance(kwargs["interceptors"][0], PromAsyncServerInterceptor)
-
     args, _ = mock_add_servicer.call_args
     assert len(args) == 2
     assert isinstance(args[0], FileServicer)
     assert isinstance(args[1], grpc.aio.Server)
-
     server_mock.add_insecure_port.assert_called_once_with("[::]:50051")
     server_mock.start.assert_awaited_once()
     server_mock.wait_for_termination.assert_awaited_once()
@@ -54,14 +52,13 @@ async def test_start_grpc_server(mock_add_servicer, mock_grpc_server, mock_logge
 async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_app):
     mock_app = MagicMock()
     mock_make_asgi_app.return_value = mock_app
-
     mock_config_instance = MagicMock()
     mock_config.return_value = mock_config_instance
-
     mock_server_instance = AsyncMock()
     mock_server.return_value = mock_server_instance
 
     await main.start_prometheus_server()
+
     mock_make_asgi_app.assert_called_once()
     mock_config.assert_called_once_with(
         app=mock_app,
@@ -122,6 +119,7 @@ async def test_main_with_close(
     mock_setup_di,
 ):
     mock_gather.side_effect = Exception("Details")
+
     with pytest.raises(Exception):
         await main.main()
 

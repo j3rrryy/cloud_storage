@@ -21,6 +21,7 @@ async def test_session_manager_lifespan(
     mock_engine.dispose = mock_dispose
 
     await SessionManager.setup()
+
     mock_url.create.assert_called_once_with(
         os.environ["POSTGRES_DRIVER"],
         os.environ["POSTGRES_USER"],
@@ -47,6 +48,7 @@ async def test_session_manager_lifespan(
     assert SessionManager._started
 
     await SessionManager.close()
+
     mock_dispose.assert_awaited_once()
     assert not SessionManager.sessionmaker
     assert not SessionManager._engine
@@ -57,6 +59,7 @@ async def test_session_manager_lifespan(
 @patch("di.di.URL")
 async def test_session_manager_setup_already_started(mock_url):
     SessionManager._started = True
+
     await SessionManager.setup()
 
     mock_url.assert_not_called()
@@ -81,6 +84,7 @@ async def test_session_manager_close_already_closed():
     SessionManager._engine = None
 
     await SessionManager.close()
+
     assert not SessionManager.sessionmaker
     assert not SessionManager._engine
     assert not SessionManager._started
@@ -91,6 +95,7 @@ async def test_session_manager_close_already_closed():
 async def test_session_factory(mock_sessionmaker):
     mock_session = mock_sessionmaker.return_value.__aenter__.return_value
     SessionManager._started = True
+
     async with SessionManager.session_factory() as session:
         assert session == mock_session
 
@@ -98,6 +103,7 @@ async def test_session_factory(mock_sessionmaker):
 @pytest.mark.asyncio
 async def test_session_factory_not_initialized():
     SessionManager.sessionmaker = None
+
     with pytest.raises(Exception) as exc_info:
         async with SessionManager.session_factory():
             ...
@@ -118,6 +124,7 @@ async def test_client_manager_lifespan(mock_aioconfig, mock_session):
     mock_context.__aenter__.return_value = mock_client
 
     await ClientManager.setup()
+
     mock_session.assert_called_once()
     mock_aioconfig.assert_called_once_with(
         connect_timeout=5,
@@ -140,6 +147,7 @@ async def test_client_manager_lifespan(mock_aioconfig, mock_session):
     assert ClientManager._started
 
     await ClientManager.close()
+
     mock_context.__aexit__.assert_awaited_once()
     assert not ClientManager.client
     assert not ClientManager._context
@@ -150,6 +158,7 @@ async def test_client_manager_lifespan(mock_aioconfig, mock_session):
 @patch("di.di.aioboto3.Session")
 async def test_client_manager_setup_already_started(mock_session):
     ClientManager._started = True
+
     await ClientManager.setup()
 
     mock_session.assert_not_called()
@@ -174,6 +183,7 @@ async def test_client_manager_close_already_closed():
     ClientManager._context = None
 
     await ClientManager.close()
+
     assert not ClientManager.client
     assert not ClientManager._context
     assert not ClientManager._started
@@ -183,13 +193,16 @@ async def test_client_manager_close_already_closed():
 @patch("di.di.ClientManager.client")
 async def test_client_factory(mock_client):
     ClientManager._started = True
+
     client = ClientManager.client_factory()
+
     assert client == mock_client
 
 
 @pytest.mark.asyncio
 async def test_client_factory_not_initialized():
     ClientManager.client = None
+
     with pytest.raises(Exception) as exc_info:
         ClientManager.client_factory()
 
@@ -209,7 +222,6 @@ def test_configure_inject(mock_client_manager, mock_session_manager, mock_binder
         call(AsyncSession, mock_session_manager.session_factory),
         call(S3Client, mock_client_manager.client_factory),
     ]
-
     mock_binder.bind_to_provider.assert_has_calls(expected_calls, any_order=True)
     assert mock_binder.bind_to_provider.call_count == 2
 
@@ -227,6 +239,7 @@ async def test_setup_di(
 ):
     mock_session_manager.setup = AsyncMock()
     mock_client_manager.setup = AsyncMock()
+
     await setup_di()
 
     mock_session_manager.setup.assert_awaited_once()

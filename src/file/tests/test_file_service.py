@@ -27,6 +27,7 @@ from .mocks import (
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_initiate_upload(mock_cache, mock_repository, mock_storage):
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
+
     response = await FileService.initiate_upload(dto)
 
     assert isinstance(response, response_dto.InitiateUploadResponseDTO)
@@ -67,6 +68,7 @@ async def test_complete_upload(mock_cache, mock_repository, mock_storage):
     dto = request_dto.CompleteUploadRequestDTO(
         USER_ID, UPLOAD_ID, [request_dto.CompletePartRequestDTO(1, ETAG)]
     )
+
     await FileService.complete_upload(dto)
 
     mock_cache.get.assert_awaited_once()
@@ -121,6 +123,7 @@ async def test_abort_upload(mock_cache, mock_storage):
         request_dto.InitiatedUploadRequestDTO(FILE_ID, USER_ID, NAME, SIZE)
     )
     dto = request_dto.AbortUploadRequestDTO(USER_ID, UPLOAD_ID)
+
     await FileService.abort_upload(dto)
 
     mock_cache.get.assert_awaited_once()
@@ -149,6 +152,7 @@ async def test_abort_upload_not_cached(mock_cache, mock_storage):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_file_info(mock_cache, mock_repository):
     dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
+
     response = await FileService.file_info(dto)
 
     assert isinstance(response, response_dto.FileInfoResponseDTO)
@@ -163,6 +167,7 @@ async def test_file_info(mock_cache, mock_repository):
 async def test_file_info_cached(mock_cache, mock_repository):
     mock_cache.get.return_value = mock_repository.file_info.return_value
     dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
+
     response = await FileService.file_info(dto)
 
     assert isinstance(response, response_dto.FileInfoResponseDTO)
@@ -187,6 +192,7 @@ async def test_file_list(mock_cache, mock_repository):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_file_list_cached(mock_cache, mock_repository):
     mock_cache.get.return_value = mock_repository.file_list.return_value
+
     response = await FileService.file_list(USER_ID)
 
     assert len(response) == 1
@@ -200,6 +206,7 @@ async def test_file_list_cached(mock_cache, mock_repository):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_download(mock_cache, mock_repository, mock_storage):
     dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
+
     response = await FileService.download(dto)
 
     assert response == RELATIVE_URL
@@ -216,6 +223,7 @@ async def test_download(mock_cache, mock_repository, mock_storage):
 async def test_download_cached(mock_cache, mock_repository, mock_storage):
     mock_cache.get.return_value = mock_repository.file_info.return_value
     dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
+
     response = await FileService.download(dto)
 
     assert response == RELATIVE_URL
@@ -229,6 +237,7 @@ async def test_download_cached(mock_cache, mock_repository, mock_storage):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_delete(mock_cache, mock_repository, mock_storage):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+
     await FileService.delete(dto)
 
     mock_repository.validate_user_files.assert_awaited_once()
@@ -244,6 +253,7 @@ async def test_delete(mock_cache, mock_repository, mock_storage):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_delete_with_no_files(mock_cache, mock_repository, mock_storage):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [])
+
     await FileService.delete(dto)
 
     mock_repository.validate_user_files.assert_not_awaited()
@@ -259,6 +269,7 @@ async def test_delete_with_no_files(mock_cache, mock_repository, mock_storage):
 @patch("service.file_service.cache", new_callable=create_cache)
 async def test_delete_all(mock_cache, mock_repository, mock_storage):
     await FileService.delete_all(USER_ID)
+
     mock_storage.delete_all.assert_called_once()
     mock_repository.delete_all.assert_awaited_once()
     mock_cache.delete_match.assert_awaited_once()

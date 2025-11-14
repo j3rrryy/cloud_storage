@@ -31,11 +31,7 @@ def mock_client() -> Generator[S3Client, None, None]:
 @pytest.fixture
 def file() -> File:
     return File(
-        file_id=FILE_ID,
-        user_id=USER_ID,
-        name=NAME,
-        size=SIZE,
-        uploaded_at=TIMESTAMP,
+        file_id=FILE_ID, user_id=USER_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP
     )
 
 
