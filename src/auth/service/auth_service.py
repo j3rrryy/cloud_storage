@@ -14,6 +14,7 @@ from utils import (
     convert_user_agent,
     generate_jwt,
     generate_reset_code,
+    get_hashed_jwt,
     get_hashed_password,
     user_all_keys,
     user_profile_key,
@@ -89,8 +90,14 @@ class AuthService:
         refresh_token = generate_jwt(profile.user_id, TokenTypes.REFRESH)  # type: ignore
         browser = convert_user_agent(data.user_agent)
 
+        hashed_access_token = get_hashed_jwt(access_token)
+        hashed_refresh_token = get_hashed_jwt(refresh_token)
         dto = request_dto.LogInDataRequestDTO(
-            access_token, refresh_token, profile.user_id, data.user_ip, browser
+            hashed_access_token,
+            hashed_refresh_token,
+            profile.user_id,
+            data.user_ip,
+            browser,
         )
 
         await AuthRepository.log_in(dto)  # type: ignore
@@ -101,9 +108,10 @@ class AuthService:
 
     @classmethod
     async def log_out(cls, access_token: str) -> None:
+        hashed_access_token = get_hashed_jwt(access_token)
         user_id = await cls._cached_access_token(access_token)
-        await AuthRepository.log_out(access_token)  # type: ignore
-        await cls._delete_cached_access_tokens(access_token)
+        await AuthRepository.log_out(hashed_access_token)  # type: ignore
+        await cls._delete_cached_access_tokens(hashed_access_token)
         await cache.delete(user_session_list_key(user_id))
 
     @classmethod
@@ -119,21 +127,25 @@ class AuthService:
 
     @classmethod
     async def auth(cls, access_token: str) -> str:
-        user_id = await cls._cached_access_token(access_token)
-        return user_id
+        return await cls._cached_access_token(access_token)
 
     @classmethod
     async def refresh(
         cls, data: request_dto.RefreshRequestDTO
     ) -> response_dto.RefreshResponseDTO:
         user_id = validate_jwt_and_get_user_id(data.refresh_token, TokenTypes.REFRESH)
+
         access_token = generate_jwt(user_id, TokenTypes.ACCESS)  # type: ignore
         refresh_token = generate_jwt(user_id, TokenTypes.REFRESH)  # type: ignore
         browser = convert_user_agent(data.user_agent)
+
+        hashed_access_token = get_hashed_jwt(access_token)
+        hashed_refresh_token = get_hashed_jwt(refresh_token)
+        hashed_old_refresh_token = get_hashed_jwt(data.refresh_token)
         dto = request_dto.RefreshDataRequestDTO(
-            access_token,
-            refresh_token,
-            data.refresh_token,
+            hashed_access_token,
+            hashed_refresh_token,
+            hashed_old_refresh_token,
             user_id,
             data.user_ip,
             browser,
@@ -182,9 +194,7 @@ class AuthService:
         cls, data: request_dto.UpdateEmailRequestDTO
     ) -> response_dto.VerificationMailResponseDTO:
         user_id = await cls._cached_access_token(data.access_token)
-        dto = request_dto.UpdateEmailDataRequestDTO(
-            user_id, data.access_token, data.new_email
-        )
+        dto = request_dto.UpdateEmailDataRequestDTO(user_id, data.new_email)
 
         username = await AuthRepository.update_email(dto)  # type: ignore
         await cache.delete(user_profile_key(user_id))
@@ -197,10 +207,7 @@ class AuthService:
     async def update_password(cls, data: request_dto.UpdatePasswordRequestDTO) -> None:
         user_id = await cls._cached_access_token(data.access_token)
         dto = request_dto.UpdatePasswordDataRequestDTO(
-            user_id,
-            data.access_token,
-            data.old_password,
-            get_hashed_password(data.new_password),
+            user_id, data.old_password, get_hashed_password(data.new_password)
         )
         deleted_access_tokens = await AuthRepository.update_password(dto)  # type: ignore
         await cls._delete_cached_access_tokens(*deleted_access_tokens)
@@ -215,12 +222,13 @@ class AuthService:
 
     @classmethod
     async def _cached_access_token(cls, access_token: str) -> str:
-        key = access_token_key(access_token)
+        hashed_access_token = get_hashed_jwt(access_token)
+        key = access_token_key(hashed_access_token)
         if cached := await cache.get(key):
             return cached
 
         jwt = validate_jwt(access_token, TokenTypes.ACCESS)  # type: ignore
-        await AuthRepository.validate_access_token(access_token)  # type: ignore
+        await AuthRepository.validate_access_token(hashed_access_token)  # type: ignore
 
         ttl = jwt.exp - int(time())
         if ttl > cls.MIN_CACHE_TTL:
@@ -229,7 +237,9 @@ class AuthService:
         return jwt.subject
 
     @staticmethod
-    async def _delete_cached_access_tokens(*access_tokens: str) -> None:
-        if access_tokens:
-            keys = (access_token_key(access_token) for access_token in access_tokens)
+    async def _delete_cached_access_tokens(*hashed_access_tokens: str) -> None:
+        if hashed_access_tokens:
+            keys = (
+                access_token_key(access_token) for access_token in hashed_access_tokens
+            )
             await cache.delete_many(*keys)

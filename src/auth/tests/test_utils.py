@@ -14,13 +14,14 @@ from utils import (
     convert_user_agent,
     generate_jwt,
     generate_reset_code,
+    get_hashed_jwt,
     get_hashed_password,
     utc_now_naive,
     validate_jwt,
     validate_jwt_and_get_user_id,
 )
 
-from .mocks import PASSWORD, USER_ID
+from .mocks import ACCESS_TOKEN, PASSWORD, USER_ID
 
 
 @pytest.mark.asyncio
@@ -165,6 +166,12 @@ def test_validate_jwt_exceptions(
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, expected_message)
 
 
+def test_get_hashed_password():
+    hashed_password = get_hashed_password(PASSWORD)
+
+    assert hashed_password != PASSWORD
+
+
 def test_compare_passwords():
     hashed_password = get_hashed_password(PASSWORD)
 
@@ -180,10 +187,10 @@ def test_compare_exception():
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, "Invalid credentials")
 
 
-def test_get_hashed_password():
-    hashed_password = get_hashed_password(PASSWORD)
+def test_get_hashed_jwt():
+    hashed_jwt = get_hashed_jwt(ACCESS_TOKEN)
 
-    assert hashed_password != PASSWORD
+    assert hashed_jwt != ACCESS_TOKEN
 
 
 def test_convert_user_agent():

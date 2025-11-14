@@ -80,7 +80,6 @@ class UpdateEmailRequestDTO(BaseRequestDTO):
 @dataclass(slots=True, frozen=True)
 class UpdateEmailDataRequestDTO(BaseRequestDTO):
     user_id: str
-    access_token: str
     new_email: str
 
 
@@ -94,6 +93,5 @@ class UpdatePasswordRequestDTO(BaseRequestDTO):
 @dataclass(slots=True, frozen=True)
 class UpdatePasswordDataRequestDTO(BaseRequestDTO):
     user_id: str
-    access_token: str
     old_password: str
     new_password: str

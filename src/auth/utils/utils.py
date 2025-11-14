@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -130,6 +131,10 @@ def validate_jwt_and_get_user_id(token: str, token_type: TokenTypes) -> str:
     return validate_jwt(token, token_type).subject  # type: ignore
 
 
+def get_hashed_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+
 def compare_passwords(password: str, hashed_password: str) -> None:
     if not bcrypt.checkpw(password.encode(), hashed_password.encode()):
         raise UnauthenticatedException(
@@ -137,8 +142,8 @@ def compare_passwords(password: str, hashed_password: str) -> None:
         )
 
 
-def get_hashed_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+def get_hashed_jwt(jwt: str) -> str:
+    return hashlib.sha256(jwt.encode()).hexdigest()
 
 
 def convert_user_agent(user_agent: str) -> str:
