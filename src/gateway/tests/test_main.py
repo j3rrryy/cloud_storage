@@ -18,10 +18,10 @@ from utils import exception_handler
 @patch("litestar.Litestar")
 def test_app(mock_litestar):
     importlib.reload(main)
+
     main.main()
 
     _, kwargs = mock_litestar.call_args
-
     assert kwargs["path"] == "/api"
     assert kwargs["route_handlers"] == (
         PrometheusController,
@@ -32,21 +32,16 @@ def test_app(mock_litestar):
     assert isinstance(kwargs["cors_config"], CORSConfig)
     assert isinstance(kwargs["logging_config"], LoggingConfig)
     assert isinstance(kwargs["openapi_config"], OpenAPIConfig)
-
     middleware = kwargs["middleware"]
     assert len(middleware) == 1
     assert isinstance(middleware[0], DefineMiddleware)
-
     exc_handlers = kwargs["exception_handlers"]
     assert len(middleware) == 1
     assert isinstance(exc_handlers[HTTPException], type(exception_handler))
-
     on_startup = kwargs["on_startup"]
     assert on_startup == (di_v1.DIManager.setup,)
-
     on_shutdown = kwargs["on_shutdown"]
     assert on_shutdown == (di_v1.DIManager.close,)
-
     deps = kwargs["dependencies"]
     assert deps["auth_service_v1"].use_cache
     assert deps["file_service_v1"].use_cache
@@ -63,6 +58,7 @@ def test_app(mock_litestar):
 def test_uvicorn(mock_run):
     with open("main.py") as file:
         code = compile(file.read(), str("main.py"), "exec")
+
         exec(code, {"__name__": "__main__"})
 
         mock_run.assert_called_once_with(

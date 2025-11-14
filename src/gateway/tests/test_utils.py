@@ -16,6 +16,7 @@ def test_exception_handler():
     )
 
     response = exception_handler(mock_request, mock_exception)
+
     assert isinstance(response, Response)
     assert response.content == {
         "status_code": mock_exception.status_code,
@@ -49,7 +50,9 @@ def test_validate_access_token(
     if expected_exception and expected_message:
         with pytest.raises(expected_exception) as exc_info:
             validate_access_token(mock_request)
+
         assert expected_message in exc_info.value.detail
     else:
         token = validate_access_token(mock_request)
+
         assert token == expected_token

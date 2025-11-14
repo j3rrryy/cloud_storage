@@ -12,6 +12,7 @@ PREFIX = "/api/v1/files"
 @pytest.mark.asyncio
 async def test_initiate_upload(client):
     data = file_schemas.InitiateUpload(NAME, SIZE)
+
     response = await client.post(
         f"{PREFIX}/initiate-upload",
         content=msgspec.msgpack.encode(data),
@@ -33,6 +34,7 @@ async def test_initiate_upload(client):
 @pytest.mark.asyncio
 async def test_complete_upload(client):
     data = file_schemas.CompleteUpload(UPLOAD_ID, [file_schemas.CompletePart(1, ETAG)])
+
     response = await client.post(
         f"{PREFIX}/complete-upload",
         content=msgspec.msgpack.encode(data),
@@ -41,6 +43,7 @@ async def test_complete_upload(client):
             "Authorization": f"Bearer {ACCESS_TOKEN}",
         },
     )
+
     assert response.status_code == HTTP_201_CREATED
 
 
@@ -53,6 +56,7 @@ async def test_abort_upload(client):
             "Authorization": f"Bearer {ACCESS_TOKEN}",
         },
     )
+
     assert response.status_code == HTTP_204_NO_CONTENT
 
 
@@ -100,6 +104,7 @@ async def test_download(client):
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
         follow_redirects=False,
     )
+
     assert response.has_redirect_location
 
 
@@ -110,6 +115,7 @@ async def test_delete(client):
         params={"file_id": (FILE_ID,)},
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
     )
+
     assert response.status_code == HTTP_204_NO_CONTENT
 
 
@@ -119,4 +125,5 @@ async def test_delete_all(client):
         f"{PREFIX}/all",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
     )
+
     assert response.status_code == HTTP_204_NO_CONTENT

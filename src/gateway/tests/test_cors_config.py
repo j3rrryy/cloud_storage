@@ -7,6 +7,7 @@ from config import setup_cors
 
 def test_setup_cors():
     cors_config = setup_cors()
+
     assert cors_config == CORSConfig(
         allow_origins=os.environ["ALLOWED_ORIGINS"].split(", "),
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD", "TRACE"],
