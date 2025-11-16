@@ -1,0 +1,118 @@
+from dto import auth_dto, mail_dto
+from interfaces import AuthServiceInterface
+from proto import auth_pb2 as auth_pb2
+
+from .base_adapter import BaseRPCAdapter
+
+
+class AuthGrpcAdapter(BaseRPCAdapter, AuthServiceInterface):
+    @BaseRPCAdapter.exception_handler
+    async def register(
+        self, data: auth_dto.RegistrationDTO
+    ) -> mail_dto.VerificationMailDTO:
+        request = data.to_request(auth_pb2.RegisterRequest)
+        verification_token: auth_pb2.VerificationToken = await self._stub.Register(
+            request
+        )
+        return mail_dto.VerificationMailDTO(
+            verification_token.verification_token, data.username, data.email
+        )
+
+    @BaseRPCAdapter.exception_handler
+    async def verify_email(self, verification_token: str) -> None:
+        request = auth_pb2.VerificationToken(verification_token=verification_token)
+        await self._stub.VerifyEmail(request)
+
+    @BaseRPCAdapter.exception_handler
+    async def request_reset_code(self, email: str) -> auth_dto.ResetInfoDTO:
+        request = auth_pb2.Email(email=email)
+        reset_info: auth_pb2.ResetCodeResponse = await self._stub.RequestResetCode(
+            request
+        )
+        return auth_dto.ResetInfoDTO.from_response(reset_info)
+
+    @BaseRPCAdapter.exception_handler
+    async def validate_code(self, data: auth_dto.ResetCodeDTO) -> bool:
+        request = data.to_request(auth_pb2.ResetCodeRequest)
+        validation_info: auth_pb2.CodeIsValid = await self._stub.ValidateResetCode(
+            request
+        )
+        return validation_info.is_valid
+
+    @BaseRPCAdapter.exception_handler
+    async def reset_password(self, data: auth_dto.ResetPasswordDTO) -> None:
+        request = data.to_request(auth_pb2.ResetPasswordRequest)
+        await self._stub.ResetPassword(request)
+
+    @BaseRPCAdapter.exception_handler
+    async def log_in(self, data: auth_dto.LogInDTO) -> auth_dto.LogInDataDTO:
+        request = data.to_request(auth_pb2.LogInRequest)
+        login_data: auth_pb2.LogInResponse = await self._stub.LogIn(request)
+        return auth_dto.LogInDataDTO.from_response(login_data)
+
+    @BaseRPCAdapter.exception_handler
+    async def log_out(self, access_token: str) -> None:
+        request = auth_pb2.AccessToken(access_token=access_token)
+        await self._stub.LogOut(request)
+
+    @BaseRPCAdapter.exception_handler
+    async def resend_verification_mail(
+        self, access_token: str
+    ) -> mail_dto.VerificationMailDTO:
+        request = auth_pb2.AccessToken(access_token=access_token)
+        verification_mail: auth_pb2.VerificationMail = (
+            await self._stub.ResendVerificationMail(request)
+        )
+        return mail_dto.VerificationMailDTO.from_response(verification_mail)
+
+    @BaseRPCAdapter.exception_handler
+    async def auth(self, access_token: str) -> str:
+        request = auth_pb2.AccessToken(access_token=access_token)
+        user_id: auth_pb2.UserId = await self._stub.Auth(request)
+        return user_id.user_id
+
+    @BaseRPCAdapter.exception_handler
+    async def refresh(self, data: auth_dto.RefreshDTO) -> auth_dto.TokensDTO:
+        request = data.to_request(auth_pb2.RefreshRequest)
+        tokens: auth_pb2.Tokens = await self._stub.Refresh(request)
+        return auth_dto.TokensDTO.from_response(tokens)
+
+    @BaseRPCAdapter.exception_handler
+    async def session_list(self, access_token: str) -> list[auth_dto.SessionDTO]:
+        request = auth_pb2.AccessToken(access_token=access_token)
+        sessions: auth_pb2.Sessions = await self._stub.SessionList(request)
+        return [
+            auth_dto.SessionDTO.from_response(session) for session in sessions.sessions
+        ]
+
+    @BaseRPCAdapter.exception_handler
+    async def revoke_session(self, data: auth_dto.RevokeSessionDTO) -> None:
+        request = data.to_request(auth_pb2.RevokeSessionRequest)
+        await self._stub.RevokeSession(request)
+
+    @BaseRPCAdapter.exception_handler
+    async def profile(self, access_token: str) -> auth_dto.ProfileDTO:
+        request = auth_pb2.AccessToken(access_token=access_token)
+        user_profile: auth_pb2.ProfileResponse = await self._stub.Profile(request)
+        return auth_dto.ProfileDTO.from_response(user_profile)
+
+    @BaseRPCAdapter.exception_handler
+    async def update_email(
+        self, data: auth_dto.UpdateEmailDTO
+    ) -> mail_dto.VerificationMailDTO:
+        request = data.to_request(auth_pb2.UpdateEmailRequest)
+        verification_mail: auth_pb2.VerificationMail = await self._stub.UpdateEmail(
+            request
+        )
+        return mail_dto.VerificationMailDTO.from_response(verification_mail)
+
+    @BaseRPCAdapter.exception_handler
+    async def update_password(self, data: auth_dto.UpdatePasswordDTO) -> None:
+        request = data.to_request(auth_pb2.UpdatePasswordRequest)
+        await self._stub.UpdatePassword(request)
+
+    @BaseRPCAdapter.exception_handler
+    async def delete_profile(self, access_token: str) -> str:
+        request = auth_pb2.AccessToken(access_token=access_token)
+        user_id: auth_pb2.UserId = await self._stub.DeleteProfile(request)
+        return user_id.user_id

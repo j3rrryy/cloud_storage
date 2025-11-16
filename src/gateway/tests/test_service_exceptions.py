@@ -9,7 +9,7 @@ from litestar.exceptions import (
     ValidationException,
 )
 
-from service.v1 import RPCBaseService
+from adapters.base_adapter import BaseAdapter
 
 
 @pytest.mark.asyncio
@@ -35,7 +35,7 @@ async def test_handle_exception(status_code, expected_exception):
         details=DETAILS,
     )
 
-    @RPCBaseService.exception_handler
+    @BaseAdapter.exception_handler
     async def mock_function():
         raise exception
 

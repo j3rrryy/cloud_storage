@@ -1,0 +1,90 @@
+from dto import auth_dto, file_dto
+from interfaces import AuthServiceInterface, FileServiceInterface, MailServiceInterface
+
+from .auth_facade import AuthFacade
+from .file_facade import FileFacade
+
+
+class ApplicationFacade:
+    def __init__(
+        self,
+        auth_service: AuthServiceInterface,
+        file_service: FileServiceInterface,
+        mail_service: MailServiceInterface,
+    ):
+        self._auth_facade = AuthFacade(auth_service, mail_service)
+        self._file_facade = FileFacade(file_service)
+
+    async def register(self, data: auth_dto.RegistrationDTO) -> None:
+        await self._auth_facade.register(data)
+
+    async def verify_email(self, verification_token: str) -> None:
+        await self._auth_facade.verify_email(verification_token)
+
+    async def request_reset_code(self, email: str) -> str:
+        return await self._auth_facade.request_reset_code(email)
+
+    async def validate_reset_code(self, data: auth_dto.ResetCodeDTO) -> bool:
+        return await self._auth_facade.validate_reset_code(data)
+
+    async def reset_password(self, data: auth_dto.ResetPasswordDTO) -> None:
+        await self._auth_facade.reset_password(data)
+
+    async def log_in(self, data: auth_dto.LogInDTO) -> auth_dto.LogInDataDTO:
+        return await self._auth_facade.log_in(data)
+
+    async def log_out(self, access_token: str) -> None:
+        await self._auth_facade.log_out(access_token)
+
+    async def resend_verification_mail(self, access_token: str) -> None:
+        await self._auth_facade.resend_verification_mail(access_token)
+
+    async def auth(self, access_token: str) -> str:
+        return await self._auth_facade.auth(access_token)
+
+    async def refresh(self, data: auth_dto.RefreshDTO) -> auth_dto.TokensDTO:
+        return await self._auth_facade.refresh(data)
+
+    async def session_list(self, access_token: str) -> list[auth_dto.SessionDTO]:
+        return await self._auth_facade.session_list(access_token)
+
+    async def revoke_session(self, data: auth_dto.RevokeSessionDTO) -> None:
+        await self._auth_facade.revoke_session(data)
+
+    async def profile(self, access_token: str) -> auth_dto.ProfileDTO:
+        return await self._auth_facade.profile(access_token)
+
+    async def update_email(self, data: auth_dto.UpdateEmailDTO) -> None:
+        await self._auth_facade.update_email(data)
+
+    async def update_password(self, data: auth_dto.UpdatePasswordDTO) -> None:
+        await self._auth_facade.update_password(data)
+
+    async def delete_profile(self, access_token: str) -> str:
+        return await self._auth_facade.delete_profile(access_token)
+
+    async def initiate_upload(
+        self, data: file_dto.InitiateUploadDTO
+    ) -> file_dto.InitiatedUploadDTO:
+        return await self._file_facade.initiate_upload(data)
+
+    async def complete_upload(self, data: file_dto.CompleteUploadDTO) -> None:
+        await self._file_facade.complete_upload(data)
+
+    async def abort_upload(self, data: file_dto.AbortUploadDTO) -> None:
+        await self._file_facade.abort_upload(data)
+
+    async def file_info(self, data: file_dto.FileDTO) -> file_dto.FileInfoDTO:
+        return await self._file_facade.file_info(data)
+
+    async def file_list(self, user_id: str) -> list[file_dto.FileInfoDTO]:
+        return await self._file_facade.file_list(user_id)
+
+    async def download(self, data: file_dto.FileDTO) -> str:
+        return await self._file_facade.download(data)
+
+    async def delete(self, data: file_dto.DeleteDTO) -> None:
+        await self._file_facade.delete(data)
+
+    async def delete_all(self, user_id: str) -> None:
+        await self._file_facade.delete_all(user_id)
