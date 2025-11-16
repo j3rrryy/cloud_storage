@@ -1,2 +1,4 @@
-from .auth_pb2_grpc import *  # noqa: F403
-from .file_pb2_grpc import *  # noqa: F403
+from .auth_pb2_grpc import AuthStub
+from .file_pb2_grpc import FileStub
+
+__all__ = ["AuthStub", "FileStub"]

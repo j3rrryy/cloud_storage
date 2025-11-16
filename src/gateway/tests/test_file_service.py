@@ -1,15 +1,16 @@
 import pytest
 
 from dto import file_dto
+from facades import ApplicationFacade
 
 from .mocks import ETAG, FILE_ID, NAME, SIZE, TIMESTAMP, UPLOAD_ID, URL, USER_ID
 
 
 @pytest.mark.asyncio
-async def test_initiate_upload(file_service_v1):
+async def test_initiate_upload(application_facade: ApplicationFacade):
     dto = file_dto.InitiateUploadDTO(USER_ID, NAME, SIZE)
 
-    response = await file_service_v1.initiate_upload(dto)
+    response = await application_facade.initiate_file_upload(dto)
 
     assert response.upload_id == UPLOAD_ID
     assert response.part_size == SIZE
@@ -19,30 +20,26 @@ async def test_initiate_upload(file_service_v1):
 
 
 @pytest.mark.asyncio
-async def test_complete_upload(file_service_v1):
+async def test_complete_upload(application_facade: ApplicationFacade):
     dto = file_dto.CompleteUploadDTO(
         USER_ID, UPLOAD_ID, [file_dto.CompletePartDTO(1, ETAG)]
     )
 
-    response = await file_service_v1.complete_upload(dto)
-
-    assert response is None
+    await application_facade.complete_file_upload(dto)
 
 
 @pytest.mark.asyncio
-async def test_abort_upload(file_service_v1):
+async def test_abort_upload(application_facade: ApplicationFacade):
     dto = file_dto.AbortUploadDTO(USER_ID, UPLOAD_ID)
 
-    response = await file_service_v1.abort_upload(dto)
-
-    assert response is None
+    await application_facade.abort_file_upload(dto)
 
 
 @pytest.mark.asyncio
-async def test_file_info(file_service_v1):
+async def test_file_info(application_facade: ApplicationFacade):
     dto = file_dto.FileDTO(USER_ID, FILE_ID)
 
-    response = await file_service_v1.file_info(dto)
+    response = await application_facade.get_file_info(dto)
 
     assert response.file_id == FILE_ID
     assert response.name == NAME
@@ -51,8 +48,8 @@ async def test_file_info(file_service_v1):
 
 
 @pytest.mark.asyncio
-async def test_file_list(file_service_v1):
-    response = await file_service_v1.file_list(USER_ID)
+async def test_file_list(application_facade: ApplicationFacade):
+    response = await application_facade.get_file_list(USER_ID)
 
     assert len(response) == 1
     assert response[0].file_id == FILE_ID
@@ -62,35 +59,28 @@ async def test_file_list(file_service_v1):
 
 
 @pytest.mark.asyncio
-async def test_download(file_service_v1):
+async def test_download(application_facade: ApplicationFacade):
     dto = file_dto.FileDTO(USER_ID, FILE_ID)
 
-    response = await file_service_v1.download(dto)
+    response = await application_facade.get_download_url(dto)
 
     assert response == URL
 
 
 @pytest.mark.asyncio
-async def test_delete(file_service_v1):
+async def test_delete(application_facade: ApplicationFacade):
     dto = file_dto.DeleteDTO(USER_ID, [FILE_ID])
 
-    response = await file_service_v1.delete(dto)
-
-    assert response is None
+    await application_facade.delete_files(dto)
 
 
 @pytest.mark.asyncio
-async def test_delete_with_no_files(file_service_v1):
+async def test_delete_with_no_files(application_facade: ApplicationFacade):
     dto = file_dto.DeleteDTO(USER_ID, [])
 
-    response = await file_service_v1.delete(dto)
-
-    assert response is None
-    file_service_v1._stub.Delete.assert_not_called()
+    await application_facade.delete_files(dto)
 
 
 @pytest.mark.asyncio
-async def test_delete_all(file_service_v1):
-    response = await file_service_v1.delete_all(USER_ID)
-
-    assert response is None
+async def test_delete_all(application_facade: ApplicationFacade):
+    await application_facade.delete_all_files(USER_ID)

@@ -7,22 +7,34 @@ from litestar import Litestar
 from litestar.di import Provide
 from litestar.testing import AsyncTestClient
 
+from adapters import AuthGrpcAdapter, FileGrpcAdapter, MailKafkaAdapter
 from controller import v1 as controller_v1
-from service import v1 as service_v1
+from facades import ApplicationFacade
 
 from .mocks import create_auth_stub_v1, create_file_stub_v1, create_mail_producer
 
 
-async def auth_service_v1_factory() -> AsyncGenerator[service_v1.AuthService, None]:
-    yield service_v1.AuthService(create_auth_stub_v1())
+async def application_facade_factory() -> AsyncGenerator[ApplicationFacade, None]:
+    auth_adapter = AuthGrpcAdapter(create_auth_stub_v1())
+    file_adapter = FileGrpcAdapter(create_file_stub_v1())
+    mail_adapter = MailKafkaAdapter(create_mail_producer())
+    facade = ApplicationFacade(auth_adapter, file_adapter, mail_adapter)
+    yield facade
 
 
-async def file_service_v1_factory() -> AsyncGenerator[service_v1.FileService, None]:
-    yield service_v1.FileService(create_file_stub_v1())
+async def auth_adapter_factory() -> AsyncGenerator[AuthGrpcAdapter, None]:
+    adapter = AuthGrpcAdapter(create_auth_stub_v1())
+    yield adapter
 
 
-async def mail_service_v1_factory() -> AsyncGenerator[service_v1.MailService, None]:
-    yield service_v1.MailService(create_mail_producer())
+async def file_adapter_factory() -> AsyncGenerator[FileGrpcAdapter, None]:
+    adapter = FileGrpcAdapter(create_file_stub_v1())
+    yield adapter
+
+
+async def mail_adapter_factory() -> AsyncGenerator[MailKafkaAdapter, None]:
+    adapter = MailKafkaAdapter(create_mail_producer())
+    yield adapter
 
 
 def create_app() -> Litestar:
@@ -31,9 +43,10 @@ def create_app() -> Litestar:
         route_handlers=(controller_v1.auth_router, controller_v1.file_router),
         debug=bool(int(os.environ["DEBUG"])),
         dependencies={
-            "auth_service_v1": Provide(auth_service_v1_factory),
-            "file_service_v1": Provide(file_service_v1_factory),
-            "mail_service_v1": Provide(mail_service_v1_factory),
+            "application_facade": Provide(application_facade_factory),
+            "auth_service": Provide(auth_adapter_factory),
+            "file_service": Provide(file_adapter_factory),
+            "mail_service": Provide(mail_adapter_factory),
         },
     )
     return app
@@ -46,15 +59,23 @@ async def client() -> AsyncGenerator[AsyncTestClient[Litestar], None]:
 
 
 @pytest.fixture()
-def auth_service_v1() -> service_v1.AuthService:
-    return service_v1.AuthService(create_auth_stub_v1())
+def application_facade() -> ApplicationFacade:
+    auth_adapter = AuthGrpcAdapter(create_auth_stub_v1())
+    file_adapter = FileGrpcAdapter(create_file_stub_v1())
+    mail_adapter = MailKafkaAdapter(create_mail_producer())
+    return ApplicationFacade(auth_adapter, file_adapter, mail_adapter)
 
 
 @pytest.fixture()
-def file_service_v1() -> service_v1.FileService:
-    return service_v1.FileService(create_file_stub_v1())
+def auth_service() -> AuthGrpcAdapter:
+    return AuthGrpcAdapter(create_auth_stub_v1())
 
 
-@pytest.fixture
-def mail_service_v1() -> service_v1.MailService:
-    return service_v1.MailService(create_mail_producer())
+@pytest.fixture()
+def file_service() -> FileGrpcAdapter:
+    return FileGrpcAdapter(create_file_stub_v1())
+
+
+@pytest.fixture()
+def mail_service() -> MailKafkaAdapter:
+    return MailKafkaAdapter(create_mail_producer())
