@@ -15,7 +15,7 @@ from litestar.status_codes import (
 from dto import file_dto
 from facades import ApplicationFacade
 from schemas import file_schemas
-from utils import validate_access_token
+from validators import validate_access_token
 
 
 class FileController(Controller):

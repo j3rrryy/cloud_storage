@@ -9,7 +9,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 from dto import auth_dto
 from facades import ApplicationFacade
 from schemas import auth_schemas
-from utils import validate_access_token
+from validators import validate_access_token
 
 
 class AuthController(Controller):
