@@ -245,9 +245,13 @@ async def test_delete_exception(mock_session):
 
 @pytest.mark.asyncio
 async def test_delete_all(mock_session):
-    await FileRepository.delete_all(USER_ID)  # type: ignore
+    mock_session.scalars = AsyncMock(return_value=[FILE_ID])
 
-    mock_session.execute.assert_awaited_once()
+    file_ids = await FileRepository.delete_all(USER_ID)  # type: ignore
+
+    assert len(file_ids) == 1
+    assert file_ids[0] == FILE_ID
+    mock_session.scalars.assert_awaited_once()
     mock_session.commit.assert_awaited_once()
 
 
@@ -260,6 +264,6 @@ async def test_delete_all_exception(mock_session):
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"
-    mock_session.execute.assert_awaited_once()
+    mock_session.scalars.assert_awaited_once()
     mock_session.commit.assert_awaited_once()
     mock_session.rollback.assert_awaited_once()

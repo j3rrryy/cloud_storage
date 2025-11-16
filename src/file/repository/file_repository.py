@@ -98,6 +98,11 @@ class FileRepository:
 
     @staticmethod
     @with_transaction
-    async def delete_all(user_id: str, session: AsyncSession) -> None:
-        await session.execute(delete(File).filter(File.user_id == user_id))
+    async def delete_all(user_id: str, session: AsyncSession) -> list[str]:
+        deleted_file_ids = list(
+            await session.scalars(
+                delete(File).filter(File.user_id == user_id).returning(File.file_id)
+            )
+        )
         await session.commit()
+        return deleted_file_ids

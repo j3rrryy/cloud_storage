@@ -143,25 +143,6 @@ class FileStorage:
         await cls._gather_tasks(tasks)
 
     @classmethod
-    @with_storage
-    async def delete_all(cls, user_id: str, client: S3Client) -> None:
-        semaphore = asyncio.Semaphore(5)
-        paginator = client.get_paginator("list_objects_v2")
-        tasks = []
-
-        async for page in paginator.paginate(
-            Bucket=cls.BUCKET_NAME,
-            Prefix=f"{user_id}/",
-            PaginationConfig={"PageSize": 1000},
-        ):
-            if keys := page.get("Contents", []):
-                chunk = [{"Key": obj["Key"]} for obj in keys]  # type: ignore
-                task = asyncio.create_task(cls._delete_chunk(chunk, semaphore, client))
-                tasks.append(task)
-
-        await cls._gather_tasks(tasks)
-
-    @classmethod
     async def _delete_chunk(
         cls, chunk: list[dict[str, str]], semaphore: asyncio.Semaphore, client: S3Client
     ):

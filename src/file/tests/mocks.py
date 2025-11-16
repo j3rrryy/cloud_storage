@@ -50,7 +50,6 @@ def create_storage() -> MagicMock:
     crud.abort_upload = AsyncMock()
     crud.download = AsyncMock(return_value=RELATIVE_URL)
     crud.delete = AsyncMock()
-    crud.delete_all = AsyncMock()
     return crud
 
 

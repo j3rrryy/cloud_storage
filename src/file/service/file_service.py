@@ -102,7 +102,7 @@ class FileService:
             return
 
         await FileRepository.validate_user_files(data.user_id, data.file_ids)  # type: ignore
-        await FileStorage.delete(data.file_ids)  # type: ignore
+        asyncio.create_task(FileStorage.delete(data.file_ids))  # type: ignore
         await FileRepository.delete(data)  # type: ignore
 
         await cache.delete(file_list_key(data.user_id))
@@ -114,8 +114,8 @@ class FileService:
 
     @staticmethod
     async def delete_all(user_id: str) -> None:
-        asyncio.create_task(FileStorage.delete_all(user_id))  # type: ignore
-        await FileRepository.delete_all(user_id)  # type: ignore
+        file_ids = await FileRepository.delete_all(user_id)  # type: ignore
+        asyncio.create_task(FileStorage.delete(file_ids))  # type: ignore
         await cache.delete_match(file_all_keys(user_id))
 
     @staticmethod

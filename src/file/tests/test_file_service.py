@@ -241,7 +241,7 @@ async def test_delete(mock_cache, mock_repository, mock_storage):
     await FileService.delete(dto)
 
     mock_repository.validate_user_files.assert_awaited_once()
-    mock_storage.delete.assert_awaited_once()
+    mock_storage.delete.assert_called_once()
     mock_repository.delete.assert_awaited_once()
     mock_cache.delete.assert_awaited_once()
     mock_cache.delete_many.assert_awaited_once()
@@ -270,6 +270,6 @@ async def test_delete_with_no_files(mock_cache, mock_repository, mock_storage):
 async def test_delete_all(mock_cache, mock_repository, mock_storage):
     await FileService.delete_all(USER_ID)
 
-    mock_storage.delete_all.assert_called_once()
     mock_repository.delete_all.assert_awaited_once()
+    mock_storage.delete.assert_called_once()
     mock_cache.delete_match.assert_awaited_once()
