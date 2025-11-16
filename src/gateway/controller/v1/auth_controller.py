@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, patch, post
 from litestar.enums import RequestEncodingType
@@ -32,7 +33,7 @@ class AuthController(Controller):
         await application_facade.verify_email(verification_token)
 
     @post(
-        "/request-reset-code",
+        "/reset-code/request",
         status_code=HTTP_200_OK,
         response_model=auth_schemas.UserId,
         media_type=MediaType.MESSAGEPACK,
@@ -49,7 +50,7 @@ class AuthController(Controller):
         return auth_schemas.UserId(user_id)
 
     @post(
-        "/validate-reset-code",
+        "/reset-code/validate",
         status_code=HTTP_200_OK,
         response_model=auth_schemas.CodeIsValid,
         media_type=MediaType.MESSAGEPACK,
@@ -114,7 +115,7 @@ class AuthController(Controller):
         await application_facade.resend_verification_mail(access_token)
 
     @get(
-        "/auth",
+        "/",
         status_code=HTTP_200_OK,
         response_model=auth_schemas.UserId,
         media_type=MediaType.MESSAGEPACK,
@@ -127,7 +128,7 @@ class AuthController(Controller):
         return auth_schemas.UserId(user_id)
 
     @post(
-        "/refresh",
+        "/refresh-tokens",
         status_code=HTTP_201_CREATED,
         response_model=auth_schemas.Tokens,
         media_type=MediaType.MESSAGEPACK,
@@ -149,7 +150,7 @@ class AuthController(Controller):
         return tokens.to_schema(auth_schemas.Tokens)
 
     @get(
-        "/session-list",
+        "/sessions",
         status_code=HTTP_200_OK,
         response_model=auth_schemas.SessionList,
         media_type=MediaType.MESSAGEPACK,
@@ -163,17 +164,12 @@ class AuthController(Controller):
             [session.to_schema(auth_schemas.SessionInfo) for session in sessions]
         )
 
-    @post("/revoke-session", status_code=HTTP_204_NO_CONTENT)
+    @delete("/sessions/{session_id: uuid}", status_code=HTTP_204_NO_CONTENT)
     async def revoke_session(
-        self,
-        data: Annotated[
-            auth_schemas.SessionId, Body(media_type=RequestEncodingType.MESSAGEPACK)
-        ],
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, session_id: UUID, request: Request, application_facade: ApplicationFacade
     ) -> None:
         access_token = validate_access_token(request)
-        dto = auth_dto.RevokeSessionDTO(access_token, data.session_id)
+        dto = auth_dto.RevokeSessionDTO(access_token, str(session_id))
         await application_facade.revoke_session(dto)
 
     @get(
@@ -189,7 +185,7 @@ class AuthController(Controller):
         user_profile = await application_facade.profile(access_token)
         return user_profile.to_schema(auth_schemas.Profile)
 
-    @patch("/update-email", status_code=HTTP_204_NO_CONTENT)
+    @patch("/profile/email", status_code=HTTP_204_NO_CONTENT)
     async def update_email(
         self,
         data: Annotated[
@@ -202,7 +198,7 @@ class AuthController(Controller):
         dto = auth_dto.UpdateEmailDTO(access_token, data.new_email)
         await application_facade.update_email(dto)
 
-    @patch("/update-password", status_code=HTTP_204_NO_CONTENT)
+    @patch("/profile/password", status_code=HTTP_204_NO_CONTENT)
     async def update_password(
         self,
         data: Annotated[
@@ -218,11 +214,9 @@ class AuthController(Controller):
         )
         await application_facade.update_password(dto)
 
-    @delete("/delete-profile", status_code=HTTP_204_NO_CONTENT)
+    @delete("/profile", status_code=HTTP_204_NO_CONTENT)
     async def delete_profile(
-        self,
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, request: Request, application_facade: ApplicationFacade
     ) -> None:
         access_token = validate_access_token(request)
         await application_facade.delete_profile(access_token)

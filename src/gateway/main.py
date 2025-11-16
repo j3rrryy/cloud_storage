@@ -42,7 +42,9 @@ def main() -> Litestar:
         on_startup=(startup_handler,),
         on_shutdown=(shutdown_handler,),
         dependencies={
-            "application_facade": Provide(get_application_facade, use_cache=True),
+            "application_facade": Provide(
+                get_application_facade, use_cache=True, sync_to_thread=False
+            ),
         },
     )
 

@@ -22,7 +22,7 @@ class FileController(Controller):
     path = "/files"
 
     @post(
-        "/initiate-upload",
+        "/upload/initiate",
         status_code=HTTP_200_OK,
         response_model=file_schemas.InitiatedUpload,
         media_type=MediaType.MESSAGEPACK,
@@ -41,7 +41,7 @@ class FileController(Controller):
         upload = await application_facade.initiate_upload(access_token, dto)
         return upload.to_schema(file_schemas.InitiatedUpload)
 
-    @post("/complete-upload", status_code=HTTP_201_CREATED)
+    @post("/upload/complete", status_code=HTTP_201_CREATED)
     async def complete_upload(
         self,
         data: Annotated[
@@ -62,12 +62,9 @@ class FileController(Controller):
         )
         await application_facade.complete_upload(access_token, dto)
 
-    @delete("/abort-upload/{upload_id: str}", status_code=HTTP_204_NO_CONTENT)
+    @delete("/upload/{upload_id: str}/abort", status_code=HTTP_204_NO_CONTENT)
     async def abort_upload(
-        self,
-        upload_id: str,
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, upload_id: str, request: Request, application_facade: ApplicationFacade
     ) -> None:
         access_token = validate_access_token(request)
         dto = file_dto.AbortUploadDTO("", upload_id)
@@ -80,10 +77,7 @@ class FileController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def file_info(
-        self,
-        file_id: UUID,
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, file_id: UUID, request: Request, application_facade: ApplicationFacade
     ) -> file_schemas.FileInfo:
         access_token = validate_access_token(request)
         dto = file_dto.FileDTO("", str(file_id))
@@ -97,9 +91,7 @@ class FileController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def file_list(
-        self,
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, request: Request, application_facade: ApplicationFacade
     ) -> file_schemas.FileList:
         access_token = validate_access_token(request)
         files = await application_facade.file_list(access_token)
@@ -113,10 +105,7 @@ class FileController(Controller):
         response_class=Redirect,
     )
     async def download(
-        self,
-        file_id: UUID,
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, file_id: UUID, request: Request, application_facade: ApplicationFacade
     ) -> Redirect:
         access_token = validate_access_token(request)
         dto = file_dto.FileDTO("", str(file_id))
@@ -136,9 +125,7 @@ class FileController(Controller):
 
     @delete("/all", status_code=HTTP_204_NO_CONTENT)
     async def delete_all(
-        self,
-        request: Request,
-        application_facade: ApplicationFacade,
+        self, request: Request, application_facade: ApplicationFacade
     ) -> None:
         access_token = validate_access_token(request)
         await application_facade.delete_all(access_token)

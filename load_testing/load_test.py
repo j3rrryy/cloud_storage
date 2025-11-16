@@ -34,16 +34,16 @@ class CloudStorageUser(FastHttpUser):
         self._set_creds(self._unpack(response))
 
     def on_stop(self):
-        self.client.delete(f"{URL_PREFIX}/auth/delete-profile", headers=self.headers)
+        self.client.delete(f"{URL_PREFIX}/auth/profile", headers=self.headers)
 
     @task(10)
     def auth(self):
-        self.client.get(f"{URL_PREFIX}/auth/auth", headers=self.headers)
+        self.client.get(f"{URL_PREFIX}/auth", headers=self.headers)
 
     @task(7)
     def refresh_token(self):
         response = self.client.post(
-            f"{URL_PREFIX}/auth/refresh",
+            f"{URL_PREFIX}/auth/refresh-tokens",
             data=self._pack({"refresh_token": self.refresh_token}),
             headers=self.headers,
         )
@@ -55,7 +55,7 @@ class CloudStorageUser(FastHttpUser):
 
     @task(2)
     def session_list(self):
-        self.client.get(f"{URL_PREFIX}/auth/session-list", headers=self.headers)
+        self.client.get(f"{URL_PREFIX}/auth/sessions", headers=self.headers)
 
     @task(10)
     def list_files(self):
@@ -85,7 +85,7 @@ class CloudStorageUser(FastHttpUser):
         file_size = os.path.getsize(FILE_PATH)
 
         response = self.client.post(
-            f"{URL_PREFIX}/files/initiate-upload",
+            f"{URL_PREFIX}/files/upload/initiate",
             data=self._pack({"name": file_name, "size": file_size}),
             headers=self.headers,
         )
@@ -107,7 +107,7 @@ class CloudStorageUser(FastHttpUser):
         payload = {"upload_id": upload_id, "parts": results}
 
         self.client.post(
-            f"{URL_PREFIX}/files/complete-upload",
+            f"{URL_PREFIX}/files/upload/complete",
             data=self._pack(payload),
             headers=self.headers,
         )
