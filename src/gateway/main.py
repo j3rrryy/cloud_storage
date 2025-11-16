@@ -7,7 +7,7 @@ from litestar.plugins.prometheus import PrometheusController
 from config import setup_cors, setup_logging, setup_openapi, setup_prometheus
 from controller import v1 as controller_v1
 from factories import ServiceFactory
-from settings import AppSettings
+from settings import Settings
 from utils import exception_handler
 
 
@@ -20,7 +20,7 @@ def main() -> Litestar:
             controller_v1.auth_router,
             controller_v1.file_router,
         ),
-        debug=AppSettings.DEBUG,
+        debug=Settings.DEBUG,
         cors_config=setup_cors(),
         logging_config=setup_logging(),
         middleware=(setup_prometheus().middleware,),
@@ -43,10 +43,10 @@ if __name__ == "__main__":
         "main:main",
         factory=True,
         loop="uvloop",
-        host=AppSettings.HOST,
-        port=AppSettings.PORT,
-        workers=AppSettings.WORKERS,
-        limit_concurrency=AppSettings.LIMIT_CONCURRENCY,
-        limit_max_requests=AppSettings.LIMIT_MAX_REQUESTS,
-        reload=AppSettings.DEBUG,
+        host=Settings.HOST,
+        port=Settings.PORT,
+        workers=Settings.WORKERS,
+        limit_concurrency=Settings.LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.LIMIT_MAX_REQUESTS,
+        reload=Settings.DEBUG,
     )

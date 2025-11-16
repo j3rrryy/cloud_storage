@@ -10,7 +10,7 @@ from litestar.plugins.prometheus import PrometheusController
 
 import main
 from controller import v1 as controller_v1
-from settings import AppSettings
+from settings import Settings
 from utils import exception_handler
 
 
@@ -27,7 +27,7 @@ def test_app(mock_litestar):
         controller_v1.auth_router,
         controller_v1.file_router,
     )
-    assert kwargs["debug"] == AppSettings.DEBUG
+    assert kwargs["debug"] == Settings.DEBUG
     assert isinstance(kwargs["cors_config"], CORSConfig)
     assert isinstance(kwargs["logging_config"], LoggingConfig)
     assert isinstance(kwargs["openapi_config"], OpenAPIConfig)
@@ -58,10 +58,10 @@ def test_uvicorn(mock_run):
             "main:main",
             factory=True,
             loop="uvloop",
-            host=AppSettings.HOST,
-            port=AppSettings.PORT,
-            workers=AppSettings.WORKERS,
-            limit_concurrency=AppSettings.LIMIT_CONCURRENCY,
-            limit_max_requests=AppSettings.LIMIT_MAX_REQUESTS,
-            reload=AppSettings.DEBUG,
+            host=Settings.HOST,
+            port=Settings.PORT,
+            workers=Settings.WORKERS,
+            limit_concurrency=Settings.LIMIT_CONCURRENCY,
+            limit_max_requests=Settings.LIMIT_MAX_REQUESTS,
+            reload=Settings.DEBUG,
         )

@@ -1,7 +1,7 @@
 from aiokafka import AIOKafkaProducer
 
 from adapters import MailKafkaAdapter
-from settings import AppSettings
+from settings import Settings
 
 
 class MailFactory:
@@ -26,7 +26,7 @@ class MailFactory:
 
     async def _setup_mail_service(self) -> None:
         self._mail_producer = AIOKafkaProducer(
-            bootstrap_servers=AppSettings.KAFKA_SERVICE,
+            bootstrap_servers=Settings.KAFKA_SERVICE,
             compression_type="lz4",
             acks=1,
             linger_ms=10,

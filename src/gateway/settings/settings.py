@@ -1,7 +1,7 @@
 import os
 
 
-class AppSettings:
+class Settings:
     DEBUG: bool = bool(int(os.environ.get("DEBUG", "0")))
     ALLOWED_ORIGINS: list[str] = os.environ["ALLOWED_ORIGINS"].split(", ")
 

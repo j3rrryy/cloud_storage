@@ -4,7 +4,7 @@ import grpc
 
 from adapters import AuthGrpcAdapter
 from proto import AuthStub
-from settings import AppSettings
+from settings import Settings
 
 
 class AuthFactory:
@@ -29,7 +29,7 @@ class AuthFactory:
 
     async def _setup_auth_service(self) -> None:
         self._auth_channel = grpc.aio.insecure_channel(
-            AppSettings.AUTH_SERVICE, compression=grpc.Compression.Deflate
+            Settings.AUTH_SERVICE, compression=grpc.Compression.Deflate
         )
         await asyncio.wait_for(self._auth_channel.channel_ready(), timeout=5)
         stub = AuthStub(self._auth_channel)

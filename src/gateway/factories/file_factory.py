@@ -4,7 +4,7 @@ import grpc
 
 from adapters import FileGrpcAdapter
 from proto import FileStub
-from settings import AppSettings
+from settings import Settings
 
 
 class FileFactory:
@@ -29,7 +29,7 @@ class FileFactory:
 
     async def _setup_file_service(self) -> None:
         self._file_channel = grpc.aio.insecure_channel(
-            AppSettings.FILE_SERVICE, compression=grpc.Compression.Deflate
+            Settings.FILE_SERVICE, compression=grpc.Compression.Deflate
         )
         await asyncio.wait_for(self._file_channel.channel_ready(), timeout=5)
         stub = FileStub(self._file_channel)
