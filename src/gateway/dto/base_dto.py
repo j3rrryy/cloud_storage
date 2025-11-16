@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from typing import Type, TypeVar
 
 import msgspec
@@ -12,7 +12,9 @@ MsgspecStruct = TypeVar("MsgspecStruct", bound=Struct)
 
 
 @dataclass(slots=True, frozen=True)
-class BaseDTO: ...
+class BaseDTO:
+    def replace(self: T, **kwargs) -> T:
+        return replace(self, **kwargs)
 
 
 @dataclass(slots=True, frozen=True)
