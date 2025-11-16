@@ -60,8 +60,9 @@ class ApplicationFacade:
     async def update_password(self, data: auth_dto.UpdatePasswordDTO) -> None:
         await self._auth_facade.update_password(data)
 
-    async def delete_profile(self, access_token: str) -> str:
-        return await self._auth_facade.delete_profile(access_token)
+    async def delete_profile(self, access_token: str) -> None:
+        user_id = await self._auth_facade.delete_profile(access_token)
+        await self._file_facade.delete_all(user_id)
 
     async def initiate_upload(
         self, access_token: str, data: file_dto.InitiateUploadDTO
