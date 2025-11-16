@@ -1,5 +1,4 @@
 import importlib
-import os
 from unittest.mock import patch
 
 from litestar.config.cors import CORSConfig
@@ -11,7 +10,7 @@ from litestar.plugins.prometheus import PrometheusController
 
 import main
 from controller import v1 as controller_v1
-from di import v1 as di_v1
+from settings import Settings
 from utils import exception_handler
 
 
@@ -28,7 +27,7 @@ def test_app(mock_litestar):
         controller_v1.auth_router,
         controller_v1.file_router,
     )
-    assert kwargs["debug"] == bool(int(os.environ["DEBUG"]))
+    assert kwargs["debug"] == Settings.DEBUG
     assert isinstance(kwargs["cors_config"], CORSConfig)
     assert isinstance(kwargs["logging_config"], LoggingConfig)
     assert isinstance(kwargs["openapi_config"], OpenAPIConfig)
@@ -36,22 +35,16 @@ def test_app(mock_litestar):
     assert len(middleware) == 1
     assert isinstance(middleware[0], DefineMiddleware)
     exc_handlers = kwargs["exception_handlers"]
-    assert len(middleware) == 1
+    assert len(exc_handlers) == 1
     assert isinstance(exc_handlers[HTTPException], type(exception_handler))
     on_startup = kwargs["on_startup"]
-    assert on_startup == (di_v1.DIManager.setup,)
+    assert len(on_startup) == 1
     on_shutdown = kwargs["on_shutdown"]
-    assert on_shutdown == (di_v1.DIManager.close,)
+    assert len(on_shutdown) == 1
     deps = kwargs["dependencies"]
-    assert deps["auth_service_v1"].use_cache
-    assert deps["file_service_v1"].use_cache
-    assert deps["mail_service_v1"].use_cache
-    assert not deps["auth_service_v1"].sync_to_thread
-    assert not deps["file_service_v1"].sync_to_thread
-    assert not deps["mail_service_v1"].sync_to_thread
-    assert deps["auth_service_v1"].dependency == di_v1.DIManager.auth_service_factory
-    assert deps["file_service_v1"].dependency == di_v1.DIManager.file_service_factory
-    assert deps["mail_service_v1"].dependency == di_v1.DIManager.mail_service_factory
+    assert deps["application_facade"].use_cache
+    assert not deps["application_facade"].sync_to_thread
+    assert callable(deps["application_facade"].dependency)
 
 
 @patch("uvicorn.run")
@@ -65,10 +58,10 @@ def test_uvicorn(mock_run):
             "main:main",
             factory=True,
             loop="uvloop",
-            host="0.0.0.0",
-            port=8000,
-            workers=2,
-            limit_concurrency=500,
-            limit_max_requests=50000,
-            reload=bool(int(os.environ["DEBUG"])),
+            host=Settings.HOST,
+            port=Settings.PORT,
+            workers=Settings.WORKERS,
+            limit_concurrency=Settings.LIMIT_CONCURRENCY,
+            limit_max_requests=Settings.LIMIT_MAX_REQUESTS,
+            reload=Settings.DEBUG,
         )

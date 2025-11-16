@@ -1,10 +1,11 @@
 from dto import mail_dto
 from enums import MailTypes
+from interfaces import MailServiceInterface
 
-from .base_service import KafkaBaseService
+from .base_adapter import BaseKafkaAdapter
 
 
-class MailService(KafkaBaseService):
+class MailKafkaAdapter(BaseKafkaAdapter, MailServiceInterface):
     async def verification(
         self, verification_mail: mail_dto.VerificationMailDTO
     ) -> None:

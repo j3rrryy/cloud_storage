@@ -4,7 +4,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 
 from schemas import auth_schemas
 
-from .mocks import (
+from ..mocks import (
     ACCESS_TOKEN,
     BROWSER,
     CODE,
@@ -49,7 +49,7 @@ async def test_request_reset(client):
     data = auth_schemas.ForgotPassword(EMAIL)
 
     response = await client.post(
-        f"{PREFIX}/request-reset-code",
+        f"{PREFIX}/reset-code/request",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
     )
@@ -64,7 +64,7 @@ async def test_validate_reset_code(client):
     data = auth_schemas.ResetCode(USER_ID, CODE)
 
     response = await client.post(
-        f"{PREFIX}/validate-reset-code",
+        f"{PREFIX}/reset-code/validate",
         content=msgspec.msgpack.encode(data),
         headers={"Content-Type": "application/msgpack"},
     )
@@ -127,7 +127,7 @@ async def test_resend_verification_mail(client):
 @pytest.mark.asyncio
 async def test_auth(client):
     response = await client.get(
-        f"{PREFIX}/auth", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        f"{PREFIX}/", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
     response_data = msgspec.msgpack.decode(response.content)
@@ -140,7 +140,7 @@ async def test_refresh(client):
     data = auth_schemas.RefreshToken(REFRESH_TOKEN)
 
     response = await client.post(
-        f"{PREFIX}/refresh",
+        f"{PREFIX}/refresh-tokens",
         content=msgspec.msgpack.encode(data),
         headers={
             "Content-Type": "application/msgpack",
@@ -159,7 +159,7 @@ async def test_refresh(client):
 @pytest.mark.asyncio
 async def test_session_list(client):
     response = await client.get(
-        f"{PREFIX}/session-list", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        f"{PREFIX}/sessions", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
     response_data = msgspec.msgpack.decode(response.content)
@@ -178,11 +178,8 @@ async def test_session_list(client):
 
 @pytest.mark.asyncio
 async def test_revoke_session(client):
-    data = auth_schemas.SessionId(SESSION_ID)
-
-    response = await client.post(
-        f"{PREFIX}/revoke-session",
-        content=msgspec.msgpack.encode(data),
+    response = await client.delete(
+        f"{PREFIX}/sessions/{SESSION_ID}",
         headers={
             "Content-Type": "application/msgpack",
             "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -214,7 +211,7 @@ async def test_update_email(client):
     data = auth_schemas.UpdateEmail(EMAIL)
 
     response = await client.patch(
-        f"{PREFIX}/update-email",
+        f"{PREFIX}/profile/email",
         content=msgspec.msgpack.encode(data),
         headers={
             "Content-Type": "application/msgpack",
@@ -230,7 +227,7 @@ async def test_update_password(client):
     data = auth_schemas.UpdatePassword(PASSWORD, PASSWORD)
 
     response = await client.patch(
-        f"{PREFIX}/update-password",
+        f"{PREFIX}/profile/password",
         content=msgspec.msgpack.encode(data),
         headers={
             "Content-Type": "application/msgpack",
@@ -244,7 +241,7 @@ async def test_update_password(client):
 @pytest.mark.asyncio
 async def test_delete_profile(client):
     response = await client.delete(
-        f"{PREFIX}/delete-profile", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        f"{PREFIX}/profile", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
     )
 
     assert response.status_code == HTTP_204_NO_CONTENT

@@ -1,40 +1,40 @@
 from typing import Annotated
+from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, patch, post
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from dto import auth_dto, mail_dto
+from dto import auth_dto
+from facades import ApplicationFacade
 from schemas import auth_schemas
-from service.v1 import AuthService, FileService, MailService
-from utils import validate_access_token
+from validators import validate_access_token
 
 
 class AuthController(Controller):
     path = "/auth"
 
-    @post("/register", status_code=201)
+    @post("/register", status_code=HTTP_201_CREATED)
     async def register(
         self,
         data: Annotated[
             auth_schemas.Registration, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        auth_service_v1: AuthService,
-        mail_service_v1: MailService,
+        application_facade: ApplicationFacade,
     ) -> None:
         dto = auth_dto.RegistrationDTO.from_schema(data)
-        verification_mail = await auth_service_v1.register(dto)
-        await mail_service_v1.verification(verification_mail)
+        await application_facade.register(dto)
 
-    @get("/verify-email", status_code=204)
+    @get("/verify-email", status_code=HTTP_204_NO_CONTENT)
     async def verify_email(
-        self, verification_token: str, auth_service_v1: AuthService
+        self, verification_token: str, application_facade: ApplicationFacade
     ) -> None:
-        await auth_service_v1.verify_email(verification_token)
+        await application_facade.verify_email(verification_token)
 
     @post(
-        "/request-reset-code",
-        status_code=200,
+        "/reset-code/request",
+        status_code=HTTP_200_OK,
         response_model=auth_schemas.UserId,
         media_type=MediaType.MESSAGEPACK,
     )
@@ -44,17 +44,14 @@ class AuthController(Controller):
             auth_schemas.ForgotPassword,
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
-        auth_service_v1: AuthService,
-        mail_service_v1: MailService,
+        application_facade: ApplicationFacade,
     ) -> auth_schemas.UserId:
-        reset_info = await auth_service_v1.request_reset_code(data.email)
-        dto = mail_dto.ResetMailDTO(reset_info.code, reset_info.username, data.email)
-        await mail_service_v1.reset(dto)
-        return auth_schemas.UserId(reset_info.user_id)
+        user_id = await application_facade.request_reset_code(data.email)
+        return auth_schemas.UserId(user_id)
 
     @post(
-        "/validate-reset-code",
-        status_code=200,
+        "/reset-code/validate",
+        status_code=HTTP_200_OK,
         response_model=auth_schemas.CodeIsValid,
         media_type=MediaType.MESSAGEPACK,
     )
@@ -63,26 +60,26 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.ResetCode, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        auth_service_v1: AuthService,
+        application_facade: ApplicationFacade,
     ) -> auth_schemas.CodeIsValid:
         dto = auth_dto.ResetCodeDTO.from_schema(data)
-        is_valid = await auth_service_v1.validate_code(dto)
+        is_valid = await application_facade.validate_reset_code(dto)
         return auth_schemas.CodeIsValid(is_valid)
 
-    @post("/reset-password", status_code=204)
+    @post("/reset-password", status_code=HTTP_204_NO_CONTENT)
     async def reset_password(
         self,
         data: Annotated[
             auth_schemas.ResetPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        auth_service_v1: AuthService,
+        application_facade: ApplicationFacade,
     ) -> None:
         dto = auth_dto.ResetPasswordDTO.from_schema(data)
-        await auth_service_v1.reset_password(dto)
+        await application_facade.reset_password(dto)
 
     @post(
         "/log-in",
-        status_code=200,
+        status_code=HTTP_200_OK,
         response_model=auth_schemas.Tokens,
         media_type=MediaType.MESSAGEPACK,
     )
@@ -92,8 +89,7 @@ class AuthController(Controller):
             auth_schemas.LogIn, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service_v1: AuthService,
-        mail_service_v1: MailService,
+        application_facade: ApplicationFacade,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.LogInDTO(
             data.username,
@@ -101,48 +97,39 @@ class AuthController(Controller):
             request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
             request.headers.get("User-Agent", "Unknown"),
         )
-        login_data = await auth_service_v1.log_in(dto)
-
-        if login_data.verified:  # pragma: no cover
-            info_mail = mail_dto.InfoMailDTO(
-                data.username, login_data.email, dto.user_ip, login_data.browser
-            )
-            await mail_service_v1.info(info_mail)
-
+        login_data = await application_facade.log_in(dto)
         return login_data.to_schema(auth_schemas.Tokens)
 
-    @post("/log-out", status_code=204)
-    async def log_out(self, request: Request, auth_service_v1: AuthService) -> None:
-        access_token = validate_access_token(request)
-        await auth_service_v1.log_out(access_token)
-
-    @post("/resend-verification-mail", status_code=204)
-    async def resend_verification_mail(
-        self,
-        request: Request,
-        auth_service_v1: AuthService,
-        mail_service_v1: MailService,
+    @post("/log-out", status_code=HTTP_204_NO_CONTENT)
+    async def log_out(
+        self, request: Request, application_facade: ApplicationFacade
     ) -> None:
         access_token = validate_access_token(request)
-        verification_mail = await auth_service_v1.resend_verification_mail(access_token)
-        await mail_service_v1.verification(verification_mail)
+        await application_facade.log_out(access_token)
+
+    @post("/resend-verification-mail", status_code=HTTP_204_NO_CONTENT)
+    async def resend_verification_mail(
+        self, request: Request, application_facade: ApplicationFacade
+    ) -> None:
+        access_token = validate_access_token(request)
+        await application_facade.resend_verification_mail(access_token)
 
     @get(
-        "/auth",
-        status_code=200,
+        "/",
+        status_code=HTTP_200_OK,
         response_model=auth_schemas.UserId,
         media_type=MediaType.MESSAGEPACK,
     )
-    async def auth_user(
-        self, request: Request, auth_service_v1: AuthService
+    async def auth(
+        self, request: Request, application_facade: ApplicationFacade
     ) -> auth_schemas.UserId:
         access_token = validate_access_token(request)
-        user_id = await auth_service_v1.auth(access_token)
+        user_id = await application_facade.auth(access_token)
         return auth_schemas.UserId(user_id)
 
     @post(
-        "/refresh",
-        status_code=201,
+        "/refresh-tokens",
+        status_code=HTTP_201_CREATED,
         response_model=auth_schemas.Tokens,
         media_type=MediaType.MESSAGEPACK,
     )
@@ -152,71 +139,66 @@ class AuthController(Controller):
             auth_schemas.RefreshToken, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service_v1: AuthService,
+        application_facade: ApplicationFacade,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.RefreshDTO(
             data.refresh_token,
             request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
             request.headers.get("User-Agent", "Unknown"),
         )
-        tokens = await auth_service_v1.refresh(dto)
+        tokens = await application_facade.refresh(dto)
         return tokens.to_schema(auth_schemas.Tokens)
 
     @get(
-        "/session-list",
-        status_code=200,
+        "/sessions",
+        status_code=HTTP_200_OK,
         response_model=auth_schemas.SessionList,
         media_type=MediaType.MESSAGEPACK,
     )
     async def session_list(
-        self, request: Request, auth_service_v1: AuthService
+        self, request: Request, application_facade: ApplicationFacade
     ) -> auth_schemas.SessionList:
         access_token = validate_access_token(request)
-        sessions = await auth_service_v1.session_list(access_token)
+        sessions = await application_facade.session_list(access_token)
         return auth_schemas.SessionList(
             [session.to_schema(auth_schemas.SessionInfo) for session in sessions]
         )
 
-    @post("/revoke-session", status_code=204)
+    @delete("/sessions/{session_id: uuid}", status_code=HTTP_204_NO_CONTENT)
     async def revoke_session(
-        self,
-        data: Annotated[
-            auth_schemas.SessionId, Body(media_type=RequestEncodingType.MESSAGEPACK)
-        ],
-        request: Request,
-        auth_service_v1: AuthService,
+        self, session_id: UUID, request: Request, application_facade: ApplicationFacade
     ) -> None:
-        dto = auth_dto.RevokeSessionDTO(validate_access_token(request), data.session_id)
-        await auth_service_v1.revoke_session(dto)
+        access_token = validate_access_token(request)
+        dto = auth_dto.RevokeSessionDTO(access_token, str(session_id))
+        await application_facade.revoke_session(dto)
 
     @get(
         "/profile",
-        status_code=200,
+        status_code=HTTP_200_OK,
         response_model=auth_schemas.Profile,
         media_type=MediaType.MESSAGEPACK,
     )
     async def profile(
-        self, request: Request, auth_service_v1: AuthService
+        self, request: Request, application_facade: ApplicationFacade
     ) -> auth_schemas.Profile:
         access_token = validate_access_token(request)
-        user_profile = await auth_service_v1.profile(access_token)
+        user_profile = await application_facade.profile(access_token)
         return user_profile.to_schema(auth_schemas.Profile)
 
-    @patch("/update-email", status_code=204)
+    @patch("/profile/email", status_code=HTTP_204_NO_CONTENT)
     async def update_email(
         self,
         data: Annotated[
             auth_schemas.UpdateEmail, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        auth_service_v1: AuthService,
-        mail_service_v1: MailService,
+        application_facade: ApplicationFacade,
     ) -> None:
-        dto = auth_dto.UpdateEmailDTO(validate_access_token(request), data.new_email)
-        verification_mail = await auth_service_v1.update_email(dto)
-        await mail_service_v1.verification(verification_mail)
+        access_token = validate_access_token(request)
+        dto = auth_dto.UpdateEmailDTO(access_token, data.new_email)
+        await application_facade.update_email(dto)
 
-    @patch("/update-password", status_code=204)
+    @patch("/profile/password", status_code=HTTP_204_NO_CONTENT)
     async def update_password(
         self,
         data: Annotated[
@@ -224,23 +206,20 @@ class AuthController(Controller):
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         request: Request,
-        auth_service_v1: AuthService,
-    ) -> None:
-        dto = auth_dto.UpdatePasswordDTO(
-            validate_access_token(request), data.old_password, data.new_password
-        )
-        await auth_service_v1.update_password(dto)
-
-    @delete("/delete-profile", status_code=204)
-    async def delete_profile(
-        self,
-        request: Request,
-        auth_service_v1: AuthService,
-        file_service_v1: FileService,
+        application_facade: ApplicationFacade,
     ) -> None:
         access_token = validate_access_token(request)
-        user_id = await auth_service_v1.delete_profile(access_token)
-        await file_service_v1.delete_all(user_id)
+        dto = auth_dto.UpdatePasswordDTO(
+            access_token, data.old_password, data.new_password
+        )
+        await application_facade.update_password(dto)
+
+    @delete("/profile", status_code=HTTP_204_NO_CONTENT)
+    async def delete_profile(
+        self, request: Request, application_facade: ApplicationFacade
+    ) -> None:
+        access_token = validate_access_token(request)
+        await application_facade.delete_profile(access_token)
 
 
 auth_router = Router("/v1", route_handlers=(AuthController,), tags=("auth",))
