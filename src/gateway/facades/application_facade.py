@@ -64,27 +64,47 @@ class ApplicationFacade:
         return await self._auth_facade.delete_profile(access_token)
 
     async def initiate_upload(
-        self, data: file_dto.InitiateUploadDTO
+        self, access_token: str, data: file_dto.InitiateUploadDTO
     ) -> file_dto.InitiatedUploadDTO:
-        return await self._file_facade.initiate_upload(data)
+        user_id = await self.auth(access_token)
+        dto = data.replace(user_id=user_id)
+        return await self._file_facade.initiate_upload(dto)
 
-    async def complete_upload(self, data: file_dto.CompleteUploadDTO) -> None:
-        await self._file_facade.complete_upload(data)
+    async def complete_upload(
+        self, access_token: str, data: file_dto.CompleteUploadDTO
+    ) -> None:
+        user_id = await self.auth(access_token)
+        dto = data.replace(user_id=user_id)
+        await self._file_facade.complete_upload(dto)
 
-    async def abort_upload(self, data: file_dto.AbortUploadDTO) -> None:
-        await self._file_facade.abort_upload(data)
+    async def abort_upload(
+        self, access_token: str, data: file_dto.AbortUploadDTO
+    ) -> None:
+        user_id = await self.auth(access_token)
+        dto = data.replace(user_id=user_id)
+        await self._file_facade.abort_upload(dto)
 
-    async def file_info(self, data: file_dto.FileDTO) -> file_dto.FileInfoDTO:
-        return await self._file_facade.file_info(data)
+    async def file_info(
+        self, access_token: str, data: file_dto.FileDTO
+    ) -> file_dto.FileInfoDTO:
+        user_id = await self.auth(access_token)
+        dto = data.replace(user_id=user_id)
+        return await self._file_facade.file_info(dto)
 
-    async def file_list(self, user_id: str) -> list[file_dto.FileInfoDTO]:
+    async def file_list(self, access_token: str) -> list[file_dto.FileInfoDTO]:
+        user_id = await self.auth(access_token)
         return await self._file_facade.file_list(user_id)
 
-    async def download(self, data: file_dto.FileDTO) -> str:
-        return await self._file_facade.download(data)
+    async def download(self, access_token: str, data: file_dto.FileDTO) -> str:
+        user_id = await self.auth(access_token)
+        dto = data.replace(user_id=user_id)
+        return await self._file_facade.download(dto)
 
-    async def delete(self, data: file_dto.DeleteDTO) -> None:
-        await self._file_facade.delete(data)
+    async def delete(self, access_token: str, data: file_dto.DeleteDTO) -> None:
+        user_id = await self.auth(access_token)
+        dto = data.replace(user_id=user_id)
+        await self._file_facade.delete(dto)
 
-    async def delete_all(self, user_id: str) -> None:
+    async def delete_all(self, access_token: str) -> None:
+        user_id = await self.auth(access_token)
         await self._file_facade.delete_all(user_id)
