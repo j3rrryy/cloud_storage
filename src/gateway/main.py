@@ -10,22 +10,9 @@ from factories import ServiceFactory
 from settings import AppSettings
 from utils import exception_handler
 
-service_factory = ServiceFactory()
-
-
-async def startup_handler() -> None:
-    await service_factory.initialize()
-
-
-async def shutdown_handler() -> None:
-    await service_factory.close()
-
-
-def get_application_facade():
-    return service_factory.get_application_facade()
-
 
 def main() -> Litestar:
+    service_factory = ServiceFactory()
     return Litestar(
         path="/api",
         route_handlers=(
@@ -39,11 +26,13 @@ def main() -> Litestar:
         middleware=(setup_prometheus().middleware,),
         openapi_config=setup_openapi(),
         exception_handlers={HTTPException: exception_handler},
-        on_startup=(startup_handler,),
-        on_shutdown=(shutdown_handler,),
+        on_startup=(service_factory.initialize,),
+        on_shutdown=(service_factory.close,),
         dependencies={
             "application_facade": Provide(
-                get_application_facade, use_cache=True, sync_to_thread=False
+                service_factory.get_application_facade,
+                use_cache=True,
+                sync_to_thread=False,
             ),
         },
     )

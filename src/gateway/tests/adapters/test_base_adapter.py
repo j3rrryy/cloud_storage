@@ -9,6 +9,8 @@ from litestar.exceptions import (
     ValidationException,
 )
 
+from adapters.base_adapter import BaseRPCAdapter
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -24,7 +26,7 @@ from litestar.exceptions import (
         (StatusCode.UNKNOWN, InternalServerException),
     ),
 )
-async def test_handle_exception(status_code, expected_exception):
+async def test_exception_handler(status_code, expected_exception):
     DETAILS = "Test error details"
     exception = aio.AioRpcError(
         code=status_code,
@@ -33,7 +35,7 @@ async def test_handle_exception(status_code, expected_exception):
         details=DETAILS,
     )
 
-    @BaseAdapter.exception_handler
+    @BaseRPCAdapter.exception_handler
     async def mock_function():
         raise exception
 

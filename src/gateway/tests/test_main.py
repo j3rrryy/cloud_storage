@@ -1,5 +1,4 @@
 import importlib
-import os
 from unittest.mock import patch
 
 from litestar.config.cors import CORSConfig
@@ -11,6 +10,7 @@ from litestar.plugins.prometheus import PrometheusController
 
 import main
 from controller import v1 as controller_v1
+from settings import AppSettings
 from utils import exception_handler
 
 
@@ -27,7 +27,7 @@ def test_app(mock_litestar):
         controller_v1.auth_router,
         controller_v1.file_router,
     )
-    assert kwargs["debug"] == bool(int(os.environ["DEBUG"]))
+    assert kwargs["debug"] == AppSettings.DEBUG
     assert isinstance(kwargs["cors_config"], CORSConfig)
     assert isinstance(kwargs["logging_config"], LoggingConfig)
     assert isinstance(kwargs["openapi_config"], OpenAPIConfig)
@@ -35,16 +35,16 @@ def test_app(mock_litestar):
     assert len(middleware) == 1
     assert isinstance(middleware[0], DefineMiddleware)
     exc_handlers = kwargs["exception_handlers"]
-    assert len(middleware) == 1
+    assert len(exc_handlers) == 1
     assert isinstance(exc_handlers[HTTPException], type(exception_handler))
     on_startup = kwargs["on_startup"]
-    assert on_startup == (main.startup_handler,)
+    assert len(on_startup) == 1
     on_shutdown = kwargs["on_shutdown"]
-    assert on_shutdown == (main.shutdown_handler,)
+    assert len(on_shutdown) == 1
     deps = kwargs["dependencies"]
     assert deps["application_facade"].use_cache
     assert not deps["application_facade"].sync_to_thread
-    assert deps["application_facade"].dependency == main.get_application_facade
+    assert callable(deps["application_facade"].dependency)
 
 
 @patch("uvicorn.run")
@@ -58,10 +58,10 @@ def test_uvicorn(mock_run):
             "main:main",
             factory=True,
             loop="uvloop",
-            host="0.0.0.0",
-            port=8000,
-            workers=2,
-            limit_concurrency=500,
-            limit_max_requests=50000,
-            reload=bool(int(os.environ["DEBUG"])),
+            host=AppSettings.HOST,
+            port=AppSettings.PORT,
+            workers=AppSettings.WORKERS,
+            limit_concurrency=AppSettings.LIMIT_CONCURRENCY,
+            limit_max_requests=AppSettings.LIMIT_MAX_REQUESTS,
+            reload=AppSettings.DEBUG,
         )

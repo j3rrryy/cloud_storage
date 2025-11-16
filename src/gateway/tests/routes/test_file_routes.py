@@ -4,7 +4,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 
 from schemas import file_schemas
 
-from .mocks import ACCESS_TOKEN, ETAG, FILE_ID, NAME, SIZE, TIMESTAMP, UPLOAD_ID, URL
+from ..mocks import ACCESS_TOKEN, ETAG, FILE_ID, NAME, SIZE, TIMESTAMP, UPLOAD_ID, URL
 
 PREFIX = "/api/v1/files"
 
@@ -14,7 +14,7 @@ async def test_initiate_upload(client):
     data = file_schemas.InitiateUpload(NAME, SIZE)
 
     response = await client.post(
-        f"{PREFIX}/initiate-upload",
+        f"{PREFIX}/upload/initiate",
         content=msgspec.msgpack.encode(data),
         headers={
             "Content-Type": "application/msgpack",
@@ -36,7 +36,7 @@ async def test_complete_upload(client):
     data = file_schemas.CompleteUpload(UPLOAD_ID, [file_schemas.CompletePart(1, ETAG)])
 
     response = await client.post(
-        f"{PREFIX}/complete-upload",
+        f"{PREFIX}/upload/complete",
         content=msgspec.msgpack.encode(data),
         headers={
             "Content-Type": "application/msgpack",
@@ -50,7 +50,7 @@ async def test_complete_upload(client):
 @pytest.mark.asyncio
 async def test_abort_upload(client):
     response = await client.delete(
-        f"{PREFIX}/abort-upload/{UPLOAD_ID}",
+        f"{PREFIX}/upload/{UPLOAD_ID}/abort",
         headers={
             "Content-Type": "application/msgpack",
             "Authorization": f"Bearer {ACCESS_TOKEN}",
