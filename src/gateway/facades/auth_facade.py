@@ -4,9 +4,7 @@ from interfaces import AuthServiceInterface, MailServiceInterface
 
 class AuthFacade:
     def __init__(
-        self,
-        auth_service: AuthServiceInterface,
-        mail_service: MailServiceInterface,
+        self, auth_service: AuthServiceInterface, mail_service: MailServiceInterface
     ):
         self.auth_service = auth_service
         self.mail_service = mail_service

@@ -1,4 +1,3 @@
-from abc import ABC
 from functools import wraps
 from typing import Awaitable, Callable, TypeVar
 
@@ -16,7 +15,9 @@ from litestar.exceptions import (
 T = TypeVar("T")
 
 
-class BaseAdapter(ABC):
+class BaseRPCAdapter:
+    __slots__ = "_stub"
+
     _converted_exceptions = {
         StatusCode.ALREADY_EXISTS: lambda detail: HTTPException(
             detail=detail, status_code=409
@@ -41,8 +42,7 @@ class BaseAdapter(ABC):
         @wraps(func)
         async def wrapper(*args, **kwargs) -> T:
             try:
-                result = await func(*args, **kwargs)
-                return result
+                return await func(*args, **kwargs)
             except aio.AioRpcError as exc:
                 converted = cls._converted_exceptions.get(
                     exc.code(), lambda detail: InternalServerException(detail=detail)
@@ -52,15 +52,11 @@ class BaseAdapter(ABC):
 
         return wrapper
 
-
-class BaseRPCAdapter(BaseAdapter):
-    __slots__ = "_stub"
-
     def __init__(self, stub):
         self._stub = stub
 
 
-class BaseKafkaAdapter(BaseAdapter):
+class BaseKafkaAdapter:
     __slots__ = "_producer"
 
     def __init__(self, producer: AIOKafkaProducer):

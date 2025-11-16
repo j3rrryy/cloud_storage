@@ -9,8 +9,6 @@ from litestar.exceptions import (
     ValidationException,
 )
 
-from adapters.base_adapter import BaseAdapter
-
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
