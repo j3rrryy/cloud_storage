@@ -1,4 +1,3 @@
-import os
 from typing import AsyncGenerator
 
 import pytest
@@ -10,6 +9,7 @@ from litestar.testing import AsyncTestClient
 from adapters import AuthGrpcAdapter, FileGrpcAdapter, MailKafkaAdapter
 from controller import v1 as controller_v1
 from facades import ApplicationFacade
+from settings import Settings
 
 from .mocks import create_auth_stub_v1, create_file_stub_v1, create_mail_producer
 
@@ -41,7 +41,7 @@ def create_app() -> Litestar:
     app = Litestar(
         path="/api",
         route_handlers=(controller_v1.auth_router, controller_v1.file_router),
-        debug=bool(int(os.environ["DEBUG"])),
+        debug=Settings.DEBUG,
         dependencies={
             "application_facade": Provide(application_facade_factory),
             "auth_service": Provide(auth_adapter_factory),
