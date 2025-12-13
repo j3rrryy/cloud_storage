@@ -30,7 +30,6 @@ class MailFactory:
             compression_type="lz4",
             acks=1,
             linger_ms=10,
-            request_timeout_ms=10000,
         )
         await self._mail_producer.start()
         self._mail_service = MailKafkaAdapter(self._mail_producer)

@@ -31,7 +31,10 @@ class AuthFactory:
         self._auth_channel = grpc.aio.insecure_channel(
             Settings.AUTH_SERVICE, compression=grpc.Compression.Deflate
         )
-        await asyncio.wait_for(self._auth_channel.channel_ready(), timeout=5)
+        await asyncio.wait_for(
+            self._auth_channel.channel_ready(),
+            timeout=Settings.GRPC_CHANNEL_READY_TIMEOUT,
+        )
         stub = AuthStub(self._auth_channel)
         self._auth_service = AuthGrpcAdapter(stub)
 

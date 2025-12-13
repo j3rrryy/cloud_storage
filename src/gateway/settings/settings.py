@@ -10,6 +10,7 @@ class Settings:
     AUTH_SERVICE = os.environ["AUTH_SERVICE"]
     FILE_SERVICE = os.environ["FILE_SERVICE"]
     KAFKA_SERVICE = os.environ["KAFKA_SERVICE"]
+    GRPC_CHANNEL_READY_TIMEOUT = 5
 
     HOST = "0.0.0.0"
     PORT = 8000

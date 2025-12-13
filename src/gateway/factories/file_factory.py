@@ -31,7 +31,10 @@ class FileFactory:
         self._file_channel = grpc.aio.insecure_channel(
             Settings.FILE_SERVICE, compression=grpc.Compression.Deflate
         )
-        await asyncio.wait_for(self._file_channel.channel_ready(), timeout=5)
+        await asyncio.wait_for(
+            self._file_channel.channel_ready(),
+            timeout=Settings.GRPC_CHANNEL_READY_TIMEOUT,
+        )
         stub = FileStub(self._file_channel)
         self._file_service = FileGrpcAdapter(stub)
 
