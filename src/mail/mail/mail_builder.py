@@ -1,8 +1,8 @@
-import os
 from datetime import date
 from email.mime import multipart, text
 
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
+from settings import Settings
 
 
 class MailBuilder:
@@ -10,9 +10,9 @@ class MailBuilder:
     def verification(mail: VerificationMailDTO) -> multipart.MIMEMultipart:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Confirm Your Email"
-        msg["From"] = os.environ["MAIL_USERNAME"]
+        msg["From"] = Settings.MAIL_USERNAME
         msg["To"] = mail.email
-        verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
+        verification_url = Settings.VERIFICATION_URL + mail.verification_token
 
         html_content = f"""
         <!DOCTYPE html>
@@ -78,7 +78,7 @@ class MailBuilder:
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {Settings.APP_NAME}. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -91,7 +91,7 @@ class MailBuilder:
     def info(mail: InfoMailDTO) -> multipart.MIMEMultipart:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Login Information"
-        msg["From"] = os.environ["MAIL_USERNAME"]
+        msg["From"] = Settings.MAIL_USERNAME
         msg["To"] = mail.email
 
         html_content = f"""
@@ -144,7 +144,7 @@ class MailBuilder:
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
-                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {Settings.APP_NAME}. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -157,7 +157,7 @@ class MailBuilder:
     def reset(mail: ResetMailDTO) -> multipart.MIMEMultipart:
         msg = multipart.MIMEMultipart("alternative")
         msg["Subject"] = "Reset Your Password"
-        msg["From"] = os.environ["MAIL_USERNAME"]
+        msg["From"] = Settings.MAIL_USERNAME
         msg["To"] = mail.email
 
         html_content = f"""
@@ -217,7 +217,7 @@ class MailBuilder:
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {Settings.APP_NAME}. All rights reserved.</p>
                 </div>
             </div>
         </body>

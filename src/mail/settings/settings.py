@@ -1,0 +1,21 @@
+import os
+
+
+class Settings:
+    APP_NAME = os.environ["APP_NAME"]
+
+    MAIL_USERNAME = os.environ["MAIL_USERNAME"]
+    MAIL_PASSWORD = os.environ["MAIL_PASSWORD"]
+    MAIL_HOSTNAME = os.environ["MAIL_HOSTNAME"]
+    MAIL_PORT = int(os.environ["MAIL_PORT"])
+    MAIL_TLS = True
+    VERIFICATION_URL = os.environ["VERIFICATION_URL"]
+
+    KAFKA_SERVICE = os.environ["KAFKA_SERVICE"]
+    KAFKA_GROUP_ID = "mail"
+    KAFKA_AUTO_OFFSET_RESET = "earliest"
+
+    PROMETHEUS_SERVER_HOST = "0.0.0.0"
+    PROMETHEUS_SERVER_PORT = 8000
+    PROMETHEUS_SERVER_LIMIT_CONCURRENCY = 50
+    PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS = 10000

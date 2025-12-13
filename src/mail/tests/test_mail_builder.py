@@ -1,4 +1,3 @@
-import os
 from datetime import date
 from email.mime import text
 from email.mime.multipart import MIMEMultipart
@@ -7,6 +6,7 @@ import pytest
 
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 from mail import MailBuilder
+from settings import Settings
 
 from .mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
@@ -19,12 +19,12 @@ async def test_verification():
 
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Confirm Your Email"
-    assert msg["From"] == os.environ["MAIL_USERNAME"]
+    assert msg["From"] == Settings.MAIL_USERNAME
     assert msg["To"] == mail.email
     payload = msg.get_payload()
     assert isinstance(payload, list)
     assert len(payload) == 1
-    verification_url = os.environ["VERIFICATION_URL"] + mail.verification_token
+    verification_url = Settings.VERIFICATION_URL + mail.verification_token
     expected_html = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -89,7 +89,7 @@ async def test_verification():
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {Settings.APP_NAME}. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -110,7 +110,7 @@ async def test_info():
 
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Login Information"
-    assert msg["From"] == os.environ["MAIL_USERNAME"]
+    assert msg["From"] == Settings.MAIL_USERNAME
     assert msg["To"] == mail.email
     payload = msg.get_payload()
     assert isinstance(payload, list)
@@ -165,7 +165,7 @@ async def test_info():
                 </div>
                 <div class="email-footer">
                     <p>If this wasn't you, please change your password.</p>
-                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {Settings.APP_NAME}. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -186,7 +186,7 @@ async def test_reset():
 
     assert isinstance(msg, MIMEMultipart)
     assert msg["Subject"] == "Reset Your Password"
-    assert msg["From"] == os.environ["MAIL_USERNAME"]
+    assert msg["From"] == Settings.MAIL_USERNAME
     assert msg["To"] == mail.email
     payload = msg.get_payload()
     assert isinstance(payload, list)
@@ -248,7 +248,7 @@ async def test_reset():
                 </div>
                 <div class="email-footer">
                     <p>If you didn't request this, you can safely ignore this email.</p>
-                    <p>&copy; {date.today().year} {os.environ["APP_NAME"]}. All rights reserved.</p>
+                    <p>&copy; {date.today().year} {Settings.APP_NAME}. All rights reserved.</p>
                 </div>
             </div>
         </body>

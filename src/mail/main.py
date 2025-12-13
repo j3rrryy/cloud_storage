@@ -8,6 +8,7 @@ from uvicorn import Config, Server
 from config import setup_logging
 from controller import MailController
 from di import ConsumerManager, SMTPManager, setup_di
+from settings import Settings
 
 logger = logging.getLogger()
 
@@ -21,10 +22,10 @@ async def start_prometheus_server() -> None:
     server_config = Config(
         app=app,
         loop="uvloop",
-        host="0.0.0.0",
-        port=8000,
-        limit_concurrency=50,
-        limit_max_requests=10000,
+        host=Settings.PROMETHEUS_SERVER_HOST,
+        port=Settings.PROMETHEUS_SERVER_PORT,
+        limit_concurrency=Settings.PROMETHEUS_SERVER_LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS,
     )
     server = Server(server_config)
     await server.serve()

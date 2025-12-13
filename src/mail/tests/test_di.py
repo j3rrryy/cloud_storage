@@ -1,4 +1,3 @@
-import os
 from unittest.mock import AsyncMock, call, patch
 
 import pytest
@@ -7,6 +6,7 @@ from aiosmtplib import SMTP
 
 from di import ConsumerManager, SMTPManager, configure_inject, setup_di
 from enums import MailTypes
+from settings import Settings
 
 
 @pytest.mark.asyncio
@@ -20,12 +20,11 @@ async def test_smtp_manager_lifespan(mock_smtp):
     await SMTPManager.setup()
 
     mock_smtp.assert_called_with(
-        hostname=os.environ["MAIL_HOSTNAME"],
-        port=int(os.environ["MAIL_PORT"]),
-        username=os.environ["MAIL_USERNAME"],
-        password=os.environ["MAIL_PASSWORD"],
-        use_tls=True,
-        timeout=10,
+        username=Settings.MAIL_USERNAME,
+        password=Settings.MAIL_PASSWORD,
+        hostname=Settings.MAIL_HOSTNAME,
+        port=Settings.MAIL_PORT,
+        use_tls=Settings.MAIL_TLS,
     )
     mock_connect.assert_awaited_once()
     assert SMTPManager.smtp == mock_smtp.return_value
@@ -111,11 +110,9 @@ async def test_consumer_manager_lifespan(mock_consumer):
         MailTypes.VERIFICATION.name,
         MailTypes.INFO.name,
         MailTypes.RESET.name,
-        bootstrap_servers=os.environ["KAFKA_SERVICE"],
-        group_id="mail",
-        auto_offset_reset="earliest",
-        max_poll_records=1000,
-        request_timeout_ms=10000,
+        bootstrap_servers=Settings.KAFKA_SERVICE,
+        group_id=Settings.KAFKA_GROUP_ID,
+        auto_offset_reset=Settings.KAFKA_AUTO_OFFSET_RESET,
     )
     mock_start.assert_awaited_once()
     assert ConsumerManager.consumer == mock_consumer.return_value

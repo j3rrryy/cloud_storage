@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 
 import inject
@@ -6,6 +5,7 @@ from aiokafka import AIOKafkaConsumer
 from aiosmtplib import SMTP
 
 from enums import MailTypes
+from settings import Settings
 
 
 class SMTPManager:
@@ -18,12 +18,11 @@ class SMTPManager:
             return
         try:
             cls.smtp = SMTP(
-                hostname=os.environ["MAIL_HOSTNAME"],
-                port=int(os.environ["MAIL_PORT"]),
-                username=os.environ["MAIL_USERNAME"],
-                password=os.environ["MAIL_PASSWORD"],
-                use_tls=True,
-                timeout=10,
+                username=Settings.MAIL_USERNAME,
+                password=Settings.MAIL_PASSWORD,
+                hostname=Settings.MAIL_HOSTNAME,
+                port=Settings.MAIL_PORT,
+                use_tls=Settings.MAIL_TLS,
             )
             await cls.smtp.connect()
             cls._started = True
@@ -62,11 +61,9 @@ class ConsumerManager:
                 MailTypes.VERIFICATION.name,
                 MailTypes.INFO.name,
                 MailTypes.RESET.name,
-                bootstrap_servers=os.environ["KAFKA_SERVICE"],
-                group_id="mail",
-                auto_offset_reset="earliest",
-                max_poll_records=1000,
-                request_timeout_ms=10000,
+                bootstrap_servers=Settings.KAFKA_SERVICE,
+                group_id=Settings.KAFKA_GROUP_ID,
+                auto_offset_reset=Settings.KAFKA_AUTO_OFFSET_RESET,
             )
             await cls.consumer.start()
             cls._started = True
