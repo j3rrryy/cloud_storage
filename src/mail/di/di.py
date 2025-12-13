@@ -5,6 +5,8 @@ from aiokafka import AIOKafkaConsumer
 from aiosmtplib import SMTP
 
 from enums import MailTypes
+from metrics import PrometheusMetricsCollector
+from protocols import MetricsCollectorProtocol
 from settings import Settings
 
 
@@ -92,6 +94,7 @@ class ConsumerManager:
 def configure_inject(binder: inject.Binder) -> None:
     binder.bind_to_provider(SMTP, SMTPManager.smtp_factory)
     binder.bind_to_provider(AIOKafkaConsumer, ConsumerManager.consumer_factory)
+    binder.bind_to_provider(MetricsCollectorProtocol, PrometheusMetricsCollector)
 
 
 async def setup_di() -> None:
