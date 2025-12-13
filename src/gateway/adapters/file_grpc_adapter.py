@@ -1,11 +1,11 @@
 from dto import file_dto
-from interfaces import FileServiceInterface
 from proto import file_pb2 as pb2
+from protocols import FileServiceProtocol
 
 from .base_adapter import BaseRPCAdapter
 
 
-class FileGrpcAdapter(BaseRPCAdapter, FileServiceInterface):
+class FileGrpcAdapter(BaseRPCAdapter, FileServiceProtocol):
     @BaseRPCAdapter.exception_handler
     async def initiate_upload(
         self, data: file_dto.InitiateUploadDTO

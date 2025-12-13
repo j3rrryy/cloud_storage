@@ -1,10 +1,10 @@
 from dto import auth_dto, mail_dto
-from interfaces import AuthServiceInterface, MailServiceInterface
+from protocols import AuthServiceProtocol, MailServiceProtocol
 
 
 class AuthFacade:
     def __init__(
-        self, auth_service: AuthServiceInterface, mail_service: MailServiceInterface
+        self, auth_service: AuthServiceProtocol, mail_service: MailServiceProtocol
     ):
         self.auth_service = auth_service
         self.mail_service = mail_service

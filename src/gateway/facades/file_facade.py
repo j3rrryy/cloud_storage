@@ -1,9 +1,9 @@
 from dto import file_dto
-from interfaces import FileServiceInterface
+from protocols import FileServiceProtocol
 
 
 class FileFacade:
-    def __init__(self, file_service: FileServiceInterface):
+    def __init__(self, file_service: FileServiceProtocol):
         self.file_service = file_service
 
     async def initiate_upload(

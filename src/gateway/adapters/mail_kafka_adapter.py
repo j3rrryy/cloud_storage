@@ -1,11 +1,11 @@
 from dto import mail_dto
 from enums import MailTypes
-from interfaces import MailServiceInterface
+from protocols import MailServiceProtocol
 
 from .base_adapter import BaseKafkaAdapter
 
 
-class MailKafkaAdapter(BaseKafkaAdapter, MailServiceInterface):
+class MailKafkaAdapter(BaseKafkaAdapter, MailServiceProtocol):
     async def verification(
         self, verification_mail: mail_dto.VerificationMailDTO
     ) -> None:

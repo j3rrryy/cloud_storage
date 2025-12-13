@@ -3,7 +3,7 @@ from typing import Protocol
 from dto import auth_dto, mail_dto
 
 
-class AuthServiceInterface(Protocol):
+class AuthServiceProtocol(Protocol):
     async def register(
         self, data: auth_dto.RegistrationDTO
     ) -> mail_dto.VerificationMailDTO: ...

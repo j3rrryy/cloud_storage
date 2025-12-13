@@ -3,7 +3,7 @@ from typing import Protocol
 from dto import file_dto
 
 
-class FileServiceInterface(Protocol):
+class FileServiceProtocol(Protocol):
     async def initiate_upload(
         self, data: file_dto.InitiateUploadDTO
     ) -> file_dto.InitiatedUploadDTO: ...

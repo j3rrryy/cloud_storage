@@ -3,7 +3,7 @@ from typing import Protocol
 from dto import mail_dto
 
 
-class MailServiceInterface(Protocol):
+class MailServiceProtocol(Protocol):
     async def verification(
         self, verification_mail: mail_dto.VerificationMailDTO
     ) -> None: ...

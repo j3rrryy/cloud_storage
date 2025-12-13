@@ -1,6 +1,7 @@
 import asyncio
 
-from facades import ApplicationFacade
+from facades import ApplicationFacade, AuthFacade, FileFacade
+from protocols import ApplicationFacadeProtocol
 
 from .auth_factory import AuthFactory
 from .file_factory import FileFactory
@@ -42,11 +43,9 @@ class ServiceFactory:
     def get_mail_service(self):
         return self._mail_factory.get_mail_service()
 
-    def get_application_facade(self) -> ApplicationFacade:
+    def get_application_facade(self) -> ApplicationFacadeProtocol:
         if not self._application_facade:
-            self._application_facade = ApplicationFacade(
-                self.get_auth_service(),
-                self.get_file_service(),
-                self.get_mail_service(),
-            )
+            auth_facade = AuthFacade(self.get_auth_service(), self.get_mail_service())
+            file_facade = FileFacade(self.get_file_service())
+            self._application_facade = ApplicationFacade(auth_facade, file_facade)
         return self._application_facade

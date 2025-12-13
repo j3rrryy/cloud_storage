@@ -7,7 +7,7 @@ from litestar.params import Body
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from dto import auth_dto
-from facades import ApplicationFacade
+from protocols import ApplicationFacadeProtocol
 from schemas import auth_schemas
 from validators import validate_access_token
 
@@ -21,14 +21,14 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.Registration, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> None:
         dto = auth_dto.RegistrationDTO.from_schema(data)
         await application_facade.register(dto)
 
     @get("/verify-email", status_code=HTTP_204_NO_CONTENT)
     async def verify_email(
-        self, verification_token: str, application_facade: ApplicationFacade
+        self, verification_token: str, application_facade: ApplicationFacadeProtocol
     ) -> None:
         await application_facade.verify_email(verification_token)
 
@@ -44,7 +44,7 @@ class AuthController(Controller):
             auth_schemas.ForgotPassword,
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> auth_schemas.UserId:
         user_id = await application_facade.request_reset_code(data.email)
         return auth_schemas.UserId(user_id)
@@ -60,7 +60,7 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.ResetCode, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> auth_schemas.CodeIsValid:
         dto = auth_dto.ResetCodeDTO.from_schema(data)
         is_valid = await application_facade.validate_reset_code(dto)
@@ -72,7 +72,7 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.ResetPassword, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> None:
         dto = auth_dto.ResetPasswordDTO.from_schema(data)
         await application_facade.reset_password(dto)
@@ -89,7 +89,7 @@ class AuthController(Controller):
             auth_schemas.LogIn, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.LogInDTO(
             data.username,
@@ -102,14 +102,14 @@ class AuthController(Controller):
 
     @post("/log-out", status_code=HTTP_204_NO_CONTENT)
     async def log_out(
-        self, request: Request, application_facade: ApplicationFacade
+        self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> None:
         access_token = validate_access_token(request)
         await application_facade.log_out(access_token)
 
     @post("/resend-verification-mail", status_code=HTTP_204_NO_CONTENT)
     async def resend_verification_mail(
-        self, request: Request, application_facade: ApplicationFacade
+        self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> None:
         access_token = validate_access_token(request)
         await application_facade.resend_verification_mail(access_token)
@@ -121,7 +121,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def auth(
-        self, request: Request, application_facade: ApplicationFacade
+        self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> auth_schemas.UserId:
         access_token = validate_access_token(request)
         user_id = await application_facade.auth(access_token)
@@ -139,7 +139,7 @@ class AuthController(Controller):
             auth_schemas.RefreshToken, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.RefreshDTO(
             data.refresh_token,
@@ -156,7 +156,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def session_list(
-        self, request: Request, application_facade: ApplicationFacade
+        self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> auth_schemas.SessionList:
         access_token = validate_access_token(request)
         sessions = await application_facade.session_list(access_token)
@@ -166,7 +166,10 @@ class AuthController(Controller):
 
     @delete("/sessions/{session_id: uuid}", status_code=HTTP_204_NO_CONTENT)
     async def revoke_session(
-        self, session_id: UUID, request: Request, application_facade: ApplicationFacade
+        self,
+        session_id: UUID,
+        request: Request,
+        application_facade: ApplicationFacadeProtocol,
     ) -> None:
         access_token = validate_access_token(request)
         dto = auth_dto.RevokeSessionDTO(access_token, str(session_id))
@@ -179,7 +182,7 @@ class AuthController(Controller):
         media_type=MediaType.MESSAGEPACK,
     )
     async def profile(
-        self, request: Request, application_facade: ApplicationFacade
+        self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> auth_schemas.Profile:
         access_token = validate_access_token(request)
         user_profile = await application_facade.profile(access_token)
@@ -192,7 +195,7 @@ class AuthController(Controller):
             auth_schemas.UpdateEmail, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         request: Request,
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> None:
         access_token = validate_access_token(request)
         dto = auth_dto.UpdateEmailDTO(access_token, data.new_email)
@@ -206,7 +209,7 @@ class AuthController(Controller):
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         request: Request,
-        application_facade: ApplicationFacade,
+        application_facade: ApplicationFacadeProtocol,
     ) -> None:
         access_token = validate_access_token(request)
         dto = auth_dto.UpdatePasswordDTO(
@@ -216,7 +219,7 @@ class AuthController(Controller):
 
     @delete("/profile", status_code=HTTP_204_NO_CONTENT)
     async def delete_profile(
-        self, request: Request, application_facade: ApplicationFacade
+        self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> None:
         access_token = validate_access_token(request)
         await application_facade.delete_profile(access_token)

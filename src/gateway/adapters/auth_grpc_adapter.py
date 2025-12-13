@@ -1,11 +1,11 @@
 from dto import auth_dto, mail_dto
-from interfaces import AuthServiceInterface
 from proto import auth_pb2 as pb2
+from protocols import AuthServiceProtocol
 
 from .base_adapter import BaseRPCAdapter
 
 
-class AuthGrpcAdapter(BaseRPCAdapter, AuthServiceInterface):
+class AuthGrpcAdapter(BaseRPCAdapter, AuthServiceProtocol):
     @BaseRPCAdapter.exception_handler
     async def register(
         self, data: auth_dto.RegistrationDTO

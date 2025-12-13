@@ -113,30 +113,26 @@ def test_service_factory_get_mail_service():
 
 def test_service_factory_get_application_facade():
     service_factory = ServiceFactory()
-    mock_auth_service = MagicMock()
-    mock_file_service = MagicMock()
-    mock_mail_service = MagicMock()
-    mock_facade = MagicMock()
+    mock_auth_facade = MagicMock()
+    mock_file_facade = MagicMock()
+    mock_application_facade = MagicMock()
 
     with (
-        patch.object(
-            service_factory, "get_auth_service", return_value=mock_auth_service
-        ),
-        patch.object(
-            service_factory, "get_file_service", return_value=mock_file_service
-        ),
-        patch.object(
-            service_factory, "get_mail_service", return_value=mock_mail_service
-        ),
+        patch.object(service_factory, "get_auth_service"),
+        patch.object(service_factory, "get_file_service"),
+        patch.object(service_factory, "get_mail_service"),
+        patch("factories.service_factory.AuthFacade", return_value=mock_auth_facade),
+        patch("factories.service_factory.FileFacade", return_value=mock_file_facade),
         patch(
-            "factories.service_factory.ApplicationFacade", return_value=mock_facade
-        ) as mock_facade_class,
+            "factories.service_factory.ApplicationFacade",
+            return_value=mock_application_facade,
+        ) as mock_application_facade_class,
     ):
         result = service_factory.get_application_facade()
 
-        assert result == mock_facade
-        mock_facade_class.assert_called_once_with(
-            mock_auth_service, mock_file_service, mock_mail_service
+        assert result == mock_application_facade
+        mock_application_facade_class.assert_called_once_with(
+            mock_auth_facade, mock_file_facade
         )
 
 

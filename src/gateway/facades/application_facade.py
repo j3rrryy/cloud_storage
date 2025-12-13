@@ -1,19 +1,13 @@
 from dto import auth_dto, file_dto
-from interfaces import AuthServiceInterface, FileServiceInterface, MailServiceInterface
-
-from .auth_facade import AuthFacade
-from .file_facade import FileFacade
+from protocols import AuthFacadeProtocol, FileFacadeProtocol
 
 
 class ApplicationFacade:
     def __init__(
-        self,
-        auth_service: AuthServiceInterface,
-        file_service: FileServiceInterface,
-        mail_service: MailServiceInterface,
+        self, auth_facade: AuthFacadeProtocol, file_facade: FileFacadeProtocol
     ):
-        self._auth_facade = AuthFacade(auth_service, mail_service)
-        self._file_facade = FileFacade(file_service)
+        self._auth_facade = auth_facade
+        self._file_facade = file_facade
 
     async def register(self, data: auth_dto.RegistrationDTO) -> None:
         await self._auth_facade.register(data)
