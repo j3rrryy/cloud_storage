@@ -63,7 +63,7 @@ class ConsumerManager:
                 MailTypes.RESET.name,
                 bootstrap_servers=Settings.KAFKA_SERVICE,
                 group_id=Settings.KAFKA_GROUP_ID,
-                auto_offset_reset=Settings.KAFKA_AUTO_OFFSET_RESET,
+                auto_offset_reset="earliest",
             )
             await cls.consumer.start()
             cls._started = True

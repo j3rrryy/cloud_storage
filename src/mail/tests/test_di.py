@@ -112,7 +112,7 @@ async def test_consumer_manager_lifespan(mock_consumer):
         MailTypes.RESET.name,
         bootstrap_servers=Settings.KAFKA_SERVICE,
         group_id=Settings.KAFKA_GROUP_ID,
-        auto_offset_reset=Settings.KAFKA_AUTO_OFFSET_RESET,
+        auto_offset_reset="earliest",
     )
     mock_start.assert_awaited_once()
     assert ConsumerManager.consumer == mock_consumer.return_value

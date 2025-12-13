@@ -13,7 +13,6 @@ class Settings:
 
     KAFKA_SERVICE = os.environ["KAFKA_SERVICE"]
     KAFKA_GROUP_ID = "mail"
-    KAFKA_AUTO_OFFSET_RESET = "earliest"
 
     PROMETHEUS_SERVER_HOST = "0.0.0.0"
     PROMETHEUS_SERVER_PORT = 8000
