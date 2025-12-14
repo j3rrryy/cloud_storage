@@ -16,8 +16,6 @@ T = TypeVar("T")
 
 
 class BaseRPCAdapter:
-    __slots__ = "_stub"
-
     _converted_exceptions = {
         StatusCode.ALREADY_EXISTS: lambda detail: HTTPException(
             detail=detail, status_code=409
@@ -57,7 +55,5 @@ class BaseRPCAdapter:
 
 
 class BaseKafkaAdapter:
-    __slots__ = "_producer"
-
     def __init__(self, producer: AIOKafkaProducer):
         self._producer = producer

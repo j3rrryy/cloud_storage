@@ -1,8 +1,8 @@
 from dto import auth_dto, file_dto
-from protocols import AuthFacadeProtocol, FileFacadeProtocol
+from protocols import ApplicationFacadeProtocol, AuthFacadeProtocol, FileFacadeProtocol
 
 
-class ApplicationFacade:
+class ApplicationFacade(ApplicationFacadeProtocol):
     def __init__(
         self, auth_facade: AuthFacadeProtocol, file_facade: FileFacadeProtocol
     ):

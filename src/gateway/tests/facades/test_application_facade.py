@@ -76,7 +76,7 @@ async def test_log_in(application_facade: ApplicationFacadeProtocol):
 
 @pytest.mark.asyncio
 async def test_log_in_unverified(application_facade: ApplicationFacadeProtocol):
-    application_facade._auth_facade.auth_service._stub.LogIn.return_value.verified = (  # type: ignore
+    application_facade._auth_facade._auth_service._stub.LogIn.return_value.verified = (  # type: ignore
         False
     )
     dto = auth_dto.LogInDTO(USERNAME, PASSWORD, USER_IP, USER_AGENT)
