@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 @inject.autoparams()
 async def start_mail_server(application_facade: ApplicationFacadeProtocol) -> None:
-    await application_facade.process_messages()
+    await application_facade.start_processing()
 
 
 async def start_prometheus_server() -> None:

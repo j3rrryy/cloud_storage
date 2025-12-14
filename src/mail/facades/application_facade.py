@@ -8,7 +8,7 @@ class ApplicationFacade(ApplicationFacadeProtocol):
         self._kafka_facade = kafka_facade
         self._smtp_facade = smtp_facade
 
-    async def process_messages(self) -> None:
+    async def start_processing(self) -> None:
         generator = await self._kafka_facade.consume_messages()
-        async for message in generator:
-            await self._smtp_facade.send_message(message)
+        async for dto in generator:
+            await self._smtp_facade.send_mail(dto)

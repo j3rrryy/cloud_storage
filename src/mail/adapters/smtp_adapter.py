@@ -6,5 +6,5 @@ from .base_adapter import BaseSMTPAdapter
 
 
 class SMTPAdapter(BaseSMTPAdapter, SMTPClientProtocol):
-    async def send_message(self, message: multipart.MIMEMultipart) -> None:
-        await self._client.send_message(message)
+    async def send_mail(self, mail: multipart.MIMEMultipart) -> None:
+        await self._client.send_message(mail)
