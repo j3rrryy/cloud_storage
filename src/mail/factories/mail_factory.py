@@ -5,7 +5,7 @@ from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 from settings import Settings
 
 
-class MailBuilder:
+class MailFactory:
     @staticmethod
     def verification(mail: VerificationMailDTO) -> multipart.MIMEMultipart:
         msg = multipart.MIMEMultipart("alternative")

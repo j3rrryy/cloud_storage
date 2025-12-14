@@ -20,11 +20,14 @@ class PrometheusMetricsCollector(MetricsCollectorProtocol):
         "Time spent processing mails",
     )
 
-    def record_success(self, topic: str) -> None:
-        self._mails_sent_counter.labels(topic).inc()
+    @classmethod
+    def record_success(cls, topic: str) -> None:
+        cls._mails_sent_counter.labels(topic).inc()
 
-    def record_failure(self, topic: str) -> None:
-        self._mails_failed_counter.labels(topic).inc()
+    @classmethod
+    def record_failure(cls, topic: str) -> None:
+        cls._mails_failed_counter.labels(topic).inc()
 
-    def record_processing_time(self) -> Timer:
-        return self._mails_processing_time.time()
+    @classmethod
+    def record_processing_time(cls) -> Timer:
+        return cls._mails_processing_time.time()

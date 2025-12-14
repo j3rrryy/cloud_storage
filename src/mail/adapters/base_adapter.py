@@ -6,7 +6,9 @@ from protocols import MetricsCollectorProtocol
 
 class BaseKafkaAdapter:
     def __init__(
-        self, consumer: AIOKafkaConsumer, metrics_collector: MetricsCollectorProtocol
+        self,
+        consumer: AIOKafkaConsumer,
+        metrics_collector: type[MetricsCollectorProtocol],
     ):
         self._consumer = consumer
         self._metrics_collector = metrics_collector
