@@ -1,7 +1,12 @@
 import asyncio
 
 from facades import ApplicationFacade, AuthFacade, FileFacade
-from protocols import ApplicationFacadeProtocol
+from protocols import (
+    ApplicationFacadeProtocol,
+    AuthServiceProtocol,
+    FileServiceProtocol,
+    MailServiceProtocol,
+)
 
 from .auth_service_factory import AuthServiceFactory
 from .file_service_factory import FileServiceFactory
@@ -34,13 +39,13 @@ class ServiceFactory:
             return_exceptions=True,
         )
 
-    def get_auth_service(self):
+    def get_auth_service(self) -> AuthServiceProtocol:
         return self._auth_service_factory.get_auth_service()
 
-    def get_file_service(self):
+    def get_file_service(self) -> FileServiceProtocol:
         return self._file_service_factory.get_file_service()
 
-    def get_mail_service(self):
+    def get_mail_service(self) -> MailServiceProtocol:
         return self._mail_service_factory.get_mail_service()
 
     def get_application_facade(self) -> ApplicationFacadeProtocol:

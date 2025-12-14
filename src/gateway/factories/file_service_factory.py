@@ -4,6 +4,7 @@ import grpc
 
 from adapters import FileGrpcAdapter
 from proto import FileStub
+from protocols import FileServiceProtocol
 from settings import Settings
 
 
@@ -38,7 +39,7 @@ class FileServiceFactory:
         stub = FileStub(self._file_channel)
         self._file_service = FileGrpcAdapter(stub)
 
-    def get_file_service(self):
+    def get_file_service(self) -> FileServiceProtocol:
         if not self._file_service:
             raise RuntimeError("FileService not initialized")
         return self._file_service

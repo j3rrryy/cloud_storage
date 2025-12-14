@@ -4,6 +4,7 @@ import grpc
 
 from adapters import AuthGrpcAdapter
 from proto import AuthStub
+from protocols import AuthServiceProtocol
 from settings import Settings
 
 
@@ -38,7 +39,7 @@ class AuthServiceFactory:
         stub = AuthStub(self._auth_channel)
         self._auth_service = AuthGrpcAdapter(stub)
 
-    def get_auth_service(self):
+    def get_auth_service(self) -> AuthServiceProtocol:
         if not self._auth_service:
             raise RuntimeError("AuthService not initialized")
         return self._auth_service

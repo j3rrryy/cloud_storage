@@ -1,6 +1,7 @@
 from aiokafka import AIOKafkaProducer
 
 from adapters import MailKafkaAdapter
+from protocols import MailServiceProtocol
 from settings import Settings
 
 
@@ -34,7 +35,7 @@ class MailServiceFactory:
         await self._mail_producer.start()
         self._mail_service = MailKafkaAdapter(self._mail_producer)
 
-    def get_mail_service(self):
+    def get_mail_service(self) -> MailServiceProtocol:
         if not self._mail_service:
             raise RuntimeError("MailService not initialized")
         return self._mail_service
