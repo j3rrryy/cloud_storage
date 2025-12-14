@@ -3,13 +3,21 @@ from typing import Any
 from enums import MailTypes
 
 from .base_dto import BaseMailDTO
+from .dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 
 
 class MessageToDTOConverter:
-    @staticmethod
-    def convert(topic: str, message: dict[str, Any]) -> BaseMailDTO:
+    _dto_classes: dict[MailTypes, type[BaseMailDTO]] = {
+        MailTypes.VERIFICATION: VerificationMailDTO,
+        MailTypes.INFO: InfoMailDTO,
+        MailTypes.RESET: ResetMailDTO,
+    }
+
+    @classmethod
+    def convert(cls, topic: str, message: dict[str, Any]) -> BaseMailDTO:
         try:
-            dto_class = MailTypes[topic].value
+            mail_type = MailTypes[topic]
+            dto_class = cls._dto_classes[mail_type]
             return dto_class(**message)
         except KeyError:
             raise ValueError(f"Unsupported mail type: {topic}")

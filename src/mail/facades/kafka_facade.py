@@ -9,6 +9,5 @@ class KafkaFacade(KafkaFacadeProtocol):
         self._kafka_consumer = kafka_consumer
 
     async def consume_messages(self) -> AsyncGenerator[BaseMailDTO, None]:
-        generator = await self._kafka_consumer.consume_messages()
-        async for topic, message in generator:
+        async for topic, message in self._kafka_consumer.consume_messages():
             yield MessageToDTOConverter.convert(topic, message)
