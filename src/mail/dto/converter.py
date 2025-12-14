@@ -2,7 +2,7 @@ from typing import Any
 
 from enums import MailTypes
 
-from .base import BaseMailDTO
+from .base_dto import BaseMailDTO
 
 
 class MessageToDTOConverter:

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .base import BaseMailDTO
+from .base_dto import BaseMailDTO
 
 
 @dataclass(slots=True, frozen=True)

@@ -1,4 +1,4 @@
-from .base import BaseMailDTO
+from .base_dto import BaseMailDTO
 from .converter import MessageToDTOConverter
 from .dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 
