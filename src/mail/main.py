@@ -1,20 +1,22 @@
 import asyncio
 
+import inject
 import picologging as logging
 import uvloop
 from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
 from config import setup_logging
-from controller import MailController
 from di import ConsumerManager, SMTPManager, setup_di
+from protocols import ApplicationFacadeProtocol
 from settings import Settings
 
 logger = logging.getLogger()
 
 
-async def start_mail_server() -> None:
-    await MailController.process_messages()  # type: ignore
+@inject.autoparams()
+async def start_mail_server(application_facade: ApplicationFacadeProtocol) -> None:
+    await application_facade.process_messages()
 
 
 async def start_prometheus_server() -> None:
@@ -35,7 +37,7 @@ async def main() -> None:
     await setup_di()
     setup_logging()
 
-    mail_task = asyncio.create_task(start_mail_server())
+    mail_task = asyncio.create_task(start_mail_server())  # type: ignore
     logger.info("Mail server started")
     prometheus_task = asyncio.create_task(start_prometheus_server())
     logger.info("Prometheus server started")

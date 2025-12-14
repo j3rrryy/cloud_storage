@@ -1,1 +1,3 @@
-from .enums import *  # noqa: F403
+from .enums import MailTypes
+
+__all__ = ["MailTypes"]

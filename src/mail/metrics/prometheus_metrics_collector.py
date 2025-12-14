@@ -5,27 +5,26 @@ from protocols import MetricsCollectorProtocol
 
 
 class PrometheusMetricsCollector(MetricsCollectorProtocol):
-    _email_sent_counter = Counter(
-        "mail_service_emails_sent_total",
-        "Total number of emails sent successfully",
+    _mails_sent_counter = Counter(
+        "mail_service_mails_sent_total",
+        "Total number of mails sent successfully",
         ["topic"],
     )
-    _email_failed_counter = Counter(
-        "mail_service_emails_failed_total",
-        "Total number of emails failed to send",
+    _mails_failed_counter = Counter(
+        "mail_service_mails_failed_total",
+        "Total number of mails failed to send",
         ["topic"],
     )
-    _email_processing_time = Summary(
-        "mail_service_email_processing_time_seconds",
-        "Time spent processing email messages",
-        ["topic"],
+    _mails_processing_time = Summary(
+        "mail_service_mails_processing_time_seconds",
+        "Time spent processing mails",
     )
 
     def record_success(self, topic: str) -> None:
-        self._email_sent_counter.labels(topic).inc()
+        self._mails_sent_counter.labels(topic).inc()
 
     def record_failure(self, topic: str) -> None:
-        self._email_failed_counter.labels(topic).inc()
+        self._mails_failed_counter.labels(topic).inc()
 
-    def record_processing_time(self, topic: str) -> Timer:
-        return self._email_processing_time.labels(topic).time()
+    def record_processing_time(self) -> Timer:
+        return self._mails_processing_time.time()
