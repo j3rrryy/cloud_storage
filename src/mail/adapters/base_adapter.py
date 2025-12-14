@@ -15,5 +15,5 @@ class BaseKafkaAdapter:
 
 
 class BaseSMTPAdapter:
-    def __init__(self, client: SMTP):
-        self._client = client
+    def __init__(self, smtp: SMTP):
+        self._smtp = smtp

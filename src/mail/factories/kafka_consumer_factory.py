@@ -3,6 +3,7 @@ from aiokafka import AIOKafkaConsumer
 from adapters import KafkaAdapter
 from enums import MailTypes
 from metrics import PrometheusMetricsCollector
+from protocols import KafkaConsumerProtocol
 from settings import Settings
 
 
@@ -40,7 +41,7 @@ class KafkaConsumerFactory:
             self._aiokafka_consumer, PrometheusMetricsCollector
         )
 
-    def get_kafka_consumer(self):
+    def get_kafka_consumer(self) -> KafkaConsumerProtocol:
         if not self._kafka_consumer:
             raise RuntimeError("KafkaConsumer not initialized")
         return self._kafka_consumer

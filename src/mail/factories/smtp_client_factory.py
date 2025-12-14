@@ -1,41 +1,42 @@
-import asyncio
+from aiosmtplib import SMTP
 
-from adapters import FileGrpcAdapter
+from adapters import SMTPAdapter
+from protocols import SMTPClientProtocol
 from settings import Settings
 
 
 class SMTPClientFactory:
     def __init__(self):
-        self._file_channel = None
-        self._file_service = None
+        self._smtp = None
+        self._smtp_client = None
 
     async def initialize(self) -> None:
         try:
-            await self._setup_file_service()
+            await self._setup_smtp_client()
         except Exception:
             await self.close()
             raise
 
     async def close(self) -> None:
-        if self._file_channel is not None:
+        if self._smtp is not None:
             try:
-                await self._file_channel.close()
+                await self._smtp.quit()
             finally:
-                self._file_channel = None
-                self._file_service = None
+                self._smtp = None
+                self._smtp_client = None
 
-    async def _setup_file_service(self) -> None:
-        self._file_channel = grpc.aio.insecure_channel(
-            Settings.FILE_SERVICE, compression=grpc.Compression.Deflate
+    async def _setup_smtp_client(self) -> None:
+        self._smtp = SMTP(
+            username=Settings.MAIL_USERNAME,
+            password=Settings.MAIL_PASSWORD,
+            hostname=Settings.MAIL_HOSTNAME,
+            port=Settings.MAIL_PORT,
+            use_tls=Settings.MAIL_TLS,
         )
-        await asyncio.wait_for(
-            self._file_channel.channel_ready(),
-            timeout=Settings.GRPC_CHANNEL_READY_TIMEOUT,
-        )
-        stub = FileStub(self._file_channel)
-        self._file_service = FileGrpcAdapter(stub)
+        await self._smtp.connect()
+        self._smtp_client = SMTPAdapter(self._smtp)
 
-    def get_file_service(self):
-        if not self._file_service:
-            raise RuntimeError("FileService not initialized")
-        return self._file_service
+    def get_smtp_client(self) -> SMTPClientProtocol:
+        if not self._smtp_client:
+            raise RuntimeError("SMTPClient not initialized")
+        return self._smtp_client
