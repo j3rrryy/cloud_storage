@@ -7,7 +7,7 @@ from proto import AuthStub
 from settings import Settings
 
 
-class AuthFactory:
+class AuthServiceFactory:
     def __init__(self):
         self._auth_channel = None
         self._auth_service = None

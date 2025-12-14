@@ -1,6 +1,11 @@
-from .auth_factory import AuthFactory
-from .file_factory import FileFactory
-from .mail_factory import MailFactory
+from .auth_service_factory import AuthServiceFactory
+from .file_service_factory import FileServiceFactory
+from .mail_service_factory import MailServiceFactory
 from .service_factory import ServiceFactory
 
-__all__ = ["AuthFactory", "FileFactory", "MailFactory", "ServiceFactory"]
+__all__ = [
+    "AuthServiceFactory",
+    "FileServiceFactory",
+    "MailServiceFactory",
+    "ServiceFactory",
+]

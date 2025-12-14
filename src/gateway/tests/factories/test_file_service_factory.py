@@ -2,17 +2,19 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from factories import FileFactory
+from factories import FileServiceFactory
 
 
 @pytest.mark.asyncio
-async def test_file_factory_initialize_success():
+async def test_file_service_factory_initialize_success():
     with (
-        patch("factories.file_factory.grpc.aio.insecure_channel") as mock_channel,
-        patch("factories.file_factory.FileStub") as mock_stub,
-        patch("factories.file_factory.FileGrpcAdapter") as mock_adapter,
+        patch(
+            "factories.file_service_factory.grpc.aio.insecure_channel"
+        ) as mock_channel,
+        patch("factories.file_service_factory.FileStub") as mock_stub,
+        patch("factories.file_service_factory.FileGrpcAdapter") as mock_adapter,
     ):
-        factory = FileFactory()
+        factory = FileServiceFactory()
         mock_channel_instance = AsyncMock()
         mock_channel_instance.channel_ready = AsyncMock()
         mock_channel_instance.channel_ready.return_value = None
@@ -29,10 +31,12 @@ async def test_file_factory_initialize_success():
 
 
 @pytest.mark.asyncio
-async def test_file_factory_initialize_exception():
-    factory = FileFactory()
+async def test_file_service_factory_initialize_exception():
+    factory = FileServiceFactory()
     with (
-        patch("factories.file_factory.grpc.aio.insecure_channel") as mock_channel,
+        patch(
+            "factories.file_service_factory.grpc.aio.insecure_channel"
+        ) as mock_channel,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
         mock_channel.side_effect = Exception("Connection failed")
@@ -44,8 +48,8 @@ async def test_file_factory_initialize_exception():
 
 
 @pytest.mark.asyncio
-async def test_file_factory_close():
-    factory = FileFactory()
+async def test_file_service_factory_close():
+    factory = FileServiceFactory()
     mock_channel = AsyncMock()
     factory._file_channel = mock_channel
 
@@ -57,8 +61,8 @@ async def test_file_factory_close():
 
 
 @pytest.mark.asyncio
-async def test_file_factory_close_no_channel():
-    factory = FileFactory()
+async def test_file_service_factory_close_no_channel():
+    factory = FileServiceFactory()
 
     await factory.close()
 
@@ -66,8 +70,8 @@ async def test_file_factory_close_no_channel():
     assert factory._file_service is None
 
 
-def test_file_factory_get_file_service():
-    factory = FileFactory()
+def test_file_service_factory_get_file_service():
+    factory = FileServiceFactory()
     mock_service = MagicMock()
     factory._file_service = mock_service
 
@@ -76,8 +80,8 @@ def test_file_factory_get_file_service():
     assert result == mock_service
 
 
-def test_file_factory_get_file_service_not_initialized():
-    factory = FileFactory()
+def test_file_service_factory_get_file_service_not_initialized():
+    factory = FileServiceFactory()
 
     with pytest.raises(RuntimeError, match="FileService not initialized"):
         factory.get_file_service()

@@ -7,7 +7,7 @@ from proto import FileStub
 from settings import Settings
 
 
-class FileFactory:
+class FileServiceFactory:
     def __init__(self):
         self._file_channel = None
         self._file_service = None

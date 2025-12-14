@@ -11,13 +11,13 @@ async def test_service_factory_initialize_success():
 
     with (
         patch.object(
-            service_factory._auth_factory, "initialize", new_callable=AsyncMock
+            service_factory._auth_service_factory, "initialize", new_callable=AsyncMock
         ) as mock_auth_init,
         patch.object(
-            service_factory._file_factory, "initialize", new_callable=AsyncMock
+            service_factory._file_service_factory, "initialize", new_callable=AsyncMock
         ) as mock_file_init,
         patch.object(
-            service_factory._mail_factory, "initialize", new_callable=AsyncMock
+            service_factory._mail_service_factory, "initialize", new_callable=AsyncMock
         ) as mock_mail_init,
     ):
         await service_factory.initialize()
@@ -32,13 +32,13 @@ async def test_service_factory_initialize_exception():
     service_factory = ServiceFactory()
     with (
         patch.object(
-            service_factory._auth_factory, "initialize", new_callable=AsyncMock
+            service_factory._auth_service_factory, "initialize", new_callable=AsyncMock
         ) as mock_auth_init,
         patch.object(
-            service_factory._file_factory, "initialize", new_callable=AsyncMock
+            service_factory._file_service_factory, "initialize", new_callable=AsyncMock
         ),
         patch.object(
-            service_factory._mail_factory, "initialize", new_callable=AsyncMock
+            service_factory._mail_service_factory, "initialize", new_callable=AsyncMock
         ),
         patch.object(service_factory, "close", new_callable=AsyncMock) as mock_close,
     ):
@@ -56,13 +56,13 @@ async def test_service_factory_close():
 
     with (
         patch.object(
-            service_factory._auth_factory, "close", new_callable=AsyncMock
+            service_factory._auth_service_factory, "close", new_callable=AsyncMock
         ) as mock_auth_close,
         patch.object(
-            service_factory._file_factory, "close", new_callable=AsyncMock
+            service_factory._file_service_factory, "close", new_callable=AsyncMock
         ) as mock_file_close,
         patch.object(
-            service_factory._mail_factory, "close", new_callable=AsyncMock
+            service_factory._mail_service_factory, "close", new_callable=AsyncMock
         ) as mock_mail_close,
     ):
         await service_factory.close()
@@ -77,7 +77,9 @@ def test_service_factory_get_auth_service():
     mock_service = MagicMock()
 
     with patch.object(
-        service_factory._auth_factory, "get_auth_service", return_value=mock_service
+        service_factory._auth_service_factory,
+        "get_auth_service",
+        return_value=mock_service,
     ) as mock_get:
         result = service_factory.get_auth_service()
 
@@ -90,7 +92,9 @@ def test_service_factory_get_file_service():
     mock_service = MagicMock()
 
     with patch.object(
-        service_factory._file_factory, "get_file_service", return_value=mock_service
+        service_factory._file_service_factory,
+        "get_file_service",
+        return_value=mock_service,
     ) as mock_get:
         result = service_factory.get_file_service()
 
@@ -103,7 +107,9 @@ def test_service_factory_get_mail_service():
     mock_service = MagicMock()
 
     with patch.object(
-        service_factory._mail_factory, "get_mail_service", return_value=mock_service
+        service_factory._mail_service_factory,
+        "get_mail_service",
+        return_value=mock_service,
     ) as mock_get:
         result = service_factory.get_mail_service()
 

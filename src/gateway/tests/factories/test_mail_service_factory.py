@@ -2,13 +2,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from factories import MailFactory
+from factories import MailServiceFactory
 
 
 @pytest.mark.asyncio
-async def test_mail_factory_initialize_success():
-    factory = MailFactory()
-    with patch("factories.mail_factory.AIOKafkaProducer") as mock_producer:
+async def test_mail_service_factory_initialize_success():
+    factory = MailServiceFactory()
+    with patch("factories.mail_service_factory.AIOKafkaProducer") as mock_producer:
         mock_producer_instance = AsyncMock()
         mock_producer_instance.start = AsyncMock()
         mock_producer.return_value = mock_producer_instance
@@ -20,10 +20,10 @@ async def test_mail_factory_initialize_success():
 
 
 @pytest.mark.asyncio
-async def test_mail_factory_initialize_exception():
-    factory = MailFactory()
+async def test_mail_service_factory_initialize_exception():
+    factory = MailServiceFactory()
     with (
-        patch("factories.mail_factory.AIOKafkaProducer") as mock_producer,
+        patch("factories.mail_service_factory.AIOKafkaProducer") as mock_producer,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
         mock_producer.side_effect = Exception("Kafka connection failed")
@@ -35,8 +35,8 @@ async def test_mail_factory_initialize_exception():
 
 
 @pytest.mark.asyncio
-async def test_mail_factory_close():
-    factory = MailFactory()
+async def test_mail_service_factory_close():
+    factory = MailServiceFactory()
     mock_producer = AsyncMock()
     factory._mail_producer = mock_producer
 
@@ -48,8 +48,8 @@ async def test_mail_factory_close():
 
 
 @pytest.mark.asyncio
-async def test_mail_factory_close_no_producer():
-    factory = MailFactory()
+async def test_mail_service_factory_close_no_producer():
+    factory = MailServiceFactory()
 
     await factory.close()
 
@@ -57,8 +57,8 @@ async def test_mail_factory_close_no_producer():
     assert factory._mail_service is None
 
 
-def test_mail_factory_get_mail_service():
-    factory = MailFactory()
+def test_mail_service_factory_get_mail_service():
+    factory = MailServiceFactory()
     mock_service = MagicMock()
     factory._mail_service = mock_service
 
@@ -67,8 +67,8 @@ def test_mail_factory_get_mail_service():
     assert result == mock_service
 
 
-def test_mail_factory_get_mail_service_not_initialized():
-    factory = MailFactory()
+def test_mail_service_factory_get_mail_service_not_initialized():
+    factory = MailServiceFactory()
 
     with pytest.raises(RuntimeError, match="MailService not initialized"):
         factory.get_mail_service()

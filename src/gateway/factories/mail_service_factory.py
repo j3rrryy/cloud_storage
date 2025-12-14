@@ -4,7 +4,7 @@ from adapters import MailKafkaAdapter
 from settings import Settings
 
 
-class MailFactory:
+class MailServiceFactory:
     def __init__(self):
         self._mail_producer = None
         self._mail_service = None

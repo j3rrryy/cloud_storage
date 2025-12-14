@@ -3,24 +3,24 @@ import asyncio
 from facades import ApplicationFacade, AuthFacade, FileFacade
 from protocols import ApplicationFacadeProtocol
 
-from .auth_factory import AuthFactory
-from .file_factory import FileFactory
-from .mail_factory import MailFactory
+from .auth_service_factory import AuthServiceFactory
+from .file_service_factory import FileServiceFactory
+from .mail_service_factory import MailServiceFactory
 
 
 class ServiceFactory:
     def __init__(self):
-        self._auth_factory = AuthFactory()
-        self._file_factory = FileFactory()
-        self._mail_factory = MailFactory()
+        self._auth_service_factory = AuthServiceFactory()
+        self._file_service_factory = FileServiceFactory()
+        self._mail_service_factory = MailServiceFactory()
         self._application_facade = None
 
     async def initialize(self) -> None:
         try:
             await asyncio.gather(
-                self._auth_factory.initialize(),
-                self._file_factory.initialize(),
-                self._mail_factory.initialize(),
+                self._auth_service_factory.initialize(),
+                self._file_service_factory.initialize(),
+                self._mail_service_factory.initialize(),
             )
         except Exception:
             await self.close()
@@ -28,20 +28,20 @@ class ServiceFactory:
 
     async def close(self) -> None:
         await asyncio.gather(
-            self._auth_factory.close(),
-            self._file_factory.close(),
-            self._mail_factory.close(),
+            self._auth_service_factory.close(),
+            self._file_service_factory.close(),
+            self._mail_service_factory.close(),
             return_exceptions=True,
         )
 
     def get_auth_service(self):
-        return self._auth_factory.get_auth_service()
+        return self._auth_service_factory.get_auth_service()
 
     def get_file_service(self):
-        return self._file_factory.get_file_service()
+        return self._file_service_factory.get_file_service()
 
     def get_mail_service(self):
-        return self._mail_factory.get_mail_service()
+        return self._mail_service_factory.get_mail_service()
 
     def get_application_facade(self) -> ApplicationFacadeProtocol:
         if not self._application_facade:

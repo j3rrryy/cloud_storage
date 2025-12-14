@@ -2,17 +2,19 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from factories import AuthFactory
+from factories import AuthServiceFactory
 
 
 @pytest.mark.asyncio
-async def test_auth_factory_initialize_success():
+async def test_auth_service_factory_initialize_success():
     with (
-        patch("factories.auth_factory.grpc.aio.insecure_channel") as mock_channel,
-        patch("factories.auth_factory.AuthStub") as mock_stub,
-        patch("factories.auth_factory.AuthGrpcAdapter") as mock_adapter,
+        patch(
+            "factories.auth_service_factory.grpc.aio.insecure_channel"
+        ) as mock_channel,
+        patch("factories.auth_service_factory.AuthStub") as mock_stub,
+        patch("factories.auth_service_factory.AuthGrpcAdapter") as mock_adapter,
     ):
-        factory = AuthFactory()
+        factory = AuthServiceFactory()
         mock_channel_instance = AsyncMock()
         mock_channel_instance.channel_ready = AsyncMock()
         mock_channel_instance.channel_ready.return_value = None
@@ -29,10 +31,12 @@ async def test_auth_factory_initialize_success():
 
 
 @pytest.mark.asyncio
-async def test_auth_factory_initialize_exception():
-    factory = AuthFactory()
+async def test_auth_service_factory_initialize_exception():
+    factory = AuthServiceFactory()
     with (
-        patch("factories.auth_factory.grpc.aio.insecure_channel") as mock_channel,
+        patch(
+            "factories.auth_service_factory.grpc.aio.insecure_channel"
+        ) as mock_channel,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
         mock_channel.side_effect = Exception("Connection failed")
@@ -44,8 +48,8 @@ async def test_auth_factory_initialize_exception():
 
 
 @pytest.mark.asyncio
-async def test_auth_factory_close():
-    factory = AuthFactory()
+async def test_auth_service_factory_close():
+    factory = AuthServiceFactory()
     mock_channel = AsyncMock()
     factory._auth_channel = mock_channel
 
@@ -57,8 +61,8 @@ async def test_auth_factory_close():
 
 
 @pytest.mark.asyncio
-async def test_auth_factory_close_no_channel():
-    factory = AuthFactory()
+async def test_auth_service_factory_close_no_channel():
+    factory = AuthServiceFactory()
 
     await factory.close()
 
@@ -66,8 +70,8 @@ async def test_auth_factory_close_no_channel():
     assert factory._auth_service is None
 
 
-def test_auth_factory_get_auth_service():
-    factory = AuthFactory()
+def test_auth_service_factory_get_auth_service():
+    factory = AuthServiceFactory()
     mock_service = MagicMock()
     factory._auth_service = mock_service
 
@@ -76,8 +80,8 @@ def test_auth_factory_get_auth_service():
     assert result == mock_service
 
 
-def test_auth_factory_get_auth_service_not_initialized():
-    factory = AuthFactory()
+def test_auth_service_factory_get_auth_service_not_initialized():
+    factory = AuthServiceFactory()
 
     with pytest.raises(RuntimeError, match="AuthService not initialized"):
         factory.get_auth_service()
