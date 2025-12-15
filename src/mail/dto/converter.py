@@ -17,8 +17,8 @@ class MessageToDTOConverter:
     def convert(cls, topic: str, message: dict[str, Any]) -> BaseMailDTO:
         try:
             mail_type = MailTypes[topic]
-            dto_class = cls._dto_classes[mail_type]
-            return dto_class(**message)
+            dto_cls = cls._dto_classes[mail_type]
+            return dto_cls(**message)
         except KeyError:
             raise ValueError(f"Unsupported mail type: {topic}")
         except TypeError as exc:

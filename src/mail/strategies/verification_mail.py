@@ -2,7 +2,7 @@ from email.mime import multipart
 from typing import cast
 
 from dto import BaseMailDTO, VerificationMailDTO
-from factories import MailFactory
+from mail import MailRenderer
 from protocols import MailStrategyProtocol
 
 
@@ -14,4 +14,4 @@ class VerificationMailStrategy(MailStrategyProtocol):
     @staticmethod
     def construct_mail(dto: BaseMailDTO) -> multipart.MIMEMultipart:
         dto = cast(VerificationMailDTO, dto)
-        return MailFactory.verification(dto)
+        return MailRenderer.verification(dto)

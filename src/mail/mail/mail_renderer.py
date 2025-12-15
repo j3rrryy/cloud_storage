@@ -3,21 +3,18 @@ from email.mime import multipart, text
 
 from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
 from settings import Settings
-from templates import (
-    BASE_TEMPLATE,
-    INFO_CONTENT,
-    INFO_FOOTER,
-    INFO_HEADER,
-    RESET_CONTENT,
-    RESET_FOOTER,
-    RESET_HEADER,
+
+from .base_template import BASE_TEMPLATE
+from .info_template import INFO_CONTENT, INFO_FOOTER, INFO_HEADER
+from .reset_template import RESET_CONTENT, RESET_FOOTER, RESET_HEADER
+from .verification_template import (
     VERIFICATION_CONTENT,
     VERIFICATION_FOOTER,
     VERIFICATION_HEADER,
 )
 
 
-class MailFactory:
+class MailRenderer:
     @classmethod
     def verification(cls, dto: VerificationMailDTO) -> multipart.MIMEMultipart:
         verification_url = Settings.VERIFICATION_URL + dto.verification_token

@@ -2,7 +2,7 @@ from email.mime import multipart
 from typing import cast
 
 from dto import BaseMailDTO, ResetMailDTO
-from factories import MailFactory
+from mail import MailRenderer
 from protocols import MailStrategyProtocol
 
 
@@ -14,4 +14,4 @@ class ResetMailStrategy(MailStrategyProtocol):
     @staticmethod
     def construct_mail(dto: BaseMailDTO) -> multipart.MIMEMultipart:
         dto = cast(ResetMailDTO, dto)
-        return MailFactory.reset(dto)
+        return MailRenderer.reset(dto)
