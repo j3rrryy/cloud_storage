@@ -27,7 +27,8 @@ class FileFacade(FileFacadeProtocol):
         return await self._file_service.download(data)
 
     async def delete(self, data: file_dto.DeleteDTO) -> None:
-        await self._file_service.delete(data)
+        if data.file_ids:
+            await self._file_service.delete(data)
 
     async def delete_all(self, user_id: str) -> None:
         await self._file_service.delete_all(user_id)

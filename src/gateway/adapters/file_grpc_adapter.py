@@ -44,8 +44,6 @@ class FileGrpcAdapter(BaseRPCAdapter, FileServiceProtocol):
 
     @BaseRPCAdapter.exception_handler
     async def delete(self, data: file_dto.DeleteDTO) -> None:
-        if not data.file_ids:
-            return
         request = data.to_request(pb2.DeleteRequest)
         await self._stub.Delete(request)
 

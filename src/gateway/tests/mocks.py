@@ -1,10 +1,11 @@
 import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
+from aiokafka import AIOKafkaProducer
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from proto import auth_pb2, file_pb2
+from proto import AuthStub, FileStub, auth_pb2, file_pb2
 
 TIMESTAMP = datetime.datetime(1970, 1, 1, 0, 2, 3)
 TIMESTAMP_MOCK = Timestamp(seconds=123)
@@ -35,8 +36,8 @@ SIZE = 123
 NAME = "test_name"
 
 
-def create_auth_stub_v1() -> MagicMock:
-    stub = MagicMock()
+def create_auth_stub_v1() -> AuthStub:
+    stub = AsyncMock(spec=AuthStub)
 
     stub.Register = AsyncMock(
         return_value=auth_pb2.VerificationMail(
@@ -104,8 +105,8 @@ def create_auth_stub_v1() -> MagicMock:
     return stub
 
 
-def create_file_stub_v1() -> MagicMock:
-    stub = MagicMock()
+def create_file_stub_v1() -> FileStub:
+    stub = AsyncMock(spec=FileStub)
 
     stub.InitiateUpload = AsyncMock(
         return_value=file_pb2.InitiateUploadResponse(
@@ -139,6 +140,5 @@ def create_file_stub_v1() -> MagicMock:
     return stub
 
 
-def create_mail_producer() -> AsyncMock:
-    producer = AsyncMock()
-    return producer
+def create_mail_producer() -> AIOKafkaProducer:
+    return AsyncMock(spec=AIOKafkaProducer)
