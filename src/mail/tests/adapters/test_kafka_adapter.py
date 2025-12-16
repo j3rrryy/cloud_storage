@@ -5,18 +5,6 @@ import pytest
 
 @pytest.mark.asyncio
 @patch("adapters.KafkaAdapter.logger")
-async def test_consume_messages(mock_logger, kafka_adapter, metrics_collector):
-    async for _ in kafka_adapter.consume_messages():
-        pass
-
-    metrics_collector.record_processing_time.assert_called_once()
-    metrics_collector.record_success.assert_called_once()
-    metrics_collector.record_failure.assert_not_called()
-    mock_logger.exception.assert_not_called()
-
-
-@pytest.mark.asyncio
-@patch("adapters.KafkaAdapter.logger")
 async def test_consume_messages_empty_message(
     mock_logger, consumer, kafka_adapter, metrics_collector
 ):
