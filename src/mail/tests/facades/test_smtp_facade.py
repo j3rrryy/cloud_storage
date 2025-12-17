@@ -1,17 +1,22 @@
 import pytest
 
-from dto import BaseMailDTO, LoginMailDTO, ResetMailDTO, VerificationMailDTO
+from dto import (
+    BaseMailDTO,
+    EmailConfirmationMailDTO,
+    NewLoginMailDTO,
+    PasswordResetMailDTO,
+)
 
-from ..mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
+from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "dto",
     [
-        VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN),
-        LoginMailDTO(USERNAME, EMAIL, USER_IP, BROWSER),
-        ResetMailDTO(USERNAME, EMAIL, CODE),
+        EmailConfirmationMailDTO(USERNAME, EMAIL, TOKEN),
+        NewLoginMailDTO(USERNAME, EMAIL, USER_IP, BROWSER),
+        PasswordResetMailDTO(USERNAME, EMAIL, CODE),
     ],
 )
 async def test_send_mail(dto, smtp_facade, smtp):

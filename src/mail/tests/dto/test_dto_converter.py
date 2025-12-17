@@ -1,37 +1,42 @@
 import pytest
 
-from dto import LoginMailDTO, MessageToDTOConverter, ResetMailDTO, VerificationMailDTO
+from dto import (
+    EmailConfirmationMailDTO,
+    MessageToDTOConverter,
+    NewLoginMailDTO,
+    PasswordResetMailDTO,
+)
 from enums import MailTypes
 
-from ..mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
+from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
 
 
 @pytest.mark.parametrize(
     "topic, message, expected_dto_cls",
     [
         (
-            MailTypes.VERIFICATION.name,
+            MailTypes.EMAIL_CONFIRMATION.name,
             {
-                "verification_token": VERIFICATION_TOKEN,
-                "email": EMAIL,
                 "username": USERNAME,
+                "email": EMAIL,
+                "token": TOKEN,
             },
-            VerificationMailDTO,
+            EmailConfirmationMailDTO,
         ),
         (
-            MailTypes.LOGIN.name,
+            MailTypes.NEW_LOGIN.name,
             {
+                "username": USERNAME,
+                "email": EMAIL,
                 "user_ip": USER_IP,
                 "browser": BROWSER,
-                "email": EMAIL,
-                "username": USERNAME,
             },
-            LoginMailDTO,
+            NewLoginMailDTO,
         ),
         (
-            MailTypes.RESET.name,
-            {"code": CODE, "email": EMAIL, "username": USERNAME},
-            ResetMailDTO,
+            MailTypes.PASSWORD_RESET.name,
+            {"username": USERNAME, "email": EMAIL, "code": CODE},
+            PasswordResetMailDTO,
         ),
     ],
 )
@@ -46,7 +51,7 @@ def test_convert(topic, message, expected_dto_cls):
 def test_convert_unsupported_topic():
     topic = "unsupported_topic"
     message = {
-        "verification_token": VERIFICATION_TOKEN,
+        "token": TOKEN,
         "email": EMAIL,
         "username": USERNAME,
     }
@@ -56,7 +61,7 @@ def test_convert_unsupported_topic():
 
 
 def test_convert_invalid_data():
-    topic = MailTypes.VERIFICATION.name
+    topic = MailTypes.EMAIL_CONFIRMATION.name
     message = {"invalid_key": "invalid_value"}
 
     with pytest.raises(ValueError, match=f"Invalid message data for {topic}: "):

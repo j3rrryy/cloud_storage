@@ -4,7 +4,7 @@ from metrics import PrometheusMetricsCollector
 
 def test_record_success(mock_prometheus_metrics_collector):
     metrics_collector = mock_prometheus_metrics_collector
-    topic = MailTypes.VERIFICATION.name
+    topic = MailTypes.EMAIL_CONFIRMATION.name
 
     PrometheusMetricsCollector.record_success(topic)
 
@@ -15,7 +15,7 @@ def test_record_success(mock_prometheus_metrics_collector):
 
 def test_record_failure(mock_prometheus_metrics_collector):
     metrics_collector = mock_prometheus_metrics_collector
-    topic = MailTypes.VERIFICATION.name
+    topic = MailTypes.EMAIL_CONFIRMATION.name
 
     PrometheusMetricsCollector.record_failure(topic)
 

@@ -29,9 +29,9 @@ class KafkaConsumerFactory:
 
     async def _setup_kafka_consumer(self) -> None:
         self._aiokafka_consumer = AIOKafkaConsumer(
-            MailTypes.VERIFICATION.name,
-            MailTypes.LOGIN.name,
-            MailTypes.RESET.name,
+            MailTypes.EMAIL_CONFIRMATION.name,
+            MailTypes.NEW_LOGIN.name,
+            MailTypes.PASSWORD_RESET.name,
             bootstrap_servers=Settings.KAFKA_SERVICE,
             group_id=Settings.KAFKA_GROUP_ID,
             auto_offset_reset="earliest",

@@ -16,5 +16,5 @@ class ApplicationFacade(ApplicationFacadeProtocol):
         async for dto in self._kafka_facade.consume_messages():
             await self._smtp_facade.send_mail(dto)
             self.logger.info(
-                f"Sent {dto.__class__.__name__.lower().replace('maildto', '')} mail to {dto.email}"
+                f"Sent {dto.__class__.__name__.replace('MailDTO', '')} mail to {dto.email}"
             )

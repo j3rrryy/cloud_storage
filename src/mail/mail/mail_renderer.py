@@ -1,41 +1,56 @@
 from datetime import date
 from email.mime import multipart, text
 
-from dto import LoginMailDTO, ResetMailDTO, VerificationMailDTO
+from dto import EmailConfirmationMailDTO, NewLoginMailDTO, PasswordResetMailDTO
 from settings import Settings
 
 from .base_template import BASE_TEMPLATE
-from .login_template import LOGIN_CONTENT, LOGIN_FOOTER, LOGIN_HEADER
-from .reset_template import RESET_CONTENT, RESET_FOOTER, RESET_HEADER
-from .verification_template import (
-    VERIFICATION_CONTENT,
-    VERIFICATION_FOOTER,
-    VERIFICATION_HEADER,
+from .email_confirmation_template import (
+    EMAIL_CONFIRMATION_CONTENT,
+    EMAIL_CONFIRMATION_FOOTER,
+    EMAIL_CONFIRMATION_HEADER,
+)
+from .new_login_template import NEW_LOGIN_CONTENT, NEW_LOGIN_FOOTER, NEW_LOGIN_HEADER
+from .password_reset_template import (
+    PASSWORD_RESET_CONTENT,
+    PASSWORD_RESET_FOOTER,
+    PASSWORD_RESET_HEADER,
 )
 
 
 class MailRenderer:
     @classmethod
-    def verification(cls, dto: VerificationMailDTO) -> multipart.MIMEMultipart:
-        verification_url = Settings.VERIFICATION_URL + dto.verification_token
-        rendered_content = VERIFICATION_CONTENT.format(
-            username=dto.username, verification_url=verification_url
+    def email_confirmation(
+        cls, dto: EmailConfirmationMailDTO
+    ) -> multipart.MIMEMultipart:
+        confirmation_url = Settings.EMAIL_CONFIRMATION_URL + dto.token
+        rendered_content = EMAIL_CONFIRMATION_CONTENT.format(
+            username=dto.username, confirmation_url=confirmation_url
         )
         return cls._render(
-            dto.email, VERIFICATION_HEADER, rendered_content, VERIFICATION_FOOTER
+            dto.email,
+            EMAIL_CONFIRMATION_HEADER,
+            rendered_content,
+            EMAIL_CONFIRMATION_FOOTER,
         )
 
     @classmethod
-    def login(cls, dto: LoginMailDTO) -> multipart.MIMEMultipart:
-        rendered_content = LOGIN_CONTENT.format(
+    def new_login(cls, dto: NewLoginMailDTO) -> multipart.MIMEMultipart:
+        rendered_content = NEW_LOGIN_CONTENT.format(
             username=dto.username, user_ip=dto.user_ip, browser=dto.browser
         )
-        return cls._render(dto.email, LOGIN_HEADER, rendered_content, LOGIN_FOOTER)
+        return cls._render(
+            dto.email, NEW_LOGIN_HEADER, rendered_content, NEW_LOGIN_FOOTER
+        )
 
     @classmethod
-    def reset(cls, dto: ResetMailDTO) -> multipart.MIMEMultipart:
-        rendered_content = RESET_CONTENT.format(username=dto.username, code=dto.code)
-        return cls._render(dto.email, RESET_HEADER, rendered_content, RESET_FOOTER)
+    def password_reset(cls, dto: PasswordResetMailDTO) -> multipart.MIMEMultipart:
+        rendered_content = PASSWORD_RESET_CONTENT.format(
+            username=dto.username, code=dto.code
+        )
+        return cls._render(
+            dto.email, PASSWORD_RESET_HEADER, rendered_content, PASSWORD_RESET_FOOTER
+        )
 
     @staticmethod
     def _render(

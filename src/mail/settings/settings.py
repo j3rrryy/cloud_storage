@@ -9,7 +9,7 @@ class Settings:
     MAIL_HOSTNAME = os.environ["MAIL_HOSTNAME"]
     MAIL_PORT = int(os.environ["MAIL_PORT"])
     MAIL_TLS = True
-    VERIFICATION_URL = os.environ["VERIFICATION_URL"]
+    EMAIL_CONFIRMATION_URL = os.environ["EMAIL_CONFIRMATION_URL"]
 
     KAFKA_SERVICE = os.environ["KAFKA_SERVICE"]
     KAFKA_GROUP_ID = "mail"
