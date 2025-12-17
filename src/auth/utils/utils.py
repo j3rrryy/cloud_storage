@@ -42,7 +42,7 @@ class ExceptionHandler:
             return await func(*args, **kwargs)
         except Exception as exc:
             status_code, details = exc.args
-            logger.error(
+            logger.info(
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
             await context.abort(status_code, details)  # type: ignore

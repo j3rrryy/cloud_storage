@@ -4,3 +4,7 @@ class NotFoundException(Exception):
 
 class UnauthenticatedException(Exception):
     """Problems with authentication"""
+
+
+class EmailHasAlreadyBeenConfirmedException(Exception):
+    """Email has already been confirmed"""

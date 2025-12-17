@@ -6,7 +6,7 @@ from grpc import StatusCode
 from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus, TokenTypes
-from exceptions import UnauthenticatedException
+from exceptions import EmailHasAlreadyBeenConfirmedException, UnauthenticatedException
 from repository import AuthRepository
 from utils import (
     access_token_key,
@@ -118,6 +118,12 @@ class AuthService:
     ) -> response_dto.EmailConfirmationMailResponseDTO:
         user_id = await cls._cached_access_token(access_token)
         profile = await AuthRepository.profile(user_id)  # type: ignore
+
+        if profile.email_confirmed:
+            raise EmailHasAlreadyBeenConfirmedException(
+                StatusCode.ALREADY_EXISTS, "Email has already been confirmed"
+            )
+
         token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)  # type: ignore
         return response_dto.EmailConfirmationMailResponseDTO(
             token, profile.username, profile.email

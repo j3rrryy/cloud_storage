@@ -8,7 +8,7 @@ from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus
 from service import AuthService
-from utils import access_token_key
+from utils import access_token_key, get_hashed_password
 
 from .mocks import (
     ACCESS_TOKEN,
@@ -18,6 +18,7 @@ from .mocks import (
     PASSWORD,
     REFRESH_TOKEN,
     SESSION_ID,
+    TIMESTAMP,
     USER_AGENT,
     USER_ID,
     USER_IP,
@@ -161,6 +162,24 @@ async def test_resend_email_confirmation_mail(
     assert isinstance(response, response_dto.EmailConfirmationMailResponseDTO)
     mock_cached_access_token.assert_awaited_once()
     mock_repository.profile.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("service.auth_service.AuthRepository", new_callable=create_repository)
+@patch("service.auth_service.AuthService._cached_access_token")
+async def test_resend_email_confirmation_mail_already_confirmed(
+    mock_cached_access_token, mock_repository, mock_key_pair
+):
+    mock_repository.profile.return_value = response_dto.ProfileResponseDTO(
+        USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), True, TIMESTAMP
+    )
+
+    with pytest.raises(Exception) as exc_info:
+        await AuthService.resend_email_confirmation_mail(ACCESS_TOKEN)
+
+    assert exc_info.value.args[0] == StatusCode.ALREADY_EXISTS
+    assert exc_info.value.args[1] == "Email has already been confirmed"
+    mock_cached_access_token.assert_awaited_once()
 
 
 @pytest.mark.asyncio

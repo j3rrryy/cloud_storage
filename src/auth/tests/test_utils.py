@@ -35,7 +35,7 @@ async def test_exception_handler_success(mock_logger):
     res = await ExceptionHandler.handle(context, mock_func)
 
     assert res == "ok"
-    mock_logger.error.assert_not_called()
+    mock_logger.info.assert_not_called()
     context.abort.assert_not_called()
 
 
@@ -51,7 +51,7 @@ async def test_exception_handler_exception(mock_logger):
         await ExceptionHandler.handle(context, mock_func)
 
     assert exc_info.value.args == (StatusCode.UNKNOWN, "Test details")
-    mock_logger.error.assert_called_once_with(
+    mock_logger.info.assert_called_once_with(
         "Status code: UNKNOWN (2), details: Test details"
     )
     context.abort.assert_awaited_once_with(StatusCode.UNKNOWN, "Test details")

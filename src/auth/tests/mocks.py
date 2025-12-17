@@ -49,7 +49,7 @@ def create_repository() -> MagicMock:
     crud.validate_access_token = AsyncMock()
     crud.profile = AsyncMock(
         return_value=response_dto.ProfileResponseDTO(
-            USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), True, TIMESTAMP
+            USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), False, TIMESTAMP
         )
     )
     crud.update_email = AsyncMock(return_value=USERNAME)
