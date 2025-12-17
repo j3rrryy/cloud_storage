@@ -32,7 +32,7 @@ async def test_kafka_consumer_factory_initialize_exception():
         patch("factories.kafka_consumer_factory.AIOKafkaConsumer") as mock_consumer,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_consumer.side_effect = Exception("Connection failed")
+        mock_consumer.start.side_effect = Exception("Connection failed")
 
         with pytest.raises(Exception):
             await factory.initialize()
