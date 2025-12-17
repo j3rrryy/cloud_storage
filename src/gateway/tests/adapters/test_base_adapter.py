@@ -9,7 +9,7 @@ from litestar.exceptions import (
     ValidationException,
 )
 
-from adapters.base_adapter import BaseRPCAdapter
+from adapters import BaseRPCAdapter
 
 
 @pytest.mark.asyncio

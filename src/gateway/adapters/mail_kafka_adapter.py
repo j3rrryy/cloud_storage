@@ -1,11 +1,14 @@
+from aiokafka import AIOKafkaProducer
+
 from dto import mail_dto
 from enums import MailTypes
 from protocols import MailServiceProtocol
 
-from .base_adapter import BaseKafkaAdapter
 
+class MailKafkaAdapter(MailServiceProtocol):
+    def __init__(self, producer: AIOKafkaProducer):
+        self._producer = producer
 
-class MailKafkaAdapter(BaseKafkaAdapter, MailServiceProtocol):
     async def email_confirmation(
         self, email_confirmation_mail: mail_dto.EmailConfirmationMailDTO
     ) -> None:

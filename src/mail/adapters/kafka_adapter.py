@@ -1,13 +1,15 @@
 from typing import Any, AsyncGenerator
 
 import msgspec
+from aiokafka import AIOKafkaConsumer
 
 from protocols import KafkaConsumerProtocol
 
-from .base_adapter import BaseKafkaAdapter
 
+class KafkaAdapter(KafkaConsumerProtocol):
+    def __init__(self, consumer: AIOKafkaConsumer):
+        self._consumer = consumer
 
-class KafkaAdapter(BaseKafkaAdapter, KafkaConsumerProtocol):
     async def consume_messages(
         self,
     ) -> AsyncGenerator[tuple[str, dict[str, Any]], None]:

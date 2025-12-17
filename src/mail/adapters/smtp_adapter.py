@@ -2,16 +2,17 @@ import asyncio
 from email.mime import multipart
 
 import picologging as logging
-from aiosmtplib import SMTPServerDisconnected
+from aiosmtplib import SMTP, SMTPServerDisconnected
 
 from protocols import SMTPClientProtocol
 from settings import Settings
 
-from .base_adapter import BaseSMTPAdapter
 
-
-class SMTPAdapter(BaseSMTPAdapter, SMTPClientProtocol):
+class SMTPAdapter(SMTPClientProtocol):
     logger = logging.getLogger()
+
+    def __init__(self, smtp: SMTP):
+        self._smtp = smtp
 
     async def send_mail(self, mail: multipart.MIMEMultipart) -> None:
         for _ in range(Settings.RETRY_COUNT):

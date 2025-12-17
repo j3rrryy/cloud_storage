@@ -1,7 +1,6 @@
 from functools import wraps
 from typing import Awaitable, Callable, TypeVar
 
-from aiokafka import AIOKafkaProducer
 from grpc import StatusCode, aio
 from litestar.exceptions import (
     HTTPException,
@@ -52,8 +51,3 @@ class BaseRPCAdapter:
 
     def __init__(self, stub):
         self._stub = stub
-
-
-class BaseKafkaAdapter:
-    def __init__(self, producer: AIOKafkaProducer):
-        self._producer = producer
