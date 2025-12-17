@@ -28,11 +28,11 @@ class RegisterRequest(_message.Message):
         password: _Optional[str] = ...,
     ) -> None: ...
 
-class VerificationToken(_message.Message):
-    __slots__ = ("verification_token",)
-    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    verification_token: str
-    def __init__(self, verification_token: _Optional[str] = ...) -> None: ...
+class Token(_message.Message):
+    __slots__ = ("token",)
+    TOKEN_FIELD_NUMBER: _ClassVar[int]
+    token: str
+    def __init__(self, token: _Optional[str] = ...) -> None: ...
 
 class Email(_message.Message):
     __slots__ = ("email",)
@@ -126,17 +126,17 @@ class AccessToken(_message.Message):
     access_token: str
     def __init__(self, access_token: _Optional[str] = ...) -> None: ...
 
-class VerificationMail(_message.Message):
-    __slots__ = ("verification_token", "username", "email")
-    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
+class EmailConfirmationMail(_message.Message):
+    __slots__ = ("token", "username", "email")
+    TOKEN_FIELD_NUMBER: _ClassVar[int]
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
-    verification_token: str
+    token: str
     username: str
     email: str
     def __init__(
         self,
-        verification_token: _Optional[str] = ...,
+        token: _Optional[str] = ...,
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
     ) -> None: ...

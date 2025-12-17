@@ -6,6 +6,7 @@ from ..mocks import (
     ACCESS_TOKEN,
     BROWSER,
     CODE,
+    CONFIRMATION_TOKEN,
     EMAIL,
     ETAG,
     FILE_ID,
@@ -21,7 +22,6 @@ from ..mocks import (
     USER_ID,
     USER_IP,
     USERNAME,
-    VERIFICATION_TOKEN,
 )
 
 
@@ -33,8 +33,8 @@ async def test_register(application_facade):
 
 
 @pytest.mark.asyncio
-async def test_verify_email(application_facade):
-    await application_facade.verify_email(VERIFICATION_TOKEN)
+async def test_confirm_email(application_facade):
+    await application_facade.confirm_email(CONFIRMATION_TOKEN)
 
 
 @pytest.mark.asyncio
@@ -79,8 +79,8 @@ async def test_log_out(application_facade):
 
 
 @pytest.mark.asyncio
-async def test_resend_verification_mail(application_facade):
-    await application_facade.resend_verification_mail(ACCESS_TOKEN)
+async def test_resend_email_confirmation_mail(application_facade):
+    await application_facade.resend_email_confirmation_mail(ACCESS_TOKEN)
 
 
 @pytest.mark.asyncio

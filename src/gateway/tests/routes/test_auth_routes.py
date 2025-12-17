@@ -8,6 +8,7 @@ from ..mocks import (
     ACCESS_TOKEN,
     BROWSER,
     CODE,
+    CONFIRMATION_TOKEN,
     EMAIL,
     PASSWORD,
     REFRESH_TOKEN,
@@ -16,7 +17,6 @@ from ..mocks import (
     USER_ID,
     USER_IP,
     USERNAME,
-    VERIFICATION_TOKEN,
 )
 
 PREFIX = "/api/v1/auth"
@@ -36,9 +36,9 @@ async def test_register(client):
 
 
 @pytest.mark.asyncio
-async def test_verify_email(client):
+async def test_confirm_email(client):
     response = await client.get(
-        f"{PREFIX}/verify-email", params={"verification_token": VERIFICATION_TOKEN}
+        f"{PREFIX}/confirm-email", params={"token": CONFIRMATION_TOKEN}
     )
 
     assert response.status_code == HTTP_204_NO_CONTENT
@@ -115,9 +115,9 @@ async def test_log_out(client):
 
 
 @pytest.mark.asyncio
-async def test_resend_verification_mail(client):
+async def test_resend_email_confirmation_mail(client):
     response = await client.post(
-        f"{PREFIX}/resend-verification-mail",
+        f"{PREFIX}/resend-email-confirmation-mail",
         headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
     )
 

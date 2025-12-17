@@ -4,10 +4,12 @@ from dto import mail_dto
 
 
 class MailServiceProtocol(Protocol):
-    async def verification(
-        self, verification_mail: mail_dto.VerificationMailDTO
+    async def email_confirmation(
+        self, email_confirmation_mail: mail_dto.EmailConfirmationMailDTO
     ) -> None: ...
 
-    async def info(self, info_mail: mail_dto.InfoMailDTO) -> None: ...
+    async def new_login(self, new_login_mail: mail_dto.NewLoginMailDTO) -> None: ...
 
-    async def reset(self, reset_mail: mail_dto.ResetMailDTO) -> None: ...
+    async def password_reset(
+        self, password_reset_mail: mail_dto.PasswordResetMailDTO
+    ) -> None: ...

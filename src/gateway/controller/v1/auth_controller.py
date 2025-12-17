@@ -26,11 +26,11 @@ class AuthController(Controller):
         dto = auth_dto.RegistrationDTO.from_schema(data)
         await application_facade.register(dto)
 
-    @get("/verify-email", status_code=HTTP_204_NO_CONTENT)
-    async def verify_email(
-        self, verification_token: str, application_facade: ApplicationFacadeProtocol
+    @get("/confirm-email", status_code=HTTP_204_NO_CONTENT)
+    async def confirm_email(
+        self, token: str, application_facade: ApplicationFacadeProtocol
     ) -> None:
-        await application_facade.verify_email(verification_token)
+        await application_facade.confirm_email(token)
 
     @post(
         "/reset-code/request",
@@ -107,12 +107,12 @@ class AuthController(Controller):
         access_token = validate_access_token(request)
         await application_facade.log_out(access_token)
 
-    @post("/resend-verification-mail", status_code=HTTP_204_NO_CONTENT)
-    async def resend_verification_mail(
+    @post("/resend-email-confirmation-mail", status_code=HTTP_204_NO_CONTENT)
+    async def resend_email_confirmation_mail(
         self, request: Request, application_facade: ApplicationFacadeProtocol
     ) -> None:
         access_token = validate_access_token(request)
-        await application_facade.resend_verification_mail(access_token)
+        await application_facade.resend_email_confirmation_mail(access_token)
 
     @get(
         "/",
