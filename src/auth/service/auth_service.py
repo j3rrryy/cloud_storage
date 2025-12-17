@@ -34,14 +34,12 @@ class AuthService:
     ) -> str:
         data = data.replace(password=get_hashed_password(data.password))
         user_id = await AuthRepository.register(data)  # type: ignore
-        return generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
+        return generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)  # type: ignore
 
     @staticmethod
-    async def verify_email(verification_token: str) -> None:
-        user_id = validate_jwt_and_get_user_id(
-            verification_token, TokenTypes.VERIFICATION
-        )
-        await AuthRepository.verify_email(user_id)  # type: ignore
+    async def confirm_email(token: str) -> None:
+        user_id = validate_jwt_and_get_user_id(token, TokenTypes.EMAIL_CONFIRMATION)
+        await AuthRepository.confirm_email(user_id)  # type: ignore
         await cache.delete(user_profile_key(user_id))
 
     @staticmethod
@@ -115,14 +113,14 @@ class AuthService:
         await cache.delete(user_session_list_key(user_id))
 
     @classmethod
-    async def resend_verification_mail(
+    async def resend_email_confirmation_mail(
         cls, access_token: str
-    ) -> response_dto.VerificationMailResponseDTO:
+    ) -> response_dto.EmailConfirmationMailResponseDTO:
         user_id = await cls._cached_access_token(access_token)
         profile = await AuthRepository.profile(user_id)  # type: ignore
-        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
-        return response_dto.VerificationMailResponseDTO(
-            verification_token, profile.username, profile.email
+        token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)  # type: ignore
+        return response_dto.EmailConfirmationMailResponseDTO(
+            token, profile.username, profile.email
         )
 
     @classmethod
@@ -192,15 +190,15 @@ class AuthService:
     @classmethod
     async def update_email(
         cls, data: request_dto.UpdateEmailRequestDTO
-    ) -> response_dto.VerificationMailResponseDTO:
+    ) -> response_dto.EmailConfirmationMailResponseDTO:
         user_id = await cls._cached_access_token(data.access_token)
         dto = request_dto.UpdateEmailDataRequestDTO(user_id, data.new_email)
 
         username = await AuthRepository.update_email(dto)  # type: ignore
         await cache.delete(user_profile_key(user_id))
-        verification_token = generate_jwt(user_id, TokenTypes.VERIFICATION)  # type: ignore
-        return response_dto.VerificationMailResponseDTO(
-            verification_token, username, data.new_email
+        token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)  # type: ignore
+        return response_dto.EmailConfirmationMailResponseDTO(
+            token, username, data.new_email
         )
 
     @classmethod

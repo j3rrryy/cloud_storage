@@ -5,8 +5,8 @@ from .base import BaseResponseDTO
 
 
 @dataclass(slots=True, frozen=True)
-class VerificationMailResponseDTO(BaseResponseDTO):
-    verification_token: str
+class EmailConfirmationMailResponseDTO(BaseResponseDTO):
+    token: str
     username: str
     email: str
 

@@ -65,19 +65,19 @@ async def test_register_exceptions(
 
 
 @pytest.mark.asyncio
-async def test_verify_email(mock_session):
-    await AuthRepository.verify_email(USER_ID)  # type: ignore
+async def test_confirm_email(mock_session):
+    await AuthRepository.confirm_email(USER_ID)  # type: ignore
 
     mock_session.get.assert_awaited_once()
     mock_session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
-async def test_verify_email_not_user(mock_session):
+async def test_confirm_email_not_user(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.verify_email(USER_ID)  # type: ignore
+        await AuthRepository.confirm_email(USER_ID)  # type: ignore
 
     assert exc_info.value.args[0] == StatusCode.UNAUTHENTICATED
     assert exc_info.value.args[1] == "Invalid credentials"
@@ -86,11 +86,11 @@ async def test_verify_email_not_user(mock_session):
 
 
 @pytest.mark.asyncio
-async def test_verify_email_exception(mock_session):
+async def test_confirm_email_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
 
     with pytest.raises(Exception) as exc_info:
-        await AuthRepository.verify_email(USER_ID)  # type: ignore
+        await AuthRepository.confirm_email(USER_ID)  # type: ignore
 
     assert exc_info.value.args[0] == StatusCode.INTERNAL
     assert exc_info.value.args[1] == "Internal database error, Details"

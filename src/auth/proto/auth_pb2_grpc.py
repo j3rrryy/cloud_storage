@@ -43,12 +43,12 @@ class AuthStub(object):
         self.Register = channel.unary_unary(
             "/auth.Auth/Register",
             request_serializer=auth__pb2.RegisterRequest.SerializeToString,
-            response_deserializer=auth__pb2.VerificationToken.FromString,
+            response_deserializer=auth__pb2.Token.FromString,
             _registered_method=True,
         )
-        self.VerifyEmail = channel.unary_unary(
-            "/auth.Auth/VerifyEmail",
-            request_serializer=auth__pb2.VerificationToken.SerializeToString,
+        self.ConfirmEmail = channel.unary_unary(
+            "/auth.Auth/ConfirmEmail",
+            request_serializer=auth__pb2.Token.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
@@ -82,10 +82,10 @@ class AuthStub(object):
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
-        self.ResendVerificationMail = channel.unary_unary(
-            "/auth.Auth/ResendVerificationMail",
+        self.ResendEmailConfirmationMail = channel.unary_unary(
+            "/auth.Auth/ResendEmailConfirmationMail",
             request_serializer=auth__pb2.AccessToken.SerializeToString,
-            response_deserializer=auth__pb2.VerificationMail.FromString,
+            response_deserializer=auth__pb2.EmailConfirmationMail.FromString,
             _registered_method=True,
         )
         self.Auth = channel.unary_unary(
@@ -121,7 +121,7 @@ class AuthStub(object):
         self.UpdateEmail = channel.unary_unary(
             "/auth.Auth/UpdateEmail",
             request_serializer=auth__pb2.UpdateEmailRequest.SerializeToString,
-            response_deserializer=auth__pb2.VerificationMail.FromString,
+            response_deserializer=auth__pb2.EmailConfirmationMail.FromString,
             _registered_method=True,
         )
         self.UpdatePassword = channel.unary_unary(
@@ -147,7 +147,7 @@ class AuthServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def VerifyEmail(self, request, context):
+    def ConfirmEmail(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -183,7 +183,7 @@ class AuthServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def ResendVerificationMail(self, request, context):
+    def ResendEmailConfirmationMail(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -243,11 +243,11 @@ def add_AuthServicer_to_server(servicer, server):
         "Register": grpc.unary_unary_rpc_method_handler(
             servicer.Register,
             request_deserializer=auth__pb2.RegisterRequest.FromString,
-            response_serializer=auth__pb2.VerificationToken.SerializeToString,
+            response_serializer=auth__pb2.Token.SerializeToString,
         ),
-        "VerifyEmail": grpc.unary_unary_rpc_method_handler(
-            servicer.VerifyEmail,
-            request_deserializer=auth__pb2.VerificationToken.FromString,
+        "ConfirmEmail": grpc.unary_unary_rpc_method_handler(
+            servicer.ConfirmEmail,
+            request_deserializer=auth__pb2.Token.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
         "RequestResetCode": grpc.unary_unary_rpc_method_handler(
@@ -275,10 +275,10 @@ def add_AuthServicer_to_server(servicer, server):
             request_deserializer=auth__pb2.AccessToken.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
-        "ResendVerificationMail": grpc.unary_unary_rpc_method_handler(
-            servicer.ResendVerificationMail,
+        "ResendEmailConfirmationMail": grpc.unary_unary_rpc_method_handler(
+            servicer.ResendEmailConfirmationMail,
             request_deserializer=auth__pb2.AccessToken.FromString,
-            response_serializer=auth__pb2.VerificationMail.SerializeToString,
+            response_serializer=auth__pb2.EmailConfirmationMail.SerializeToString,
         ),
         "Auth": grpc.unary_unary_rpc_method_handler(
             servicer.Auth,
@@ -308,7 +308,7 @@ def add_AuthServicer_to_server(servicer, server):
         "UpdateEmail": grpc.unary_unary_rpc_method_handler(
             servicer.UpdateEmail,
             request_deserializer=auth__pb2.UpdateEmailRequest.FromString,
-            response_serializer=auth__pb2.VerificationMail.SerializeToString,
+            response_serializer=auth__pb2.EmailConfirmationMail.SerializeToString,
         ),
         "UpdatePassword": grpc.unary_unary_rpc_method_handler(
             servicer.UpdatePassword,
@@ -350,7 +350,7 @@ class Auth(object):
             target,
             "/auth.Auth/Register",
             auth__pb2.RegisterRequest.SerializeToString,
-            auth__pb2.VerificationToken.FromString,
+            auth__pb2.Token.FromString,
             options,
             channel_credentials,
             insecure,
@@ -363,7 +363,7 @@ class Auth(object):
         )
 
     @staticmethod
-    def VerifyEmail(
+    def ConfirmEmail(
         request,
         target,
         options=(),
@@ -378,8 +378,8 @@ class Auth(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/auth.Auth/VerifyEmail",
-            auth__pb2.VerificationToken.SerializeToString,
+            "/auth.Auth/ConfirmEmail",
+            auth__pb2.Token.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -543,7 +543,7 @@ class Auth(object):
         )
 
     @staticmethod
-    def ResendVerificationMail(
+    def ResendEmailConfirmationMail(
         request,
         target,
         options=(),
@@ -558,9 +558,9 @@ class Auth(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/auth.Auth/ResendVerificationMail",
+            "/auth.Auth/ResendEmailConfirmationMail",
             auth__pb2.AccessToken.SerializeToString,
-            auth__pb2.VerificationMail.FromString,
+            auth__pb2.EmailConfirmationMail.FromString,
             options,
             channel_credentials,
             insecure,
@@ -740,7 +740,7 @@ class Auth(object):
             target,
             "/auth.Auth/UpdateEmail",
             auth__pb2.UpdateEmailRequest.SerializeToString,
-            auth__pb2.VerificationMail.FromString,
+            auth__pb2.EmailConfirmationMail.FromString,
             options,
             channel_credentials,
             insecure,

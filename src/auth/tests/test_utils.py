@@ -73,7 +73,7 @@ def test_generate_reset_code():
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_generate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
@@ -91,12 +91,12 @@ def test_generate_jwt(token_type, mock_key_pair):
             assert exp <= datetime.now() + timedelta(minutes=15)
         case TokenTypes.REFRESH:
             assert exp <= datetime.now() + timedelta(days=30)
-        case TokenTypes.VERIFICATION:
+        case TokenTypes.EMAIL_CONFIRMATION:
             assert exp <= datetime.now() + timedelta(days=3)
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
@@ -114,7 +114,7 @@ def test_validate_broken_jwt(mock_key_pair):
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
@@ -145,9 +145,9 @@ def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
         ({"exp": datetime.now()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
         (
             {"exp": datetime.now()},
-            TokenTypes.VERIFICATION,
-            TokenTypes.VERIFICATION,
-            "Resend the verification mail",
+            TokenTypes.EMAIL_CONFIRMATION,
+            TokenTypes.EMAIL_CONFIRMATION,
+            "Resend the email confirmation mail",
         ),
     ],
 )
