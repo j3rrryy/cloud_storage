@@ -2,7 +2,6 @@ from aiokafka import AIOKafkaConsumer
 
 from adapters import KafkaAdapter
 from enums import MailTypes
-from metrics import PrometheusMetricsCollector
 from protocols import KafkaConsumerProtocol
 from settings import Settings
 
@@ -37,9 +36,7 @@ class KafkaConsumerFactory:
             auto_offset_reset="earliest",
         )
         await self._aiokafka_consumer.start()
-        self._kafka_consumer = KafkaAdapter(
-            self._aiokafka_consumer, PrometheusMetricsCollector
-        )
+        self._kafka_consumer = KafkaAdapter(self._aiokafka_consumer)
 
     def get_kafka_consumer(self) -> KafkaConsumerProtocol:
         if not self._kafka_consumer:
