@@ -19,7 +19,6 @@ async def test_send_mail_server_disconnected_reconnect(smtp_adapter, smtp):
 
     assert smtp.send_message.await_count == 2
     logger.warning.assert_called_once_with("Reconnecting to SMTP server...")
-    smtp.quit.assert_awaited_once()
     smtp.connect.assert_awaited_once()
 
 

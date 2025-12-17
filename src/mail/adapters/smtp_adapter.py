@@ -25,5 +25,4 @@ class SMTPAdapter(BaseSMTPAdapter, SMTPClientProtocol):
     async def _reconnect(self) -> None:
         await asyncio.sleep(Settings.RECONNECT_DELAY)
         self.logger.warning("Reconnecting to SMTP server...")
-        await self._smtp.quit()
         await self._smtp.connect()
