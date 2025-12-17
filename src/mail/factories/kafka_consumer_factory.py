@@ -30,7 +30,7 @@ class KafkaConsumerFactory:
     async def _setup_kafka_consumer(self) -> None:
         self._aiokafka_consumer = AIOKafkaConsumer(
             MailTypes.VERIFICATION.name,
-            MailTypes.INFO.name,
+            MailTypes.LOGIN.name,
             MailTypes.RESET.name,
             bootstrap_servers=Settings.KAFKA_SERVICE,
             group_id=Settings.KAFKA_GROUP_ID,

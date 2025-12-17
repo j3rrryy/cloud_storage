@@ -1,12 +1,12 @@
 from dto import BaseMailDTO
 from protocols import MailStrategyProtocol, SMTPClientProtocol, SMTPFacadeProtocol
-from strategies import InfoMailStrategy, ResetMailStrategy, VerificationMailStrategy
+from strategies import LoginMailStrategy, ResetMailStrategy, VerificationMailStrategy
 
 
 class SMTPFacade(SMTPFacadeProtocol):
     _strategies: list[MailStrategyProtocol] = [
         VerificationMailStrategy,
-        InfoMailStrategy,
+        LoginMailStrategy,
         ResetMailStrategy,
     ]
 

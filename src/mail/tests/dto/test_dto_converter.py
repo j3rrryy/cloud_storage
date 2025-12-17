@@ -1,6 +1,6 @@
 import pytest
 
-from dto import InfoMailDTO, MessageToDTOConverter, ResetMailDTO, VerificationMailDTO
+from dto import LoginMailDTO, MessageToDTOConverter, ResetMailDTO, VerificationMailDTO
 from enums import MailTypes
 
 from ..mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
@@ -19,14 +19,14 @@ from ..mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
             VerificationMailDTO,
         ),
         (
-            MailTypes.INFO.name,
+            MailTypes.LOGIN.name,
             {
                 "user_ip": USER_IP,
                 "browser": BROWSER,
                 "email": EMAIL,
                 "username": USERNAME,
             },
-            InfoMailDTO,
+            LoginMailDTO,
         ),
         (
             MailTypes.RESET.name,

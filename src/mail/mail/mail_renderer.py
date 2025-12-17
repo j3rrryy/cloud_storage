@@ -1,11 +1,11 @@
 from datetime import date
 from email.mime import multipart, text
 
-from dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
+from dto import LoginMailDTO, ResetMailDTO, VerificationMailDTO
 from settings import Settings
 
 from .base_template import BASE_TEMPLATE
-from .info_template import INFO_CONTENT, INFO_FOOTER, INFO_HEADER
+from .login_template import LOGIN_CONTENT, LOGIN_FOOTER, LOGIN_HEADER
 from .reset_template import RESET_CONTENT, RESET_FOOTER, RESET_HEADER
 from .verification_template import (
     VERIFICATION_CONTENT,
@@ -26,11 +26,11 @@ class MailRenderer:
         )
 
     @classmethod
-    def info(cls, dto: InfoMailDTO) -> multipart.MIMEMultipart:
-        rendered_content = INFO_CONTENT.format(
+    def login(cls, dto: LoginMailDTO) -> multipart.MIMEMultipart:
+        rendered_content = LOGIN_CONTENT.format(
             username=dto.username, user_ip=dto.user_ip, browser=dto.browser
         )
-        return cls._render(dto.email, INFO_HEADER, rendered_content, INFO_FOOTER)
+        return cls._render(dto.email, LOGIN_HEADER, rendered_content, LOGIN_FOOTER)
 
     @classmethod
     def reset(cls, dto: ResetMailDTO) -> multipart.MIMEMultipart:

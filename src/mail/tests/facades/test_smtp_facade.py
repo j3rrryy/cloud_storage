@@ -1,6 +1,6 @@
 import pytest
 
-from dto import BaseMailDTO, InfoMailDTO, ResetMailDTO, VerificationMailDTO
+from dto import BaseMailDTO, LoginMailDTO, ResetMailDTO, VerificationMailDTO
 
 from ..mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
 
@@ -10,7 +10,7 @@ from ..mocks import BROWSER, CODE, EMAIL, USER_IP, USERNAME, VERIFICATION_TOKEN
     "dto",
     [
         VerificationMailDTO(USERNAME, EMAIL, VERIFICATION_TOKEN),
-        InfoMailDTO(USERNAME, EMAIL, USER_IP, BROWSER),
+        LoginMailDTO(USERNAME, EMAIL, USER_IP, BROWSER),
         ResetMailDTO(USERNAME, EMAIL, CODE),
     ],
 )

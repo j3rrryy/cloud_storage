@@ -3,13 +3,13 @@ from typing import Any
 from enums import MailTypes
 
 from .base_dto import BaseMailDTO
-from .dto import InfoMailDTO, ResetMailDTO, VerificationMailDTO
+from .dto import LoginMailDTO, ResetMailDTO, VerificationMailDTO
 
 
 class MessageToDTOConverter:
     _dto_classes: dict[MailTypes, type[BaseMailDTO]] = {
         MailTypes.VERIFICATION: VerificationMailDTO,
-        MailTypes.INFO: InfoMailDTO,
+        MailTypes.LOGIN: LoginMailDTO,
         MailTypes.RESET: ResetMailDTO,
     }
 

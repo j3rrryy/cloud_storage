@@ -9,7 +9,7 @@ class VerificationMailDTO(BaseMailDTO):
 
 
 @dataclass(slots=True, frozen=True)
-class InfoMailDTO(BaseMailDTO):
+class LoginMailDTO(BaseMailDTO):
     user_ip: str
     browser: str
 

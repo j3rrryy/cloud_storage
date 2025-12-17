@@ -1,5 +1,5 @@
 from .base_template import BASE_TEMPLATE
-from .info_template import INFO_CONTENT, INFO_FOOTER, INFO_HEADER
+from .login_template import LOGIN_CONTENT, LOGIN_FOOTER, LOGIN_HEADER
 from .mail_renderer import MailRenderer
 from .reset_template import RESET_CONTENT, RESET_FOOTER, RESET_HEADER
 from .verification_template import (
@@ -10,9 +10,9 @@ from .verification_template import (
 
 __all__ = [
     "BASE_TEMPLATE",
-    "INFO_CONTENT",
-    "INFO_FOOTER",
-    "INFO_HEADER",
+    "LOGIN_CONTENT",
+    "LOGIN_FOOTER",
+    "LOGIN_HEADER",
     "MailRenderer",
     "RESET_CONTENT",
     "RESET_FOOTER",
