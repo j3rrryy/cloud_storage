@@ -101,7 +101,7 @@ class AuthService:
         await AuthRepository.log_in(dto)  # type: ignore
         await cache.delete(user_session_list_key(profile.user_id))
         return response_dto.LogInResponseDTO(
-            access_token, refresh_token, profile.email, browser, profile.verified
+            access_token, refresh_token, profile.email, browser, profile.email_confirmed
         )
 
     @classmethod

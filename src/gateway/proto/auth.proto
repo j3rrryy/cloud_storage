@@ -70,7 +70,7 @@ message LogInResponse {
   string refresh_token = 2;
   string email = 3;
   string browser = 4;
-  bool verified = 5;
+  bool email_confirmed = 5;
 }
 
 message AccessToken {
@@ -118,7 +118,7 @@ message ProfileResponse {
   string user_id = 1;
   string username = 2;
   string email = 3;
-  bool verified = 4;
+  bool email_confirmed = 4;
   google.protobuf.Timestamp registered_at = 5;
 }
 

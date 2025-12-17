@@ -77,7 +77,7 @@ class Profile(Struct):
     email: Annotated[
         str, Meta(pattern=EMAIL_REGEX, max_length=255, examples=EMAIL_EXAMPLES)
     ]
-    verified: bool
+    email_confirmed: bool
     registered_at: datetime.datetime
 
 

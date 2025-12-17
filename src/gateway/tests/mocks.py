@@ -58,7 +58,7 @@ def create_auth_stub_v1() -> AuthStub:
             refresh_token=REFRESH_TOKEN,
             email=EMAIL,
             browser=BROWSER,
-            verified=True,
+            email_confirmed=True,
         )
     )
     stub.LogOut = AsyncMock(return_value=Empty())
@@ -91,7 +91,7 @@ def create_auth_stub_v1() -> AuthStub:
             user_id=USER_ID,
             username=USERNAME,
             email=EMAIL,
-            verified=True,
+            email_confirmed=True,
             registered_at=TIMESTAMP_MOCK,
         )
     )

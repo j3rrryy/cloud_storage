@@ -202,7 +202,7 @@ async def test_profile(client):
         "username": USERNAME,
         "email": EMAIL,
         "registered_at": TIMESTAMP.isoformat(),
-        "verified": True,
+        "email_confirmed": True,
     }
 
 

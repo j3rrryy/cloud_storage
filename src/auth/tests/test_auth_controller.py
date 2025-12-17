@@ -123,7 +123,7 @@ async def test_log_in(auth_controller):
             refresh_token=ACCESS_TOKEN,
             email=EMAIL,
             browser=BROWSER,
-            verified=True,
+            email_confirmed=True,
         )
 
 
@@ -255,7 +255,7 @@ async def test_profile(auth_controller):
             user_id=USER_ID,
             username=USERNAME,
             email=EMAIL,
-            verified=True,
+            email_confirmed=True,
             registered_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
         )
 

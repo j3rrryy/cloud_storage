@@ -46,7 +46,7 @@ def user() -> User:
         username=USERNAME,
         email=EMAIL,
         password=get_hashed_password(PASSWORD),
-        verified=True,
+        email_confirmed=True,
     )
 
 

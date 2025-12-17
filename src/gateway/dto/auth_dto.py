@@ -44,7 +44,7 @@ class LogInDataDTO(FromResponseMixin, ToSchemaMixin):
     refresh_token: str
     email: str
     browser: str
-    verified: bool = False
+    email_confirmed: bool = False
 
 
 @dataclass(slots=True, frozen=True)
@@ -80,7 +80,7 @@ class ProfileDTO(FromResponseMixin, ToSchemaMixin):
     username: str
     email: str
     registered_at: datetime.datetime
-    verified: bool = False
+    email_confirmed: bool = False
 
 
 @dataclass(slots=True, frozen=True)

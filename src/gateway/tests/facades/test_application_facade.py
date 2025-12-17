@@ -70,7 +70,7 @@ async def test_log_in(application_facade):
     assert response.refresh_token == REFRESH_TOKEN
     assert response.email == EMAIL
     assert response.browser == BROWSER
-    assert response.verified
+    assert response.email_confirmed
 
 
 @pytest.mark.asyncio
@@ -124,7 +124,7 @@ async def test_profile(application_facade):
     assert response.user_id == USER_ID
     assert response.username == USERNAME
     assert response.email == EMAIL
-    assert response.verified
+    assert response.email_confirmed
     assert response.registered_at == TIMESTAMP
 
 

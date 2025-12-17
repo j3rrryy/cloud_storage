@@ -32,7 +32,7 @@ class AuthFacade(AuthFacadeProtocol):
 
     async def log_in(self, data: auth_dto.LogInDTO) -> auth_dto.LogInDataDTO:
         login_data = await self._auth_service.log_in(data)
-        if login_data.verified:
+        if login_data.email_confirmed:
             new_login_mail = mail_dto.NewLoginMailDTO(
                 data.username, login_data.email, data.user_ip, login_data.browser
             )
