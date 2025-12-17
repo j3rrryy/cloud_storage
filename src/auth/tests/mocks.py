@@ -6,7 +6,7 @@ from utils import get_hashed_password
 
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
 REFRESH_TOKEN = "eyJ0eXBlIjoxLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.Cz6F9m9TJP76hzcyst0xE9vp6RmXtGIhAXaNqJWrJL8"
-VERIFICATION_TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
+CONFIRMATION_TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
 CODE = "123456"
 
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
@@ -27,7 +27,7 @@ def create_repository() -> MagicMock:
     crud = MagicMock()
 
     crud.register = AsyncMock(return_value=USER_ID)
-    crud.verify_email = AsyncMock()
+    crud.confirm_email = AsyncMock()
     crud.reset_password = AsyncMock()
     crud.log_in = AsyncMock()
     crud.log_out = AsyncMock()
@@ -49,7 +49,7 @@ def create_repository() -> MagicMock:
     crud.validate_access_token = AsyncMock()
     crud.profile = AsyncMock(
         return_value=response_dto.ProfileResponseDTO(
-            USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), True, TIMESTAMP
+            USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), False, TIMESTAMP
         )
     )
     crud.update_email = AsyncMock(return_value=USERNAME)

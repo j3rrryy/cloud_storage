@@ -35,7 +35,7 @@ async def test_exception_handler_success(mock_logger):
     res = await ExceptionHandler.handle(context, mock_func)
 
     assert res == "ok"
-    mock_logger.error.assert_not_called()
+    mock_logger.info.assert_not_called()
     context.abort.assert_not_called()
 
 
@@ -51,7 +51,7 @@ async def test_exception_handler_exception(mock_logger):
         await ExceptionHandler.handle(context, mock_func)
 
     assert exc_info.value.args == (StatusCode.UNKNOWN, "Test details")
-    mock_logger.error.assert_called_once_with(
+    mock_logger.info.assert_called_once_with(
         "Status code: UNKNOWN (2), details: Test details"
     )
     context.abort.assert_awaited_once_with(StatusCode.UNKNOWN, "Test details")
@@ -73,7 +73,7 @@ def test_generate_reset_code():
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_generate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
@@ -91,12 +91,12 @@ def test_generate_jwt(token_type, mock_key_pair):
             assert exp <= datetime.now() + timedelta(minutes=15)
         case TokenTypes.REFRESH:
             assert exp <= datetime.now() + timedelta(days=30)
-        case TokenTypes.VERIFICATION:
+        case TokenTypes.EMAIL_CONFIRMATION:
             assert exp <= datetime.now() + timedelta(days=3)
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
@@ -114,7 +114,7 @@ def test_validate_broken_jwt(mock_key_pair):
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.VERIFICATION]
+    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
     token = generate_jwt(USER_ID, token_type)  # type: ignore
@@ -145,9 +145,9 @@ def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
         ({"exp": datetime.now()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
         (
             {"exp": datetime.now()},
-            TokenTypes.VERIFICATION,
-            TokenTypes.VERIFICATION,
-            "Resend the verification mail",
+            TokenTypes.EMAIL_CONFIRMATION,
+            TokenTypes.EMAIL_CONFIRMATION,
+            "Resend the email confirmation mail",
         ),
     ],
 )

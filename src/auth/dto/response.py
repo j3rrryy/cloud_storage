@@ -5,8 +5,8 @@ from .base import BaseResponseDTO
 
 
 @dataclass(slots=True, frozen=True)
-class VerificationMailResponseDTO(BaseResponseDTO):
-    verification_token: str
+class EmailConfirmationMailResponseDTO(BaseResponseDTO):
+    token: str
     username: str
     email: str
 
@@ -24,7 +24,7 @@ class LogInResponseDTO(BaseResponseDTO):
     refresh_token: str
     email: str
     browser: str
-    verified: bool
+    email_confirmed: bool
 
 
 @dataclass(slots=True, frozen=True)
@@ -50,5 +50,5 @@ class ProfileResponseDTO(BaseResponseDTO):
     username: str
     email: str
     password: str
-    verified: bool
+    email_confirmed: bool
     registered_at: datetime.datetime

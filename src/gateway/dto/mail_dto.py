@@ -1,25 +1,19 @@
 from dataclasses import dataclass
 
-from .base_dto import FromResponseMixin, ToMsgpackMixin
+from .base_dto import BaseMailDTO, FromResponseMixin, ToMsgpackMixin
 
 
 @dataclass(slots=True, frozen=True)
-class VerificationMailDTO(FromResponseMixin, ToMsgpackMixin):
-    verification_token: str
-    username: str
-    email: str
+class EmailConfirmationMailDTO(BaseMailDTO, FromResponseMixin, ToMsgpackMixin):
+    token: str
 
 
 @dataclass(slots=True, frozen=True)
-class InfoMailDTO(ToMsgpackMixin):
-    username: str
-    email: str
+class NewLoginMailDTO(BaseMailDTO, ToMsgpackMixin):
     user_ip: str
     browser: str
 
 
 @dataclass(slots=True, frozen=True)
-class ResetMailDTO(ToMsgpackMixin):
+class PasswordResetMailDTO(BaseMailDTO, ToMsgpackMixin):
     code: str
-    username: str
-    email: str

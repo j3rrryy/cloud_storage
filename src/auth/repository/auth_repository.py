@@ -33,9 +33,9 @@ class AuthRepository:
 
     @classmethod
     @with_transaction
-    async def verify_email(cls, user_id: str, session: AsyncSession) -> None:
+    async def confirm_email(cls, user_id: str, session: AsyncSession) -> None:
         user = await cls._get_user(user_id, session)
-        user.verified = True
+        user.email_confirmed = True
         await session.commit()
 
     @classmethod
@@ -195,7 +195,7 @@ class AuthRepository:
     ) -> str:
         user = await cls._get_user(data.user_id, session)
         user.email = data.new_email
-        user.verified = False
+        user.email_confirmed = False
 
         try:
             await session.commit()

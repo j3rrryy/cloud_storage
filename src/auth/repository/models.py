@@ -17,7 +17,9 @@ class User(Base):
     username: Mapped[str] = mapped_column(sa.String(20), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(sa.CHAR(60), nullable=False)
-    verified: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
+    email_confirmed: Mapped[bool] = mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
     registered_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, nullable=False, default=utc_now_naive
     )

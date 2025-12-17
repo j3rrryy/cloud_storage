@@ -12,7 +12,7 @@ TIMESTAMP_MOCK = Timestamp(seconds=123)
 
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
 REFRESH_TOKEN = "eyJ0eXBlIjoxLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.Cz6F9m9TJP76hzcyst0xE9vp6RmXtGIhAXaNqJWrJL8"
-VERIFICATION_TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
+CONFIRMATION_TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
 CODE = "123456"
 
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
@@ -40,11 +40,11 @@ def create_auth_stub_v1() -> AuthStub:
     stub = AsyncMock(spec=AuthStub)
 
     stub.Register = AsyncMock(
-        return_value=auth_pb2.VerificationMail(
-            verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
+        return_value=auth_pb2.EmailConfirmationMail(
+            token=CONFIRMATION_TOKEN, username=USERNAME, email=EMAIL
         )
     )
-    stub.VerifyEmail = AsyncMock(return_value=Empty())
+    stub.ConfirmEmail = AsyncMock(return_value=Empty())
     stub.RequestResetCode = AsyncMock(
         return_value=auth_pb2.ResetCodeResponse(
             user_id=USER_ID, username=USERNAME, code=CODE
@@ -58,13 +58,13 @@ def create_auth_stub_v1() -> AuthStub:
             refresh_token=REFRESH_TOKEN,
             email=EMAIL,
             browser=BROWSER,
-            verified=True,
+            email_confirmed=True,
         )
     )
     stub.LogOut = AsyncMock(return_value=Empty())
-    stub.ResendVerificationMail = AsyncMock(
-        return_value=auth_pb2.VerificationMail(
-            verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
+    stub.ResendEmailConfirmationMail = AsyncMock(
+        return_value=auth_pb2.EmailConfirmationMail(
+            token=CONFIRMATION_TOKEN, username=USERNAME, email=EMAIL
         )
     )
     stub.Auth = AsyncMock(return_value=auth_pb2.UserId(user_id=USER_ID))
@@ -91,13 +91,13 @@ def create_auth_stub_v1() -> AuthStub:
             user_id=USER_ID,
             username=USERNAME,
             email=EMAIL,
-            verified=True,
+            email_confirmed=True,
             registered_at=TIMESTAMP_MOCK,
         )
     )
     stub.UpdateEmail = AsyncMock(
-        return_value=auth_pb2.VerificationMail(
-            verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
+        return_value=auth_pb2.EmailConfirmationMail(
+            token=CONFIRMATION_TOKEN, username=USERNAME, email=EMAIL
         )
     )
     stub.UpdatePassword = AsyncMock(return_value=Empty())

@@ -1,1 +1,3 @@
-from .logging_config import *  # noqa: F403
+from .logging_config import setup_logging
+
+__all__ = ["setup_logging"]

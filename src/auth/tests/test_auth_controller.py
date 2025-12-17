@@ -11,6 +11,7 @@ from .mocks import (
     ACCESS_TOKEN,
     BROWSER,
     CODE,
+    CONFIRMATION_TOKEN,
     EMAIL,
     PASSWORD,
     REFRESH_TOKEN,
@@ -20,7 +21,6 @@ from .mocks import (
     USER_ID,
     USER_IP,
     USERNAME,
-    VERIFICATION_TOKEN,
     create_cache,
     create_repository,
 )
@@ -32,24 +32,24 @@ async def test_register(auth_controller):
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.generate_jwt") as mock_generator,
     ):
-        mock_generator.return_value = VERIFICATION_TOKEN
+        mock_generator.return_value = CONFIRMATION_TOKEN
         request = pb2.RegisterRequest(username=USERNAME, email=EMAIL, password=PASSWORD)
 
         response = await auth_controller.Register(request, MagicMock(ServicerContext))
 
-        assert response == pb2.VerificationToken(verification_token=VERIFICATION_TOKEN)
+        assert response == pb2.Token(token=CONFIRMATION_TOKEN)
 
 
 @pytest.mark.asyncio
-async def test_verify_email(auth_controller):
+async def test_confirm_email(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
         patch("service.auth_service.validate_jwt_and_get_user_id"),
     ):
-        request = pb2.VerificationToken(verification_token=VERIFICATION_TOKEN)
+        request = pb2.Token(token=CONFIRMATION_TOKEN)
 
-        response = await auth_controller.VerifyEmail(
+        response = await auth_controller.ConfirmEmail(
             request, MagicMock(ServicerContext)
         )
 
@@ -123,7 +123,7 @@ async def test_log_in(auth_controller):
             refresh_token=ACCESS_TOKEN,
             email=EMAIL,
             browser=BROWSER,
-            verified=True,
+            email_confirmed=False,
         )
 
 
@@ -142,21 +142,21 @@ async def test_log_out(auth_controller):
 
 
 @pytest.mark.asyncio
-async def test_resend_verification_mail(auth_controller):
+async def test_resend_email_confirmation_mail(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.AuthService._cached_access_token"),
         patch("service.auth_service.generate_jwt") as mock_generator,
     ):
-        mock_generator.return_value = VERIFICATION_TOKEN
+        mock_generator.return_value = CONFIRMATION_TOKEN
         request = pb2.AccessToken(access_token=ACCESS_TOKEN)
 
-        response = await auth_controller.ResendVerificationMail(
+        response = await auth_controller.ResendEmailConfirmationMail(
             request, MagicMock(ServicerContext)
         )
 
-        assert response == pb2.VerificationMail(
-            verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
+        assert response == pb2.EmailConfirmationMail(
+            token=CONFIRMATION_TOKEN, username=USERNAME, email=EMAIL
         )
 
 
@@ -255,7 +255,7 @@ async def test_profile(auth_controller):
             user_id=USER_ID,
             username=USERNAME,
             email=EMAIL,
-            verified=True,
+            email_confirmed=False,
             registered_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
         )
 
@@ -268,15 +268,15 @@ async def test_update_email(auth_controller):
         patch("service.auth_service.AuthService._cached_access_token"),
         patch("service.auth_service.generate_jwt") as mock_generator,
     ):
-        mock_generator.return_value = VERIFICATION_TOKEN
+        mock_generator.return_value = CONFIRMATION_TOKEN
         request = pb2.UpdateEmailRequest(access_token=ACCESS_TOKEN, new_email=EMAIL)
 
         response = await auth_controller.UpdateEmail(
             request, MagicMock(ServicerContext)
         )
 
-        assert response == pb2.VerificationMail(
-            verification_token=VERIFICATION_TOKEN, username=USERNAME, email=EMAIL
+        assert response == pb2.EmailConfirmationMail(
+            token=CONFIRMATION_TOKEN, username=USERNAME, email=EMAIL
         )
 
 

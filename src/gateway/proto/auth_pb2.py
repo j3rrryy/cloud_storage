@@ -23,7 +23,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\nauth.proto\x12\x04\x61uth\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto"D\n\x0fRegisterRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x10\n\x08password\x18\x03 \x01(\t"/\n\x11VerificationToken\x12\x1a\n\x12verification_token\x18\x01 \x01(\t"\x16\n\x05\x45mail\x12\r\n\x05\x65mail\x18\x01 \x01(\t"D\n\x11ResetCodeResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04\x63ode\x18\x03 \x01(\t"1\n\x10ResetCodeRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t"\x1f\n\x0b\x43odeIsValid\x12\x10\n\x08is_valid\x18\x01 \x01(\x08"=\n\x14ResetPasswordRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x14\n\x0cnew_password\x18\x02 \x01(\t"W\n\x0cLogInRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x0f\n\x07user_ip\x18\x03 \x01(\t\x12\x12\n\nuser_agent\x18\x04 \x01(\t"n\n\rLogInResponse\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x0f\n\x07\x62rowser\x18\x04 \x01(\t\x12\x10\n\x08verified\x18\x05 \x01(\x08"#\n\x0b\x41\x63\x63\x65ssToken\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t"O\n\x10VerificationMail\x12\x1a\n\x12verification_token\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t"\x19\n\x06UserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t"L\n\x0eRefreshRequest\x12\x15\n\rrefresh_token\x18\x01 \x01(\t\x12\x0f\n\x07user_ip\x18\x02 \x01(\t\x12\x12\n\nuser_agent\x18\x03 \x01(\t"5\n\x06Tokens\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t"/\n\x08Sessions\x12#\n\x08sessions\x18\x01 \x03(\x0b\x32\x11.auth.SessionInfo"s\n\x0bSessionInfo\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x0f\n\x07user_ip\x18\x02 \x01(\t\x12\x0f\n\x07\x62rowser\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"@\n\x14RevokeSessionRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x12\n\nsession_id\x18\x02 \x01(\t"\x88\x01\n\x0fProfileResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x10\n\x08verified\x18\x04 \x01(\x08\x12\x31\n\rregistered_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"=\n\x12UpdateEmailRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x11\n\tnew_email\x18\x02 \x01(\t"Y\n\x15UpdatePasswordRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x14\n\x0cold_password\x18\x02 \x01(\t\x12\x14\n\x0cnew_password\x18\x03 \x01(\t2\xab\x07\n\x04\x41uth\x12:\n\x08Register\x12\x15.auth.RegisterRequest\x1a\x17.auth.VerificationToken\x12>\n\x0bVerifyEmail\x12\x17.auth.VerificationToken\x1a\x16.google.protobuf.Empty\x12\x38\n\x10RequestResetCode\x12\x0b.auth.Email\x1a\x17.auth.ResetCodeResponse\x12>\n\x11ValidateResetCode\x12\x16.auth.ResetCodeRequest\x1a\x11.auth.CodeIsValid\x12\x43\n\rResetPassword\x12\x1a.auth.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\x12\x30\n\x05LogIn\x12\x12.auth.LogInRequest\x1a\x13.auth.LogInResponse\x12\x33\n\x06LogOut\x12\x11.auth.AccessToken\x1a\x16.google.protobuf.Empty\x12\x43\n\x16ResendVerificationMail\x12\x11.auth.AccessToken\x1a\x16.auth.VerificationMail\x12\'\n\x04\x41uth\x12\x11.auth.AccessToken\x1a\x0c.auth.UserId\x12-\n\x07Refresh\x12\x14.auth.RefreshRequest\x1a\x0c.auth.Tokens\x12\x30\n\x0bSessionList\x12\x11.auth.AccessToken\x1a\x0e.auth.Sessions\x12\x43\n\rRevokeSession\x12\x1a.auth.RevokeSessionRequest\x1a\x16.google.protobuf.Empty\x12\x33\n\x07Profile\x12\x11.auth.AccessToken\x1a\x15.auth.ProfileResponse\x12?\n\x0bUpdateEmail\x12\x18.auth.UpdateEmailRequest\x1a\x16.auth.VerificationMail\x12\x45\n\x0eUpdatePassword\x12\x1b.auth.UpdatePasswordRequest\x1a\x16.google.protobuf.Empty\x12\x30\n\rDeleteProfile\x12\x11.auth.AccessToken\x1a\x0c.auth.UserIdb\x06proto3'
+    b'\n\nauth.proto\x12\x04\x61uth\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto"D\n\x0fRegisterRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x10\n\x08password\x18\x03 \x01(\t"\x16\n\x05Token\x12\r\n\x05token\x18\x01 \x01(\t"\x16\n\x05\x45mail\x12\r\n\x05\x65mail\x18\x01 \x01(\t"D\n\x11ResetCodeResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x0c\n\x04\x63ode\x18\x03 \x01(\t"1\n\x10ResetCodeRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\t"\x1f\n\x0b\x43odeIsValid\x12\x10\n\x08is_valid\x18\x01 \x01(\x08"=\n\x14ResetPasswordRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x14\n\x0cnew_password\x18\x02 \x01(\t"W\n\x0cLogInRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x0f\n\x07user_ip\x18\x03 \x01(\t\x12\x12\n\nuser_agent\x18\x04 \x01(\t"u\n\rLogInResponse\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x0f\n\x07\x62rowser\x18\x04 \x01(\t\x12\x17\n\x0f\x65mail_confirmed\x18\x05 \x01(\x08"#\n\x0b\x41\x63\x63\x65ssToken\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t"G\n\x15\x45mailConfirmationMail\x12\r\n\x05token\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t"\x19\n\x06UserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t"L\n\x0eRefreshRequest\x12\x15\n\rrefresh_token\x18\x01 \x01(\t\x12\x0f\n\x07user_ip\x18\x02 \x01(\t\x12\x12\n\nuser_agent\x18\x03 \x01(\t"5\n\x06Tokens\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t"/\n\x08Sessions\x12#\n\x08sessions\x18\x01 \x03(\x0b\x32\x11.auth.SessionInfo"s\n\x0bSessionInfo\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x0f\n\x07user_ip\x18\x02 \x01(\t\x12\x0f\n\x07\x62rowser\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"@\n\x14RevokeSessionRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x12\n\nsession_id\x18\x02 \x01(\t"\x8f\x01\n\x0fProfileResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x17\n\x0f\x65mail_confirmed\x18\x04 \x01(\x08\x12\x31\n\rregistered_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"=\n\x12UpdateEmailRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x11\n\tnew_email\x18\x02 \x01(\t"Y\n\x15UpdatePasswordRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x14\n\x0cold_password\x18\x02 \x01(\t\x12\x14\n\x0cnew_password\x18\x03 \x01(\t2\xa3\x07\n\x04\x41uth\x12.\n\x08Register\x12\x15.auth.RegisterRequest\x1a\x0b.auth.Token\x12\x33\n\x0c\x43onfirmEmail\x12\x0b.auth.Token\x1a\x16.google.protobuf.Empty\x12\x38\n\x10RequestResetCode\x12\x0b.auth.Email\x1a\x17.auth.ResetCodeResponse\x12>\n\x11ValidateResetCode\x12\x16.auth.ResetCodeRequest\x1a\x11.auth.CodeIsValid\x12\x43\n\rResetPassword\x12\x1a.auth.ResetPasswordRequest\x1a\x16.google.protobuf.Empty\x12\x30\n\x05LogIn\x12\x12.auth.LogInRequest\x1a\x13.auth.LogInResponse\x12\x33\n\x06LogOut\x12\x11.auth.AccessToken\x1a\x16.google.protobuf.Empty\x12M\n\x1bResendEmailConfirmationMail\x12\x11.auth.AccessToken\x1a\x1b.auth.EmailConfirmationMail\x12\'\n\x04\x41uth\x12\x11.auth.AccessToken\x1a\x0c.auth.UserId\x12-\n\x07Refresh\x12\x14.auth.RefreshRequest\x1a\x0c.auth.Tokens\x12\x30\n\x0bSessionList\x12\x11.auth.AccessToken\x1a\x0e.auth.Sessions\x12\x43\n\rRevokeSession\x12\x1a.auth.RevokeSessionRequest\x1a\x16.google.protobuf.Empty\x12\x33\n\x07Profile\x12\x11.auth.AccessToken\x1a\x15.auth.ProfileResponse\x12\x44\n\x0bUpdateEmail\x12\x18.auth.UpdateEmailRequest\x1a\x1b.auth.EmailConfirmationMail\x12\x45\n\x0eUpdatePassword\x12\x1b.auth.UpdatePasswordRequest\x1a\x16.google.protobuf.Empty\x12\x30\n\rDeleteProfile\x12\x11.auth.AccessToken\x1a\x0c.auth.UserIdb\x06proto3'
 )
 
 _globals = globals()
@@ -33,44 +33,44 @@ if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
     _globals["_REGISTERREQUEST"]._serialized_start = 82
     _globals["_REGISTERREQUEST"]._serialized_end = 150
-    _globals["_VERIFICATIONTOKEN"]._serialized_start = 152
-    _globals["_VERIFICATIONTOKEN"]._serialized_end = 199
-    _globals["_EMAIL"]._serialized_start = 201
-    _globals["_EMAIL"]._serialized_end = 223
-    _globals["_RESETCODERESPONSE"]._serialized_start = 225
-    _globals["_RESETCODERESPONSE"]._serialized_end = 293
-    _globals["_RESETCODEREQUEST"]._serialized_start = 295
-    _globals["_RESETCODEREQUEST"]._serialized_end = 344
-    _globals["_CODEISVALID"]._serialized_start = 346
-    _globals["_CODEISVALID"]._serialized_end = 377
-    _globals["_RESETPASSWORDREQUEST"]._serialized_start = 379
-    _globals["_RESETPASSWORDREQUEST"]._serialized_end = 440
-    _globals["_LOGINREQUEST"]._serialized_start = 442
-    _globals["_LOGINREQUEST"]._serialized_end = 529
-    _globals["_LOGINRESPONSE"]._serialized_start = 531
-    _globals["_LOGINRESPONSE"]._serialized_end = 641
-    _globals["_ACCESSTOKEN"]._serialized_start = 643
-    _globals["_ACCESSTOKEN"]._serialized_end = 678
-    _globals["_VERIFICATIONMAIL"]._serialized_start = 680
-    _globals["_VERIFICATIONMAIL"]._serialized_end = 759
-    _globals["_USERID"]._serialized_start = 761
-    _globals["_USERID"]._serialized_end = 786
-    _globals["_REFRESHREQUEST"]._serialized_start = 788
-    _globals["_REFRESHREQUEST"]._serialized_end = 864
-    _globals["_TOKENS"]._serialized_start = 866
-    _globals["_TOKENS"]._serialized_end = 919
-    _globals["_SESSIONS"]._serialized_start = 921
-    _globals["_SESSIONS"]._serialized_end = 968
-    _globals["_SESSIONINFO"]._serialized_start = 970
-    _globals["_SESSIONINFO"]._serialized_end = 1085
-    _globals["_REVOKESESSIONREQUEST"]._serialized_start = 1087
-    _globals["_REVOKESESSIONREQUEST"]._serialized_end = 1151
-    _globals["_PROFILERESPONSE"]._serialized_start = 1154
-    _globals["_PROFILERESPONSE"]._serialized_end = 1290
-    _globals["_UPDATEEMAILREQUEST"]._serialized_start = 1292
-    _globals["_UPDATEEMAILREQUEST"]._serialized_end = 1353
-    _globals["_UPDATEPASSWORDREQUEST"]._serialized_start = 1355
-    _globals["_UPDATEPASSWORDREQUEST"]._serialized_end = 1444
-    _globals["_AUTH"]._serialized_start = 1447
-    _globals["_AUTH"]._serialized_end = 2386
+    _globals["_TOKEN"]._serialized_start = 152
+    _globals["_TOKEN"]._serialized_end = 174
+    _globals["_EMAIL"]._serialized_start = 176
+    _globals["_EMAIL"]._serialized_end = 198
+    _globals["_RESETCODERESPONSE"]._serialized_start = 200
+    _globals["_RESETCODERESPONSE"]._serialized_end = 268
+    _globals["_RESETCODEREQUEST"]._serialized_start = 270
+    _globals["_RESETCODEREQUEST"]._serialized_end = 319
+    _globals["_CODEISVALID"]._serialized_start = 321
+    _globals["_CODEISVALID"]._serialized_end = 352
+    _globals["_RESETPASSWORDREQUEST"]._serialized_start = 354
+    _globals["_RESETPASSWORDREQUEST"]._serialized_end = 415
+    _globals["_LOGINREQUEST"]._serialized_start = 417
+    _globals["_LOGINREQUEST"]._serialized_end = 504
+    _globals["_LOGINRESPONSE"]._serialized_start = 506
+    _globals["_LOGINRESPONSE"]._serialized_end = 623
+    _globals["_ACCESSTOKEN"]._serialized_start = 625
+    _globals["_ACCESSTOKEN"]._serialized_end = 660
+    _globals["_EMAILCONFIRMATIONMAIL"]._serialized_start = 662
+    _globals["_EMAILCONFIRMATIONMAIL"]._serialized_end = 733
+    _globals["_USERID"]._serialized_start = 735
+    _globals["_USERID"]._serialized_end = 760
+    _globals["_REFRESHREQUEST"]._serialized_start = 762
+    _globals["_REFRESHREQUEST"]._serialized_end = 838
+    _globals["_TOKENS"]._serialized_start = 840
+    _globals["_TOKENS"]._serialized_end = 893
+    _globals["_SESSIONS"]._serialized_start = 895
+    _globals["_SESSIONS"]._serialized_end = 942
+    _globals["_SESSIONINFO"]._serialized_start = 944
+    _globals["_SESSIONINFO"]._serialized_end = 1059
+    _globals["_REVOKESESSIONREQUEST"]._serialized_start = 1061
+    _globals["_REVOKESESSIONREQUEST"]._serialized_end = 1125
+    _globals["_PROFILERESPONSE"]._serialized_start = 1128
+    _globals["_PROFILERESPONSE"]._serialized_end = 1271
+    _globals["_UPDATEEMAILREQUEST"]._serialized_start = 1273
+    _globals["_UPDATEEMAILREQUEST"]._serialized_end = 1334
+    _globals["_UPDATEPASSWORDREQUEST"]._serialized_start = 1336
+    _globals["_UPDATEPASSWORDREQUEST"]._serialized_end = 1425
+    _globals["_AUTH"]._serialized_start = 1428
+    _globals["_AUTH"]._serialized_end = 2359
 # @@protoc_insertion_point(module_scope)

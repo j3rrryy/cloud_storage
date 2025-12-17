@@ -12,8 +12,8 @@ class ApplicationFacade(ApplicationFacadeProtocol):
     async def register(self, data: auth_dto.RegistrationDTO) -> None:
         await self._auth_facade.register(data)
 
-    async def verify_email(self, verification_token: str) -> None:
-        await self._auth_facade.verify_email(verification_token)
+    async def confirm_email(self, token: str) -> None:
+        await self._auth_facade.confirm_email(token)
 
     async def request_reset_code(self, email: str) -> str:
         return await self._auth_facade.request_reset_code(email)
@@ -30,8 +30,8 @@ class ApplicationFacade(ApplicationFacadeProtocol):
     async def log_out(self, access_token: str) -> None:
         await self._auth_facade.log_out(access_token)
 
-    async def resend_verification_mail(self, access_token: str) -> None:
-        await self._auth_facade.resend_verification_mail(access_token)
+    async def resend_email_confirmation_mail(self, access_token: str) -> None:
+        await self._auth_facade.resend_email_confirmation_mail(access_token)
 
     async def auth(self, access_token: str) -> str:
         return await self._auth_facade.auth(access_token)

@@ -6,15 +6,19 @@ from .base_adapter import BaseKafkaAdapter
 
 
 class MailKafkaAdapter(BaseKafkaAdapter, MailServiceProtocol):
-    async def verification(
-        self, verification_mail: mail_dto.VerificationMailDTO
+    async def email_confirmation(
+        self, email_confirmation_mail: mail_dto.EmailConfirmationMailDTO
     ) -> None:
         await self._producer.send(
-            MailTypes.VERIFICATION.name, verification_mail.to_msgpack()
+            MailTypes.EMAIL_CONFIRMATION.name, email_confirmation_mail.to_msgpack()
         )
 
-    async def info(self, info_mail: mail_dto.InfoMailDTO) -> None:
-        await self._producer.send(MailTypes.INFO.name, info_mail.to_msgpack())
+    async def new_login(self, new_login_mail: mail_dto.NewLoginMailDTO) -> None:
+        await self._producer.send(MailTypes.NEW_LOGIN.name, new_login_mail.to_msgpack())
 
-    async def reset(self, reset_mail: mail_dto.ResetMailDTO) -> None:
-        await self._producer.send(MailTypes.RESET.name, reset_mail.to_msgpack())
+    async def password_reset(
+        self, password_reset_mail: mail_dto.PasswordResetMailDTO
+    ) -> None:
+        await self._producer.send(
+            MailTypes.PASSWORD_RESET.name, password_reset_mail.to_msgpack()
+        )

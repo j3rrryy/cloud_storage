@@ -9,17 +9,15 @@ class AuthGrpcAdapter(BaseRPCAdapter, AuthServiceProtocol):
     @BaseRPCAdapter.exception_handler
     async def register(
         self, data: auth_dto.RegistrationDTO
-    ) -> mail_dto.VerificationMailDTO:
+    ) -> mail_dto.EmailConfirmationMailDTO:
         request = data.to_request(pb2.RegisterRequest)
-        verification_token: pb2.VerificationToken = await self._stub.Register(request)
-        return mail_dto.VerificationMailDTO(
-            verification_token.verification_token, data.username, data.email
-        )
+        token: pb2.Token = await self._stub.Register(request)
+        return mail_dto.EmailConfirmationMailDTO(data.username, data.email, token.token)
 
     @BaseRPCAdapter.exception_handler
-    async def verify_email(self, verification_token: str) -> None:
-        request = pb2.VerificationToken(verification_token=verification_token)
-        await self._stub.VerifyEmail(request)
+    async def confirm_email(self, token: str) -> None:
+        request = pb2.Token(token=token)
+        await self._stub.ConfirmEmail(request)
 
     @BaseRPCAdapter.exception_handler
     async def request_reset_code(self, email: str) -> auth_dto.ResetInfoDTO:
@@ -50,14 +48,14 @@ class AuthGrpcAdapter(BaseRPCAdapter, AuthServiceProtocol):
         await self._stub.LogOut(request)
 
     @BaseRPCAdapter.exception_handler
-    async def resend_verification_mail(
+    async def resend_email_confirmation_mail(
         self, access_token: str
-    ) -> mail_dto.VerificationMailDTO:
+    ) -> mail_dto.EmailConfirmationMailDTO:
         request = pb2.AccessToken(access_token=access_token)
-        verification_mail: pb2.VerificationMail = (
-            await self._stub.ResendVerificationMail(request)
+        email_confirmation_mail: pb2.EmailConfirmationMail = (
+            await self._stub.ResendEmailConfirmationMail(request)
         )
-        return mail_dto.VerificationMailDTO.from_response(verification_mail)
+        return mail_dto.EmailConfirmationMailDTO.from_response(email_confirmation_mail)
 
     @BaseRPCAdapter.exception_handler
     async def auth(self, access_token: str) -> str:
@@ -93,10 +91,12 @@ class AuthGrpcAdapter(BaseRPCAdapter, AuthServiceProtocol):
     @BaseRPCAdapter.exception_handler
     async def update_email(
         self, data: auth_dto.UpdateEmailDTO
-    ) -> mail_dto.VerificationMailDTO:
+    ) -> mail_dto.EmailConfirmationMailDTO:
         request = data.to_request(pb2.UpdateEmailRequest)
-        verification_mail: pb2.VerificationMail = await self._stub.UpdateEmail(request)
-        return mail_dto.VerificationMailDTO.from_response(verification_mail)
+        email_confirmation_mail: pb2.EmailConfirmationMail = (
+            await self._stub.UpdateEmail(request)
+        )
+        return mail_dto.EmailConfirmationMailDTO.from_response(email_confirmation_mail)
 
     @BaseRPCAdapter.exception_handler
     async def update_password(self, data: auth_dto.UpdatePasswordDTO) -> None:

@@ -42,7 +42,7 @@ class ExceptionHandler:
             return await func(*args, **kwargs)
         except Exception as exc:
             status_code, details = exc.args
-            logger.error(
+            logger.info(
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
             await context.abort(status_code, details)  # type: ignore
@@ -81,7 +81,7 @@ def generate_jwt(user_id: str, token_type: TokenTypes, key_pair: KeyPair) -> str
             exp_time = datetime.now() + timedelta(minutes=15)
         case TokenTypes.REFRESH:
             exp_time = datetime.now() + timedelta(days=30)
-        case TokenTypes.VERIFICATION:
+        case TokenTypes.EMAIL_CONFIRMATION:
             exp_time = datetime.now() + timedelta(days=3)
         case _:  # pragma: no cover
             exp_time = None
@@ -120,9 +120,9 @@ def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> Jwt:
         raise UnauthenticatedException(StatusCode.UNAUTHENTICATED, "Refresh the tokens")
     elif jwt_type == TokenTypes.REFRESH and jwt.is_expired():
         raise UnauthenticatedException(StatusCode.UNAUTHENTICATED, "Re-log in")
-    elif jwt_type == TokenTypes.VERIFICATION and jwt.is_expired():
+    elif jwt_type == TokenTypes.EMAIL_CONFIRMATION and jwt.is_expired():
         raise UnauthenticatedException(
-            StatusCode.UNAUTHENTICATED, "Resend the verification mail"
+            StatusCode.UNAUTHENTICATED, "Resend the email confirmation mail"
         )
     return jwt
 

@@ -54,3 +54,9 @@ class ToSchemaMixin(BaseDTO):
 class ToMsgpackMixin(BaseDTO):
     def to_msgpack(self) -> bytes:
         return msgspec.msgpack.encode(asdict(self))
+
+
+@dataclass(slots=True, frozen=True)
+class BaseMailDTO:
+    username: str
+    email: str

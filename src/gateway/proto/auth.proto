@@ -6,20 +6,20 @@ import "google/protobuf/timestamp.proto";
 package auth;
 
 service Auth {
-  rpc Register(RegisterRequest) returns (VerificationToken);
-  rpc VerifyEmail(VerificationToken) returns (google.protobuf.Empty);
+  rpc Register(RegisterRequest) returns (Token);
+  rpc ConfirmEmail(Token) returns (google.protobuf.Empty);
   rpc RequestResetCode(Email) returns (ResetCodeResponse);
   rpc ValidateResetCode(ResetCodeRequest) returns (CodeIsValid);
   rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty);
   rpc LogIn(LogInRequest) returns (LogInResponse);
   rpc LogOut(AccessToken) returns (google.protobuf.Empty);
-  rpc ResendVerificationMail(AccessToken) returns (VerificationMail);
+  rpc ResendEmailConfirmationMail(AccessToken) returns (EmailConfirmationMail);
   rpc Auth(AccessToken) returns (UserId);
   rpc Refresh(RefreshRequest) returns (Tokens);
   rpc SessionList(AccessToken) returns (Sessions);
   rpc RevokeSession(RevokeSessionRequest) returns (google.protobuf.Empty);
   rpc Profile(AccessToken) returns (ProfileResponse);
-  rpc UpdateEmail(UpdateEmailRequest) returns (VerificationMail);
+  rpc UpdateEmail(UpdateEmailRequest) returns (EmailConfirmationMail);
   rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
   rpc DeleteProfile(AccessToken) returns (UserId);
 }
@@ -30,8 +30,8 @@ message RegisterRequest {
   string password = 3;
 }
 
-message VerificationToken {
-  string verification_token = 1;
+message Token {
+  string token = 1;
 }
 
 message Email {
@@ -70,15 +70,15 @@ message LogInResponse {
   string refresh_token = 2;
   string email = 3;
   string browser = 4;
-  bool verified = 5;
+  bool email_confirmed = 5;
 }
 
 message AccessToken {
   string access_token = 1;
 }
 
-message VerificationMail {
-  string verification_token = 1;
+message EmailConfirmationMail {
+  string token = 1;
   string username = 2;
   string email = 3;
 }
@@ -118,7 +118,7 @@ message ProfileResponse {
   string user_id = 1;
   string username = 2;
   string email = 3;
-  bool verified = 4;
+  bool email_confirmed = 4;
   google.protobuf.Timestamp registered_at = 5;
 }
 

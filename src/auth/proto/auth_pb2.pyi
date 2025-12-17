@@ -28,11 +28,11 @@ class RegisterRequest(_message.Message):
         password: _Optional[str] = ...,
     ) -> None: ...
 
-class VerificationToken(_message.Message):
-    __slots__ = ("verification_token",)
-    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
-    verification_token: str
-    def __init__(self, verification_token: _Optional[str] = ...) -> None: ...
+class Token(_message.Message):
+    __slots__ = ("token",)
+    TOKEN_FIELD_NUMBER: _ClassVar[int]
+    token: str
+    def __init__(self, token: _Optional[str] = ...) -> None: ...
 
 class Email(_message.Message):
     __slots__ = ("email",)
@@ -100,24 +100,24 @@ class LogInRequest(_message.Message):
     ) -> None: ...
 
 class LogInResponse(_message.Message):
-    __slots__ = ("access_token", "refresh_token", "email", "browser", "verified")
+    __slots__ = ("access_token", "refresh_token", "email", "browser", "email_confirmed")
     ACCESS_TOKEN_FIELD_NUMBER: _ClassVar[int]
     REFRESH_TOKEN_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     BROWSER_FIELD_NUMBER: _ClassVar[int]
-    VERIFIED_FIELD_NUMBER: _ClassVar[int]
+    EMAIL_CONFIRMED_FIELD_NUMBER: _ClassVar[int]
     access_token: str
     refresh_token: str
     email: str
     browser: str
-    verified: bool
+    email_confirmed: bool
     def __init__(
         self,
         access_token: _Optional[str] = ...,
         refresh_token: _Optional[str] = ...,
         email: _Optional[str] = ...,
         browser: _Optional[str] = ...,
-        verified: bool = ...,
+        email_confirmed: bool = ...,
     ) -> None: ...
 
 class AccessToken(_message.Message):
@@ -126,17 +126,17 @@ class AccessToken(_message.Message):
     access_token: str
     def __init__(self, access_token: _Optional[str] = ...) -> None: ...
 
-class VerificationMail(_message.Message):
-    __slots__ = ("verification_token", "username", "email")
-    VERIFICATION_TOKEN_FIELD_NUMBER: _ClassVar[int]
+class EmailConfirmationMail(_message.Message):
+    __slots__ = ("token", "username", "email")
+    TOKEN_FIELD_NUMBER: _ClassVar[int]
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
-    verification_token: str
+    token: str
     username: str
     email: str
     def __init__(
         self,
-        verification_token: _Optional[str] = ...,
+        token: _Optional[str] = ...,
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
     ) -> None: ...
@@ -211,23 +211,23 @@ class RevokeSessionRequest(_message.Message):
     ) -> None: ...
 
 class ProfileResponse(_message.Message):
-    __slots__ = ("user_id", "username", "email", "verified", "registered_at")
+    __slots__ = ("user_id", "username", "email", "email_confirmed", "registered_at")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
-    VERIFIED_FIELD_NUMBER: _ClassVar[int]
+    EMAIL_CONFIRMED_FIELD_NUMBER: _ClassVar[int]
     REGISTERED_AT_FIELD_NUMBER: _ClassVar[int]
     user_id: str
     username: str
     email: str
-    verified: bool
+    email_confirmed: bool
     registered_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
         user_id: _Optional[str] = ...,
         username: _Optional[str] = ...,
         email: _Optional[str] = ...,
-        verified: bool = ...,
+        email_confirmed: bool = ...,
         registered_at: _Optional[
             _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
         ] = ...,

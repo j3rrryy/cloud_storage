@@ -8,20 +8,21 @@ from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus
 from service import AuthService
-from utils import access_token_key
+from utils import access_token_key, get_hashed_password
 
 from .mocks import (
     ACCESS_TOKEN,
     CODE,
+    CONFIRMATION_TOKEN,
     EMAIL,
     PASSWORD,
     REFRESH_TOKEN,
     SESSION_ID,
+    TIMESTAMP,
     USER_AGENT,
     USER_ID,
     USER_IP,
     USERNAME,
-    VERIFICATION_TOKEN,
     create_cache,
     create_repository,
 )
@@ -42,11 +43,11 @@ async def test_register(mock_repository, mock_key_pair):
 @patch("service.auth_service.AuthRepository", new_callable=create_repository)
 @patch("service.auth_service.cache", new_callable=create_cache)
 @patch("service.auth_service.validate_jwt_and_get_user_id")
-async def test_verify_email(mock_jwt_validator, mock_cache, mock_repository):
-    await AuthService.verify_email(VERIFICATION_TOKEN)
+async def test_confirm_email(mock_jwt_validator, mock_cache, mock_repository):
+    await AuthService.confirm_email(CONFIRMATION_TOKEN)
 
     mock_jwt_validator.assert_called_once()
-    mock_repository.verify_email.assert_awaited_once()
+    mock_repository.confirm_email.assert_awaited_once()
     mock_cache.delete.assert_awaited_once()
 
 
@@ -153,14 +154,32 @@ async def test_log_out(
 @pytest.mark.asyncio
 @patch("service.auth_service.AuthRepository", new_callable=create_repository)
 @patch("service.auth_service.AuthService._cached_access_token")
-async def test_resend_verification_mail(
+async def test_resend_email_confirmation_mail(
     mock_cached_access_token, mock_repository, mock_key_pair
 ):
-    response = await AuthService.resend_verification_mail(ACCESS_TOKEN)
+    response = await AuthService.resend_email_confirmation_mail(ACCESS_TOKEN)
 
-    assert isinstance(response, response_dto.VerificationMailResponseDTO)
+    assert isinstance(response, response_dto.EmailConfirmationMailResponseDTO)
     mock_cached_access_token.assert_awaited_once()
     mock_repository.profile.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("service.auth_service.AuthRepository", new_callable=create_repository)
+@patch("service.auth_service.AuthService._cached_access_token")
+async def test_resend_email_confirmation_mail_already_confirmed(
+    mock_cached_access_token, mock_repository, mock_key_pair
+):
+    mock_repository.profile.return_value = response_dto.ProfileResponseDTO(
+        USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), True, TIMESTAMP
+    )
+
+    with pytest.raises(Exception) as exc_info:
+        await AuthService.resend_email_confirmation_mail(ACCESS_TOKEN)
+
+    assert exc_info.value.args[0] == StatusCode.ALREADY_EXISTS
+    assert exc_info.value.args[1] == "Email has already been confirmed"
+    mock_cached_access_token.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -289,7 +308,7 @@ async def test_update_email(
 
     response = await AuthService.update_email(dto)
 
-    assert isinstance(response, response_dto.VerificationMailResponseDTO)
+    assert isinstance(response, response_dto.EmailConfirmationMailResponseDTO)
     mock_cached_access_token.assert_awaited_once()
     mock_repository.update_email.assert_awaited_once()
     mock_cache.delete.assert_awaited_once()

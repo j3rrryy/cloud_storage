@@ -10,15 +10,11 @@ from utils import ExceptionHandler
 class AuthController(AuthServicer):
     async def Register(self, request, context):
         dto = request_dto.RegisterRequestDTO.from_request(request)
-        verification_token = await ExceptionHandler.handle(
-            context, AuthService.register, dto
-        )
-        return pb2.VerificationToken(verification_token=verification_token)
+        token = await ExceptionHandler.handle(context, AuthService.register, dto)
+        return pb2.Token(token=token)
 
-    async def VerifyEmail(self, request, context):
-        await ExceptionHandler.handle(
-            context, AuthService.verify_email, request.verification_token
-        )
+    async def ConfirmEmail(self, request, context):
+        await ExceptionHandler.handle(context, AuthService.confirm_email, request.token)
         return empty_pb2.Empty()
 
     async def RequestResetCode(self, request, context):
@@ -50,11 +46,11 @@ class AuthController(AuthServicer):
         )
         return empty_pb2.Empty()
 
-    async def ResendVerificationMail(self, request, context):
-        verification_mail = await ExceptionHandler.handle(
-            context, AuthService.resend_verification_mail, request.access_token
+    async def ResendEmailConfirmationMail(self, request, context):
+        email_confirmation_mail = await ExceptionHandler.handle(
+            context, AuthService.resend_email_confirmation_mail, request.access_token
         )
-        return verification_mail.to_response(pb2.VerificationMail)
+        return email_confirmation_mail.to_response(pb2.EmailConfirmationMail)
 
     async def Auth(self, request, context):
         user_id = await ExceptionHandler.handle(
@@ -88,10 +84,10 @@ class AuthController(AuthServicer):
 
     async def UpdateEmail(self, request, context):
         dto = request_dto.UpdateEmailRequestDTO.from_request(request)
-        verification_mail = await ExceptionHandler.handle(
+        email_confirmation_mail = await ExceptionHandler.handle(
             context, AuthService.update_email, dto
         )
-        return verification_mail.to_response(pb2.VerificationMail)
+        return email_confirmation_mail.to_response(pb2.EmailConfirmationMail)
 
     async def UpdatePassword(self, request, context):
         dto = request_dto.UpdatePasswordRequestDTO.from_request(request)
