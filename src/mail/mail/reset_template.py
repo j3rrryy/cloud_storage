@@ -1,4 +1,4 @@
-RESET_HEADER = "Reset Your Password"
+RESET_HEADER = "Password reset"
 
 RESET_CONTENT = """
     <p>Hello, {username}!</p>

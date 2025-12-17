@@ -1,4 +1,4 @@
-INFO_HEADER = "Login Information"
+INFO_HEADER = "New login"
 
 INFO_CONTENT = """
     <p>Hello, {username}!</p>
@@ -6,4 +6,4 @@ INFO_CONTENT = """
     <p>Browser: <strong>{browser}</strong></p>
 """
 
-INFO_FOOTER = "<p>If this was not you, please change your password.</p>"
+INFO_FOOTER = "<p>If it was not you, please change your password immediately!</p>"
