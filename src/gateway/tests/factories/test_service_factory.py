@@ -42,7 +42,7 @@ async def test_service_factory_initialize_exception():
         ),
         patch.object(service_factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_auth_init.side_effect = Exception("Auth initialization failed")
+        mock_auth_init.side_effect = Exception("Initialization failed")
 
         with pytest.raises(Exception):
             await service_factory.initialize()

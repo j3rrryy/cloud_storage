@@ -39,7 +39,7 @@ async def test_file_service_factory_initialize_exception():
         ) as mock_channel,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_channel.side_effect = Exception("Connection failed")
+        mock_channel.channel_ready.side_effect = Exception("Connection failed")
 
         with pytest.raises(Exception):
             await factory.initialize()

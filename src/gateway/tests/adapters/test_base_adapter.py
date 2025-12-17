@@ -39,8 +39,7 @@ async def test_exception_handler(status_code, expected_exception):
     async def mock_function():
         raise exception
 
-    with pytest.raises(HTTPException) as exc_info:
+    with pytest.raises(HTTPException, match=DETAILS) as exc_info:
         await mock_function()
 
-    assert exc_info.value.detail == DETAILS
     assert exc_info.value.status_code == expected_exception.status_code

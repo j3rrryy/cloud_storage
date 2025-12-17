@@ -30,10 +30,8 @@ def test_validate_access_token(
     mock_request.headers.get.return_value = header_value
 
     if expected_exception and expected_message:
-        with pytest.raises(expected_exception) as exc_info:
+        with pytest.raises(expected_exception, match=expected_message):
             validate_access_token(mock_request)
-
-        assert expected_message in exc_info.value.detail
     else:
         token = validate_access_token(mock_request)
 
