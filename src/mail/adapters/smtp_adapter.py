@@ -13,6 +13,7 @@ class SMTPAdapter(SMTPClientProtocol):
 
     def __init__(self, smtp: SMTP):
         self._smtp = smtp
+        self._retry_lock = asyncio.Lock()
 
     async def send_mail(self, mail: multipart.MIMEMultipart) -> None:
         for _ in range(Settings.RETRY_COUNT):
@@ -20,7 +21,10 @@ class SMTPAdapter(SMTPClientProtocol):
                 await self._smtp.send_message(mail)
                 return
             except SMTPServerDisconnected:
-                await self._reconnect()
+                async with self._retry_lock:
+                    if not self._smtp.is_connected:
+                        await self._reconnect()
+
         self.logger.error(f"Could not send mail after {Settings.RETRY_COUNT} attempts")
 
     async def _reconnect(self) -> None:
