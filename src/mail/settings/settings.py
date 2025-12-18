@@ -4,17 +4,20 @@ import os
 class Settings:
     APP_NAME = os.environ["APP_NAME"]
 
+    KAFKA_SERVICE = os.environ["KAFKA_SERVICE"]
+    KAFKA_GROUP_ID = "mail"
+
     MAIL_USERNAME = os.environ["MAIL_USERNAME"]
     MAIL_PASSWORD = os.environ["MAIL_PASSWORD"]
     MAIL_HOSTNAME = os.environ["MAIL_HOSTNAME"]
     MAIL_PORT = int(os.environ["MAIL_PORT"])
     MAIL_TLS = True
     RETRY_COUNT = 3
-    RECONNECT_DELAY = 1
+    RECONNECT_DELAY = 0.1
     EMAIL_CONFIRMATION_URL = os.environ["EMAIL_CONFIRMATION_URL"]
 
-    KAFKA_SERVICE = os.environ["KAFKA_SERVICE"]
-    KAFKA_GROUP_ID = "mail"
+    QUEUE_SIZE = 1000
+    WORKERS = 10
 
     PROMETHEUS_SERVER_HOST = "0.0.0.0"
     PROMETHEUS_SERVER_PORT = 8000

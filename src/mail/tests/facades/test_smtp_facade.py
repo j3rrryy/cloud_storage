@@ -26,13 +26,13 @@ async def test_send_mail(dto, smtp_facade, smtp):
 
 
 @pytest.mark.asyncio
-async def test_send_mail_no_strategy_found(smtp_facade):
+async def test_send_mail_no_renderer_found(smtp_facade):
     class UnknownMailDTO(BaseMailDTO):
         pass
 
     dto = UnknownMailDTO(USERNAME, EMAIL)
 
     with pytest.raises(
-        ValueError, match=f"No strategy found for {UnknownMailDTO.__name__}"
+        ValueError, match=f"No renderer found for {UnknownMailDTO.__name__}"
     ):
         await smtp_facade.send_mail(dto)

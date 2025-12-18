@@ -26,7 +26,7 @@ class FileStorage:
     async def initiate_upload(
         cls, data: request_dto.InitiateUploadRequestDTO, client: S3Client
     ) -> response_dto.InitiateUploadResponseDTO:
-        semaphore = asyncio.Semaphore(25)
+        semaphore = asyncio.BoundedSemaphore(25)
 
         file_id = str(uuid4())
         upload = await client.create_multipart_upload(
@@ -131,7 +131,7 @@ class FileStorage:
     @classmethod
     @with_storage
     async def delete(cls, file_ids: list[str], client: S3Client) -> None:
-        semaphore = asyncio.Semaphore(5)
+        semaphore = asyncio.BoundedSemaphore(5)
         keys = [{"Key": file_id} for file_id in file_ids]
         tasks = []
 
@@ -144,7 +144,10 @@ class FileStorage:
 
     @classmethod
     async def _delete_chunk(
-        cls, chunk: list[dict[str, str]], semaphore: asyncio.Semaphore, client: S3Client
+        cls,
+        chunk: list[dict[str, str]],
+        semaphore: asyncio.BoundedSemaphore,
+        client: S3Client,
     ):
         async with semaphore:
             await client.delete_objects(
