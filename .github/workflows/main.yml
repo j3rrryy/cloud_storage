@@ -16,22 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Run Ruff linting
-        uses: astral-sh/ruff-action@v1.1.1
+        uses: astral-sh/ruff-action@v3
         with:
-          args: "check --fix --exclude **/proto"
+          args: "check --exclude **/proto"
 
-      - name: Run Ruff formatting
-        uses: astral-sh/ruff-action@v1.1.1
+      - name: Run Ruff formatting check
+        uses: astral-sh/ruff-action@v3
         with:
-          args: "format --exclude **/proto"
-
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5.0.1
-        with:
-          commit_message: "ruff: fix and apply formatting"
+          args: "format --check --exclude **/proto"
 
   test:
     runs-on: ubuntu-latest
@@ -41,7 +36,7 @@ jobs:
         service: [gateway, auth, file, mail]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t ${{ matrix.service }}:test -f ./src/${{ matrix.service }}/Dockerfile ./src/${{ matrix.service }}
@@ -52,7 +47,7 @@ jobs:
           docker cp ${{ matrix.service }}_test:./src/${{ matrix.service }}/coverage.xml ./coverage_${{ matrix.service }}.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5.0.7
+        uses: codecov/codecov-action@v5
         with:
           verbose: true
           fail_ci_if_error: true
