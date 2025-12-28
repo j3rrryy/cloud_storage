@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import os
 import re
@@ -29,7 +30,8 @@ class KeyPair:
     __slots__ = ("private_key", "public_key")
 
     def __init__(self):
-        self.private_key = Jwk.from_json(os.environ["SECRET_KEY"])
+        pem_secret_key = base64.b64decode(os.environ["SECRET_KEY"])
+        self.private_key = Jwk.from_pem(pem_secret_key)
         self.public_key = self.private_key.public_jwk()
 
 
