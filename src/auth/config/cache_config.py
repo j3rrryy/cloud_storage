@@ -1,11 +1,11 @@
-import os
-
 from cashews import cache
+
+from settings import Settings
 
 
 def setup_cache() -> None:
     cache.setup(
-        f"redis://{os.environ['REDIS_USER']}:{os.environ['REDIS_PASSWORD']}@"
-        + f"{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/{os.environ['REDIS_DB']}",
+        f"redis://{Settings.REDIS_USER}:{Settings.REDIS_PASSWORD}@"
+        + f"{Settings.REDIS_HOST}:{Settings.REDIS_PORT}/{Settings.REDIS_DB}",
         client_side=True,
     )

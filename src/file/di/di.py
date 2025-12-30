@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Optional
 
@@ -15,6 +14,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from types_aiobotocore_s3 import S3Client
 
+from settings import Settings
+
 
 class SessionManager:
     sessionmaker: Optional[async_sessionmaker[AsyncSession]] = None
@@ -27,12 +28,12 @@ class SessionManager:
             return
         try:
             postgres_url = URL.create(
-                os.environ["POSTGRES_DRIVER"],
-                os.environ["POSTGRES_USER"],
-                os.environ["POSTGRES_PASSWORD"],
-                os.environ["POSTGRES_HOST"],
-                int(os.environ["POSTGRES_PORT"]),
-                os.environ["POSTGRES_DB"],
+                Settings.POSTGRES_DRIVER,
+                Settings.POSTGRES_USER,
+                Settings.POSTGRES_PASSWORD,
+                Settings.POSTGRES_HOST,
+                Settings.POSTGRES_PORT,
+                Settings.POSTGRES_DB,
             )
             cls._engine = create_async_engine(
                 postgres_url,
@@ -93,9 +94,9 @@ class ClientManager:
                 "s3",
                 use_ssl=False,
                 verify=False,
-                endpoint_url=f"http://{os.environ['MINIO_HOST']}:{os.environ['MINIO_PORT']}",
-                aws_access_key_id=os.environ["MINIO_ROOT_USER"],
-                aws_secret_access_key=os.environ["MINIO_ROOT_PASSWORD"],
+                endpoint_url=f"http://{Settings.MINIO_HOST}:{Settings.MINIO_PORT}",
+                aws_access_key_id=Settings.MINIO_ROOT_USER,
+                aws_secret_access_key=Settings.MINIO_ROOT_PASSWORD,
                 config=config,
             )
             cls.client = await cls._context.__aenter__()

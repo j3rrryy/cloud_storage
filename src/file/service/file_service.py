@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 from cashews import cache
 from grpc import StatusCode
@@ -12,6 +11,7 @@ from exceptions import (
     NoUploadedPartsException,
 )
 from repository import FileRepository
+from settings import Settings
 from storage import FileStorage
 from utils import (
     file_all_keys,
@@ -23,13 +23,11 @@ from utils import (
 
 
 class FileService:
-    MAX_FILE_SIZE = int(os.environ["MAX_FILE_SIZE"])
-
     @classmethod
     async def initiate_upload(
         cls, data: request_dto.InitiateUploadRequestDTO
     ) -> response_dto.InitiateUploadResponseDTO:
-        if data.size > cls.MAX_FILE_SIZE:
+        if data.size > Settings.MAX_FILE_SIZE:
             raise FileTooLargeException(StatusCode.INVALID_ARGUMENT, "File too large")
 
         await FileRepository.check_if_name_is_taken(data)  # type: ignore

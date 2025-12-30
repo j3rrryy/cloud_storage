@@ -13,6 +13,7 @@ from config import setup_cache, setup_logging
 from controller import FileController
 from di import ClientManager, SessionManager, setup_di
 from proto import add_FileServicer_to_server
+from settings import Settings
 
 logger = logging.getLogger()
 
@@ -25,11 +26,11 @@ async def start_grpc_server() -> None:
             ("grpc.keepalive_timeout_ms", 10000),
             ("grpc.keepalive_permit_without_calls", 1),
         ],
-        maximum_concurrent_rpcs=1000,
+        maximum_concurrent_rpcs=Settings.GRPC_SERVER_MAXIMUM_CONCURRENT_RPCS,
         compression=grpc.Compression.Deflate,
     )
     add_FileServicer_to_server(FileController(), server)
-    server.add_insecure_port("[::]:50051")
+    server.add_insecure_port(Settings.GRPC_SERVER_ADDRESS)
 
     await server.start()
     await server.wait_for_termination()
@@ -40,10 +41,10 @@ async def start_prometheus_server() -> None:
     server_config = Config(
         app=app,
         loop="uvloop",
-        host="0.0.0.0",
-        port=8000,
-        limit_concurrency=50,
-        limit_max_requests=10000,
+        host=Settings.PROMETHEUS_SERVER_HOST,
+        port=Settings.PROMETHEUS_SERVER_PORT,
+        limit_concurrency=Settings.PROMETHEUS_SERVER_LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS,
     )
     server = Server(server_config)
     await server.serve()

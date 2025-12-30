@@ -1,6 +1,5 @@
 import base64
 import hashlib
-import os
 import re
 from datetime import datetime, timedelta, timezone
 from functools import wraps
@@ -18,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from enums import TokenTypes
 from exceptions import NotFoundException, UnauthenticatedException
+from settings import Settings
 
 T = TypeVar("T")
 
@@ -30,7 +30,7 @@ class KeyPair:
     __slots__ = ("private_key", "public_key")
 
     def __init__(self):
-        pem_secret_key = base64.b64decode(os.environ["SECRET_KEY"])
+        pem_secret_key = base64.b64decode(Settings.SECRET_KEY)
         self.private_key = Jwk.from_pem(pem_secret_key)
         self.public_key = self.private_key.public_jwk()
 
@@ -89,7 +89,7 @@ def generate_jwt(user_id: str, token_type: TokenTypes, key_pair: KeyPair) -> str
             exp_time = None
 
     claims = {
-        "iss": os.environ["APP_NAME"],
+        "iss": Settings.APP_NAME,
         "sub": user_id,
         "iat": datetime.now(),
         "exp": exp_time,
@@ -106,7 +106,7 @@ def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> Jwt:
     if (
         not isinstance(jwt, SignedJwt)
         or not jwt.verify_signature(key_pair.public_key, "EdDSA")
-        or jwt.issuer != os.environ["APP_NAME"]
+        or jwt.issuer != Settings.APP_NAME
         or jwt.subject is None
         or not (
             hasattr(jwt, "typ") and jwt.typ.isdigit() and int(jwt.typ) in range(0, 3)

@@ -1,6 +1,5 @@
 import asyncio
 import math
-import os
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -12,13 +11,11 @@ from types_aiobotocore_s3 import S3Client
 from dto import request as request_dto
 from dto import response as response_dto
 from exceptions import FileNotFoundException
+from settings import Settings
 from utils import with_storage
 
 
 class FileStorage:
-    BUCKET_NAME = os.environ["MINIO_S3_BUCKET"]
-    UPLOAD_CHUNK_SIZE = int(os.environ["UPLOAD_CHUNK_SIZE"])
-
     logger = logging.getLogger()
 
     @classmethod
@@ -30,11 +27,11 @@ class FileStorage:
 
         file_id = str(uuid4())
         upload = await client.create_multipart_upload(
-            Bucket=cls.BUCKET_NAME, Key=file_id
+            Bucket=Settings.MINIO_S3_BUCKET, Key=file_id
         )
 
-        part_count = math.ceil(data.size / cls.UPLOAD_CHUNK_SIZE)
-        part_size = min(data.size, cls.UPLOAD_CHUNK_SIZE)
+        part_count = math.ceil(data.size / Settings.UPLOAD_CHUNK_SIZE)
+        part_size = min(data.size, Settings.UPLOAD_CHUNK_SIZE)
         parts = []
 
         async def gen_url(part_number: int):
@@ -42,7 +39,7 @@ class FileStorage:
                 url = await client.generate_presigned_url(
                     "upload_part",
                     Params={
-                        "Bucket": cls.BUCKET_NAME,
+                        "Bucket": Settings.MINIO_S3_BUCKET,
                         "Key": file_id,
                         "UploadId": upload["UploadId"],
                         "PartNumber": part_number,
@@ -76,7 +73,7 @@ class FileStorage:
         )
         try:
             await client.complete_multipart_upload(
-                Bucket=cls.BUCKET_NAME,
+                Bucket=Settings.MINIO_S3_BUCKET,
                 Key=file_id,
                 UploadId=data.upload_id,
                 MultipartUpload={"Parts": parts},  # type: ignore
@@ -93,7 +90,7 @@ class FileStorage:
     async def abort_upload(cls, file_id: str, upload_id: str, client: S3Client) -> None:
         try:
             await client.abort_multipart_upload(
-                Bucket=cls.BUCKET_NAME,
+                Bucket=Settings.MINIO_S3_BUCKET,
                 Key=file_id,
                 UploadId=upload_id,
             )
@@ -110,7 +107,7 @@ class FileStorage:
         cls, data: response_dto.FileInfoResponseDTO, client: S3Client
     ) -> str:
         try:
-            await client.head_object(Bucket=cls.BUCKET_NAME, Key=data.file_id)
+            await client.head_object(Bucket=Settings.MINIO_S3_BUCKET, Key=data.file_id)
         except ClientError as exc:
             if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
                 raise FileNotFoundException(StatusCode.NOT_FOUND, "File not found")
@@ -119,7 +116,7 @@ class FileStorage:
         url = await client.generate_presigned_url(
             "get_object",
             Params={
-                "Bucket": cls.BUCKET_NAME,
+                "Bucket": Settings.MINIO_S3_BUCKET,
                 "Key": data.file_id,
                 "ResponseContentDisposition": f'attachment; filename="{data.name}"',
             },
@@ -151,7 +148,7 @@ class FileStorage:
     ):
         async with semaphore:
             await client.delete_objects(
-                Bucket=cls.BUCKET_NAME,
+                Bucket=Settings.MINIO_S3_BUCKET,
                 Delete={"Objects": chunk},  # type: ignore
             )
 

@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Optional
 
@@ -11,6 +10,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from settings import Settings
 from utils import KeyPair
 
 
@@ -25,12 +25,12 @@ class SessionManager:
             return
         try:
             postgres_url = URL.create(
-                os.environ["POSTGRES_DRIVER"],
-                os.environ["POSTGRES_USER"],
-                os.environ["POSTGRES_PASSWORD"],
-                os.environ["POSTGRES_HOST"],
-                int(os.environ["POSTGRES_PORT"]),
-                os.environ["POSTGRES_DB"],
+                Settings.POSTGRES_DRIVER,
+                Settings.POSTGRES_USER,
+                Settings.POSTGRES_PASSWORD,
+                Settings.POSTGRES_HOST,
+                Settings.POSTGRES_PORT,
+                Settings.POSTGRES_DB,
             )
             cls._engine = create_async_engine(
                 postgres_url,

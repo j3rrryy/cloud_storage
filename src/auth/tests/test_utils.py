@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
@@ -8,6 +7,7 @@ from jwskate import Jwt, SignedJwt
 
 from enums import TokenTypes
 from exceptions import UnauthenticatedException
+from settings import Settings
 from utils import (
     ExceptionHandler,
     compare_passwords,
@@ -82,7 +82,7 @@ def test_generate_jwt(token_type, mock_key_pair):
     assert isinstance(token, str)
     assert isinstance(jwt, SignedJwt)
     assert jwt.verify_signature(mock_key_pair.public_key, "EdDSA")
-    assert jwt.issuer == os.environ["APP_NAME"]
+    assert jwt.issuer == Settings.APP_NAME
     assert jwt.expires_at is not None
     assert jwt.subject is not None
     exp = jwt.expires_at.replace(tzinfo=None)

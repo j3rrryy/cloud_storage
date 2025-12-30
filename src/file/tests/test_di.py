@@ -1,4 +1,3 @@
-import os
 from unittest.mock import AsyncMock, call, patch
 
 import pytest
@@ -6,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from types_aiobotocore_s3 import S3Client
 
 from di import ClientManager, SessionManager, configure_inject, setup_di
+from settings import Settings
 
 
 @pytest.mark.asyncio
@@ -23,12 +23,12 @@ async def test_session_manager_lifespan(
     await SessionManager.setup()
 
     mock_url.create.assert_called_once_with(
-        os.environ["POSTGRES_DRIVER"],
-        os.environ["POSTGRES_USER"],
-        os.environ["POSTGRES_PASSWORD"],
-        os.environ["POSTGRES_HOST"],
-        int(os.environ["POSTGRES_PORT"]),
-        os.environ["POSTGRES_DB"],
+        Settings.POSTGRES_DRIVER,
+        Settings.POSTGRES_USER,
+        Settings.POSTGRES_PASSWORD,
+        Settings.POSTGRES_HOST,
+        Settings.POSTGRES_PORT,
+        Settings.POSTGRES_DB,
     )
     mock_create_async_engine.assert_called_once_with(
         mock_url.create.return_value,
@@ -137,9 +137,9 @@ async def test_client_manager_lifespan(mock_aioconfig, mock_session):
         "s3",
         use_ssl=False,
         verify=False,
-        endpoint_url=f"http://{os.environ['MINIO_HOST']}:{os.environ['MINIO_PORT']}",
-        aws_access_key_id=os.environ["MINIO_ROOT_USER"],
-        aws_secret_access_key=os.environ["MINIO_ROOT_PASSWORD"],
+        endpoint_url=f"http://{Settings.MINIO_HOST}:{Settings.MINIO_PORT}",
+        aws_access_key_id=Settings.MINIO_ROOT_USER,
+        aws_secret_access_key=Settings.MINIO_ROOT_PASSWORD,
         config=mock_aioconfig.return_value,
     )
     assert ClientManager.client == mock_client

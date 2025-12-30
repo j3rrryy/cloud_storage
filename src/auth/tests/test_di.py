@@ -1,10 +1,10 @@
-import os
 from unittest.mock import AsyncMock, call, patch
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from di import SessionManager, configure_inject, key_pair_factory, setup_di
+from settings import Settings
 from utils import KeyPair
 
 
@@ -23,12 +23,12 @@ async def test_session_manager_lifespan(
     await SessionManager.setup()
 
     mock_url.create.assert_called_once_with(
-        os.environ["POSTGRES_DRIVER"],
-        os.environ["POSTGRES_USER"],
-        os.environ["POSTGRES_PASSWORD"],
-        os.environ["POSTGRES_HOST"],
-        int(os.environ["POSTGRES_PORT"]),
-        os.environ["POSTGRES_DB"],
+        Settings.POSTGRES_DRIVER,
+        Settings.POSTGRES_USER,
+        Settings.POSTGRES_PASSWORD,
+        Settings.POSTGRES_HOST,
+        Settings.POSTGRES_PORT,
+        Settings.POSTGRES_DB,
     )
     mock_create_async_engine.assert_called_once_with(
         mock_url.create.return_value,
