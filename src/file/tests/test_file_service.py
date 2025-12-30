@@ -6,6 +6,7 @@ from grpc import StatusCode
 from dto import request as request_dto
 from dto import response as response_dto
 from service import FileService
+from settings import Settings
 
 from .mocks import (
     ETAG,
@@ -44,7 +45,7 @@ async def test_initiate_upload_file_too_large(
     mock_cache, mock_repository, mock_storage
 ):
     dto = request_dto.InitiateUploadRequestDTO(
-        USER_ID, NAME, FileService.MAX_FILE_SIZE + 1
+        USER_ID, NAME, Settings.MAX_FILE_SIZE + 1
     )
 
     with pytest.raises(Exception) as exc_info:
