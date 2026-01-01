@@ -30,7 +30,6 @@ class ExceptionInterceptor(grpc.aio.ServerInterceptor):
 
         async def wrapper(request, context):
             try:
-                self.logger.info(handler_call_details.method)
                 return await handler.unary_unary(request, context)  # type: ignore
             except BaseException as exc:
                 status_code = getattr(exc, "status_code", grpc.StatusCode.UNKNOWN)

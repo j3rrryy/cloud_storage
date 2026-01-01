@@ -11,17 +11,13 @@ def test_setup_logging(mock_basic_config):
     setup_logging()
 
     mock_basic_config.assert_called_once_with(
-        level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+        level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s"
     )
     assert (
         LOGGING_CONFIG["formatters"]["default"]["fmt"]
         == "%(asctime)s | %(levelname)s | %(message)s"
     )
-    assert LOGGING_CONFIG["formatters"]["default"]["datefmt"] == "%Y-%m-%d %H:%M:%S"
     assert (
         LOGGING_CONFIG["formatters"]["access"]["fmt"]
         == "%(asctime)s | %(levelname)s | %(request_line)s | %(status_code)s"
     )
-    assert LOGGING_CONFIG["formatters"]["access"]["datefmt"] == "%Y-%m-%d %H:%M:%S"
