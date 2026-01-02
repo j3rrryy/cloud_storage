@@ -25,7 +25,7 @@ async def test_cache_factory_initialize_exception():
         patch("factories.cache_factory.Cache") as mock_cache,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_cache.setup.side_effect = Exception("Connection failed")
+        mock_cache.return_value.setup.side_effect = Exception("Connection failed")
 
         with pytest.raises(Exception):
             await factory.initialize()

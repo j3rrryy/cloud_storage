@@ -31,7 +31,7 @@ async def test_mail_service_factory_initialize_exception():
         patch("factories.mail_service_factory.AIOKafkaProducer") as mock_producer,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_producer.start.side_effect = Exception("Connection failed")
+        mock_producer.return_value.start.side_effect = Exception("Connection failed")
 
         with pytest.raises(Exception):
             await factory.initialize()
