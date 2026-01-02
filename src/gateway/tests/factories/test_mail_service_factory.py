@@ -13,7 +13,6 @@ async def test_mail_service_factory_initialize_success():
         patch("factories.mail_service_factory.MailKafkaAdapter") as mock_adapter,
     ):
         mock_producer_instance = AsyncMock()
-        mock_producer_instance.start = AsyncMock()
         mock_producer.return_value = mock_producer_instance
         mock_adapter_instance = MagicMock()
         mock_adapter.return_value = mock_adapter_instance
