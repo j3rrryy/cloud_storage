@@ -1,9 +1,5 @@
-from typing import Generator
-from unittest.mock import AsyncMock
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
-from types_aiobotocore_s3 import S3Client
 
 from controller import FileController
 from repository import File
