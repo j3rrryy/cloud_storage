@@ -1,7 +1,13 @@
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
+
+from cashews import Cache
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from types_aiobotocore_s3 import S3Client
 
 from dto import response as response_dto
+from repository import FileRepository
+from storage import FileStorage
 
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
 UPLOAD_ID = "YjUzZjE5MzktY2U2Zi00NmNiLWE3Y2ItNmUwY2M2ODE3NDA5LjBmNzcyN2I0LTNkZjgtNGQ0ZS1hNTc3LTRiMmRjOTFjOTc2ZXgxNzYyOTAwNTgxNzg3NDgwOTI5"
@@ -14,11 +20,23 @@ NAME = "test_name"
 TIMESTAMP = datetime.fromisoformat("1970-01-01T00:02:03Z")
 
 
-def create_repository() -> MagicMock:
-    crud = MagicMock()
+def create_sessionmaker() -> async_sessionmaker[AsyncSession]:
+    return AsyncMock(spec=async_sessionmaker[AsyncSession])
 
-    crud.check_if_name_is_taken = AsyncMock()
-    crud.complete_upload = AsyncMock()
+
+def create_client() -> S3Client:
+    client = AsyncMock(spec=S3Client)
+    client.create_multipart_upload = AsyncMock(return_value={"UploadId": UPLOAD_ID})
+    client.generate_presigned_url = AsyncMock(return_value=URL)
+    return client
+
+
+def create_cache() -> Cache:
+    return AsyncMock(spec=Cache)
+
+
+def create_file_repository() -> FileRepository:
+    crud = AsyncMock(spec=FileRepository)
     crud.file_info = AsyncMock(
         return_value=response_dto.FileInfoResponseDTO(
             FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
@@ -29,15 +47,11 @@ def create_repository() -> MagicMock:
             response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP),
         )
     )
-    crud.validate_user_files = AsyncMock()
-    crud.delete = AsyncMock()
-    crud.delete_all = AsyncMock()
     return crud
 
 
-def create_storage() -> MagicMock:
-    crud = MagicMock()
-
+def create_file_storage() -> FileStorage:
+    crud = AsyncMock(spec=FileStorage)
     crud.initiate_upload = AsyncMock(
         return_value=response_dto.InitiateUploadResponseDTO(
             FILE_ID,
@@ -46,19 +60,5 @@ def create_storage() -> MagicMock:
             [response_dto.UploadPartResponseDTO(1, RELATIVE_URL)],
         )
     )
-    crud.complete_upload = AsyncMock()
-    crud.abort_upload = AsyncMock()
     crud.download = AsyncMock(return_value=RELATIVE_URL)
-    crud.delete = AsyncMock()
     return crud
-
-
-def create_cache() -> MagicMock:
-    cache = MagicMock()
-
-    cache.get = AsyncMock(return_value=None)
-    cache.set = AsyncMock()
-    cache.delete = AsyncMock()
-    cache.delete_many = AsyncMock()
-    cache.delete_match = AsyncMock()
-    return cache

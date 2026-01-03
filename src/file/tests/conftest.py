@@ -1,19 +1,82 @@
-
 import pytest
+from cashews import Cache
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from types_aiobotocore_s3 import S3Client
 
+from adapters import MinIOAdapter
 from controller import FileController
-from repository import File
+from proto import FileServicer
+from protocols import (
+    FileRepositoryProtocol,
+    FileServiceProtocol,
+    FileStorageProtocol,
+    S3ClientProtocol,
+)
+from repository import FileRepository
+from service import FileService
+from storage import FileStorage
 
-from .mocks import FILE_ID, NAME, SIZE, TIMESTAMP, USER_ID
+from .mocks import (
+    create_cache,
+    create_client,
+    create_file_repository,
+    create_file_storage,
+    create_sessionmaker,
+)
 
 
 @pytest.fixture
-def file() -> File:
-    return File(
-        file_id=FILE_ID, user_id=USER_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP
-    )
+def sessionmaker() -> async_sessionmaker[AsyncSession]:
+    return create_sessionmaker()
 
 
-@pytest.fixture(scope="session")
-def file_controller() -> FileController:
-    return FileController()
+@pytest.fixture
+def session(sessionmaker) -> AsyncSession:
+    return sessionmaker.begin.return_value.__aenter__.return_value
+
+
+@pytest.fixture
+def client() -> S3Client:
+    return create_client()
+
+
+@pytest.fixture
+def cache() -> Cache:
+    return create_cache()
+
+
+@pytest.fixture
+def minio_adapter(client) -> S3ClientProtocol:
+    return MinIOAdapter(client)
+
+
+@pytest.fixture
+def file_repository(sessionmaker) -> FileRepositoryProtocol:
+    return FileRepository(sessionmaker)
+
+
+@pytest.fixture
+def file_storage(minio_adapter) -> FileStorageProtocol:
+    return FileStorage(minio_adapter)
+
+
+@pytest.fixture
+def mocked_file_repository() -> FileRepositoryProtocol:
+    return create_file_repository()
+
+
+@pytest.fixture
+def mocked_file_storage() -> FileStorageProtocol:
+    return create_file_storage()
+
+
+@pytest.fixture
+def file_service(
+    mocked_file_repository, mocked_file_storage, cache
+) -> FileServiceProtocol:
+    return FileService(mocked_file_repository, mocked_file_storage, cache)
+
+
+@pytest.fixture
+def file_controller(file_service) -> FileServicer:
+    return FileController(file_service)
