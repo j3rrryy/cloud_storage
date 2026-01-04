@@ -47,7 +47,7 @@ class ExceptionHandler:
             logger.info(
                 f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
             )
-            await context.abort(status_code, details)  # type: ignore
+            await context.abort(status_code, details)
             raise
 
 
@@ -130,7 +130,7 @@ def validate_jwt(token: str, token_type: TokenTypes, key_pair: KeyPair) -> Jwt:
 
 
 def validate_jwt_and_get_user_id(token: str, token_type: TokenTypes) -> str:
-    return validate_jwt(token, token_type).subject  # type: ignore
+    return validate_jwt(token, token_type).subject
 
 
 def get_hashed_password(password: str) -> str:

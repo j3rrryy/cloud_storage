@@ -50,10 +50,9 @@ async def test_abort_upload_file_not_found(cache, file_service):
 
 
 @pytest.mark.asyncio
-async def test_delete_with_no_files(file_repository, file_service):
-    file_repository.validate_user_files = AsyncMock()
+async def test_delete_with_no_files(mocked_file_repository, file_service):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [])
 
     await file_service.delete(dto)
 
-    file_repository.validate_user_files.assert_not_awaited()
+    mocked_file_repository.validate_user_files.assert_not_awaited()

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from types_aiobotocore_s3 import S3Client
 
 from dto import response as response_dto
-from repository import FileRepository
+from repository import File, FileRepository
 from storage import FileStorage
 
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
@@ -62,3 +62,9 @@ def create_file_storage() -> FileStorage:
     )
     crud.download = AsyncMock(return_value=RELATIVE_URL)
     return crud
+
+
+def create_file() -> File:
+    return File(
+        file_id=FILE_ID, user_id=USER_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP
+    )

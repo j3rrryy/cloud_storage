@@ -12,13 +12,14 @@ from protocols import (
     FileStorageProtocol,
     S3ClientProtocol,
 )
-from repository import FileRepository
+from repository import File, FileRepository
 from service import FileService
 from storage import FileStorage
 
 from .mocks import (
     create_cache,
     create_client,
+    create_file,
     create_file_repository,
     create_file_storage,
     create_sessionmaker,
@@ -80,3 +81,8 @@ def file_service(
 @pytest.fixture
 def file_controller(file_service) -> FileServicer:
     return FileController(file_service)
+
+
+@pytest.fixture
+def file() -> File:
+    return create_file()

@@ -9,8 +9,6 @@ from botocore.exceptions import ClientError
 from exceptions import (
     BaseException,
     DatabaseException,
-    FileAlreadyExistsException,
-    FileNameIsAlreadyTakenException,
     FileNotFoundException,
     StorageException,
 )
@@ -46,14 +44,7 @@ def database_exception_handler(func):
         try:
             return await func(*args, **kwargs)
         except Exception as exc:
-            if isinstance(
-                exc,
-                (
-                    FileAlreadyExistsException,
-                    FileNameIsAlreadyTakenException,
-                    FileNotFoundException,
-                ),
-            ):
+            if isinstance(exc, BaseException):
                 raise exc
             raise DatabaseException(exc)
 

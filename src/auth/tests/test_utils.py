@@ -76,7 +76,7 @@ def test_generate_reset_code():
     "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_generate_jwt(token_type, mock_key_pair):
-    token = generate_jwt(USER_ID, token_type)  # type: ignore
+    token = generate_jwt(USER_ID, token_type)
 
     jwt = Jwt(token)
     assert isinstance(token, str)
@@ -99,16 +99,16 @@ def test_generate_jwt(token_type, mock_key_pair):
     "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt(token_type, mock_key_pair):
-    token = generate_jwt(USER_ID, token_type)  # type: ignore
+    token = generate_jwt(USER_ID, token_type)
 
-    jwt = validate_jwt(token, token_type)  # type: ignore
+    jwt = validate_jwt(token, token_type)
 
     assert jwt.subject == USER_ID
 
 
 def test_validate_broken_jwt(mock_key_pair):
     with pytest.raises(UnauthenticatedException) as exc_info:
-        validate_jwt("broken_token", TokenTypes.ACCESS)  # type: ignore
+        validate_jwt("broken_token", TokenTypes.ACCESS)
 
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, "Token is invalid")
 
@@ -117,7 +117,7 @@ def test_validate_broken_jwt(mock_key_pair):
     "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
-    token = generate_jwt(USER_ID, token_type)  # type: ignore
+    token = generate_jwt(USER_ID, token_type)
 
     user_id = validate_jwt_and_get_user_id(token, token_type)
 
@@ -154,14 +154,14 @@ def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
 def test_validate_jwt_exceptions(
     modified, in_token_type, out_token_type, expected_message, mock_key_pair
 ):
-    jwt = Jwt(generate_jwt(USER_ID, in_token_type))  # type: ignore
-    claims = jwt.claims  # type: ignore
+    jwt = Jwt(generate_jwt(USER_ID, in_token_type))
+    claims = jwt.claims
     typ = str(out_token_type.value) if out_token_type else None
     claims.update(modified)
     new_token = str(Jwt.sign(claims, mock_key_pair.private_key, alg="EdDSA", typ=typ))
 
     with pytest.raises(UnauthenticatedException) as exc_info:
-        validate_jwt(new_token, in_token_type)  # type: ignore
+        validate_jwt(new_token, in_token_type)
 
     assert exc_info.value.args == (StatusCode.UNAUTHENTICATED, expected_message)
 
