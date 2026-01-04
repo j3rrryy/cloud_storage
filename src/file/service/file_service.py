@@ -76,12 +76,12 @@ class FileService(FileServiceProtocol):
         await self._file_repository.validate_user_files(data.user_id, data.file_ids)
         asyncio.create_task(self._file_storage.delete(data.file_ids))
         await self._file_repository.delete(data)
-        asyncio.create_task(self._invalidate_cache(data.user_id, data.file_ids))
+        await self._invalidate_cache(data.user_id, data.file_ids)
 
     async def delete_all(self, user_id: str) -> None:
         file_ids = await self._file_repository.delete_all(user_id)
         asyncio.create_task(self._file_storage.delete(file_ids))
-        asyncio.create_task(self._invalidate_cache(user_id, file_ids))
+        await self._invalidate_cache(user_id, file_ids)
 
     async def _get_upload(
         self, upload_key: str
@@ -99,5 +99,6 @@ class FileService(FileServiceProtocol):
 
     async def _invalidate_cache(self, user_id: str, file_ids: list[str]):
         await self._cache.delete(file_list_key(user_id))
-        for file_id in file_ids:
-            await self._cache.delete(file_info_key(user_id, file_id))
+        if file_ids:
+            keys = (file_info_key(user_id, file_id) for file_id in file_ids)
+            await self._cache.delete_many(*keys)

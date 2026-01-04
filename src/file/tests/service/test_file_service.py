@@ -54,3 +54,12 @@ async def test_delete_with_no_files(mocked_file_repository, file_service):
     await file_service.delete(dto)
 
     mocked_file_repository.validate_user_files.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_delete_all_with_no_files(mocked_file_repository, file_service, cache):
+    mocked_file_repository.delete_all.return_value = []
+
+    await file_service.delete_all(USER_ID)
+
+    cache.delete_many.assert_not_awaited()

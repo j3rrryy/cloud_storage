@@ -2,7 +2,7 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 from dto import response as response_dto
-from utils import get_hashed_password
+from security import get_password_hash
 
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
 REFRESH_TOKEN = "eyJ0eXBlIjoxLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.Cz6F9m9TJP76hzcyst0xE9vp6RmXtGIhAXaNqJWrJL8"
@@ -49,7 +49,7 @@ def create_repository() -> MagicMock:
     crud.validate_access_token = AsyncMock()
     crud.profile = AsyncMock(
         return_value=response_dto.ProfileResponseDTO(
-            USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), False, TIMESTAMP
+            USER_ID, USERNAME, EMAIL, get_password_hash(PASSWORD), False, TIMESTAMP
         )
     )
     crud.update_email = AsyncMock(return_value=USERNAME)

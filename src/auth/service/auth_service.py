@@ -1,27 +1,27 @@
 from time import time
 
 from cashews import cache
-from grpc import StatusCode
 
 from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus, TokenTypes
 from exceptions import EmailHasAlreadyBeenConfirmedException, UnauthenticatedException
 from repository import AuthRepository
+from security import (
+    compare_passwords,
+    generate_code,
+    get_jwt_hash,
+    get_password_hash,
+    validate_jwt,
+    validate_jwt_and_get_user_id,
+)
 from utils import (
     access_token_key,
-    compare_passwords,
     convert_user_agent,
-    generate_jwt,
-    generate_reset_code,
-    get_hashed_jwt,
-    get_hashed_password,
     user_all_keys,
     user_profile_key,
     user_reset_key,
     user_session_list_key,
-    validate_jwt,
-    validate_jwt_and_get_user_id,
 )
 
 
@@ -32,7 +32,7 @@ class AuthService:
     async def register(
         data: request_dto.RegisterRequestDTO,
     ) -> str:
-        data = data.replace(password=get_hashed_password(data.password))
+        data = data.replace(password=get_password_hash(data.password))
         user_id = await AuthRepository.register(data)
         return generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
 
@@ -45,7 +45,7 @@ class AuthService:
     @staticmethod
     async def request_reset_code(email: str) -> response_dto.ResetCodeResponseDTO:
         profile = await AuthRepository.profile(email)
-        code = generate_reset_code()
+        code = generate_code()
         await cache.set(user_reset_key(profile.user_id), code, 600)
         return response_dto.ResetCodeResponseDTO(
             profile.user_id, profile.username, code
@@ -68,11 +68,9 @@ class AuthService:
         code = await cache.get(reset_key)
 
         if not code or code != ResetCodeStatus.VALIDATED.value:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Code is not validated"
-            )
+            raise UnauthenticatedException("Code is not validated")
 
-        data = data.replace(new_password=get_hashed_password(data.new_password))
+        data = data.replace(new_password=get_password_hash(data.new_password))
         deleted_access_tokens = await AuthRepository.reset_password(data)
         await cls._delete_cached_access_tokens(*deleted_access_tokens)
         await cache.delete_many(user_session_list_key(data.user_id), reset_key)
@@ -88,8 +86,8 @@ class AuthService:
         refresh_token = generate_jwt(profile.user_id, TokenTypes.REFRESH)
         browser = convert_user_agent(data.user_agent)
 
-        hashed_access_token = get_hashed_jwt(access_token)
-        hashed_refresh_token = get_hashed_jwt(refresh_token)
+        hashed_access_token = get_jwt_hash(access_token)
+        hashed_refresh_token = get_jwt_hash(refresh_token)
         dto = request_dto.LogInDataRequestDTO(
             hashed_access_token,
             hashed_refresh_token,
@@ -106,7 +104,7 @@ class AuthService:
 
     @classmethod
     async def log_out(cls, access_token: str) -> None:
-        hashed_access_token = get_hashed_jwt(access_token)
+        hashed_access_token = get_jwt_hash(access_token)
         user_id = await cls._cached_access_token(access_token)
         await AuthRepository.log_out(hashed_access_token)
         await cls._delete_cached_access_tokens(hashed_access_token)
@@ -120,9 +118,7 @@ class AuthService:
         profile = await AuthRepository.profile(user_id)
 
         if profile.email_confirmed:
-            raise EmailHasAlreadyBeenConfirmedException(
-                StatusCode.ALREADY_EXISTS, "Email has already been confirmed"
-            )
+            raise EmailHasAlreadyBeenConfirmedException
 
         token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
         return response_dto.EmailConfirmationMailResponseDTO(
@@ -143,9 +139,9 @@ class AuthService:
         refresh_token = generate_jwt(user_id, TokenTypes.REFRESH)
         browser = convert_user_agent(data.user_agent)
 
-        hashed_access_token = get_hashed_jwt(access_token)
-        hashed_refresh_token = get_hashed_jwt(refresh_token)
-        hashed_old_refresh_token = get_hashed_jwt(data.refresh_token)
+        hashed_access_token = get_jwt_hash(access_token)
+        hashed_refresh_token = get_jwt_hash(refresh_token)
+        hashed_old_refresh_token = get_jwt_hash(data.refresh_token)
         dto = request_dto.RefreshDataRequestDTO(
             hashed_access_token,
             hashed_refresh_token,
@@ -211,7 +207,7 @@ class AuthService:
     async def update_password(cls, data: request_dto.UpdatePasswordRequestDTO) -> None:
         user_id = await cls._cached_access_token(data.access_token)
         dto = request_dto.UpdatePasswordDataRequestDTO(
-            user_id, data.old_password, get_hashed_password(data.new_password)
+            user_id, data.old_password, get_password_hash(data.new_password)
         )
         deleted_access_tokens = await AuthRepository.update_password(dto)
         await cls._delete_cached_access_tokens(*deleted_access_tokens)
@@ -226,7 +222,7 @@ class AuthService:
 
     @classmethod
     async def _cached_access_token(cls, access_token: str) -> str:
-        hashed_access_token = get_hashed_jwt(access_token)
+        hashed_access_token = get_jwt_hash(access_token)
         key = access_token_key(hashed_access_token)
         if cached := await cache.get(key):
             return cached

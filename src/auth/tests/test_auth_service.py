@@ -7,8 +7,9 @@ from grpc import StatusCode
 from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus
+from security import get_password_hash
 from service import AuthService
-from utils import access_token_key, get_hashed_password
+from utils import access_token_key
 
 from .mocks import (
     ACCESS_TOKEN,
@@ -171,7 +172,7 @@ async def test_resend_email_confirmation_mail_already_confirmed(
     mock_cached_access_token, mock_repository, mock_key_pair
 ):
     mock_repository.profile.return_value = response_dto.ProfileResponseDTO(
-        USER_ID, USERNAME, EMAIL, get_hashed_password(PASSWORD), True, TIMESTAMP
+        USER_ID, USERNAME, EMAIL, get_password_hash(PASSWORD), True, TIMESTAMP
     )
 
     with pytest.raises(Exception) as exc_info:

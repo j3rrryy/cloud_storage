@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from dto import request as request_dto
 from dto import response as response_dto
 from repository import AuthRepository
-from utils import get_hashed_jwt, get_hashed_password
+from utils import get_jwt_hash, get_password_hash
 
 from .mocks import (
     ACCESS_TOKEN,
@@ -146,8 +146,8 @@ async def test_reset_password_exception(mock_session):
 @pytest.mark.asyncio
 async def test_log_in(mock_session):
     dto = request_dto.LogInDataRequestDTO(
-        get_hashed_jwt(ACCESS_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
+        get_jwt_hash(ACCESS_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
         BROWSER,
@@ -175,8 +175,8 @@ async def test_log_in_exceptions(
     exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.LogInDataRequestDTO(
-        get_hashed_jwt(ACCESS_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
+        get_jwt_hash(ACCESS_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
         BROWSER,
@@ -195,7 +195,7 @@ async def test_log_in_exceptions(
 
 @pytest.mark.asyncio
 async def test_log_out(mock_session):
-    hashed_access_token = get_hashed_jwt(ACCESS_TOKEN)
+    hashed_access_token = get_jwt_hash(ACCESS_TOKEN)
 
     await AuthRepository.log_out(hashed_access_token)
 
@@ -209,7 +209,7 @@ async def test_log_out_not_tokens(mock_session):
     mock_session.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
-    hashed_access_token = get_hashed_jwt(ACCESS_TOKEN)
+    hashed_access_token = get_jwt_hash(ACCESS_TOKEN)
 
     with pytest.raises(Exception) as exc_info:
         await AuthRepository.log_out(hashed_access_token)
@@ -223,7 +223,7 @@ async def test_log_out_not_tokens(mock_session):
 @pytest.mark.asyncio
 async def test_log_out_exception(mock_session):
     mock_session.commit.side_effect = Exception("Details")
-    hashed_access_token = get_hashed_jwt(ACCESS_TOKEN)
+    hashed_access_token = get_jwt_hash(ACCESS_TOKEN)
 
     with pytest.raises(Exception) as exc_info:
         await AuthRepository.log_out(hashed_access_token)
@@ -239,9 +239,9 @@ async def test_log_out_exception(mock_session):
 @pytest.mark.asyncio
 async def test_refresh(mock_session):
     dto = request_dto.RefreshDataRequestDTO(
-        get_hashed_jwt(ACCESS_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
+        get_jwt_hash(ACCESS_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
         BROWSER,
@@ -261,9 +261,9 @@ async def test_refresh(mock_session):
 @pytest.mark.asyncio
 async def test_refresh_not_tokens(mock_session):
     dto = request_dto.RefreshDataRequestDTO(
-        get_hashed_jwt(ACCESS_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
+        get_jwt_hash(ACCESS_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
         BROWSER,
@@ -297,9 +297,9 @@ async def test_refresh_exceptions(
     exception, expected_status, expected_message, mock_session
 ):
     dto = request_dto.RefreshDataRequestDTO(
-        get_hashed_jwt(ACCESS_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
-        get_hashed_jwt(REFRESH_TOKEN),
+        get_jwt_hash(ACCESS_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
+        get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
         BROWSER,
@@ -542,7 +542,7 @@ async def test_update_email_exceptions(
 @pytest.mark.asyncio
 async def test_update_password(mock_session, user):
     dto = request_dto.UpdatePasswordDataRequestDTO(
-        USER_ID, PASSWORD, get_hashed_password(PASSWORD)
+        USER_ID, PASSWORD, get_password_hash(PASSWORD)
     )
     mock_session.get.return_value = user
     mock_session.scalars = AsyncMock(return_value=[ACCESS_TOKEN])
@@ -559,7 +559,7 @@ async def test_update_password(mock_session, user):
 @pytest.mark.asyncio
 async def test_update_password_not_user(mock_session):
     dto = request_dto.UpdatePasswordDataRequestDTO(
-        USER_ID, PASSWORD, get_hashed_password(PASSWORD)
+        USER_ID, PASSWORD, get_password_hash(PASSWORD)
     )
     mock_session.get.return_value = None
 
@@ -574,7 +574,7 @@ async def test_update_password_not_user(mock_session):
 @pytest.mark.asyncio
 async def test_update_password_exception(mock_session, user):
     dto = request_dto.UpdatePasswordDataRequestDTO(
-        USER_ID, PASSWORD, get_hashed_password(PASSWORD)
+        USER_ID, PASSWORD, get_password_hash(PASSWORD)
     )
     mock_session.get.return_value = user
     mock_session.commit.side_effect = Exception("Details")

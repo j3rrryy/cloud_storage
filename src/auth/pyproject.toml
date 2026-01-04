@@ -11,7 +11,6 @@ dependencies = [
     "grpcio==1.74.0",
     "grpcio-tools==1.74.0",
     "httpagentparser==1.9.5",
-    "inject>=5.3.0",
     "jwskate==0.12.2",
     "picologging==0.9.3",
     "py-async-grpc-prometheus==0.2.0",

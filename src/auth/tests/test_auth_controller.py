@@ -61,7 +61,7 @@ async def test_request_reset_code(auth_controller):
     with (
         patch("service.auth_service.AuthRepository", new_callable=create_repository),
         patch("service.auth_service.cache", new_callable=create_cache),
-        patch("service.auth_service.generate_reset_code") as mock_generator,
+        patch("service.auth_service.generate_code") as mock_generator,
     ):
         mock_generator.return_value = CODE
         request = pb2.Email(email=EMAIL)

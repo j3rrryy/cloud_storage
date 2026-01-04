@@ -1,1 +1,1 @@
-from .auth_controller import *  # noqa: F403
+from .auth_controller import *

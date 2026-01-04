@@ -10,6 +10,7 @@ volumes:
   prometheus_data:
   grafana_data:
 
+
 networks:
   nginx:
   backend:
@@ -21,7 +22,7 @@ networks:
 services:
   nginx-api:
     image: nginx:1.28.0-alpine
-    profiles: ["api"]
+    profiles: [ "api" ]
     restart: unless-stopped
     ports:
       - 80:80
@@ -35,7 +36,7 @@ services:
 
   nginx-all:
     image: nginx:1.28.0-alpine
-    profiles: ["all"]
+    profiles: [ "all" ]
     restart: unless-stopped
     ports:
       - 80:80
@@ -50,7 +51,7 @@ services:
   gateway:
     build:
       context: ./src/gateway/
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     expose:
       - 8000
@@ -70,7 +71,7 @@ services:
   auth:
     build:
       context: ./src/auth/
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     expose:
       - 50051
@@ -89,7 +90,7 @@ services:
 
   auth_postgres:
     image: postgres:17.5-alpine
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     env_file:
       - ./dev/.env
@@ -102,7 +103,7 @@ services:
 
   auth_redis:
     image: redis:8.2-alpine
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     volumes:
       - auth_redis_data:/data/
@@ -116,7 +117,7 @@ services:
   file:
     build:
       context: ./src/file/
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     expose:
       - 50051
@@ -136,7 +137,7 @@ services:
 
   minio:
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     expose:
       - 9000
@@ -158,7 +159,7 @@ services:
 
   mc:
     image: minio/mc:RELEASE.2025-07-21T05-28-08Z
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     env_file:
       - ./dev/.env
     volumes:
@@ -172,7 +173,7 @@ services:
 
   file_postgres:
     image: postgres:17.5-alpine
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     env_file:
       - ./dev/.env
@@ -185,7 +186,7 @@ services:
 
   file_redis:
     image: redis:8.2-alpine
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     volumes:
       - file_redis_data:/data/
@@ -198,7 +199,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:8.0.0
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     expose:
       - 9092
@@ -224,7 +225,7 @@ services:
   mail:
     build:
       context: ./src/mail/
-    profiles: ["api", "all"]
+    profiles: [ "api", "all" ]
     restart: unless-stopped
     expose:
       - 8000
@@ -240,7 +241,7 @@ services:
 
   loki:
     image: grafana/loki:3.5
-    profiles: ["all"]
+    profiles: [ "all" ]
     restart: unless-stopped
     expose:
       - 3100
@@ -254,7 +255,7 @@ services:
 
   promtail:
     image: grafana/promtail:3.5
-    profiles: ["all"]
+    profiles: [ "all" ]
     restart: unless-stopped
     volumes:
       - /var/log:/var/log:ro
@@ -270,7 +271,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v3.5.0
-    profiles: ["all"]
+    profiles: [ "all" ]
     restart: unless-stopped
     expose:
       - 9090
@@ -285,7 +286,7 @@ services:
 
   grafana:
     image: grafana/grafana:12.1.1
-    profiles: ["all"]
+    profiles: [ "all" ]
     restart: unless-stopped
     expose:
       - 3000

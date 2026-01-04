@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from dto import request as request_dto
 from dto import response as response_dto
-from exceptions import NotFoundException, UnauthenticatedException
+from exceptions import SessionNotFoundException, UnauthenticatedException
 from utils import EMAIL_REGEX, compare_passwords, with_transaction
 
 from .models import TokenPair, User
@@ -79,9 +79,7 @@ class AuthRepository:
         ).scalar_one_or_none()
 
         if not token_pair:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Token is invalid"
-            )
+            raise UnauthenticatedException("Token is invalid")
 
         await session.delete(token_pair)
         await session.commit()
@@ -100,9 +98,7 @@ class AuthRepository:
         ).scalar_one_or_none()
 
         if not deleted_access_token:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Token is invalid"
-            )
+            raise UnauthenticatedException("Token is invalid")
 
         new_token_pair = data.to_model(TokenPair)
         session.add(new_token_pair)
@@ -141,7 +137,7 @@ class AuthRepository:
         ).scalar_one_or_none()
 
         if not deleted_access_token:
-            raise NotFoundException(StatusCode.NOT_FOUND, "Session ID not found")
+            raise SessionNotFoundException
 
         await session.commit()
         return deleted_access_token
@@ -156,9 +152,7 @@ class AuthRepository:
         ).scalar_one_or_none()
 
         if not token_pair:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Token is invalid"
-            )
+            raise UnauthenticatedException("Token is invalid")
 
     @staticmethod
     @with_transaction
@@ -183,9 +177,7 @@ class AuthRepository:
                 ).scalar_one_or_none()
 
         if not user:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
+            raise UnauthenticatedException("Invalid credentials")
         return response_dto.ProfileResponseDTO.from_model(user)
 
     @classmethod
@@ -245,9 +237,7 @@ class AuthRepository:
         rows = result.all()
 
         if not rows:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
+            raise UnauthenticatedException("Invalid credentials")
 
         deleted_access_tokens = [r[1] for r in rows if r[1] is not None]
         await session.commit()
@@ -257,7 +247,5 @@ class AuthRepository:
     async def _get_user(user_id: str, session: AsyncSession) -> User:
         user = await session.get(User, user_id)
         if not user:
-            raise UnauthenticatedException(
-                StatusCode.UNAUTHENTICATED, "Invalid credentials"
-            )
+            raise UnauthenticatedException("Invalid credentials")
         return user

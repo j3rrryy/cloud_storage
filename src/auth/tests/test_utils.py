@@ -12,10 +12,10 @@ from utils import (
     ExceptionHandler,
     compare_passwords,
     convert_user_agent,
+    generate_code,
     generate_jwt,
-    generate_reset_code,
-    get_hashed_jwt,
-    get_hashed_password,
+    get_jwt_hash,
+    get_password_hash,
     utc_now_naive,
     validate_jwt,
     validate_jwt_and_get_user_id,
@@ -64,8 +64,8 @@ def test_utc_now_naive():
     assert now.tzinfo is None
 
 
-def test_generate_reset_code():
-    code = generate_reset_code()
+def test_generate_code():
+    code = generate_code()
 
     assert isinstance(code, str)
     assert code.isdigit()
@@ -167,19 +167,19 @@ def test_validate_jwt_exceptions(
 
 
 def test_get_hashed_password():
-    hashed_password = get_hashed_password(PASSWORD)
+    hashed_password = get_password_hash(PASSWORD)
 
     assert hashed_password != PASSWORD
 
 
 def test_compare_passwords():
-    hashed_password = get_hashed_password(PASSWORD)
+    hashed_password = get_password_hash(PASSWORD)
 
     compare_passwords(PASSWORD, hashed_password)
 
 
 def test_compare_exception():
-    hashed_password = get_hashed_password(PASSWORD)
+    hashed_password = get_password_hash(PASSWORD)
 
     with pytest.raises(UnauthenticatedException) as exc_info:
         compare_passwords(PASSWORD + "0", hashed_password)
@@ -188,7 +188,7 @@ def test_compare_exception():
 
 
 def test_get_hashed_jwt():
-    hashed_jwt = get_hashed_jwt(ACCESS_TOKEN)
+    hashed_jwt = get_jwt_hash(ACCESS_TOKEN)
 
     assert hashed_jwt != ACCESS_TOKEN
 
