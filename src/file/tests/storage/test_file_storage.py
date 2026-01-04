@@ -6,7 +6,7 @@ from grpc import StatusCode
 
 from dto import request as request_dto
 from dto import response as response_dto
-from exceptions import BaseException
+from exceptions import BaseAppException
 
 from ..mocks import (
     ETAG,
@@ -39,7 +39,7 @@ async def test_initiate_upload_exception(client, file_storage):
     client.create_multipart_upload.side_effect = Exception("Details")
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.initiate_upload(dto)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
@@ -69,7 +69,7 @@ async def test_complete_upload_no_upload(client, file_storage):
         USER_ID, UPLOAD_ID, [request_dto.CompletePartRequestDTO(1, ETAG)]
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.complete_upload(FILE_ID, dto)
 
     assert exc_info.value.status_code == StatusCode.NOT_FOUND
@@ -87,7 +87,7 @@ async def test_complete_upload_client_error_exception(client, file_storage):
         USER_ID, UPLOAD_ID, [request_dto.CompletePartRequestDTO(1, ETAG)]
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.complete_upload(FILE_ID, dto)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
@@ -105,7 +105,7 @@ async def test_complete_upload_exception(client, file_storage):
         USER_ID, UPLOAD_ID, [request_dto.CompletePartRequestDTO(1, ETAG)]
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.complete_upload(FILE_ID, dto)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
@@ -127,7 +127,7 @@ async def test_abort_upload_no_upload(client, file_storage):
         operation_name="AbortMultipartUpload",
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.abort_upload(FILE_ID, UPLOAD_ID)
 
     assert exc_info.value.status_code == StatusCode.NOT_FOUND
@@ -142,7 +142,7 @@ async def test_abort_upload_client_error_exception(client, file_storage):
         operation_name="AbortMultipartUpload",
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.abort_upload(FILE_ID, UPLOAD_ID)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
@@ -157,7 +157,7 @@ async def test_abort_upload_client_error_exception(client, file_storage):
 async def test_abort_upload_exception(client, file_storage):
     client.abort_multipart_upload.side_effect = Exception("Details")
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.abort_upload(FILE_ID, UPLOAD_ID)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
@@ -183,7 +183,7 @@ async def test_download_no_file(client, file_storage):
     )
     dto = response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP)
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.download(dto)
 
     assert exc_info.value.status_code == StatusCode.NOT_FOUND
@@ -199,7 +199,7 @@ async def test_download_client_error_exception(client, file_storage):
     )
     dto = response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP)
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.download(dto)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
@@ -215,7 +215,7 @@ async def test_download_exception(client, file_storage):
     client.generate_presigned_url.side_effect = Exception("Details")
     dto = response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP)
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_storage.download(dto)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL

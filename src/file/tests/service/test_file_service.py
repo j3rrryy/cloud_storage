@@ -2,7 +2,7 @@ import pytest
 from grpc import StatusCode
 
 from dto import request as request_dto
-from exceptions import BaseException
+from exceptions import BaseAppException
 from settings import Settings
 
 from ..mocks import ETAG, NAME, UPLOAD_ID, USER_ID
@@ -14,7 +14,7 @@ async def test_initiate_upload_file_too_large(file_service):
         USER_ID, NAME, Settings.MAX_FILE_SIZE + 1
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_service.initiate_upload(dto)
 
     assert exc_info.value.status_code == StatusCode.INVALID_ARGUMENT
@@ -28,7 +28,7 @@ async def test_complete_upload_file_not_found(cache, file_service):
         USER_ID, UPLOAD_ID, [request_dto.CompletePartRequestDTO(1, ETAG)]
     )
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_service.complete_upload(dto)
 
     assert exc_info.value.status_code == StatusCode.NOT_FOUND
@@ -40,7 +40,7 @@ async def test_abort_upload_file_not_found(cache, file_service):
     cache.get.return_value = None
     dto = request_dto.AbortUploadRequestDTO(USER_ID, UPLOAD_ID)
 
-    with pytest.raises(BaseException) as exc_info:
+    with pytest.raises(BaseAppException) as exc_info:
         await file_service.abort_upload(dto)
 
     assert exc_info.value.status_code == StatusCode.NOT_FOUND

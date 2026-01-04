@@ -1,12 +1,12 @@
 from grpc import StatusCode
 
 
-class BaseException(Exception):
+class BaseAppException(Exception):
     status_code: StatusCode
     details: str
 
 
-class BaseInternalException(BaseException):
+class BaseInternalException(BaseAppException):
     status_code = StatusCode.INTERNAL
 
     def __init__(self, service: str, exc: Exception):
@@ -23,21 +23,21 @@ class StorageException(BaseInternalException):
         super().__init__("storage", exc)
 
 
-class FileAlreadyExistsException(BaseException):
+class FileAlreadyExistsException(BaseAppException):
     status_code = StatusCode.ALREADY_EXISTS
     details = "File already exists"
 
 
-class FileNotFoundException(BaseException):
+class FileNotFoundException(BaseAppException):
     status_code = StatusCode.NOT_FOUND
     details = "File not found"
 
 
-class FileNameIsAlreadyTakenException(BaseException):
+class FileNameIsAlreadyTakenException(BaseAppException):
     status_code = StatusCode.ALREADY_EXISTS
     details = "File name is already taken"
 
 
-class FileTooLargeException(BaseException):
+class FileTooLargeException(BaseAppException):
     status_code = StatusCode.INVALID_ARGUMENT
     details = "File too large"

@@ -1,5 +1,5 @@
 from .exceptions import (
-    BaseException,
+    BaseAppException,
     DatabaseException,
     FileAlreadyExistsException,
     FileNameIsAlreadyTakenException,
@@ -9,7 +9,7 @@ from .exceptions import (
 )
 
 __all__ = [
-    "BaseException",
+    "BaseAppException",
     "DatabaseException",
     "FileAlreadyExistsException",
     "FileNameIsAlreadyTakenException",

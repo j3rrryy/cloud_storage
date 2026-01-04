@@ -7,14 +7,14 @@ import picologging as logging
 from botocore.exceptions import ClientError
 
 from exceptions import (
-    BaseException,
+    BaseAppException,
     DatabaseException,
     FileNotFoundException,
     StorageException,
 )
 
 
-class ExceptionInterceptor(grpc.aio.ServerInterceptor):
+class ExceptionInterceptor(grpc.aio.ServerInterceptor):  # pragma: no cover
     logger = logging.getLogger()
 
     async def intercept_service(
@@ -29,11 +29,12 @@ class ExceptionInterceptor(grpc.aio.ServerInterceptor):
         async def wrapper(request, context):
             try:
                 return await handler.unary_unary(request, context)  # type: ignore
-            except BaseException as exc:
+            except BaseAppException as exc:
                 status_code = getattr(exc, "status_code", grpc.StatusCode.UNKNOWN)
                 details = getattr(exc, "details", str(exc))
                 self.logger.info(f"Status code: {status_code.name}, details: {details}")
                 await context.abort(status_code, details)
+                return
 
         return handler._replace(unary_unary=wrapper)  # type: ignore
 
@@ -44,7 +45,7 @@ def database_exception_handler(func):
         try:
             return await func(*args, **kwargs)
         except Exception as exc:
-            if isinstance(exc, BaseException):
+            if isinstance(exc, BaseAppException):
                 raise exc
             raise DatabaseException(exc)
 
