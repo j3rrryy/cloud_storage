@@ -1,4 +1,4 @@
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, exists, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -23,15 +23,13 @@ class FileRepository(FileRepositoryProtocol):
     async def check_if_name_is_taken(
         self, data: request_dto.InitiateUploadRequestDTO
     ) -> None:
-        async with self._sessionmaker.begin() as session:
-            row_count = (
-                await session.execute(
-                    select(func.count())
-                    .select_from(File)
-                    .where(File.user_id == data.user_id, File.name == data.name)
+        async with self._sessionmaker() as session:
+            result = await session.execute(
+                select(
+                    exists().where(File.user_id == data.user_id, File.name == data.name)
                 )
-            ).scalar_one()
-        if row_count:
+            )
+        if result.scalar():
             raise FileNameIsAlreadyTakenException
 
     @database_exception_handler
@@ -49,16 +47,15 @@ class FileRepository(FileRepositoryProtocol):
     async def file_info(
         self, data: request_dto.FileRequestDTO
     ) -> response_dto.FileInfoResponseDTO:
-        async with self._sessionmaker.begin() as session:
+        async with self._sessionmaker() as session:
             file = await session.get(File, data.file_id)
-
         if not file or file.user_id != data.user_id:
             raise FileNotFoundException
         return response_dto.FileInfoResponseDTO.from_model(file)
 
     @database_exception_handler
     async def file_list(self, user_id: str) -> list[response_dto.FileInfoResponseDTO]:
-        async with self._sessionmaker.begin() as session:
+        async with self._sessionmaker() as session:
             files = (
                 (await session.execute(select(File).filter(File.user_id == user_id)))
                 .scalars()
@@ -67,26 +64,16 @@ class FileRepository(FileRepositoryProtocol):
         return [response_dto.FileInfoResponseDTO.from_model(file) for file in files]
 
     @database_exception_handler
-    async def validate_user_files(self, user_id: str, file_ids: list[str]) -> None:
-        async with self._sessionmaker.begin() as session:
-            row_count = (
-                await session.execute(
-                    select(func.count())
-                    .select_from(File)
-                    .where(File.user_id == user_id, File.file_id.in_(file_ids))
-                )
-            ).scalar_one()
-        if row_count != len(file_ids):
-            raise FileNotFoundException
-
-    @database_exception_handler
     async def delete(self, data: request_dto.DeleteFilesRequestDTO) -> None:
         async with self._sessionmaker.begin() as session:
-            await session.execute(
+            result = await session.execute(
                 delete(File).where(
                     File.user_id == data.user_id, File.file_id.in_(data.file_ids)
                 )
             )
+            row_count = result.rowcount or 0
+            if row_count != len(data.file_ids):
+                raise FileNotFoundException
 
     @database_exception_handler
     async def delete_all(self, user_id: str) -> list[str]:

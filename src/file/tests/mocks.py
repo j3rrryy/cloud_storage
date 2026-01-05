@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from cashews import Cache
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -20,8 +20,15 @@ NAME = "test_name"
 TIMESTAMP = datetime.fromisoformat("1970-01-01T00:02:03Z")
 
 
-def create_sessionmaker() -> async_sessionmaker[AsyncSession]:
-    return AsyncMock(spec=async_sessionmaker[AsyncSession])
+def create_session() -> AsyncSession:
+    return AsyncMock(spec=AsyncSession)
+
+
+def create_sessionmaker(session) -> async_sessionmaker[AsyncSession]:
+    sessionmaker = MagicMock(spec=async_sessionmaker[AsyncSession])
+    sessionmaker.return_value.__aenter__.return_value = session
+    sessionmaker.begin.return_value.__aenter__.return_value = session
+    return sessionmaker
 
 
 def create_client() -> S3Client:

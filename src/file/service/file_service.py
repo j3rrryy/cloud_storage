@@ -72,10 +72,8 @@ class FileService(FileServiceProtocol):
     async def delete(self, data: request_dto.DeleteFilesRequestDTO) -> None:
         if not data.file_ids:
             return
-
-        await self._file_repository.validate_user_files(data.user_id, data.file_ids)
-        asyncio.create_task(self._file_storage.delete(data.file_ids))
         await self._file_repository.delete(data)
+        asyncio.create_task(self._file_storage.delete(data.file_ids))
         await self._invalidate_cache(data.user_id, data.file_ids)
 
     async def delete_all(self, user_id: str) -> None:

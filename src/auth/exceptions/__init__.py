@@ -3,7 +3,9 @@ from .exceptions import (
     DatabaseException,
     EmailHasAlreadyBeenConfirmedException,
     SessionNotFoundException,
+    TokenAlreadyExistsException,
     UnauthenticatedException,
+    UserAlreadyExistsException,
 )
 
 __all__ = [
@@ -11,5 +13,7 @@ __all__ = [
     "DatabaseException",
     "EmailHasAlreadyBeenConfirmedException",
     "SessionNotFoundException",
+    "TokenAlreadyExistsException",
     "UnauthenticatedException",
+    "UserAlreadyExistsException",
 ]

@@ -22,18 +22,19 @@ from .mocks import (
     create_file,
     create_file_repository,
     create_file_storage,
+    create_session,
     create_sessionmaker,
 )
 
 
 @pytest.fixture
-def sessionmaker() -> async_sessionmaker[AsyncSession]:
-    return create_sessionmaker()
+def session() -> AsyncSession:
+    return create_session()
 
 
 @pytest.fixture
-def session(sessionmaker) -> AsyncSession:
-    return sessionmaker.begin.return_value.__aenter__.return_value
+def sessionmaker(session) -> async_sessionmaker[AsyncSession]:
+    return create_sessionmaker(session)
 
 
 @pytest.fixture

@@ -14,7 +14,7 @@ from ..mocks import FILE_ID, NAME, SIZE, TIMESTAMP, USER_ID
 @pytest.mark.asyncio
 async def test_check_if_name_is_taken(session, file_repository):
     session.execute = AsyncMock(
-        return_value=MagicMock(scalar_one=MagicMock(return_value=0))
+        return_value=MagicMock(scalar=MagicMock(return_value=False))
     )
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
 
@@ -26,7 +26,7 @@ async def test_check_if_name_is_taken(session, file_repository):
 @pytest.mark.asyncio
 async def test_check_if_name_is_taken_fail(session, file_repository):
     session.execute = AsyncMock(
-        return_value=MagicMock(scalar_one=MagicMock(return_value=1))
+        return_value=MagicMock(scalar=MagicMock(return_value=True))
     )
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
 
@@ -175,48 +175,25 @@ async def test_file_list_exception(session, file_repository):
 
 
 @pytest.mark.asyncio
-async def test_validate_user_files(session, file_repository):
-    session.execute = AsyncMock(
-        return_value=MagicMock(scalar_one=MagicMock(return_value=1))
-    )
-
-    await file_repository.validate_user_files(USER_ID, [FILE_ID])
-
-    session.execute.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_validate_user_files_fail(session, file_repository):
-    session.execute = AsyncMock(
-        return_value=MagicMock(scalar_one=MagicMock(return_value=0))
-    )
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await file_repository.validate_user_files(USER_ID, [FILE_ID])
-
-    assert exc_info.value.status_code == StatusCode.NOT_FOUND
-    assert exc_info.value.details == "File not found"
-    session.execute.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_validate_user_files_exception(session, file_repository):
-    session.execute.side_effect = Exception("Details")
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await file_repository.validate_user_files(USER_ID, [FILE_ID])
-
-    assert exc_info.value.status_code == StatusCode.INTERNAL
-    assert exc_info.value.details == "Internal database error: Details"
-    session.execute.assert_awaited_once()
-
-
-@pytest.mark.asyncio
 async def test_delete(session, file_repository):
     dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+    session.execute = AsyncMock(return_value=MagicMock(rowcount=1))
 
     await file_repository.delete(dto)
 
+    session.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_delete_fail(session, file_repository):
+    dto = request_dto.DeleteFilesRequestDTO(USER_ID, [FILE_ID])
+    session.execute = AsyncMock(return_value=MagicMock(rowcount=0))
+
+    with pytest.raises(BaseAppException) as exc_info:
+        await file_repository.delete(dto)
+
+    assert exc_info.value.status_code == StatusCode.NOT_FOUND
+    assert exc_info.value.details == "File not found"
     session.execute.assert_awaited_once()
 
 

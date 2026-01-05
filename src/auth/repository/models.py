@@ -28,9 +28,6 @@ class User(Base):
         "TokenPair", back_populates="user", passive_deletes=True
     )
 
-    def __str__(self) -> str:
-        return f"<User: {self.user_id}>"
-
 
 class TokenPair(Base):
     __tablename__ = "tokens"
@@ -52,6 +49,3 @@ class TokenPair(Base):
     user: Mapped[User] = relationship(
         User, back_populates="tokens", passive_deletes=True
     )
-
-    def __str__(self) -> str:
-        return f"<TokenPair: {self.session_id}>"

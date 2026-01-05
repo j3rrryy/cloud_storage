@@ -13,6 +13,16 @@ class DatabaseException(BaseAppException):
         self.details = f"Internal database error: {exc}"
 
 
+class UserAlreadyExistsException(BaseAppException):
+    status_code = StatusCode.ALREADY_EXISTS
+    details = "User already exists"
+
+
+class TokenAlreadyExistsException(BaseAppException):
+    status_code = StatusCode.ALREADY_EXISTS
+    details = "Token already exists"
+
+
 class UnauthenticatedException(BaseAppException):
     status_code = StatusCode.UNAUTHENTICATED
 
