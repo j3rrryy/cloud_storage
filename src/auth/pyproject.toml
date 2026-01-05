@@ -12,7 +12,6 @@ dependencies = [
     "grpcio-tools==1.74.0",
     "httpagentparser==1.9.5",
     "jwskate==0.12.2",
-    "picologging==0.9.3",
     "py-async-grpc-prometheus==0.2.0",
     "sqlalchemy==2.0.43",
     "uvicorn[standard]==0.35.0",

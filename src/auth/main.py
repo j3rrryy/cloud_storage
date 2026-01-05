@@ -1,7 +1,7 @@
 import asyncio
+import logging
 
 import grpc
-import picologging as logging
 import uvloop
 from prometheus_client import make_asgi_app
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (

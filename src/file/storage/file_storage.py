@@ -1,9 +1,8 @@
 import asyncio
+import logging
 import math
 from urllib.parse import urlparse
 from uuid import uuid4
-
-import picologging as logging
 
 from dto import request as request_dto
 from dto import response as response_dto

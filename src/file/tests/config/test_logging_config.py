@@ -1,6 +1,6 @@
+import logging
 from unittest.mock import patch
 
-import picologging as logging
 from uvicorn.config import LOGGING_CONFIG
 
 from config import setup_logging

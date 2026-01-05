@@ -1,6 +1,5 @@
 import asyncio
-
-import picologging as logging
+import logging
 
 from protocols import ApplicationFacadeProtocol, KafkaFacadeProtocol, SMTPFacadeProtocol
 from settings import Settings

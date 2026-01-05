@@ -1,9 +1,9 @@
+import logging
 from datetime import datetime, timezone
 from functools import wraps
 from typing import Awaitable, Callable
 
 import grpc
-import picologging as logging
 from httpagentparser import simple_detect
 
 from exceptions import BaseAppException, DatabaseException
