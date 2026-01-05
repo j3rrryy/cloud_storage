@@ -6,7 +6,6 @@ from .cache_keys import (
     user_session_list_key,
 )
 from .utils import (
-    EMAIL_REGEX,
     ExceptionInterceptor,
     convert_user_agent,
     database_exception_handler,
@@ -19,7 +18,6 @@ __all__ = [
     "user_profile_key",
     "user_reset_key",
     "user_session_list_key",
-    "EMAIL_REGEX",
     "ExceptionInterceptor",
     "convert_user_agent",
     "database_exception_handler",

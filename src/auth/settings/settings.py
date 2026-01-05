@@ -18,6 +18,8 @@ class Settings:
     REDIS_HOST = os.environ["REDIS_HOST"]
     REDIS_PORT = int(os.environ["REDIS_PORT"])
 
+    MIN_ACCESS_TOKEN_CACHE_TTL = 5
+
     GRPC_SERVER_ADDRESS = "[::]:50051"
     GRPC_SERVER_MAXIMUM_CONCURRENT_RPCS = 1000
 

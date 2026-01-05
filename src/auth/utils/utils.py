@@ -1,4 +1,3 @@
-import re
 from datetime import datetime, timezone
 from functools import wraps
 from typing import Awaitable, Callable
@@ -8,8 +7,6 @@ import picologging as logging
 from httpagentparser import simple_detect
 
 from exceptions import BaseAppException, DatabaseException
-
-EMAIL_REGEX = re.compile(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")
 
 
 class ExceptionInterceptor(grpc.aio.ServerInterceptor):  # pragma: no cover

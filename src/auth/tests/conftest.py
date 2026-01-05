@@ -1,12 +1,8 @@
-from typing import Generator
-from unittest.mock import AsyncMock
-
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from controller import AuthController
 from repository import TokenPair, User
-from security import KeyPair, get_password_hash
+from security import get_password_hash
 
 from .mocks import (
     ACCESS_TOKEN,

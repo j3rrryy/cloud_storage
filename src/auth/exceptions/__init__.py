@@ -1,6 +1,7 @@
 from .exceptions import (
     BaseAppException,
     DatabaseException,
+    EmailAddressIsAlreadyInUseException,
     EmailHasAlreadyBeenConfirmedException,
     SessionNotFoundException,
     TokenAlreadyExistsException,
@@ -11,6 +12,7 @@ from .exceptions import (
 __all__ = [
     "BaseAppException",
     "DatabaseException",
+    "EmailAddressIsAlreadyInUseException",
     "EmailHasAlreadyBeenConfirmedException",
     "SessionNotFoundException",
     "TokenAlreadyExistsException",

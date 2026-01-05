@@ -93,5 +93,4 @@ class UpdatePasswordRequestDTO(BaseRequestDTO):
 @dataclass(slots=True, frozen=True)
 class UpdatePasswordDataRequestDTO(BaseRequestDTO):
     user_id: str
-    old_password: str
     new_password: str

@@ -23,6 +23,11 @@ class StorageException(BaseInternalException):
         super().__init__("storage", exc)
 
 
+class FileNameIsAlreadyTakenException(BaseAppException):
+    status_code = StatusCode.ALREADY_EXISTS
+    details = "File name is already taken"
+
+
 class FileAlreadyExistsException(BaseAppException):
     status_code = StatusCode.ALREADY_EXISTS
     details = "File already exists"
@@ -31,11 +36,6 @@ class FileAlreadyExistsException(BaseAppException):
 class FileNotFoundException(BaseAppException):
     status_code = StatusCode.NOT_FOUND
     details = "File not found"
-
-
-class FileNameIsAlreadyTakenException(BaseAppException):
-    status_code = StatusCode.ALREADY_EXISTS
-    details = "File name is already taken"
 
 
 class FileTooLargeException(BaseAppException):

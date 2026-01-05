@@ -23,18 +23,23 @@ class TokenAlreadyExistsException(BaseAppException):
     details = "Token already exists"
 
 
-class UnauthenticatedException(BaseAppException):
-    status_code = StatusCode.UNAUTHENTICATED
-
-    def __init__(self, details: str):
-        self.details = details
-
-
 class EmailHasAlreadyBeenConfirmedException(BaseAppException):
     status_code = StatusCode.ALREADY_EXISTS
     details = "Email has already been confirmed"
 
 
+class EmailAddressIsAlreadyInUseException(BaseAppException):
+    status_code = StatusCode.ALREADY_EXISTS
+    details = "Email address is already in use"
+
+
 class SessionNotFoundException(BaseAppException):
     status_code = StatusCode.NOT_FOUND
     details = "Session not found"
+
+
+class UnauthenticatedException(BaseAppException):
+    status_code = StatusCode.UNAUTHENTICATED
+
+    def __init__(self, details: str):
+        self.details = details

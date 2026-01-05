@@ -1,20 +1,23 @@
 from time import time
+from typing import Any
 
-from cashews import cache
+from cashews import Cache
 
 from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus, TokenTypes
 from exceptions import EmailHasAlreadyBeenConfirmedException, UnauthenticatedException
-from repository import AuthRepository
+from protocols import AuthRepositoryProtocol, AuthServiceProtocol
 from security import (
     compare_passwords,
     generate_code,
+    generate_jwt,
     get_jwt_hash,
     get_password_hash,
     validate_jwt,
     validate_jwt_and_get_user_id,
 )
+from settings import Settings
 from utils import (
     access_token_key,
     convert_user_agent,
@@ -25,61 +28,53 @@ from utils import (
 )
 
 
-class AuthService:
-    MIN_CACHE_TTL = 5
+class AuthService(AuthServiceProtocol):
+    def __init__(self, auth_repository: AuthRepositoryProtocol, cache: Cache):
+        self._auth_repository = auth_repository
+        self._cache = cache
 
-    @staticmethod
-    async def register(
-        data: request_dto.RegisterRequestDTO,
-    ) -> str:
+    async def register(self, data: request_dto.RegisterRequestDTO) -> str:
         data = data.replace(password=get_password_hash(data.password))
-        user_id = await AuthRepository.register(data)
+        user_id = await self._auth_repository.register(data)
         return generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
 
-    @staticmethod
-    async def confirm_email(token: str) -> None:
+    async def confirm_email(self, token: str) -> None:
         user_id = validate_jwt_and_get_user_id(token, TokenTypes.EMAIL_CONFIRMATION)
-        await AuthRepository.confirm_email(user_id)
-        await cache.delete(user_profile_key(user_id))
+        await self._auth_repository.confirm_email(user_id)
+        await self._cache.delete(user_profile_key(user_id))
 
-    @staticmethod
-    async def request_reset_code(email: str) -> response_dto.ResetCodeResponseDTO:
-        profile = await AuthRepository.profile(email)
+    async def request_reset_code(self, email: str) -> response_dto.ResetCodeResponseDTO:
+        profile = await self._auth_repository.profile_by_email(email)
         code = generate_code()
-        await cache.set(user_reset_key(profile.user_id), code, 600)
+        await self._cache.set(user_reset_key(profile.user_id), code, 600)
         return response_dto.ResetCodeResponseDTO(
             profile.user_id, profile.username, code
         )
 
-    @staticmethod
-    async def validate_reset_code(data: request_dto.ResetCodeRequestDTO) -> bool:
+    async def validate_reset_code(self, data: request_dto.ResetCodeRequestDTO) -> bool:
         reset_key = user_reset_key(data.user_id)
-        code = await cache.get(reset_key)
-
+        code = await self._cache.get(reset_key)
         if not code or data.code != code:
             return False
-
-        await cache.set(reset_key, ResetCodeStatus.VALIDATED.value, 600)
+        await self._cache.set(reset_key, ResetCodeStatus.VALIDATED.value, 600)
         return True
 
-    @classmethod
-    async def reset_password(cls, data: request_dto.ResetPasswordRequestDTO) -> None:
+    async def reset_password(self, data: request_dto.ResetPasswordRequestDTO) -> None:
         reset_key = user_reset_key(data.user_id)
-        code = await cache.get(reset_key)
+        code = await self._cache.get(reset_key)
 
         if not code or code != ResetCodeStatus.VALIDATED.value:
             raise UnauthenticatedException("Code is not validated")
 
         data = data.replace(new_password=get_password_hash(data.new_password))
-        deleted_access_tokens = await AuthRepository.reset_password(data)
-        await cls._delete_cached_access_tokens(*deleted_access_tokens)
-        await cache.delete_many(user_session_list_key(data.user_id), reset_key)
+        deleted_access_tokens = await self._auth_repository.reset_password(data)
+        await self._invalidate_sessions_cache(data.user_id, *deleted_access_tokens)
+        await self._cache.delete(reset_key)
 
-    @staticmethod
     async def log_in(
-        data: request_dto.LogInRequestDTO,
+        self, data: request_dto.LogInRequestDTO
     ) -> response_dto.LogInResponseDTO:
-        profile = await AuthRepository.profile(data.username)
+        profile = await self._auth_repository.profile_by_username(data.username)
         compare_passwords(data.password, profile.password)
 
         access_token = generate_jwt(profile.user_id, TokenTypes.ACCESS)
@@ -96,26 +91,23 @@ class AuthService:
             browser,
         )
 
-        await AuthRepository.log_in(dto)
-        await cache.delete(user_session_list_key(profile.user_id))
+        await self._auth_repository.log_in(dto)
+        await self._cache.delete(user_session_list_key(profile.user_id))
         return response_dto.LogInResponseDTO(
             access_token, refresh_token, profile.email, browser, profile.email_confirmed
         )
 
-    @classmethod
-    async def log_out(cls, access_token: str) -> None:
+    async def log_out(self, access_token: str) -> None:
         hashed_access_token = get_jwt_hash(access_token)
-        user_id = await cls._cached_access_token(access_token)
-        await AuthRepository.log_out(hashed_access_token)
-        await cls._delete_cached_access_tokens(hashed_access_token)
-        await cache.delete(user_session_list_key(user_id))
+        user_id = await self._cached_access_token(access_token)
+        await self._auth_repository.log_out(hashed_access_token)
+        await self._invalidate_sessions_cache(user_id, hashed_access_token)
 
-    @classmethod
     async def resend_email_confirmation_mail(
-        cls, access_token: str
+        self, access_token: str
     ) -> response_dto.EmailConfirmationMailResponseDTO:
-        user_id = await cls._cached_access_token(access_token)
-        profile = await AuthRepository.profile(user_id)
+        user_id = await self._cached_access_token(access_token)
+        profile = await self._auth_repository.profile_by_user_id(user_id)
 
         if profile.email_confirmed:
             raise EmailHasAlreadyBeenConfirmedException
@@ -125,13 +117,11 @@ class AuthService:
             token, profile.username, profile.email
         )
 
-    @classmethod
-    async def auth(cls, access_token: str) -> str:
-        return await cls._cached_access_token(access_token)
+    async def auth(self, access_token: str) -> str:
+        return await self._cached_access_token(access_token)
 
-    @classmethod
     async def refresh(
-        cls, data: request_dto.RefreshRequestDTO
+        self, data: request_dto.RefreshRequestDTO
     ) -> response_dto.RefreshResponseDTO:
         user_id = validate_jwt_and_get_user_id(data.refresh_token, TokenTypes.REFRESH)
 
@@ -151,95 +141,99 @@ class AuthService:
             browser,
         )
 
-        deleted_access_token = await AuthRepository.refresh(dto)
-        await cls._delete_cached_access_tokens(deleted_access_token)
-        await cache.delete(user_session_list_key(user_id))
+        deleted_access_token = await self._auth_repository.refresh(dto)
+        await self._invalidate_sessions_cache(user_id, deleted_access_token)
         return response_dto.RefreshResponseDTO(access_token, refresh_token)
 
-    @classmethod
     async def session_list(
-        cls, access_token: str
+        self, access_token: str
     ) -> list[response_dto.SessionInfoResponseDTO]:
-        user_id = await cls._cached_access_token(access_token)
+        user_id = await self._cached_access_token(access_token)
         session_list_key = user_session_list_key(user_id)
-
-        if cached := await cache.get(session_list_key):
-            return cached
-
-        sessions = await AuthRepository.session_list(user_id)
-        await cache.set(session_list_key, sessions, 3600)
+        sessions = await self._get_cached(
+            session_list_key, self._auth_repository.session_list, user_id
+        )
         return sessions
 
-    @classmethod
-    async def revoke_session(cls, data: request_dto.RevokeSessionRequestDTO) -> None:
-        user_id = await cls._cached_access_token(data.access_token)
-        deleted_access_token = await AuthRepository.revoke_session(data.session_id)
-        await cls._delete_cached_access_tokens(deleted_access_token)
-        await cache.delete(user_session_list_key(user_id))
+    async def revoke_session(self, data: request_dto.RevokeSessionRequestDTO) -> None:
+        user_id = await self._cached_access_token(data.access_token)
+        deleted_access_token = await self._auth_repository.revoke_session(
+            data.session_id
+        )
+        await self._invalidate_sessions_cache(user_id, deleted_access_token)
 
-    @classmethod
-    async def profile(cls, access_token: str) -> response_dto.ProfileResponseDTO:
-        user_id = await cls._cached_access_token(access_token)
+    async def profile(self, access_token: str) -> response_dto.ProfileResponseDTO:
+        user_id = await self._cached_access_token(access_token)
         profile_key = user_profile_key(user_id)
-
-        if cached := await cache.get(profile_key):
-            return cached
-
-        profile = await AuthRepository.profile(user_id)
-        await cache.set(profile_key, profile, 3600)
+        profile = await self._get_cached(
+            profile_key, self._auth_repository.profile_by_user_id, user_id
+        )
         return profile
 
-    @classmethod
     async def update_email(
-        cls, data: request_dto.UpdateEmailRequestDTO
+        self, data: request_dto.UpdateEmailRequestDTO
     ) -> response_dto.EmailConfirmationMailResponseDTO:
-        user_id = await cls._cached_access_token(data.access_token)
+        user_id = await self._cached_access_token(data.access_token)
         dto = request_dto.UpdateEmailDataRequestDTO(user_id, data.new_email)
 
-        username = await AuthRepository.update_email(dto)
-        await cache.delete(user_profile_key(user_id))
+        username = await self._auth_repository.update_email(dto)
+        await self._cache.delete(user_profile_key(user_id))
         token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
         return response_dto.EmailConfirmationMailResponseDTO(
             token, username, data.new_email
         )
 
-    @classmethod
-    async def update_password(cls, data: request_dto.UpdatePasswordRequestDTO) -> None:
-        user_id = await cls._cached_access_token(data.access_token)
-        dto = request_dto.UpdatePasswordDataRequestDTO(
-            user_id, data.old_password, get_password_hash(data.new_password)
-        )
-        deleted_access_tokens = await AuthRepository.update_password(dto)
-        await cls._delete_cached_access_tokens(*deleted_access_tokens)
+    async def update_password(self, data: request_dto.UpdatePasswordRequestDTO) -> None:
+        user_id = await self._cached_access_token(data.access_token)
+        profile = await self._auth_repository.profile_by_user_id(user_id)
+        compare_passwords(data.old_password, profile.password)
 
-    @classmethod
-    async def delete_profile(cls, access_token: str) -> str:
-        user_id = await cls._cached_access_token(access_token)
-        deleted_access_tokens = await AuthRepository.delete_profile(user_id)
-        await cls._delete_cached_access_tokens(*deleted_access_tokens)
-        await cache.delete_many(*user_all_keys(user_id))
+        dto = request_dto.UpdatePasswordDataRequestDTO(
+            user_id, get_password_hash(data.new_password)
+        )
+        deleted_access_tokens = await self._auth_repository.update_password(dto)
+        await self._invalidate_sessions_cache(user_id, *deleted_access_tokens)
+
+    async def delete_profile(self, access_token: str) -> str:
+        user_id = await self._cached_access_token(access_token)
+        deleted_access_tokens = await self._auth_repository.delete_profile(user_id)
+        await self._invalidate_access_tokens_cache(*deleted_access_tokens)
+        await self._cache.delete_many(*user_all_keys(user_id))
         return user_id
 
-    @classmethod
-    async def _cached_access_token(cls, access_token: str) -> str:
+    async def _cached_access_token(self, access_token: str) -> str:
         hashed_access_token = get_jwt_hash(access_token)
         key = access_token_key(hashed_access_token)
-        if cached := await cache.get(key):
+        if cached := await self._cache.get(key):
             return cached
 
         jwt = validate_jwt(access_token, TokenTypes.ACCESS)
-        await AuthRepository.validate_access_token(hashed_access_token)
+        await self._auth_repository.validate_access_token(hashed_access_token)
 
         ttl = jwt.exp - int(time())
-        if ttl > cls.MIN_CACHE_TTL:
-            await cache.set(key, jwt.subject, ttl)
+        if ttl > Settings.MIN_ACCESS_TOKEN_CACHE_TTL:
+            await self._cache.set(key, jwt.subject, ttl)
 
-        return jwt.subject
+        return jwt.subject  # type: ignore
 
-    @staticmethod
-    async def _delete_cached_access_tokens(*hashed_access_tokens: str) -> None:
+    async def _get_cached(
+        self, key: str, getter, *args, ttl: int = 3600, **kwargs
+    ) -> Any:
+        if cached := await self._cache.get(key):
+            return cached
+        value = await getter(*args, **kwargs)
+        await self._cache.set(key, value, ttl)
+        return value
+
+    async def _invalidate_sessions_cache(
+        self, user_id: str, *hashed_access_tokens: str
+    ) -> None:
+        await self._invalidate_access_tokens_cache(*hashed_access_tokens)
+        await self._cache.delete(user_session_list_key(user_id))
+
+    async def _invalidate_access_tokens_cache(self, *hashed_access_tokens: str) -> None:
         if hashed_access_tokens:
             keys = (
                 access_token_key(access_token) for access_token in hashed_access_tokens
             )
-            await cache.delete_many(*keys)
+            await self._cache.delete_many(*keys)

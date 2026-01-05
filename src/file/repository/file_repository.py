@@ -57,7 +57,7 @@ class FileRepository(FileRepositoryProtocol):
     async def file_list(self, user_id: str) -> list[response_dto.FileInfoResponseDTO]:
         async with self._sessionmaker() as session:
             files = (
-                (await session.execute(select(File).filter(File.user_id == user_id)))
+                (await session.execute(select(File).where(File.user_id == user_id)))
                 .scalars()
                 .all()
             )
@@ -71,8 +71,7 @@ class FileRepository(FileRepositoryProtocol):
                     File.user_id == data.user_id, File.file_id.in_(data.file_ids)
                 )
             )
-            row_count = result.rowcount or 0
-            if row_count != len(data.file_ids):
+            if (result.rowcount or 0) != len(data.file_ids):
                 raise FileNotFoundException
 
     @database_exception_handler
@@ -80,7 +79,7 @@ class FileRepository(FileRepositoryProtocol):
         async with self._sessionmaker.begin() as session:
             deleted_file_ids = list(
                 await session.scalars(
-                    delete(File).filter(File.user_id == user_id).returning(File.file_id)
+                    delete(File).where(File.user_id == user_id).returning(File.file_id)
                 )
             )
         return deleted_file_ids

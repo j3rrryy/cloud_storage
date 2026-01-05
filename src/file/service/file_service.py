@@ -88,11 +88,13 @@ class FileService(FileServiceProtocol):
             raise FileNotFoundException
         return upload
 
-    async def _get_cached(self, key: str, getter, *args, **kwargs) -> Any:
+    async def _get_cached(
+        self, key: str, getter, *args, ttl: int = 3600, **kwargs
+    ) -> Any:
         if cached := await self._cache.get(key):
             return cached
         value = await getter(*args, **kwargs)
-        await self._cache.set(key, value, 3600)
+        await self._cache.set(key, value, ttl)
         return value
 
     async def _invalidate_cache(self, user_id: str, file_ids: list[str]):
