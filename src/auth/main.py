@@ -9,18 +9,18 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 )
 from uvicorn import Config, Server
 
-from config import setup_cache, setup_logging
-from controller import AuthController
-from di import SessionManager, setup_di
-from proto import add_AuthServicer_to_server
+from config import setup_logging
+from factories import ServiceFactory
+from proto import AuthServicer, add_AuthServicer_to_server
 from settings import Settings
+from utils import ExceptionInterceptor
 
 logger = logging.getLogger()
 
 
-async def start_grpc_server() -> None:
+async def start_grpc_server(auth_controller: AuthServicer) -> None:
     server = grpc.aio.server(
-        interceptors=(PromAsyncServerInterceptor(),),
+        interceptors=(PromAsyncServerInterceptor(), ExceptionInterceptor()),
         options=[
             ("grpc.keepalive_time_ms", 60000),
             ("grpc.keepalive_timeout_ms", 10000),
@@ -29,7 +29,7 @@ async def start_grpc_server() -> None:
         maximum_concurrent_rpcs=Settings.GRPC_SERVER_MAXIMUM_CONCURRENT_RPCS,
         compression=grpc.Compression.Deflate,
     )
-    add_AuthServicer_to_server(AuthController(), server)
+    add_AuthServicer_to_server(auth_controller, server)
     server.add_insecure_port(Settings.GRPC_SERVER_ADDRESS)
 
     await server.start()
@@ -51,19 +51,21 @@ async def start_prometheus_server() -> None:
 
 
 async def main() -> None:
-    await setup_di()
     setup_logging()
-    setup_cache()
+    service_factory = ServiceFactory()
+    await service_factory.initialize()
 
-    grpc_task = asyncio.create_task(start_grpc_server())
+    auth_controller = service_factory.get_auth_controller()
+    grpc_task = asyncio.create_task(start_grpc_server(auth_controller))
     logger.info("gRPC server started")
+
     prometheus_task = asyncio.create_task(start_prometheus_server())
     logger.info("Prometheus server started")
 
     try:
         await asyncio.gather(grpc_task, prometheus_task)
     finally:
-        await SessionManager.close()
+        await service_factory.close()
 
 
 if __name__ == "__main__":
