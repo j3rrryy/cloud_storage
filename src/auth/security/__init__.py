@@ -1,5 +1,4 @@
 from .security import (
-    KeyPair,
     compare_passwords,
     generate_code,
     generate_jwt,
@@ -10,7 +9,6 @@ from .security import (
 )
 
 __all__ = [
-    "KeyPair",
     "compare_passwords",
     "generate_code",
     "generate_jwt",

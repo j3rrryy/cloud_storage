@@ -10,10 +10,8 @@ from enums import TokenTypes
 from exceptions import UnauthenticatedException
 from settings import Settings
 
-
-class KeyPair:
-    PRIVATE_KEY = Jwk.from_pem(base64.b64decode(Settings.SECRET_KEY))
-    PUBLIC_KEY = PRIVATE_KEY.public_jwk()
+PRIVATE_KEY = Jwk.from_pem(base64.b64decode(Settings.SECRET_KEY))
+PUBLIC_KEY = PRIVATE_KEY.public_jwk()
 
 
 def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
@@ -31,9 +29,7 @@ def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
         "iat": datetime.now(),
         "exp": exp_time,
     }
-    return str(
-        Jwt.sign(claims, KeyPair.PRIVATE_KEY, alg="EdDSA", typ=str(token_type.value))
-    )
+    return str(Jwt.sign(claims, PRIVATE_KEY, alg="EdDSA", typ=str(token_type.value)))
 
 
 def validate_jwt(token: str, token_type: TokenTypes) -> SignedJwt:
@@ -41,7 +37,7 @@ def validate_jwt(token: str, token_type: TokenTypes) -> SignedJwt:
 
     if (
         not isinstance(jwt, SignedJwt)
-        or not jwt.verify_signature(KeyPair.PUBLIC_KEY, "EdDSA")
+        or not jwt.verify_signature(PUBLIC_KEY, "EdDSA")
         or jwt.issuer != Settings.APP_NAME
         or jwt.subject is None
         or not (
