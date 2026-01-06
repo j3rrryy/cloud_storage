@@ -59,6 +59,7 @@ def test_uvicorn(mock_run):
             "main:main",
             factory=True,
             loop="uvloop",
+            http="httptools",
             host=Settings.HOST,
             port=Settings.PORT,
             workers=Settings.WORKERS,

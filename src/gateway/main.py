@@ -49,6 +49,7 @@ if __name__ == "__main__":
         "main:main",
         factory=True,
         loop="uvloop",
+        http="httptools",
         host=Settings.HOST,
         port=Settings.PORT,
         workers=Settings.WORKERS,
