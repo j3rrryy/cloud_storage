@@ -1,7 +1,11 @@
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
+from cashews import Cache
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from dto import response as response_dto
+from repository import AuthRepository, TokenPair, User
 from security import get_password_hash
 
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
@@ -23,15 +27,24 @@ USER_AGENT = (
 BROWSER = "Firefox 47.0, Windows 7"
 
 
-def create_repository() -> MagicMock:
-    crud = MagicMock()
+def create_session() -> AsyncSession:
+    return AsyncMock(spec=AsyncSession)
 
+
+def create_sessionmaker(session) -> async_sessionmaker[AsyncSession]:
+    sessionmaker = MagicMock(spec=async_sessionmaker[AsyncSession])
+    sessionmaker.return_value.__aenter__.return_value = session
+    sessionmaker.begin.return_value.__aenter__.return_value = session
+    return sessionmaker
+
+
+def create_cache() -> Cache:
+    return AsyncMock(spec=Cache)
+
+
+def create_auth_repository() -> AuthRepository:
+    crud = AsyncMock(spec=AuthRepository)
     crud.register = AsyncMock(return_value=USER_ID)
-    crud.confirm_email = AsyncMock()
-    crud.reset_password = AsyncMock()
-    crud.log_in = AsyncMock()
-    crud.log_out = AsyncMock()
-    crud.refresh = AsyncMock()
     crud.session_list = AsyncMock(
         return_value=(
             response_dto.SessionInfoResponseDTO(
@@ -42,28 +55,36 @@ def create_repository() -> MagicMock:
                 USER_IP,
                 BROWSER,
                 TIMESTAMP,
-            ),
+            )
         )
     )
-    crud.revoke_session = AsyncMock()
-    crud.validate_access_token = AsyncMock()
     crud.profile = AsyncMock(
         return_value=response_dto.ProfileResponseDTO(
             USER_ID, USERNAME, EMAIL, get_password_hash(PASSWORD), False, TIMESTAMP
         )
     )
     crud.update_email = AsyncMock(return_value=USERNAME)
-    crud.update_password = AsyncMock()
-    crud.delete_profile = AsyncMock()
     return crud
 
 
-def create_cache() -> MagicMock:
-    cache = MagicMock()
+def create_user() -> User:
+    return User(
+        user_id=USER_ID,
+        username=USERNAME,
+        email=EMAIL,
+        password=get_password_hash(PASSWORD),
+        email_confirmed=True,
+        registered_at=TIMESTAMP,
+    )
 
-    cache.get = AsyncMock(return_value=None)
-    cache.set = AsyncMock()
-    cache.delete = AsyncMock()
-    cache.delete_many = AsyncMock()
-    cache.delete_match = AsyncMock()
-    return cache
+
+def create_token_pair() -> TokenPair:
+    return TokenPair(
+        session_id=SESSION_ID,
+        user_id=USER_ID,
+        access_token=ACCESS_TOKEN,
+        refresh_token=REFRESH_TOKEN,
+        user_ip=USER_IP,
+        browser=BROWSER,
+        created_at=TIMESTAMP,
+    )

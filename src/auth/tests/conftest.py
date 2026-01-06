@@ -1,47 +1,63 @@
 import pytest
+from cashews import Cache
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from controller import AuthController
-from repository import TokenPair, User
-from security import get_password_hash
+from proto import AuthServicer
+from protocols import AuthRepositoryProtocol, AuthServiceProtocol
+from repository import AuthRepository, TokenPair, User
+from service import AuthService
 
 from .mocks import (
-    ACCESS_TOKEN,
-    BROWSER,
-    EMAIL,
-    PASSWORD,
-    REFRESH_TOKEN,
-    SESSION_ID,
-    TIMESTAMP,
-    USER_ID,
-    USER_IP,
-    USERNAME,
+    create_auth_repository,
+    create_cache,
+    create_session,
+    create_sessionmaker,
+    create_token_pair,
+    create_user,
 )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
+def session() -> AsyncSession:
+    return create_session()
+
+
+@pytest.fixture
+def sessionmaker(session) -> async_sessionmaker[AsyncSession]:
+    return create_sessionmaker(session)
+
+
+@pytest.fixture
+def cache() -> Cache:
+    return create_cache()
+
+
+@pytest.fixture
+def auth_repository(sessionmaker) -> AuthRepositoryProtocol:
+    return AuthRepository(sessionmaker)
+
+
+@pytest.fixture
+def mocked_auth_repository() -> AuthRepositoryProtocol:
+    return create_auth_repository()
+
+
+@pytest.fixture
+def auth_service(mocked_auth_repository, cache) -> AuthServiceProtocol:
+    return AuthService(mocked_auth_repository, cache)
+
+
+@pytest.fixture
+def auth_controller(auth_service) -> AuthServicer:
+    return AuthController(auth_service)
+
+
+@pytest.fixture
 def user() -> User:
-    return User(
-        user_id=USER_ID,
-        username=USERNAME,
-        email=EMAIL,
-        password=get_password_hash(PASSWORD),
-        email_confirmed=True,
-    )
+    return create_user()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def token_pair() -> TokenPair:
-    return TokenPair(
-        session_id=SESSION_ID,
-        user_id=USER_ID,
-        access_token=ACCESS_TOKEN,
-        refresh_token=REFRESH_TOKEN,
-        user_ip=USER_IP,
-        browser=BROWSER,
-        created_at=TIMESTAMP,
-    )
-
-
-@pytest.fixture(scope="session")
-def auth_controller() -> AuthController:
-    return AuthController()
+    return create_token_pair()
