@@ -27,7 +27,7 @@ class AuthRepository(AuthRepositoryProtocol):
         try:
             async with self._sessionmaker.begin() as session:
                 session.add(new_user)
-                await session.flush()
+                await session.flush(new_user)
         except IntegrityError:
             raise UserAlreadyExistsException
         return new_user.user_id

@@ -58,7 +58,17 @@ def create_auth_repository() -> AuthRepository:
             )
         )
     )
-    crud.profile = AsyncMock(
+    crud.profile_by_user_id = AsyncMock(
+        return_value=response_dto.ProfileResponseDTO(
+            USER_ID, USERNAME, EMAIL, get_password_hash(PASSWORD), False, TIMESTAMP
+        )
+    )
+    crud.profile_by_username = AsyncMock(
+        return_value=response_dto.ProfileResponseDTO(
+            USER_ID, USERNAME, EMAIL, get_password_hash(PASSWORD), False, TIMESTAMP
+        )
+    )
+    crud.profile_by_email = AsyncMock(
         return_value=response_dto.ProfileResponseDTO(
             USER_ID, USERNAME, EMAIL, get_password_hash(PASSWORD), False, TIMESTAMP
         )
@@ -73,7 +83,7 @@ def create_user() -> User:
         username=USERNAME,
         email=EMAIL,
         password=get_password_hash(PASSWORD),
-        email_confirmed=True,
+        email_confirmed=False,
         registered_at=TIMESTAMP,
     )
 

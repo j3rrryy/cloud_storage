@@ -13,10 +13,10 @@ from ..mocks import FILE_ID, NAME, SIZE, TIMESTAMP, USER_ID
 
 @pytest.mark.asyncio
 async def test_check_if_name_is_taken(session, file_repository):
+    dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
     session.execute = AsyncMock(
         return_value=MagicMock(scalar=MagicMock(return_value=False))
     )
-    dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
 
     await file_repository.check_if_name_is_taken(dto)
 
@@ -25,10 +25,10 @@ async def test_check_if_name_is_taken(session, file_repository):
 
 @pytest.mark.asyncio
 async def test_check_if_name_is_taken_fail(session, file_repository):
+    dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
     session.execute = AsyncMock(
         return_value=MagicMock(scalar=MagicMock(return_value=True))
     )
-    dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
 
     with pytest.raises(BaseAppException) as exc_info:
         await file_repository.check_if_name_is_taken(dto)
@@ -40,8 +40,8 @@ async def test_check_if_name_is_taken_fail(session, file_repository):
 
 @pytest.mark.asyncio
 async def test_check_if_name_is_taken_exception(session, file_repository):
-    session.execute.side_effect = Exception("Details")
     dto = request_dto.InitiateUploadRequestDTO(USER_ID, NAME, SIZE)
+    session.execute.side_effect = Exception("Details")
 
     with pytest.raises(BaseAppException) as exc_info:
         await file_repository.check_if_name_is_taken(dto)
@@ -69,11 +69,7 @@ async def test_complete_upload(session, file_repository):
             StatusCode.ALREADY_EXISTS,
             "File already exists",
         ),
-        (
-            Exception("Details"),
-            StatusCode.INTERNAL,
-            "Internal database error: Details",
-        ),
+        (Exception("Details"), StatusCode.INTERNAL, "Internal database error: Details"),
     ],
 )
 async def test_complete_upload_exceptions(
@@ -155,10 +151,9 @@ async def test_file_list(session, file, file_repository):
 
     files = await file_repository.file_list(USER_ID)
 
-    assert len(files) == 1
-    assert files[0] == response_dto.FileInfoResponseDTO(
-        FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
-    )
+    assert files == [
+        response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP)
+    ]
     session.execute.assert_awaited_once()
 
 
@@ -216,8 +211,7 @@ async def test_delete_all(session, file_repository):
 
     file_ids = await file_repository.delete_all(USER_ID)
 
-    assert len(file_ids) == 1
-    assert file_ids[0] == FILE_ID
+    assert file_ids == [FILE_ID]
     session.scalars.assert_awaited_once()
 
 
