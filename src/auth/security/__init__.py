@@ -1,4 +1,6 @@
 from .security import (
+    PRIVATE_KEY,
+    PUBLIC_KEY,
     compare_passwords,
     generate_code,
     generate_jwt,
@@ -9,6 +11,8 @@ from .security import (
 )
 
 __all__ = [
+    "PRIVATE_KEY",
+    "PUBLIC_KEY",
     "compare_passwords",
     "generate_code",
     "generate_jwt",

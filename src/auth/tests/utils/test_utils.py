@@ -1,6 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
-from utils import convert_user_agent, utc_now_naive
+from utils import convert_user_agent, utc_now_aware, utc_now_naive
+
+
+def test_utc_now_aware():
+    now = utc_now_aware()
+
+    assert isinstance(now, datetime)
+    assert now.tzinfo == timezone.utc
 
 
 def test_utc_now_naive():

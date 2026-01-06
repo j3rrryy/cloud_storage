@@ -9,6 +9,7 @@ from .utils import (
     ExceptionInterceptor,
     convert_user_agent,
     database_exception_handler,
+    utc_now_aware,
     utc_now_naive,
 )
 
@@ -21,5 +22,6 @@ __all__ = [
     "ExceptionInterceptor",
     "convert_user_agent",
     "database_exception_handler",
+    "utc_now_aware",
     "utc_now_naive",
 ]

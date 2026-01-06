@@ -9,7 +9,7 @@ from config import setup_password_hasher
 from enums import TokenTypes
 from exceptions import UnauthenticatedException
 from settings import Settings
-from utils import utc_now_naive
+from utils import utc_now_aware
 
 PRIVATE_KEY = Jwk.from_pem(base64.b64decode(Settings.SECRET_KEY))
 PUBLIC_KEY = PRIVATE_KEY.public_jwk()
@@ -18,7 +18,7 @@ PASSWORD_HASHER = setup_password_hasher()
 
 
 def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
-    now = utc_now_naive()
+    now = utc_now_aware()
     match token_type:
         case TokenTypes.ACCESS:
             exp_time = now + timedelta(minutes=15)
@@ -26,6 +26,8 @@ def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
             exp_time = now + timedelta(days=30)
         case TokenTypes.EMAIL_CONFIRMATION:
             exp_time = now + timedelta(days=3)
+        case _:  # pragma: no cover
+            exp_time = None
 
     claims = {
         "iss": Settings.APP_NAME,
@@ -60,6 +62,8 @@ def validate_jwt(token: str, token_type: TokenTypes) -> SignedJwt:
                 raise UnauthenticatedException("Re-log in")
             case TokenTypes.EMAIL_CONFIRMATION:
                 raise UnauthenticatedException("Resend the email confirmation mail")
+            case _:  # pragma: no cover
+                pass
     return jwt
 
 

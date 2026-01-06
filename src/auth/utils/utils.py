@@ -51,6 +51,10 @@ def utc_now_naive() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+def utc_now_aware() -> datetime:
+    return datetime.now(timezone.utc)
+
+
 def convert_user_agent(user_agent: str) -> str:
     parsed_data = simple_detect(user_agent)
     return f"{parsed_data[1]}, {parsed_data[0]}"
