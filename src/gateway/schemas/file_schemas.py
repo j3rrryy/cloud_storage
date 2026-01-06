@@ -14,22 +14,22 @@ class InitiateUpload(Struct):
 
 class UploadPart(Struct):
     part_number: Annotated[int, Meta(gt=0)]
-    url: str
+    url: Annotated[str, Meta(max_length=512)]
 
 
 class InitiatedUpload(Struct):
-    upload_id: str
+    upload_id: Annotated[str, Meta(max_length=300)]
     part_size: Annotated[int, Meta(gt=0)]
     parts: Annotated[list[UploadPart], Meta(min_length=1)]
 
 
 class CompletePart(Struct):
     part_number: Annotated[int, Meta(gt=0)]
-    etag: str
+    etag: Annotated[str, Meta(max_length=64)]
 
 
 class CompleteUpload(Struct):
-    upload_id: str
+    upload_id: Annotated[str, Meta(max_length=300)]
     parts: Annotated[list[CompletePart], Meta(min_length=1)]
 
 

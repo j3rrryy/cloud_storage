@@ -75,7 +75,7 @@ class AuthService(AuthServiceProtocol):
         self, data: request_dto.LogInRequestDTO
     ) -> response_dto.LogInResponseDTO:
         profile = await self._auth_repository.profile_by_username(data.username)
-        compare_passwords(data.password, profile.password)
+        compare_passwords(profile.password, data.password)
 
         access_token = generate_jwt(profile.user_id, TokenTypes.ACCESS)
         refresh_token = generate_jwt(profile.user_id, TokenTypes.REFRESH)
@@ -186,7 +186,7 @@ class AuthService(AuthServiceProtocol):
     async def update_password(self, data: request_dto.UpdatePasswordRequestDTO) -> None:
         user_id = await self._cached_access_token(data.access_token)
         profile = await self._auth_repository.profile_by_user_id(user_id)
-        compare_passwords(data.old_password, profile.password)
+        compare_passwords(profile.password, data.old_password)
 
         dto = request_dto.UpdatePasswordDataRequestDTO(
             user_id, get_password_hash(data.new_password)

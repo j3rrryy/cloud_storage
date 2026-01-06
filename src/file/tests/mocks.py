@@ -11,8 +11,8 @@ from storage import FileStorage
 
 USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
 UPLOAD_ID = "YjUzZjE5MzktY2U2Zi00NmNiLWE3Y2ItNmUwY2M2ODE3NDA5LjBmNzcyN2I0LTNkZjgtNGQ0ZS1hNTc3LTRiMmRjOTFjOTc2ZXgxNzYyOTAwNTgxNzg3NDgwOTI5"
-URL = "http://minio:9000/s3-files/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
-RELATIVE_URL = "/s3-files/662c3e99-65dc-4a26-a2c2-bbd9f4e1fac4/test_file?AWSAccessKeyId=test_username&Signature=kn3PpoJ%2BwQBYVmpYl%2B8cZK2KM0s%3D&Expires=1741791573"
+URL = "http://minio:9000/s3-files/2ec9dca1-0ce4-4ba4-937f-9d64add541a3?uploadId=Njk0MzQ5MmUtOTJkMy00NzdmLTk1YjctYjkzZDdkNTM5NjIzLmUxNDU1NjUzLWU1NWMtNDU3MS05ZDg0LTAyNTY5Njk5MjJlOXgxNzY3NzE0MDg0NjM2MzI5MDk2&partNumber=1&AWSAccessKeyId=test_username&Signature=O4ZuQQoXjjFCK%2FOxpVMP4m6IIF8%3D&Expires=1767800484"
+RELATIVE_URL = "/s3-files/2ec9dca1-0ce4-4ba4-937f-9d64add541a3?uploadId=Njk0MzQ5MmUtOTJkMy00NzdmLTk1YjctYjkzZDdkNTM5NjIzLmUxNDU1NjUzLWU1NWMtNDU3MS05ZDg0LTAyNTY5Njk5MjJlOXgxNzY3NzE0MDg0NjM2MzI5MDk2&partNumber=1&AWSAccessKeyId=test_username&Signature=O4ZuQQoXjjFCK%2FOxpVMP4m6IIF8%3D&Expires=1767800484"
 ETAG = "fac024381d213f9949facd263b44aea4"
 FILE_ID = "b8a47c8d-9203-456a-aa58-ceab64b13cbb"
 SIZE = 123

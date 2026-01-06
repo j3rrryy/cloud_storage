@@ -75,6 +75,8 @@ def test_generate_code():
     "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
 )
 def test_generate_jwt(token_type, mock_key_pair):
+    now = utc_now_naive()
+
     token = generate_jwt(USER_ID, token_type)
 
     jwt = Jwt(token)
@@ -87,11 +89,11 @@ def test_generate_jwt(token_type, mock_key_pair):
     exp = jwt.expires_at.replace(tzinfo=None)
     match token_type:
         case TokenTypes.ACCESS:
-            assert exp <= datetime.now() + timedelta(minutes=15)
+            assert exp <= now + timedelta(minutes=15)
         case TokenTypes.REFRESH:
-            assert exp <= datetime.now() + timedelta(days=30)
+            assert exp <= now + timedelta(days=30)
         case TokenTypes.EMAIL_CONFIRMATION:
-            assert exp <= datetime.now() + timedelta(days=3)
+            assert exp <= now + timedelta(days=3)
 
 
 @pytest.mark.parametrize(
@@ -136,14 +138,14 @@ def test_validate_jwt_and_get_user_id(token_type, mock_key_pair):
         ({}, TokenTypes.ACCESS, None, "Token is invalid"),
         ({}, TokenTypes.ACCESS, TokenTypes.REFRESH, "Invalid token type"),
         (
-            {"exp": datetime.now()},
+            {"exp": utc_now_naive()},
             TokenTypes.ACCESS,
             TokenTypes.ACCESS,
             "Refresh the tokens",
         ),
-        ({"exp": datetime.now()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
+        ({"exp": utc_now_naive()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
         (
-            {"exp": datetime.now()},
+            {"exp": utc_now_naive()},
             TokenTypes.EMAIL_CONFIRMATION,
             TokenTypes.EMAIL_CONFIRMATION,
             "Resend the email confirmation mail",
