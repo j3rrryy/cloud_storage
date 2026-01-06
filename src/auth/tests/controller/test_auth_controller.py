@@ -1,3 +1,4 @@
+from time import time
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -6,6 +7,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from enums import ResetCodeStatus
 from proto import auth_pb2 as pb2
+from settings import Settings
 
 from ..mocks import (
     ACCESS_TOKEN,
@@ -176,9 +178,14 @@ async def test_revoke_session(auth_controller):
 
 @pytest.mark.asyncio
 @patch("service.auth_service.validate_jwt")
-async def test_profile(mock_validator, cache, auth_controller):
-    mock_validator.return_value.exp = 0
-    cache.get.return_value = None
+async def test_profile(mock_validator, cache, mocked_auth_repository, auth_controller):
+    mock_validator.return_value.exp = (
+        int(time()) + Settings.MIN_ACCESS_TOKEN_CACHE_TTL + 3
+    )
+    cache.get.side_effect = [
+        None,
+        mocked_auth_repository.profile_by_user_id.return_value,
+    ]
     request = pb2.AccessToken(access_token=ACCESS_TOKEN)
 
     response = await auth_controller.Profile(request, MagicMock())
