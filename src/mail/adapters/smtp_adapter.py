@@ -1,7 +1,7 @@
 import asyncio
+import logging
 from email.mime import multipart
 
-import picologging as logging
 from aiosmtplib import SMTP, SMTPServerDisconnected
 
 from protocols import SMTPClientProtocol

@@ -22,6 +22,3 @@ class File(Base):
     )
 
     __table_args__ = (sa.UniqueConstraint("user_id", "name"),)
-
-    def __str__(self) -> str:
-        return f"<File: {self.file_id}>"

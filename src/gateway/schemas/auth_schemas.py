@@ -11,11 +11,11 @@ UUID4_EXAMPLES = ["123e4567-e89b-12d3-a456-426614174000"]
 
 
 class Registration(Struct):
-    username: Annotated[str, Meta(pattern=r"^\w{3,20}$")]
+    username: Annotated[str, Meta(pattern=r"^[a-zA-Z0-9_-]{3,30}$")]
     email: Annotated[
         str, Meta(pattern=EMAIL_REGEX, max_length=255, examples=EMAIL_EXAMPLES)
     ]
-    password: Annotated[str, Meta(min_length=8, max_length=30)]
+    password: Annotated[str, Meta(min_length=8, max_length=128)]
 
 
 class ForgotPassword(Struct):
@@ -35,12 +35,12 @@ class CodeIsValid(Struct):
 
 class ResetPassword(Struct):
     user_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
-    new_password: Annotated[str, Meta(min_length=8, max_length=30)]
+    new_password: Annotated[str, Meta(min_length=8, max_length=128)]
 
 
 class LogIn(Struct):
-    username: Annotated[str, Meta(pattern=r"^\w{3,20}$")]
-    password: Annotated[str, Meta(min_length=8, max_length=30)]
+    username: Annotated[str, Meta(pattern=r"^[a-zA-Z0-9_-]{3,30}$")]
+    password: Annotated[str, Meta(min_length=8, max_length=128)]
 
 
 class Tokens(Struct):
@@ -62,7 +62,7 @@ class SessionId(Struct):
 
 class SessionInfo(Struct):
     session_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
-    user_ip: Annotated[str, Meta(min_length=7, max_length=15)]
+    user_ip: Annotated[str, Meta(max_length=45)]
     browser: Annotated[str, Meta(max_length=150)]
     created_at: datetime.datetime
 
@@ -73,7 +73,7 @@ class SessionList(Struct):
 
 class Profile(Struct):
     user_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
-    username: Annotated[str, Meta(pattern=r"^\w{3,20}$")]
+    username: Annotated[str, Meta(pattern=r"^[a-zA-Z0-9_-]{3,30}$")]
     email: Annotated[
         str, Meta(pattern=EMAIL_REGEX, max_length=255, examples=EMAIL_EXAMPLES)
     ]
@@ -86,5 +86,5 @@ class UpdateEmail(Struct):
 
 
 class UpdatePassword(Struct):
-    old_password: Annotated[str, Meta(min_length=8, max_length=30)]
-    new_password: Annotated[str, Meta(min_length=8, max_length=30)]
+    old_password: Annotated[str, Meta(min_length=8, max_length=128)]
+    new_password: Annotated[str, Meta(min_length=8, max_length=128)]

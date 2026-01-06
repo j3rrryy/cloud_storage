@@ -11,7 +11,6 @@ async def test_file_service_factory_initialize_success():
         patch(
             "factories.file_service_factory.grpc.aio.insecure_channel"
         ) as mock_channel,
-        patch("factories.file_service_factory.FileStub") as mock_stub,
         patch("factories.file_service_factory.FileGrpcAdapter") as mock_adapter,
     ):
         factory = FileServiceFactory()
@@ -19,8 +18,6 @@ async def test_file_service_factory_initialize_success():
         mock_channel_instance.channel_ready = AsyncMock()
         mock_channel_instance.channel_ready.return_value = None
         mock_channel.return_value = mock_channel_instance
-        mock_stub_instance = MagicMock()
-        mock_stub.return_value = mock_stub_instance
         mock_adapter_instance = MagicMock()
         mock_adapter.return_value = mock_adapter_instance
 
@@ -39,7 +36,9 @@ async def test_file_service_factory_initialize_exception():
         ) as mock_channel,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_channel.channel_ready.side_effect = Exception("Connection failed")
+        mock_channel.return_value.channel_ready.side_effect = Exception(
+            "Connection failed"
+        )
 
         with pytest.raises(Exception):
             await factory.initialize()

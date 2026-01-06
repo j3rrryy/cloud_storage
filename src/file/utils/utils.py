@@ -1,92 +1,71 @@
+import logging
 from datetime import datetime, timezone
 from functools import wraps
-from typing import Awaitable, Callable, TypeVar
+from typing import Awaitable, Callable
 
-import inject
-import picologging as logging
-from grpc import ServicerContext, StatusCode
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
-from types_aiobotocore_s3 import S3Client
+import grpc
+from botocore.exceptions import ClientError
 
-from exceptions import FileNameIsAlreadyTakenException, FileNotFoundException
-
-T = TypeVar("T")
-
-logger = logging.getLogger()
+from exceptions import (
+    BaseAppException,
+    DatabaseException,
+    FileNotFoundException,
+    StorageException,
+)
 
 
-class ExceptionHandler:
-    @staticmethod
-    async def handle(
-        context: ServicerContext, func: Callable[..., Awaitable[T]], *args, **kwargs
-    ) -> T:
+class ExceptionInterceptor(grpc.aio.ServerInterceptor):  # pragma: no cover
+    logger = logging.getLogger()
+
+    async def intercept_service(
+        self,
+        continuation: Callable[
+            [grpc.HandlerCallDetails], Awaitable[grpc.RpcMethodHandler]
+        ],
+        handler_call_details: grpc.HandlerCallDetails,
+    ) -> grpc.RpcMethodHandler:
+        handler = await continuation(handler_call_details)
+
+        async def wrapper(request, context):
+            try:
+                return await handler.unary_unary(request, context)  # type: ignore
+            except BaseAppException as exc:
+                status_code = getattr(exc, "status_code", grpc.StatusCode.UNKNOWN)
+                details = getattr(exc, "details", str(exc))
+                self.logger.info(f"Status code: {status_code.name}, details: {details}")
+                await context.abort(status_code, details)
+                return
+
+        return handler._replace(unary_unary=wrapper)  # type: ignore
+
+
+def database_exception_handler(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
         except Exception as exc:
-            status_code, details = exc.args
-            logger.info(
-                f"Status code: {status_code.name} ({status_code.value[0]}), details: {details}"
-            )
-            await context.abort(status_code, details)  # type: ignore
-            raise
-
-
-def with_transaction(func):
-    @wraps(func)
-    @inject.autoparams()
-    async def wrapper(*args, session: AsyncSession, **kwargs):
-        try:
-            return await func(*args, session, **kwargs)
-        except Exception as exc:
-            await session.rollback()
-            if not isinstance(
-                exc,
-                (
-                    IntegrityError,
-                    FileNameIsAlreadyTakenException,
-                    FileNotFoundException,
-                ),
-            ):
-                exc.args = (StatusCode.INTERNAL, f"Internal database error, {exc}")
-            raise exc
+            if isinstance(exc, BaseAppException):
+                raise exc
+            raise DatabaseException(exc)
 
     return wrapper
 
 
-def with_storage(func):
+def storage_exception_handler(func):
     @wraps(func)
-    @inject.autoparams()
-    async def wrapper(*args, client: S3Client, **kwargs):
+    async def wrapper(*args, **kwargs):
         try:
-            return await func(*args, client, **kwargs)
+            return await func(*args, **kwargs)
+        except ClientError as exc:
+            if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
+                raise FileNotFoundException
+            raise StorageException(exc)
         except Exception as exc:
-            if not isinstance(exc, FileNotFoundException):
-                exc.args = (StatusCode.INTERNAL, f"Internal storage error, {exc}")
-            raise exc
+            raise StorageException(exc)
 
     return wrapper
 
 
 def utc_now_naive() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
-def file_upload_key(user_id: str, upload_id: str) -> str:
-    return f"file:{user_id}:{upload_id}:upload"
-
-
-def file_list_key(user_id: str) -> str:
-    return f"file:{user_id}:list"
-
-
-def file_info_key(user_id: str, file_id: str) -> str:
-    return f"file:{user_id}:{file_id}:info"
-
-
-def file_download_key(user_id: str, file_id: str) -> str:
-    return f"file:{user_id}:{file_id}:download"
-
-
-def file_all_keys(user_id: str) -> str:
-    return f"file:{user_id}:*"

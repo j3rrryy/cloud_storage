@@ -9,6 +9,7 @@ from litestar.openapi.config import OpenAPIConfig
 from litestar.plugins.prometheus import PrometheusController
 
 import main
+from config import setup_uvicorn_logging
 from controller import v1 as controller_v1
 from settings import Settings
 from utils import exception_handler
@@ -58,10 +59,12 @@ def test_uvicorn(mock_run):
             "main:main",
             factory=True,
             loop="uvloop",
+            http="httptools",
             host=Settings.HOST,
             port=Settings.PORT,
             workers=Settings.WORKERS,
             limit_concurrency=Settings.LIMIT_CONCURRENCY,
             limit_max_requests=Settings.LIMIT_MAX_REQUESTS,
             reload=Settings.DEBUG,
+            log_config=setup_uvicorn_logging(),
         )

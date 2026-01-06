@@ -1,7 +1,7 @@
 import asyncio
+import logging
 
 import grpc
-import picologging as logging
 import uvloop
 from prometheus_client import make_asgi_app
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
@@ -9,27 +9,28 @@ from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
 )
 from uvicorn import Config, Server
 
-from config import setup_cache, setup_logging
-from controller import FileController
-from di import ClientManager, SessionManager, setup_di
-from proto import add_FileServicer_to_server
+from config import setup_logging
+from factories import ServiceFactory
+from proto import FileServicer, add_FileServicer_to_server
+from settings import Settings
+from utils import ExceptionInterceptor
 
 logger = logging.getLogger()
 
 
-async def start_grpc_server() -> None:
+async def start_grpc_server(file_controller: FileServicer) -> None:
     server = grpc.aio.server(
-        interceptors=(PromAsyncServerInterceptor(),),
+        interceptors=(PromAsyncServerInterceptor(), ExceptionInterceptor()),
         options=[
             ("grpc.keepalive_time_ms", 60000),
             ("grpc.keepalive_timeout_ms", 10000),
             ("grpc.keepalive_permit_without_calls", 1),
         ],
-        maximum_concurrent_rpcs=1000,
+        maximum_concurrent_rpcs=Settings.GRPC_SERVER_MAXIMUM_CONCURRENT_RPCS,
         compression=grpc.Compression.Deflate,
     )
-    add_FileServicer_to_server(FileController(), server)
-    server.add_insecure_port("[::]:50051")
+    add_FileServicer_to_server(file_controller, server)
+    server.add_insecure_port(Settings.GRPC_SERVER_ADDRESS)
 
     await server.start()
     await server.wait_for_termination()
@@ -40,30 +41,31 @@ async def start_prometheus_server() -> None:
     server_config = Config(
         app=app,
         loop="uvloop",
-        host="0.0.0.0",
-        port=8000,
-        limit_concurrency=50,
-        limit_max_requests=10000,
+        host=Settings.PROMETHEUS_SERVER_HOST,
+        port=Settings.PROMETHEUS_SERVER_PORT,
+        limit_concurrency=Settings.PROMETHEUS_SERVER_LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS,
     )
     server = Server(server_config)
     await server.serve()
 
 
 async def main() -> None:
-    await setup_di()
     setup_logging()
-    setup_cache()
+    service_factory = ServiceFactory()
+    await service_factory.initialize()
 
-    grpc_task = asyncio.create_task(start_grpc_server())
+    file_controller = service_factory.get_file_controller()
+    grpc_task = asyncio.create_task(start_grpc_server(file_controller))
     logger.info("gRPC server started")
+
     prometheus_task = asyncio.create_task(start_prometheus_server())
     logger.info("Prometheus server started")
 
     try:
         await asyncio.gather(grpc_task, prometheus_task)
     finally:
-        await SessionManager.close()
-        await ClientManager.close()
+        await service_factory.close()
 
 
 if __name__ == "__main__":

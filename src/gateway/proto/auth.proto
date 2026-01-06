@@ -6,129 +6,117 @@ import "google/protobuf/timestamp.proto";
 package auth;
 
 service Auth {
-  rpc Register(RegisterRequest) returns (Token);
-  rpc ConfirmEmail(Token) returns (google.protobuf.Empty);
-  rpc RequestResetCode(Email) returns (ResetCodeResponse);
-  rpc ValidateResetCode(ResetCodeRequest) returns (CodeIsValid);
-  rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty);
-  rpc LogIn(LogInRequest) returns (LogInResponse);
-  rpc LogOut(AccessToken) returns (google.protobuf.Empty);
-  rpc ResendEmailConfirmationMail(AccessToken) returns (EmailConfirmationMail);
-  rpc Auth(AccessToken) returns (UserId);
-  rpc Refresh(RefreshRequest) returns (Tokens);
-  rpc SessionList(AccessToken) returns (Sessions);
-  rpc RevokeSession(RevokeSessionRequest) returns (google.protobuf.Empty);
-  rpc Profile(AccessToken) returns (ProfileResponse);
-  rpc UpdateEmail(UpdateEmailRequest) returns (EmailConfirmationMail);
-  rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
-  rpc DeleteProfile(AccessToken) returns (UserId);
+    rpc Register(RegisterRequest) returns (Token);
+    rpc ConfirmEmail(Token) returns (google.protobuf.Empty);
+    rpc RequestResetCode(Email) returns (ResetCodeResponse);
+    rpc ValidateResetCode(ResetCodeRequest) returns (CodeIsValid);
+    rpc ResetPassword(ResetPasswordRequest) returns (google.protobuf.Empty);
+    rpc LogIn(LogInRequest) returns (LogInResponse);
+    rpc LogOut(AccessToken) returns (google.protobuf.Empty);
+    rpc ResendEmailConfirmationMail(AccessToken) returns (EmailConfirmationMail);
+    rpc Auth(AccessToken) returns (UserId);
+    rpc Refresh(RefreshRequest) returns (Tokens);
+    rpc SessionList(AccessToken) returns (Sessions);
+    rpc RevokeSession(RevokeSessionRequest) returns (google.protobuf.Empty);
+    rpc Profile(AccessToken) returns (ProfileResponse);
+    rpc UpdateEmail(UpdateEmailRequest) returns (EmailConfirmationMail);
+    rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
+    rpc DeleteProfile(AccessToken) returns (UserId);
 }
 
 message RegisterRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
+    string username = 1;
+    string email = 2;
+    string password = 3;
 }
 
-message Token {
-  string token = 1;
-}
+message Token { string token = 1; }
 
-message Email {
-  string email = 1;
-}
+message Email { string email = 1; }
 
 message ResetCodeResponse {
-  string user_id = 1;
-  string username = 2;
-  string code = 3;
+    string user_id = 1;
+    string username = 2;
+    string code = 3;
 }
 
 message ResetCodeRequest {
-  string user_id = 1;
-  string code = 2;
+    string user_id = 1;
+    string code = 2;
 }
 
-message CodeIsValid {
-  bool is_valid = 1;
-}
+message CodeIsValid { bool is_valid = 1; }
 
 message ResetPasswordRequest {
-  string user_id = 1;
-  string new_password = 2;
+    string user_id = 1;
+    string new_password = 2;
 }
 
 message LogInRequest {
-  string username = 1;
-  string password = 2;
-  string user_ip = 3;
-  string user_agent = 4;
+    string username = 1;
+    string password = 2;
+    string user_ip = 3;
+    string user_agent = 4;
 }
 
 message LogInResponse {
-  string access_token = 1;
-  string refresh_token = 2;
-  string email = 3;
-  string browser = 4;
-  bool email_confirmed = 5;
+    string access_token = 1;
+    string refresh_token = 2;
+    string email = 3;
+    string browser = 4;
+    bool email_confirmed = 5;
 }
 
-message AccessToken {
-  string access_token = 1;
-}
+message AccessToken { string access_token = 1; }
 
 message EmailConfirmationMail {
-  string token = 1;
-  string username = 2;
-  string email = 3;
+    string token = 1;
+    string username = 2;
+    string email = 3;
 }
 
-message UserId {
-  string user_id = 1;
-}
+message UserId { string user_id = 1; }
 
 message RefreshRequest {
-  string refresh_token = 1;
-  string user_ip = 2;
-  string user_agent = 3;
+    string refresh_token = 1;
+    string user_ip = 2;
+    string user_agent = 3;
 }
 
 message Tokens {
-  string access_token = 1;
-  string refresh_token = 2;
+    string access_token = 1;
+    string refresh_token = 2;
 }
 
-message Sessions {
-  repeated SessionInfo sessions = 1;
-}
+message Sessions { repeated SessionInfo sessions = 1; }
 
 message SessionInfo {
-  string session_id = 1;
-  string user_ip = 2;
-  string browser = 3;
-  google.protobuf.Timestamp created_at = 4;
+    string session_id = 1;
+    string user_ip = 2;
+    string browser = 3;
+    google.protobuf.Timestamp created_at = 4;
 }
 
 message RevokeSessionRequest {
-  string access_token = 1;
-  string session_id = 2;
+    string access_token = 1;
+    string session_id = 2;
 }
 
 message ProfileResponse {
-  string user_id = 1;
-  string username = 2;
-  string email = 3;
-  bool email_confirmed = 4;
-  google.protobuf.Timestamp registered_at = 5;
+    string user_id = 1;
+    string username = 2;
+    string email = 3;
+    bool email_confirmed = 4;
+    google.protobuf.Timestamp registered_at = 5;
 }
 
 message UpdateEmailRequest {
-  string access_token = 1;
-  string new_email = 2;
+    string access_token = 1;
+    string new_email = 2;
 }
 
 message UpdatePasswordRequest {
-  string access_token = 1;
-  string old_password = 2;
-  string new_password = 3;
+    string access_token = 1;
+    string old_password = 2;
+    string new_password = 3;
 }

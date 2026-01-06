@@ -31,7 +31,7 @@ async def test_smtp_client_factory_initialize_exception():
         patch("factories.smtp_client_factory.SMTP") as mock_smtp,
         patch.object(factory, "close", new_callable=AsyncMock) as mock_close,
     ):
-        mock_smtp.connect.side_effect = Exception("Connection failed")
+        mock_smtp.return_value.connect.side_effect = Exception("Connection failed")
 
         with pytest.raises(Exception):
             await factory.initialize()

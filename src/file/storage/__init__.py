@@ -1,1 +1,3 @@
-from .file_storage import *  # noqa: F403
+from .file_storage import FileStorage
+
+__all__ = ["FileStorage"]

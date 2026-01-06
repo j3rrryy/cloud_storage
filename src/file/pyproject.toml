@@ -10,8 +10,6 @@ dependencies = [
     "greenlet>=3.2.4",
     "grpcio==1.74.0",
     "grpcio-tools==1.74.0",
-    "inject>=5.3.0",
-    "picologging==0.9.3",
     "py-async-grpc-prometheus==0.2.0",
     "sqlalchemy==2.0.43",
     "types-aioboto3[s3]>=15.0.0",

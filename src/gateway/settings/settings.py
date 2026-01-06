@@ -14,6 +14,6 @@ class Settings:
 
     HOST = "0.0.0.0"
     PORT = 8000
-    WORKERS = 2
-    LIMIT_CONCURRENCY = 500
+    WORKERS = 1
+    LIMIT_CONCURRENCY = 800
     LIMIT_MAX_REQUESTS = 50000

@@ -1,1 +1,3 @@
-from .auth_controller import *  # noqa: F403
+from .auth_controller import AuthController
+
+__all__ = ["AuthController"]

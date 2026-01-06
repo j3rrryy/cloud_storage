@@ -4,7 +4,13 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.plugins.prometheus import PrometheusController
 
-from config import setup_cors, setup_logging, setup_openapi, setup_prometheus
+from config import (
+    setup_cors,
+    setup_litestar_logging,
+    setup_openapi,
+    setup_prometheus,
+    setup_uvicorn_logging,
+)
 from controller import v1 as controller_v1
 from factories import ServiceFactory
 from settings import Settings
@@ -22,7 +28,7 @@ def main() -> Litestar:
         ),
         debug=Settings.DEBUG,
         cors_config=setup_cors(),
-        logging_config=setup_logging(),
+        logging_config=setup_litestar_logging(),
         middleware=(setup_prometheus().middleware,),
         openapi_config=setup_openapi(),
         exception_handlers={HTTPException: exception_handler},
@@ -43,10 +49,12 @@ if __name__ == "__main__":
         "main:main",
         factory=True,
         loop="uvloop",
+        http="httptools",
         host=Settings.HOST,
         port=Settings.PORT,
         workers=Settings.WORKERS,
         limit_concurrency=Settings.LIMIT_CONCURRENCY,
         limit_max_requests=Settings.LIMIT_MAX_REQUESTS,
         reload=Settings.DEBUG,
+        log_config=setup_uvicorn_logging(),
     )

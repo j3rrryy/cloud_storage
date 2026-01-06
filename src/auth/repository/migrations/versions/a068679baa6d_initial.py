@@ -22,9 +22,9 @@ def upgrade() -> None:
     op.create_table(
         "users",
         sa.Column("user_id", sa.UUID(as_uuid=False), nullable=False),
-        sa.Column("username", sa.String(length=20), nullable=False),
+        sa.Column("username", sa.String(length=30), nullable=False),
         sa.Column("email", sa.String(length=255), nullable=False),
-        sa.Column("password", sa.CHAR(length=60), nullable=False),
+        sa.Column("password", sa.String(length=128), nullable=False),
         sa.Column("email_confirmed", sa.Boolean(), nullable=False),
         sa.Column("registered_at", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("user_id"),

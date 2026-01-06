@@ -1,71 +1,46 @@
 import asyncio
+import logging
 import math
-import os
 from urllib.parse import urlparse
 from uuid import uuid4
 
-import picologging as logging
-from botocore.exceptions import ClientError
-from grpc import StatusCode
-from types_aiobotocore_s3 import S3Client
-
 from dto import request as request_dto
 from dto import response as response_dto
-from exceptions import FileNotFoundException
-from utils import with_storage
+from protocols import FileStorageProtocol, S3ClientProtocol
+from settings import Settings
 
 
-class FileStorage:
-    BUCKET_NAME = os.environ["MINIO_S3_BUCKET"]
-    UPLOAD_CHUNK_SIZE = int(os.environ["UPLOAD_CHUNK_SIZE"])
-
+class FileStorage(FileStorageProtocol):
     logger = logging.getLogger()
 
-    @classmethod
-    @with_storage
+    def __init__(self, s3_client: S3ClientProtocol):
+        self._s3_client = s3_client
+        self._semaphore = asyncio.BoundedSemaphore(20)
+
     async def initiate_upload(
-        cls, data: request_dto.InitiateUploadRequestDTO, client: S3Client
+        self, data: request_dto.InitiateUploadRequestDTO
     ) -> response_dto.InitiateUploadResponseDTO:
-        semaphore = asyncio.BoundedSemaphore(25)
-
         file_id = str(uuid4())
-        upload = await client.create_multipart_upload(
-            Bucket=cls.BUCKET_NAME, Key=file_id
+        upload_id = await self._s3_client.create_multipart_upload(file_id)
+
+        part_count = math.ceil(data.size / Settings.UPLOAD_CHUNK_SIZE)
+        part_size = min(data.size, Settings.UPLOAD_CHUNK_SIZE)
+
+        parts = await asyncio.gather(
+            *(
+                self._generate_part_url(file_id, upload_id, i)
+                for i in range(1, part_count + 1)
+            )
         )
-
-        part_count = math.ceil(data.size / cls.UPLOAD_CHUNK_SIZE)
-        part_size = min(data.size, cls.UPLOAD_CHUNK_SIZE)
-        parts = []
-
-        async def gen_url(part_number: int):
-            async with semaphore:
-                url = await client.generate_presigned_url(
-                    "upload_part",
-                    Params={
-                        "Bucket": cls.BUCKET_NAME,
-                        "Key": file_id,
-                        "UploadId": upload["UploadId"],
-                        "PartNumber": part_number,
-                    },
-                    ExpiresIn=3600 * 24,
-                )
-                parsed = urlparse(url)
-                return response_dto.UploadPartResponseDTO(
-                    part_number, f"{parsed.path}?{parsed.query}"
-                )
-
-        parts = await asyncio.gather(*(gen_url(i) for i in range(1, part_count + 1)))
         return response_dto.InitiateUploadResponseDTO(
             file_id=file_id,
-            upload_id=upload["UploadId"],
+            upload_id=upload_id,
             part_size=part_size,
             parts=parts,
         )
 
-    @classmethod
-    @with_storage
     async def complete_upload(
-        cls, file_id: str, data: request_dto.CompleteUploadRequestDTO, client: S3Client
+        self, file_id: str, data: request_dto.CompleteUploadRequestDTO
     ) -> None:
         parts = sorted(
             [
@@ -74,90 +49,41 @@ class FileStorage:
             ],
             key=lambda x: x["PartNumber"],
         )
-        try:
-            await client.complete_multipart_upload(
-                Bucket=cls.BUCKET_NAME,
-                Key=file_id,
-                UploadId=data.upload_id,
-                MultipartUpload={"Parts": parts},  # type: ignore
-            )
-        except ClientError as exc:
-            if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
-                raise FileNotFoundException(
-                    StatusCode.NOT_FOUND, "Uploading file not found"
-                )
-            raise
+        await self._s3_client.complete_multipart_upload(file_id, data.upload_id, parts)
 
-    @classmethod
-    @with_storage
-    async def abort_upload(cls, file_id: str, upload_id: str, client: S3Client) -> None:
-        try:
-            await client.abort_multipart_upload(
-                Bucket=cls.BUCKET_NAME,
-                Key=file_id,
-                UploadId=upload_id,
-            )
-        except ClientError as exc:
-            if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
-                raise FileNotFoundException(
-                    StatusCode.NOT_FOUND, "Uploading file not found"
-                )
-            raise
+    async def abort_upload(self, file_id: str, upload_id: str) -> None:
+        await self._s3_client.abort_multipart_upload(file_id, upload_id)
 
-    @classmethod
-    @with_storage
-    async def download(
-        cls, data: response_dto.FileInfoResponseDTO, client: S3Client
-    ) -> str:
-        try:
-            await client.head_object(Bucket=cls.BUCKET_NAME, Key=data.file_id)
-        except ClientError as exc:
-            if exc.response["Error"]["Code"] in {"NoSuchKey", "404"}:  # type: ignore
-                raise FileNotFoundException(StatusCode.NOT_FOUND, "File not found")
-            raise
-
-        url = await client.generate_presigned_url(
-            "get_object",
-            Params={
-                "Bucket": cls.BUCKET_NAME,
-                "Key": data.file_id,
-                "ResponseContentDisposition": f'attachment; filename="{data.name}"',
-            },
-            ExpiresIn=300,
+    async def download(self, data: response_dto.FileInfoResponseDTO) -> str:
+        url = await self._s3_client.generate_download_presigned_url(
+            data.file_id, data.name
         )
         parsed = urlparse(url)
         return f"{parsed.path}?{parsed.query}"
 
-    @classmethod
-    @with_storage
-    async def delete(cls, file_ids: list[str], client: S3Client) -> None:
-        semaphore = asyncio.BoundedSemaphore(5)
+    async def delete(self, file_ids: list[str]) -> None:
         keys = [{"Key": file_id} for file_id in file_ids]
-        tasks = []
-
-        for i in range(0, len(keys), 1000):
-            chunk = keys[i : i + 1000]
-            task = asyncio.create_task(cls._delete_chunk(chunk, semaphore, client))
-            tasks.append(task)
-
-        await cls._gather_tasks(tasks)
-
-    @classmethod
-    async def _delete_chunk(
-        cls,
-        chunk: list[dict[str, str]],
-        semaphore: asyncio.BoundedSemaphore,
-        client: S3Client,
-    ):
-        async with semaphore:
-            await client.delete_objects(
-                Bucket=cls.BUCKET_NAME,
-                Delete={"Objects": chunk},  # type: ignore
-            )
-
-    @classmethod
-    async def _gather_tasks(cls, tasks: list[asyncio.Task]):
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        batches = [keys[i : i + 1000] for i in range(0, len(keys), 1000)]
+        results = await asyncio.gather(
+            *(self._delete_batch(batch) for batch in batches),
+            return_exceptions=True,
+        )
         for r in results:
             if isinstance(r, Exception):
-                cls.logger.error(str(r))
+                self.logger.error(str(r))
+
+    async def _generate_part_url(
+        self, file_id: str, upload_id: str, part_number: int
+    ) -> response_dto.UploadPartResponseDTO:
+        async with self._semaphore:
+            url = await self._s3_client.generate_upload_presigned_url(
+                file_id, upload_id, part_number
+            )
+            parsed = urlparse(url)
+            return response_dto.UploadPartResponseDTO(
+                part_number, f"{parsed.path}?{parsed.query}"
+            )
+
+    async def _delete_batch(self, chunk: list[dict[str, str]]) -> None:
+        async with self._semaphore:
+            await self._s3_client.delete_objects(chunk)
