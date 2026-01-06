@@ -47,15 +47,17 @@ def create_auth_repository() -> AuthRepository:
     crud.register = AsyncMock(return_value=USER_ID)
     crud.session_list = AsyncMock(
         return_value=(
-            response_dto.SessionInfoResponseDTO(
-                SESSION_ID,
-                USER_ID,
-                ACCESS_TOKEN,
-                REFRESH_TOKEN,
-                USER_IP,
-                BROWSER,
-                TIMESTAMP,
-            )
+            [
+                response_dto.SessionInfoResponseDTO(
+                    SESSION_ID,
+                    USER_ID,
+                    ACCESS_TOKEN,
+                    REFRESH_TOKEN,
+                    USER_IP,
+                    BROWSER,
+                    TIMESTAMP,
+                )
+            ]
         )
     )
     crud.profile_by_user_id = AsyncMock(
