@@ -13,7 +13,6 @@ class Settings:
     MAIL_PORT = int(os.environ["MAIL_PORT"])
     MAIL_TLS = True
     RETRY_COUNT = 3
-    RECONNECT_DELAY = 0.1
     EMAIL_CONFIRMATION_URL = os.environ["EMAIL_CONFIRMATION_URL"]
 
     PROMETHEUS_SERVER_HOST = "0.0.0.0"
