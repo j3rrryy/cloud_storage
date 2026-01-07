@@ -26,7 +26,7 @@ from ..mocks import (
 @pytest.mark.asyncio
 async def test_register(session, auth_repository):
     dto = request_dto.RegisterRequestDTO(USERNAME, EMAIL, PASSWORD)
-    session.flush.side_effect = lambda user: setattr(user, "user_id", USER_ID)
+    session.add.side_effect = lambda user: setattr(user, "user_id", USER_ID)
 
     user_id = await auth_repository.register(dto)
 

@@ -34,6 +34,7 @@ class KafkaConsumerFactory:
             bootstrap_servers=Settings.KAFKA_SERVICE,
             group_id=Settings.KAFKA_GROUP_ID,
             auto_offset_reset="earliest",
+            enable_auto_commit=False,
         )
         await self._aiokafka_consumer.start()
         self._kafka_consumer = KafkaAdapter(self._aiokafka_consumer)
