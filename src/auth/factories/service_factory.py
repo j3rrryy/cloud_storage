@@ -1,4 +1,5 @@
 import asyncio
+from typing import Awaitable, Callable
 
 from cashews import Cache
 
@@ -45,3 +46,16 @@ class ServiceFactory:
             auth_service = AuthService(self.get_auth_repository(), self.get_cache())
             self._auth_controller = AuthController(auth_service)
         return self._auth_controller
+
+    def get_is_ready(self) -> Callable[[], Awaitable[bool]]:
+        async def is_ready() -> bool:
+            try:
+                repository_ready, cache_ready = await asyncio.gather(
+                    self._auth_repository_factory.is_ready(),
+                    self._cache_factory.is_ready(),
+                )
+                return repository_ready and cache_ready
+            except Exception:
+                return False
+
+        return is_ready

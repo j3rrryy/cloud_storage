@@ -69,3 +69,33 @@ def test_cache_factory_get_cache_not_initialized():
 
     with pytest.raises(RuntimeError, match="RedisCache not initialized"):
         factory.get_cache()
+
+
+@pytest.mark.asyncio
+async def test_cache_factory_is_ready_success():
+    factory = CacheFactory()
+    factory._cache = AsyncMock()
+
+    is_ready = await factory.is_ready()
+
+    assert is_ready
+
+
+@pytest.mark.asyncio
+async def test_cache_factory_is_ready_fail():
+    factory = CacheFactory()
+    factory._cache = AsyncMock()
+    factory._cache.ping.side_effect = Exception("Connection failed")
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_cache_factory_is_ready_not_initialized():
+    factory = CacheFactory()
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready

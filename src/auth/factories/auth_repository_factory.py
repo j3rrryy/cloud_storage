@@ -1,3 +1,6 @@
+import asyncio
+
+from sqlalchemy import text
 from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -52,3 +55,14 @@ class AuthRepositoryFactory:
         if not self._auth_repository:
             raise RuntimeError("AuthRepository not initialized")
         return self._auth_repository
+
+    async def is_ready(self) -> bool:
+        if not self._engine or not self._auth_repository:
+            return False
+        try:
+            async with asyncio.timeout(1):
+                async with self._engine.connect() as conn:
+                    await conn.execute(text("SELECT 1"))
+            return True
+        except Exception:
+            return False
