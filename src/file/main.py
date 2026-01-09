@@ -1,9 +1,9 @@
 import asyncio
 import logging
+from typing import Awaitable, Callable
 
 import grpc
 import uvloop
-from prometheus_client import make_asgi_app
 from py_async_grpc_prometheus.prometheus_async_server_interceptor import (
     PromAsyncServerInterceptor,
 )
@@ -11,6 +11,7 @@ from uvicorn import Config, Server
 
 from config import setup_logging
 from factories import ServiceFactory
+from monitoring import MonitoringApp
 from proto import FileServicer, add_FileServicer_to_server
 from settings import Settings
 from utils import ExceptionInterceptor
@@ -36,15 +37,15 @@ async def start_grpc_server(file_controller: FileServicer) -> None:
     await server.wait_for_termination()
 
 
-async def start_prometheus_server() -> None:
-    app = make_asgi_app()
+async def start_monitoring_server(is_ready: Callable[[], Awaitable[bool]]) -> None:
+    app = MonitoringApp(is_ready)
     server_config = Config(
         app=app,
         loop="uvloop",
-        host=Settings.PROMETHEUS_SERVER_HOST,
-        port=Settings.PROMETHEUS_SERVER_PORT,
-        limit_concurrency=Settings.PROMETHEUS_SERVER_LIMIT_CONCURRENCY,
-        limit_max_requests=Settings.PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS,
+        host=Settings.MONITORING_SERVER_HOST,
+        port=Settings.MONITORING_SERVER_PORT,
+        limit_concurrency=Settings.MONITORING_SERVER_LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.MONITORING_SERVER_LIMIT_MAX_REQUESTS,
     )
     server = Server(server_config)
     await server.serve()
@@ -59,11 +60,12 @@ async def main() -> None:
     grpc_task = asyncio.create_task(start_grpc_server(file_controller))
     logger.info("gRPC server started")
 
-    prometheus_task = asyncio.create_task(start_prometheus_server())
-    logger.info("Prometheus server started")
+    is_ready = service_factory.get_is_ready()
+    monitoring_task = asyncio.create_task(start_monitoring_server(is_ready))
+    logger.info("Monitoring server started")
 
     try:
-        await asyncio.gather(grpc_task, prometheus_task)
+        await asyncio.gather(grpc_task, monitoring_task)
     finally:
         await service_factory.close()
 

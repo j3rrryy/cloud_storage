@@ -1,3 +1,5 @@
+import asyncio
+
 import aioboto3
 from aiobotocore.config import AioConfig
 
@@ -53,3 +55,13 @@ class FileStorageFactory:
         if not self._file_storage:
             raise RuntimeError("FileStorage not initialized")
         return self._file_storage
+
+    async def is_ready(self) -> bool:
+        if not self._context or not self._file_storage:
+            return False
+        try:
+            async with asyncio.timeout(1):
+                await self._file_storage.ping()
+            return True
+        except Exception:
+            return False

@@ -80,3 +80,36 @@ def test_file_repository_factory_get_file_repository_not_initialized():
 
     with pytest.raises(RuntimeError, match="FileRepository not initialized"):
         factory.get_file_repository()
+
+
+@pytest.mark.asyncio
+async def test_file_repository_factory_is_ready_success():
+    factory = FileRepositoryFactory()
+    factory._engine = MagicMock()
+    factory._engine.__aenter__ = AsyncMock()
+    factory._file_repository = AsyncMock()
+
+    is_ready = await factory.is_ready()
+
+    assert is_ready
+
+
+@pytest.mark.asyncio
+async def test_file_repository_factory_is_ready_fail():
+    factory = FileRepositoryFactory()
+    factory._engine = MagicMock()
+    factory._file_repository = AsyncMock()
+    factory._engine.connect.side_effect = Exception("Connection failed")
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_file_repository_factory_is_ready_not_initialized():
+    factory = FileRepositoryFactory()
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready

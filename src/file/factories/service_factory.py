@@ -1,4 +1,5 @@
 import asyncio
+from typing import Awaitable, Callable
 
 from cashews import Cache
 
@@ -54,3 +55,17 @@ class ServiceFactory:
             )
             self._file_controller = FileController(file_service)
         return self._file_controller
+
+    def get_is_ready(self) -> Callable[[], Awaitable[bool]]:
+        async def is_ready() -> bool:
+            try:
+                repository_ready, storage_ready, cache_ready = await asyncio.gather(
+                    self._file_repository_factory.is_ready(),
+                    self._file_storage_factory.is_ready(),
+                    self._cache_factory.is_ready(),
+                )
+                return repository_ready and storage_ready and cache_ready
+            except Exception:
+                return False
+
+        return is_ready

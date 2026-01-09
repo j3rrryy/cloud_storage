@@ -77,3 +77,35 @@ def test_file_storage_factory_get_file_storage_not_initialized():
 
     with pytest.raises(RuntimeError, match="FileStorage not initialized"):
         factory.get_file_storage()
+
+
+@pytest.mark.asyncio
+async def test_file_storage_factory_is_ready_success():
+    factory = FileStorageFactory()
+    factory._context = MagicMock()
+    factory._file_storage = AsyncMock()
+
+    is_ready = await factory.is_ready()
+
+    assert is_ready
+
+
+@pytest.mark.asyncio
+async def test_file_storage_factory_is_ready_fail():
+    factory = FileStorageFactory()
+    factory._context = MagicMock()
+    factory._file_storage = AsyncMock()
+    factory._file_storage.ping.side_effect = Exception("Connection failed")
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_file_storage_factory_is_ready_not_initialized():
+    factory = FileStorageFactory()
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready

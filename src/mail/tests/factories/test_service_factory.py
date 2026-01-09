@@ -136,3 +136,15 @@ async def test_service_factory_get_is_ready():
     is_ready = await service_factory.get_is_ready()()
 
     assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_service_factory_get_is_ready_exception():
+    service_factory = ServiceFactory()
+    mock_is_ready = MagicMock()
+    mock_is_ready.side_effect = Exception("Healthcheck timeout")
+    service_factory._kafka_consumer_factory.is_ready = mock_is_ready
+
+    is_ready = await service_factory.get_is_ready()()
+
+    assert not is_ready

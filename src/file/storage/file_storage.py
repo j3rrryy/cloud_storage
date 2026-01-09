@@ -72,6 +72,9 @@ class FileStorage(FileStorageProtocol):
             if isinstance(r, Exception):
                 self.logger.error(str(r))
 
+    async def ping(self) -> None:
+        await self._s3_client.ping()
+
     async def _generate_part_url(
         self, file_id: str, upload_id: str, part_number: int
     ) -> response_dto.UploadPartResponseDTO:

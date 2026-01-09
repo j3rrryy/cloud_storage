@@ -50,8 +50,11 @@ class ServiceFactory:
 
     def get_is_ready(self) -> Callable[[], Awaitable[bool]]:
         async def is_ready() -> bool:
-            kafka_ready = await self._kafka_consumer_factory.is_ready()
-            smtp_ready = self._smtp_client_factory.is_ready()
-            return kafka_ready and smtp_ready
+            try:
+                kafka_ready = await self._kafka_consumer_factory.is_ready()
+                smtp_ready = self._smtp_client_factory.is_ready()
+                return kafka_ready and smtp_ready
+            except Exception:
+                return False
 
         return is_ready

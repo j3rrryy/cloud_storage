@@ -52,10 +52,10 @@ class KafkaConsumerFactory:
         for server in Settings.KAFKA_SERVICE.strip().split(","):
             host, port = server.split(":")
             try:
-                conn = asyncio.open_connection(host, port)
-                _, writer = await asyncio.wait_for(conn, 0.5)
-                writer.close()
-                await writer.wait_closed()
+                async with asyncio.timeout(1):
+                    _, writer = await asyncio.open_connection(host, port)
+                    writer.close()
+                    await writer.wait_closed()
                 return True
             except Exception:
                 pass

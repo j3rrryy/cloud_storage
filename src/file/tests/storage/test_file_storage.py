@@ -238,3 +238,10 @@ async def test_delete_exception(client, file_storage):
     await file_storage.delete([FILE_ID])
 
     file_storage.logger.error.assert_called_once_with("Details")
+
+
+@pytest.mark.asyncio
+async def test_ping(file_storage, client):
+    await file_storage.ping()
+
+    client.list_buckets.assert_awaited_once()

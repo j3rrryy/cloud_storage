@@ -1,3 +1,5 @@
+import asyncio
+
 from cashews import Cache
 
 from settings import Settings
@@ -33,3 +35,13 @@ class CacheFactory:
         if not self._cache:
             raise RuntimeError("RedisCache not initialized")
         return self._cache
+
+    async def is_ready(self) -> bool:
+        if not self._cache:
+            return False
+        try:
+            async with asyncio.timeout(1):
+                await self._cache.ping()
+            return True
+        except Exception:
+            return False

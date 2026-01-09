@@ -42,6 +42,4 @@ class SMTPClientFactory:
         return self._smtp_client
 
     def is_ready(self) -> bool:
-        if self._smtp and self._smtp_client:
-            return True
-        return False
+        return bool(self._smtp and self._smtp_client)

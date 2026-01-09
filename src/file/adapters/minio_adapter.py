@@ -68,3 +68,6 @@ class MinIOAdapter(S3ClientProtocol):
             Bucket=Settings.MINIO_S3_BUCKET,
             Delete={"Objects": objects},  # type: ignore
         )
+
+    async def ping(self) -> None:
+        await self._client.list_buckets()

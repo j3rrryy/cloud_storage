@@ -48,27 +48,28 @@ async def test_start_grpc_server(mock_add_servicer, mock_grpc_server):
 
 
 @pytest.mark.asyncio
-@patch("main.make_asgi_app")
+@patch("main.MonitoringApp")
 @patch("main.Config")
 @patch("main.Server")
-async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_app):
+async def test_start_monitoring_server(mock_server, mock_config, mock_monitoring_app):
     mock_app = MagicMock()
-    mock_make_asgi_app.return_value = mock_app
+    mock_monitoring_app.return_value = mock_app
     mock_config_instance = MagicMock()
     mock_config.return_value = mock_config_instance
     mock_server_instance = AsyncMock()
     mock_server.return_value = mock_server_instance
+    mock_is_ready = MagicMock()
 
-    await main.start_prometheus_server()
+    await main.start_monitoring_server(mock_is_ready)
 
-    mock_make_asgi_app.assert_called_once()
+    mock_monitoring_app.assert_called_once()
     mock_config.assert_called_once_with(
         app=mock_app,
         loop="uvloop",
-        host=Settings.PROMETHEUS_SERVER_HOST,
-        port=Settings.PROMETHEUS_SERVER_PORT,
-        limit_concurrency=Settings.PROMETHEUS_SERVER_LIMIT_CONCURRENCY,
-        limit_max_requests=Settings.PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS,
+        host=Settings.MONITORING_SERVER_HOST,
+        port=Settings.MONITORING_SERVER_PORT,
+        limit_concurrency=Settings.MONITORING_SERVER_LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.MONITORING_SERVER_LIMIT_MAX_REQUESTS,
     )
     mock_server.assert_called_once_with(mock_config_instance)
     mock_server_instance.serve.assert_awaited_once()
@@ -78,10 +79,10 @@ async def test_start_prometheus_server(mock_server, mock_config, mock_make_asgi_
 @patch("main.setup_logging")
 @patch("main.ServiceFactory")
 @patch("main.start_grpc_server")
-@patch("main.start_prometheus_server")
+@patch("main.start_monitoring_server")
 @patch("main.logger")
 async def test_main(
-    mock_logger, mock_prometheus, mock_grpc, mock_service_factory, mock_setup_logging
+    mock_logger, mock_monitoring, mock_grpc, mock_service_factory, mock_setup_logging
 ):
     mock_service_factory.return_value = AsyncMock()
 
@@ -91,9 +92,9 @@ async def test_main(
     mock_service_factory.assert_called_once()
     mock_service_factory.return_value.initialize.assert_awaited_once()
     mock_grpc.assert_awaited_once()
-    mock_prometheus.assert_awaited_once()
+    mock_monitoring.assert_awaited_once()
     mock_logger.info.assert_has_calls(
-        [call("gRPC server started"), call("Prometheus server started")]
+        [call("gRPC server started"), call("Monitoring server started")]
     )
 
 
@@ -101,13 +102,13 @@ async def test_main(
 @patch("main.setup_logging")
 @patch("main.ServiceFactory")
 @patch("main.start_grpc_server")
-@patch("main.start_prometheus_server")
+@patch("main.start_monitoring_server")
 @patch("main.logger")
 @patch("main.asyncio.gather")
 async def test_main_with_close(
     mock_gather,
     mock_logger,
-    mock_prometheus,
+    mock_monitoring,
     mock_grpc,
     mock_service_factory,
     mock_setup_logging,
@@ -122,8 +123,8 @@ async def test_main_with_close(
     mock_service_factory.assert_called_once()
     mock_service_factory.return_value.initialize.assert_awaited_once()
     mock_grpc.assert_called_once()
-    mock_prometheus.assert_called_once()
+    mock_monitoring.assert_called_once()
     mock_logger.info.assert_has_calls(
-        [call("gRPC server started"), call("Prometheus server started")]
+        [call("gRPC server started"), call("Monitoring server started")]
     )
     mock_service_factory.return_value.close.assert_awaited_once()
