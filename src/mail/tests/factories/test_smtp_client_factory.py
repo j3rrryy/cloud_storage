@@ -77,3 +77,21 @@ def test_smtp_client_factory_get_smtp_client_not_initialized():
 
     with pytest.raises(RuntimeError, match="SMTPClient not initialized"):
         factory.get_smtp_client()
+
+
+def test_smtp_client_factory_is_ready_success():
+    factory = SMTPClientFactory()
+    factory._smtp = MagicMock()
+    factory._smtp_client = MagicMock()
+
+    is_ready = factory.is_ready()
+
+    assert is_ready
+
+
+def test_smtp_client_factory_is_ready_fail():
+    factory = SMTPClientFactory()
+
+    is_ready = factory.is_ready()
+
+    assert not is_ready

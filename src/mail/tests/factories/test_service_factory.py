@@ -127,3 +127,12 @@ def test_service_factory_get_application_facade_cached():
     result = service_factory.get_application_facade()
 
     assert result == mock_facade
+
+
+@pytest.mark.asyncio
+async def test_service_factory_get_is_ready():
+    service_factory = ServiceFactory()
+
+    is_ready = await service_factory.get_is_ready()()
+
+    assert not is_ready

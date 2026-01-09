@@ -14,10 +14,8 @@ class KafkaAdapter(KafkaConsumerProtocol):
         async for message in self._consumer:
             tp = TopicPartition(message.topic, message.partition)
 
-            async def commit(
-                msg_tp=tp, msg_offset=message.offset, consumer=self._consumer
-            ) -> None:
-                await consumer.commit({msg_tp: msg_offset + 1})
+            async def commit(msg_tp=tp, msg_offset=message.offset) -> None:
+                await self._consumer.commit({msg_tp: msg_offset + 1})
 
             if message.value is None:
                 await commit()

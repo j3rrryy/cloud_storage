@@ -1,12 +1,13 @@
 import asyncio
 import logging
+from typing import Awaitable, Callable
 
 import uvloop
-from prometheus_client import make_asgi_app
 from uvicorn import Config, Server
 
 from config import setup_logging
 from factories import ServiceFactory
+from monitoring import MonitoringApp
 from protocols import ApplicationFacadeProtocol
 from settings import Settings
 
@@ -17,15 +18,15 @@ async def start_mail_server(application_facade: ApplicationFacadeProtocol) -> No
     await application_facade.start_processing()
 
 
-async def start_prometheus_server() -> None:
-    app = make_asgi_app()
+async def start_monitoring_server(is_ready: Callable[[], Awaitable[bool]]) -> None:
+    app = MonitoringApp(is_ready)
     server_config = Config(
         app=app,
         loop="uvloop",
-        host=Settings.PROMETHEUS_SERVER_HOST,
-        port=Settings.PROMETHEUS_SERVER_PORT,
-        limit_concurrency=Settings.PROMETHEUS_SERVER_LIMIT_CONCURRENCY,
-        limit_max_requests=Settings.PROMETHEUS_SERVER_LIMIT_MAX_REQUESTS,
+        host=Settings.MONITORING_SERVER_HOST,
+        port=Settings.MONITORING_SERVER_PORT,
+        limit_concurrency=Settings.MONITORING_SERVER_LIMIT_CONCURRENCY,
+        limit_max_requests=Settings.MONITORING_SERVER_LIMIT_MAX_REQUESTS,
     )
     server = Server(server_config)
     await server.serve()
@@ -40,11 +41,12 @@ async def main() -> None:
     mail_task = asyncio.create_task(start_mail_server(application_facade))
     logger.info("Mail server started")
 
-    prometheus_task = asyncio.create_task(start_prometheus_server())
-    logger.info("Prometheus server started")
+    is_ready = service_factory.get_is_ready()
+    monitoring_task = asyncio.create_task(start_monitoring_server(is_ready))
+    logger.info("Monitoring server started")
 
     try:
-        await asyncio.gather(mail_task, prometheus_task)
+        await asyncio.gather(mail_task, monitoring_task)
     finally:
         await service_factory.close()
 

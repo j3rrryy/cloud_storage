@@ -40,3 +40,8 @@ class SMTPClientFactory:
         if not self._smtp_client:
             raise RuntimeError("SMTPClient not initialized")
         return self._smtp_client
+
+    def is_ready(self) -> bool:
+        if self._smtp and self._smtp_client:
+            return True
+        return False

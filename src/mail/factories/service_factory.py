@@ -1,4 +1,5 @@
 import asyncio
+from typing import Awaitable, Callable
 
 from facades import ApplicationFacade, KafkaFacade, SMTPFacade
 from protocols import (
@@ -46,3 +47,11 @@ class ServiceFactory:
             smtp_facade = SMTPFacade(self.get_smtp_client())
             self._application_facade = ApplicationFacade(kafka_facade, smtp_facade)
         return self._application_facade
+
+    def get_is_ready(self) -> Callable[[], Awaitable[bool]]:
+        async def is_ready() -> bool:
+            kafka_ready = await self._kafka_consumer_factory.is_ready()
+            smtp_ready = self._smtp_client_factory.is_ready()
+            return kafka_ready and smtp_ready
+
+        return is_ready

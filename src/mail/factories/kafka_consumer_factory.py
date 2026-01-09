@@ -1,3 +1,5 @@
+import asyncio
+
 from aiokafka import AIOKafkaConsumer
 
 from adapters import KafkaAdapter
@@ -43,3 +45,18 @@ class KafkaConsumerFactory:
         if not self._kafka_consumer:
             raise RuntimeError("KafkaConsumer not initialized")
         return self._kafka_consumer
+
+    async def is_ready(self) -> bool:
+        if not self._aiokafka_consumer or not self._kafka_consumer:
+            return False
+        for server in Settings.KAFKA_SERVICE.strip().split(","):
+            host, port = server.split(":")
+            try:
+                conn = asyncio.open_connection(host, port)
+                _, writer = await asyncio.wait_for(conn, 0.5)
+                writer.close()
+                await writer.wait_closed()
+                return True
+            except Exception:
+                pass
+        return False
