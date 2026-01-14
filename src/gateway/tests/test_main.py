@@ -10,6 +10,7 @@ from litestar.plugins.prometheus import PrometheusController
 
 import main
 from config import setup_uvicorn_logging
+from controller import HealthController
 from controller import v1 as controller_v1
 from settings import Settings
 from utils import exception_handler
@@ -24,6 +25,7 @@ def test_app(mock_litestar):
     _, kwargs = mock_litestar.call_args
     assert kwargs["path"] == "/api"
     assert kwargs["route_handlers"] == (
+        HealthController,
         PrometheusController,
         controller_v1.auth_router,
         controller_v1.file_router,
@@ -43,6 +45,9 @@ def test_app(mock_litestar):
     on_shutdown = kwargs["on_shutdown"]
     assert len(on_shutdown) == 1
     deps = kwargs["dependencies"]
+    assert deps["is_ready"].use_cache
+    assert not deps["is_ready"].sync_to_thread
+    assert callable(deps["is_ready"].dependency)
     assert deps["application_facade"].use_cache
     assert not deps["application_facade"].sync_to_thread
     assert callable(deps["application_facade"].dependency)

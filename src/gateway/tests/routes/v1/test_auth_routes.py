@@ -4,7 +4,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 
 from schemas import auth_schemas
 
-from ..mocks import (
+from ...mocks import (
     ACCESS_TOKEN,
     BROWSER,
     CODE,

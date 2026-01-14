@@ -84,3 +84,35 @@ def test_auth_service_factory_get_auth_service_not_initialized():
 
     with pytest.raises(RuntimeError, match="AuthService not initialized"):
         factory.get_auth_service()
+
+
+@pytest.mark.asyncio
+async def test_auth_service_factory_is_ready_success():
+    factory = AuthServiceFactory()
+    factory._auth_channel = AsyncMock()
+    factory._auth_service = MagicMock()
+
+    is_ready = await factory.is_ready()
+
+    assert is_ready
+
+
+@pytest.mark.asyncio
+async def test_auth_service_factory_is_ready_fail():
+    factory = AuthServiceFactory()
+    factory._auth_channel = AsyncMock()
+    factory._auth_service = MagicMock()
+    factory._auth_channel.channel_ready.side_effect = Exception("Connection failed")
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_auth_service_factory_is_ready_not_initialized():
+    factory = AuthServiceFactory()
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready

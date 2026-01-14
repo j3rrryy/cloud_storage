@@ -11,6 +11,7 @@ from config import (
     setup_prometheus,
     setup_uvicorn_logging,
 )
+from controller import HealthController
 from controller import v1 as controller_v1
 from factories import ServiceFactory
 from settings import Settings
@@ -22,6 +23,7 @@ def main() -> Litestar:
     return Litestar(
         path="/api",
         route_handlers=(
+            HealthController,
             PrometheusController,
             controller_v1.auth_router,
             controller_v1.file_router,
@@ -35,6 +37,11 @@ def main() -> Litestar:
         on_startup=(service_factory.initialize,),
         on_shutdown=(service_factory.close,),
         dependencies={
+            "is_ready": Provide(
+                service_factory.get_is_ready,
+                use_cache=True,
+                sync_to_thread=False,
+            ),
             "application_facade": Provide(
                 service_factory.get_application_facade,
                 use_cache=True,

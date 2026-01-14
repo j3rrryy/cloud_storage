@@ -4,7 +4,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CON
 
 from schemas import file_schemas
 
-from ..mocks import ACCESS_TOKEN, ETAG, FILE_ID, NAME, SIZE, TIMESTAMP, UPLOAD_ID, URL
+from ...mocks import ACCESS_TOKEN, ETAG, FILE_ID, NAME, SIZE, TIMESTAMP, UPLOAD_ID, URL
 
 PREFIX = "/api/v1/files"
 

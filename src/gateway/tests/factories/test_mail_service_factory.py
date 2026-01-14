@@ -77,3 +77,42 @@ def test_mail_service_factory_get_mail_service_not_initialized():
 
     with pytest.raises(RuntimeError, match="MailService not initialized"):
         factory.get_mail_service()
+
+
+@pytest.mark.asyncio
+async def test_mail_service_factory_is_ready_success():
+    factory = MailServiceFactory()
+    factory._mail_producer = MagicMock()
+    factory._mail_service = MagicMock()
+
+    with patch(
+        "factories.mail_service_factory.asyncio.open_connection",
+        new=AsyncMock(return_value=(AsyncMock(), AsyncMock())),
+    ):
+        is_ready = await factory.is_ready()
+
+    assert is_ready
+
+
+@pytest.mark.asyncio
+async def test_mail_service_factory_is_ready_fail():
+    factory = MailServiceFactory()
+    factory._mail_producer = MagicMock()
+    factory._mail_service = MagicMock()
+
+    with patch(
+        "factories.mail_service_factory.asyncio.open_connection",
+        new=AsyncMock(side_effect=Exception("Connection failed")),
+    ):
+        is_ready = await factory.is_ready()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_mail_service_factory_is_ready_not_initialized():
+    factory = MailServiceFactory()
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready

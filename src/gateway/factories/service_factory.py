@@ -1,4 +1,5 @@
 import asyncio
+from typing import Awaitable, Callable
 
 from facades import ApplicationFacade, AuthFacade, FileFacade
 from protocols import (
@@ -54,3 +55,17 @@ class ServiceFactory:
             file_facade = FileFacade(self.get_file_service())
             self._application_facade = ApplicationFacade(auth_facade, file_facade)
         return self._application_facade
+
+    def get_is_ready(self) -> Callable[[], Awaitable[bool]]:
+        async def is_ready() -> bool:
+            try:
+                auth_ready, file_ready, mail_ready = await asyncio.gather(
+                    self._auth_service_factory.is_ready(),
+                    self._file_service_factory.is_ready(),
+                    self._mail_service_factory.is_ready(),
+                )
+                return auth_ready and file_ready and mail_ready
+            except Exception:
+                return False
+
+        return is_ready

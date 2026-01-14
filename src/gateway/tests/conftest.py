@@ -1,13 +1,16 @@
-from typing import AsyncGenerator, Callable
+from typing import AsyncGenerator, Awaitable, Callable
+from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
 from aiokafka import AIOKafkaProducer
 from litestar import Litestar
 from litestar.di import Provide
+from litestar.exceptions import HTTPException
 from litestar.testing import AsyncTestClient
 
 from adapters import AuthGrpcAdapter, FileGrpcAdapter, MailKafkaAdapter
+from controller import HealthController
 from controller import v1 as controller_v1
 from facades import ApplicationFacade, AuthFacade, FileFacade
 from proto import AuthStub, FileStub
@@ -20,6 +23,7 @@ from protocols import (
     MailServiceProtocol,
 )
 from settings import Settings
+from utils import exception_handler
 
 from .mocks import create_auth_stub_v1, create_file_stub_v1, create_mail_producer
 
@@ -65,30 +69,31 @@ def file_facade(file_grpc_adapter) -> FileFacadeProtocol:
 
 
 @pytest.fixture
-def application_facade_factory(
-    auth_facade, file_facade
-) -> Callable[[], ApplicationFacadeProtocol]:
-    def _application_facade_factory() -> ApplicationFacadeProtocol:
-        return ApplicationFacade(auth_facade, file_facade)
-
-    return _application_facade_factory
+def application_facade(auth_facade, file_facade) -> ApplicationFacadeProtocol:
+    return ApplicationFacade(auth_facade, file_facade)
 
 
 @pytest.fixture
-def application_facade(application_facade_factory) -> ApplicationFacadeProtocol:
-    return application_facade_factory()
+def is_ready() -> Callable[[], Awaitable[bool]]:
+    return AsyncMock(spec=Callable[[], Awaitable[bool]], return_value=True)
 
 
 @pytest.fixture
-def app(application_facade_factory) -> Litestar:
+def app(is_ready, application_facade) -> Litestar:
     return Litestar(
         path="/api",
-        route_handlers=(controller_v1.auth_router, controller_v1.file_router),
+        route_handlers=(
+            HealthController,
+            controller_v1.auth_router,
+            controller_v1.file_router,
+        ),
         debug=Settings.DEBUG,
+        exception_handlers={HTTPException: exception_handler},
         dependencies={
+            "is_ready": Provide(lambda: is_ready, use_cache=True, sync_to_thread=False),
             "application_facade": Provide(
-                application_facade_factory, use_cache=True, sync_to_thread=False
-            )
+                lambda: application_facade, use_cache=True, sync_to_thread=False
+            ),
         },
     )
 

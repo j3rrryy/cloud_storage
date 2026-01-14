@@ -43,3 +43,13 @@ class AuthServiceFactory:
         if not self._auth_service:
             raise RuntimeError("AuthService not initialized")
         return self._auth_service
+
+    async def is_ready(self) -> bool:
+        if not self._auth_channel or not self._auth_service:
+            return False
+        try:
+            async with asyncio.timeout(1):
+                await self._auth_channel.channel_ready()
+            return True
+        except Exception:
+            return False

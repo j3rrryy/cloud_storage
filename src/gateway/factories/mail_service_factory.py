@@ -1,3 +1,5 @@
+import asyncio
+
 from aiokafka import AIOKafkaProducer
 
 from adapters import MailKafkaAdapter
@@ -39,3 +41,18 @@ class MailServiceFactory:
         if not self._mail_service:
             raise RuntimeError("MailService not initialized")
         return self._mail_service
+
+    async def is_ready(self) -> bool:
+        if not self._mail_producer or not self._mail_service:
+            return False
+        for server in Settings.KAFKA_SERVICE.strip().split(","):
+            host, port = server.split(":")
+            try:
+                async with asyncio.timeout(1):
+                    _, writer = await asyncio.open_connection(host, port)
+                    writer.close()
+                    await writer.wait_closed()
+                return True
+            except Exception:
+                pass
+        return False

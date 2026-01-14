@@ -43,3 +43,13 @@ class FileServiceFactory:
         if not self._file_service:
             raise RuntimeError("FileService not initialized")
         return self._file_service
+
+    async def is_ready(self) -> bool:
+        if not self._file_channel or not self._file_service:
+            return False
+        try:
+            async with asyncio.timeout(1):
+                await self._file_channel.channel_ready()
+            return True
+        except Exception:
+            return False

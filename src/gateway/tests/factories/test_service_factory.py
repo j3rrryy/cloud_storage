@@ -150,3 +150,24 @@ def test_service_factory_get_application_facade_cached():
     result = service_factory.get_application_facade()
 
     assert result == mock_facade
+
+
+@pytest.mark.asyncio
+async def test_service_factory_get_is_ready():
+    service_factory = ServiceFactory()
+
+    is_ready = await service_factory.get_is_ready()()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_service_factory_get_is_ready_exception():
+    service_factory = ServiceFactory()
+    mock_is_ready = MagicMock()
+    mock_is_ready.side_effect = Exception("Healthcheck timeout")
+    service_factory._auth_service_factory.is_ready = mock_is_ready
+
+    is_ready = await service_factory.get_is_ready()()
+
+    assert not is_ready

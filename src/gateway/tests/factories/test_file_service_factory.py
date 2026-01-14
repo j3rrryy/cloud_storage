@@ -84,3 +84,35 @@ def test_file_service_factory_get_file_service_not_initialized():
 
     with pytest.raises(RuntimeError, match="FileService not initialized"):
         factory.get_file_service()
+
+
+@pytest.mark.asyncio
+async def test_file_service_factory_is_ready_success():
+    factory = FileServiceFactory()
+    factory._file_channel = AsyncMock()
+    factory._file_service = MagicMock()
+
+    is_ready = await factory.is_ready()
+
+    assert is_ready
+
+
+@pytest.mark.asyncio
+async def test_file_service_factory_is_ready_fail():
+    factory = FileServiceFactory()
+    factory._file_channel = AsyncMock()
+    factory._file_service = MagicMock()
+    factory._file_channel.channel_ready.side_effect = Exception("Connection failed")
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready
+
+
+@pytest.mark.asyncio
+async def test_file_service_factory_is_ready_not_initialized():
+    factory = FileServiceFactory()
+
+    is_ready = await factory.is_ready()
+
+    assert not is_ready
