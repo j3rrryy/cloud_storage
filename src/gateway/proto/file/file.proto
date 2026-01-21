@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package file;
+
+service File {
+    rpc InitiateUpload(InitiateUploadRequest) returns (InitiateUploadResponse);
+    rpc CompleteUpload(CompleteUploadRequest) returns (google.protobuf.Empty);
+    rpc AbortUpload(AbortUploadRequest) returns (google.protobuf.Empty);
+    rpc FileInfo(FileRequest) returns (FileInfoResponse);
+    rpc FileList(UserId) returns (FileListResponse);
+    rpc Download(FileRequest) returns (URL);
+    rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+    rpc DeleteAll(UserId) returns (google.protobuf.Empty);
+}
+
+message InitiateUploadRequest {
+    string user_id = 1;
+    string name = 2;
+    uint64 size = 3;
+}
+
+message InitiateUploadResponse {
+    string upload_id = 1;
+    uint32 part_size = 2;
+    repeated UploadPart parts = 3;
+}
+
+message UploadPart {
+    uint32 part_number = 1;
+    string url = 2;
+}
+
+message CompleteUploadRequest {
+    string user_id = 1;
+    string upload_id = 2;
+    repeated CompletePart parts = 3;
+}
+
+message CompletePart {
+    uint32 part_number = 1;
+    string etag = 2;
+}
+
+message AbortUploadRequest {
+    string user_id = 1;
+    string upload_id = 2;
+}
+
+message FileRequest {
+    string user_id = 1;
+    string file_id = 2;
+}
+
+message FileInfoResponse {
+    string file_id = 1;
+    string name = 2;
+    uint64 size = 3;
+    google.protobuf.Timestamp uploaded_at = 4;
+}
+
+message UserId { string user_id = 1; }
+
+message FileListResponse { repeated FileInfoResponse files = 1; }
+
+message URL { string url = 1; }
+
+message DeleteRequest {
+    string user_id = 1;
+    repeated string file_ids = 2;
+}

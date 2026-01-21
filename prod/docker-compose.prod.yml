@@ -140,12 +140,12 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./create_buckets.sh:/create_buckets.sh
+      - ./setup_minio.sh:/setup_minio.sh
     networks:
       - file
     depends_on:
       - minio
-    entrypoint: bash ./create_buckets.sh
+    entrypoint: bash ./setup_minio.sh
     container_name: mc_prod
 
   file_postgres:
@@ -220,6 +220,8 @@ services:
       - ./loki.yml:/etc/loki/loki.yml:ro
     networks:
       - monitoring
+    depends_on:
+      - minio
     command: --config.file=/etc/loki/loki.yml --config.expand-env=true
     container_name: loki_prod
 
