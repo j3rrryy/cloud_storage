@@ -6,7 +6,7 @@ from dto import (
     NewLoginMailDTO,
     PasswordResetMailDTO,
 )
-from enums import MailTypes
+from enums import MailType
 
 from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
 
@@ -15,7 +15,7 @@ from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
     "topic, message, expected_dto_cls",
     [
         (
-            MailTypes.EMAIL_CONFIRMATION.name,
+            MailType.EMAIL_CONFIRMATION.name,
             {
                 "username": USERNAME,
                 "email": EMAIL,
@@ -24,7 +24,7 @@ from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
             EmailConfirmationMailDTO,
         ),
         (
-            MailTypes.NEW_LOGIN.name,
+            MailType.NEW_LOGIN.name,
             {
                 "username": USERNAME,
                 "email": EMAIL,
@@ -34,7 +34,7 @@ from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
             NewLoginMailDTO,
         ),
         (
-            MailTypes.PASSWORD_RESET.name,
+            MailType.PASSWORD_RESET.name,
             {"username": USERNAME, "email": EMAIL, "code": CODE},
             PasswordResetMailDTO,
         ),
@@ -61,7 +61,7 @@ def test_convert_unsupported_topic():
 
 
 def test_convert_invalid_data():
-    topic = MailTypes.EMAIL_CONFIRMATION.name
+    topic = MailType.EMAIL_CONFIRMATION.name
     message = {"invalid_key": "invalid_value"}
 
     with pytest.raises(ValueError, match=f"Invalid message data for {topic}: "):

@@ -6,7 +6,7 @@ from blake3 import blake3
 from jwskate import Jwk, Jwt, SignedJwt
 
 from config import setup_password_hasher
-from enums import TokenTypes
+from enums import TokenType
 from exceptions import UnauthenticatedException
 from settings import Settings
 from utils import utc_now_aware
@@ -17,14 +17,14 @@ PUBLIC_KEY = PRIVATE_KEY.public_jwk()
 PASSWORD_HASHER = setup_password_hasher()
 
 
-def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
+def generate_jwt(user_id: str, token_type: TokenType) -> str:
     now = utc_now_aware()
     match token_type:
-        case TokenTypes.ACCESS:
+        case TokenType.ACCESS:
             exp_time = now + timedelta(minutes=15)
-        case TokenTypes.REFRESH:
+        case TokenType.REFRESH:
             exp_time = now + timedelta(days=30)
-        case TokenTypes.EMAIL_CONFIRMATION:
+        case TokenType.EMAIL_CONFIRMATION:
             exp_time = now + timedelta(days=3)
         case _:  # pragma: no cover
             exp_time = None
@@ -38,7 +38,7 @@ def generate_jwt(user_id: str, token_type: TokenTypes) -> str:
     return str(Jwt.sign(claims, PRIVATE_KEY, alg="EdDSA", typ=str(token_type.value)))
 
 
-def validate_jwt(token: str, token_type: TokenTypes) -> SignedJwt:
+def validate_jwt(token: str, token_type: TokenType) -> SignedJwt:
     jwt = Jwt(token)
 
     if (
@@ -50,24 +50,24 @@ def validate_jwt(token: str, token_type: TokenTypes) -> SignedJwt:
     ):
         raise UnauthenticatedException("Token is invalid")
 
-    jwt_type = TokenTypes(int(jwt.typ))
+    jwt_type = TokenType(int(jwt.typ))
 
     if jwt_type != token_type:
         raise UnauthenticatedException("Invalid token type")
     if jwt.is_expired():
         match jwt_type:
-            case TokenTypes.ACCESS:
+            case TokenType.ACCESS:
                 raise UnauthenticatedException("Refresh the tokens")
-            case TokenTypes.REFRESH:
+            case TokenType.REFRESH:
                 raise UnauthenticatedException("Re-log in")
-            case TokenTypes.EMAIL_CONFIRMATION:
+            case TokenType.EMAIL_CONFIRMATION:
                 raise UnauthenticatedException("Resend the email confirmation mail")
             case _:  # pragma: no cover
                 pass
     return jwt
 
 
-def validate_jwt_and_get_user_id(token: str, token_type: TokenTypes) -> str:
+def validate_jwt_and_get_user_id(token: str, token_type: TokenType) -> str:
     return validate_jwt(token, token_type).subject  # type: ignore
 
 

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class TokenTypes(Enum):
+class TokenType(Enum):
     ACCESS = 0
     REFRESH = 1
     EMAIL_CONFIRMATION = 2

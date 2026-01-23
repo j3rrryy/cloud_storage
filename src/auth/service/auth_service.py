@@ -5,7 +5,7 @@ from cashews import Cache
 
 from dto import request as request_dto
 from dto import response as response_dto
-from enums import ResetCodeStatus, TokenTypes
+from enums import ResetCodeStatus, TokenType
 from exceptions import EmailHasAlreadyBeenConfirmedException, UnauthenticatedException
 from protocols import AuthRepositoryProtocol, AuthServiceProtocol
 from security import (
@@ -36,10 +36,10 @@ class AuthService(AuthServiceProtocol):
     async def register(self, data: request_dto.RegisterRequestDTO) -> str:
         data = data.replace(password=get_password_hash(data.password))
         user_id = await self._auth_repository.register(data)
-        return generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
+        return generate_jwt(user_id, TokenType.EMAIL_CONFIRMATION)
 
     async def confirm_email(self, token: str) -> None:
-        user_id = validate_jwt_and_get_user_id(token, TokenTypes.EMAIL_CONFIRMATION)
+        user_id = validate_jwt_and_get_user_id(token, TokenType.EMAIL_CONFIRMATION)
         await self._auth_repository.confirm_email(user_id)
         await self._cache.delete(user_profile_key(user_id))
 
@@ -77,8 +77,8 @@ class AuthService(AuthServiceProtocol):
         profile = await self._auth_repository.profile_by_username(data.username)
         compare_passwords(profile.password, data.password)
 
-        access_token = generate_jwt(profile.user_id, TokenTypes.ACCESS)
-        refresh_token = generate_jwt(profile.user_id, TokenTypes.REFRESH)
+        access_token = generate_jwt(profile.user_id, TokenType.ACCESS)
+        refresh_token = generate_jwt(profile.user_id, TokenType.REFRESH)
         browser = convert_user_agent(data.user_agent)
 
         hashed_access_token = get_jwt_hash(access_token)
@@ -112,7 +112,7 @@ class AuthService(AuthServiceProtocol):
         if profile.email_confirmed:
             raise EmailHasAlreadyBeenConfirmedException
 
-        token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
+        token = generate_jwt(user_id, TokenType.EMAIL_CONFIRMATION)
         return response_dto.EmailConfirmationMailResponseDTO(
             token, profile.username, profile.email
         )
@@ -123,10 +123,10 @@ class AuthService(AuthServiceProtocol):
     async def refresh(
         self, data: request_dto.RefreshRequestDTO
     ) -> response_dto.RefreshResponseDTO:
-        user_id = validate_jwt_and_get_user_id(data.refresh_token, TokenTypes.REFRESH)
+        user_id = validate_jwt_and_get_user_id(data.refresh_token, TokenType.REFRESH)
 
-        access_token = generate_jwt(user_id, TokenTypes.ACCESS)
-        refresh_token = generate_jwt(user_id, TokenTypes.REFRESH)
+        access_token = generate_jwt(user_id, TokenType.ACCESS)
+        refresh_token = generate_jwt(user_id, TokenType.REFRESH)
         browser = convert_user_agent(data.user_agent)
 
         hashed_access_token = get_jwt_hash(access_token)
@@ -178,7 +178,7 @@ class AuthService(AuthServiceProtocol):
 
         username = await self._auth_repository.update_email(dto)
         await self._cache.delete(user_profile_key(user_id))
-        token = generate_jwt(user_id, TokenTypes.EMAIL_CONFIRMATION)
+        token = generate_jwt(user_id, TokenType.EMAIL_CONFIRMATION)
         return response_dto.EmailConfirmationMailResponseDTO(
             token, username, data.new_email
         )
@@ -207,7 +207,7 @@ class AuthService(AuthServiceProtocol):
         if cached := await self._cache.get(key):
             return cached
 
-        jwt = validate_jwt(access_token, TokenTypes.ACCESS)
+        jwt = validate_jwt(access_token, TokenType.ACCESS)
         await self._auth_repository.validate_access_token(hashed_access_token)
 
         ttl = jwt.exp - int(time())

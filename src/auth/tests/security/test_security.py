@@ -4,7 +4,7 @@ import pytest
 from grpc import StatusCode
 from jwskate import Jwt, SignedJwt
 
-from enums import TokenTypes
+from enums import TokenType
 from exceptions import BaseAppException
 from security import (
     PRIVATE_KEY,
@@ -24,7 +24,7 @@ from ..mocks import ACCESS_TOKEN, PASSWORD, USER_ID
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
+    "token_type", [TokenType.ACCESS, TokenType.REFRESH, TokenType.EMAIL_CONFIRMATION]
 )
 def test_generate_jwt(token_type):
     now = utc_now_aware()
@@ -39,16 +39,16 @@ def test_generate_jwt(token_type):
     assert jwt.expires_at is not None
     assert jwt.subject is not None
     match token_type:
-        case TokenTypes.ACCESS:
+        case TokenType.ACCESS:
             assert jwt.expires_at <= now + timedelta(minutes=15)
-        case TokenTypes.REFRESH:
+        case TokenType.REFRESH:
             assert jwt.expires_at <= now + timedelta(days=30)
-        case TokenTypes.EMAIL_CONFIRMATION:
+        case TokenType.EMAIL_CONFIRMATION:
             assert jwt.expires_at <= now + timedelta(days=3)
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
+    "token_type", [TokenType.ACCESS, TokenType.REFRESH, TokenType.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt(token_type):
     token = generate_jwt(USER_ID, token_type)
@@ -60,7 +60,7 @@ def test_validate_jwt(token_type):
 
 def test_validate_jwt_broken_token():
     with pytest.raises(BaseAppException) as exc_info:
-        validate_jwt("broken_token", TokenTypes.ACCESS)
+        validate_jwt("broken_token", TokenType.ACCESS)
 
     assert exc_info.value.status_code == StatusCode.UNAUTHENTICATED
     assert exc_info.value.details == "Token is invalid"
@@ -71,24 +71,24 @@ def test_validate_jwt_broken_token():
     [
         (
             {"iss": "wrong_issuer"},
-            TokenTypes.ACCESS,
-            TokenTypes.ACCESS,
+            TokenType.ACCESS,
+            TokenType.ACCESS,
             "Token is invalid",
         ),
-        ({"sub": None}, TokenTypes.ACCESS, TokenTypes.ACCESS, "Token is invalid"),
-        ({}, TokenTypes.ACCESS, None, "Token is invalid"),
-        ({}, TokenTypes.ACCESS, TokenTypes.REFRESH, "Invalid token type"),
+        ({"sub": None}, TokenType.ACCESS, TokenType.ACCESS, "Token is invalid"),
+        ({}, TokenType.ACCESS, None, "Token is invalid"),
+        ({}, TokenType.ACCESS, TokenType.REFRESH, "Invalid token type"),
         (
             {"exp": utc_now_aware()},
-            TokenTypes.ACCESS,
-            TokenTypes.ACCESS,
+            TokenType.ACCESS,
+            TokenType.ACCESS,
             "Refresh the tokens",
         ),
-        ({"exp": utc_now_aware()}, TokenTypes.REFRESH, TokenTypes.REFRESH, "Re-log in"),
+        ({"exp": utc_now_aware()}, TokenType.REFRESH, TokenType.REFRESH, "Re-log in"),
         (
             {"exp": utc_now_aware()},
-            TokenTypes.EMAIL_CONFIRMATION,
-            TokenTypes.EMAIL_CONFIRMATION,
+            TokenType.EMAIL_CONFIRMATION,
+            TokenType.EMAIL_CONFIRMATION,
             "Resend the email confirmation mail",
         ),
     ],
@@ -110,7 +110,7 @@ def test_validate_jwt_exceptions(
 
 
 @pytest.mark.parametrize(
-    "token_type", [TokenTypes.ACCESS, TokenTypes.REFRESH, TokenTypes.EMAIL_CONFIRMATION]
+    "token_type", [TokenType.ACCESS, TokenType.REFRESH, TokenType.EMAIL_CONFIRMATION]
 )
 def test_validate_jwt_and_get_user_id(token_type):
     token = generate_jwt(USER_ID, token_type)

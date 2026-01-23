@@ -1,3 +1,3 @@
-from .enums import MailTypes
+from .enums import MailType
 
-__all__ = ["MailTypes"]
+__all__ = ["MailType"]

@@ -1,9 +1,7 @@
 from .application_facade import ApplicationFacadeProtocol
-from .auth_facade import AuthFacadeProtocol
-from .auth_service import AuthServiceProtocol
-from .file_facade import FileFacadeProtocol
-from .file_service import FileServiceProtocol
-from .mail_service import MailServiceProtocol
+from .auth import AuthFacadeProtocol, AuthServiceProtocol
+from .file import FileFacadeProtocol, FileServiceProtocol
+from .mail import MailServiceProtocol
 
 __all__ = [
     "ApplicationFacadeProtocol",

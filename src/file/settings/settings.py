@@ -2,8 +2,6 @@ import os
 
 
 class Settings:
-    APP_NAME = os.environ["APP_NAME"]
-
     POSTGRES_DRIVER = "postgresql+asyncpg"
     POSTGRES_DB = os.environ["POSTGRES_DB"]
     POSTGRES_USER = os.environ["POSTGRES_USER"]

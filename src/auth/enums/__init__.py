@@ -1,3 +1,3 @@
-from .enums import ResetCodeStatus, TokenTypes
+from .enums import ResetCodeStatus, TokenType
 
-__all__ = ["ResetCodeStatus", "TokenTypes"]
+__all__ = ["ResetCodeStatus", "TokenType"]
