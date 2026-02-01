@@ -8,7 +8,7 @@ from dto import response as response_dto
 from exceptions import FileNotFoundException, FileTooLargeException
 from protocols import FileRepositoryProtocol, FileServiceProtocol, FileStorageProtocol
 from settings import Settings
-from utils import file_info_key, file_list_key, file_upload_key
+from utils import file_list_key, file_name_key, file_upload_key
 
 
 class FileService(FileServiceProtocol):
@@ -51,13 +51,6 @@ class FileService(FileServiceProtocol):
         await self._file_storage.abort_upload(upload.file_id, data.upload_id)
         await self._cache.delete(upload_key)
 
-    async def file_info(
-        self, data: request_dto.FileRequestDTO
-    ) -> response_dto.FileInfoResponseDTO:
-        info_key = file_info_key(data.user_id, data.file_id)
-        info = await self._get_cached(info_key, self._file_repository.file_info, data)
-        return info
-
     async def file_list(self, user_id: str) -> list[response_dto.FileInfoResponseDTO]:
         list_key = file_list_key(user_id)
         files = await self._get_cached(
@@ -66,8 +59,11 @@ class FileService(FileServiceProtocol):
         return files
 
     async def download(self, data: request_dto.FileRequestDTO) -> str:
-        info = await self.file_info(data)
-        return await self._file_storage.download(info)
+        name_key = file_name_key(data.user_id, data.file_id)
+        name = await self._get_cached(
+            name_key, self._file_repository.file_name, data.user_id, data.file_id
+        )
+        return await self._file_storage.download(data.file_id, name)
 
     async def delete(self, data: request_dto.DeleteFilesRequestDTO) -> None:
         if not data.file_ids:
@@ -100,5 +96,5 @@ class FileService(FileServiceProtocol):
     async def _invalidate_cache(self, user_id: str, file_ids: list[str]):
         await self._cache.delete(file_list_key(user_id))
         if file_ids:
-            keys = (file_info_key(user_id, file_id) for file_id in file_ids)
+            keys = (file_name_key(user_id, file_id) for file_id in file_ids)
             await self._cache.delete_many(*keys)

@@ -79,13 +79,6 @@ class ApplicationFacade(ApplicationFacadeProtocol):
         dto = data.replace(user_id=user_id)
         await self._file_facade.abort_upload(dto)
 
-    async def file_info(
-        self, access_token: str, data: file_dto.FileDTO
-    ) -> file_dto.FileInfoDTO:
-        user_id = await self.auth(access_token)
-        dto = data.replace(user_id=user_id)
-        return await self._file_facade.file_info(dto)
-
     async def file_list(self, access_token: str) -> list[file_dto.FileInfoDTO]:
         user_id = await self.auth(access_token)
         return await self._file_facade.file_list(user_id)

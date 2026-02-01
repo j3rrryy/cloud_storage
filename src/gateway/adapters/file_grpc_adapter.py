@@ -25,12 +25,6 @@ class FileGrpcAdapter(BaseRPCAdapter, FileServiceProtocol):
         await self._stub.AbortUpload(request)
 
     @BaseRPCAdapter.exception_handler
-    async def file_info(self, data: file_dto.FileDTO) -> file_dto.FileInfoDTO:
-        request = data.to_request(pb2.FileRequest)
-        file_info: pb2.FileInfoResponse = await self._stub.FileInfo(request)
-        return file_dto.FileInfoDTO.from_response(file_info)
-
-    @BaseRPCAdapter.exception_handler
     async def file_list(self, user_id: str) -> list[file_dto.FileInfoDTO]:
         request = pb2.UserId(user_id=user_id)
         files: pb2.FileListResponse = await self._stub.FileList(request)

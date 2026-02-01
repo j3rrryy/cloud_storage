@@ -88,17 +88,21 @@ class AbortUploadRequest(_message.Message):
         self, user_id: _Optional[str] = ..., upload_id: _Optional[str] = ...
     ) -> None: ...
 
-class FileRequest(_message.Message):
-    __slots__ = ("user_id", "file_id")
+class UserId(_message.Message):
+    __slots__ = ("user_id",)
     USER_ID_FIELD_NUMBER: _ClassVar[int]
-    FILE_ID_FIELD_NUMBER: _ClassVar[int]
     user_id: str
-    file_id: str
+    def __init__(self, user_id: _Optional[str] = ...) -> None: ...
+
+class FileListResponse(_message.Message):
+    __slots__ = ("files",)
+    FILES_FIELD_NUMBER: _ClassVar[int]
+    files: _containers.RepeatedCompositeFieldContainer[FileInfo]
     def __init__(
-        self, user_id: _Optional[str] = ..., file_id: _Optional[str] = ...
+        self, files: _Optional[_Iterable[_Union[FileInfo, _Mapping]]] = ...
     ) -> None: ...
 
-class FileInfoResponse(_message.Message):
+class FileInfo(_message.Message):
     __slots__ = ("file_id", "name", "size", "uploaded_at")
     FILE_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -118,18 +122,14 @@ class FileInfoResponse(_message.Message):
         ] = ...,
     ) -> None: ...
 
-class UserId(_message.Message):
-    __slots__ = ("user_id",)
+class FileRequest(_message.Message):
+    __slots__ = ("user_id", "file_id")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
+    FILE_ID_FIELD_NUMBER: _ClassVar[int]
     user_id: str
-    def __init__(self, user_id: _Optional[str] = ...) -> None: ...
-
-class FileListResponse(_message.Message):
-    __slots__ = ("files",)
-    FILES_FIELD_NUMBER: _ClassVar[int]
-    files: _containers.RepeatedCompositeFieldContainer[FileInfoResponse]
+    file_id: str
     def __init__(
-        self, files: _Optional[_Iterable[_Union[FileInfoResponse, _Mapping]]] = ...
+        self, user_id: _Optional[str] = ..., file_id: _Optional[str] = ...
     ) -> None: ...
 
 class URL(_message.Message):

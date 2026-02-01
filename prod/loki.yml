@@ -31,7 +31,11 @@ storage_config:
     cache_location: /loki/tsdb-cache
     cache_ttl: 12h
   aws:
-    s3: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@${MINIO_HOST}:${MINIO_PORT}/${MINIO_LOKI_BUCKET}
+    endpoint: http://${MINIO_HOST}:${MINIO_PORT}
+    access_key_id: ${MINIO_ROOT_USER}
+    secret_access_key: ${MINIO_ROOT_PASSWORD}
+    region: us-east-1
+    s3: ${MINIO_LOKI_BUCKET}
     s3forcepathstyle: true
 
 limits_config:

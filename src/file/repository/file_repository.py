@@ -44,16 +44,6 @@ class FileRepository(FileRepositoryProtocol):
             raise FileAlreadyExistsException
 
     @database_exception_handler
-    async def file_info(
-        self, data: request_dto.FileRequestDTO
-    ) -> response_dto.FileInfoResponseDTO:
-        async with self._sessionmaker() as session:
-            file = await session.get(File, data.file_id)
-        if not file or file.user_id != data.user_id:
-            raise FileNotFoundException
-        return response_dto.FileInfoResponseDTO.from_model(file)
-
-    @database_exception_handler
     async def file_list(self, user_id: str) -> list[response_dto.FileInfoResponseDTO]:
         async with self._sessionmaker() as session:
             files = (
@@ -62,6 +52,20 @@ class FileRepository(FileRepositoryProtocol):
                 .all()
             )
         return [response_dto.FileInfoResponseDTO.from_model(file) for file in files]
+
+    @database_exception_handler
+    async def file_name(self, user_id: str, file_id: str) -> str:
+        async with self._sessionmaker() as session:
+            name = (
+                await session.execute(
+                    select(File.name).where(
+                        File.user_id == user_id, File.file_id == file_id
+                    )
+                )
+            ).scalar_one_or_none()
+        if not name:
+            raise FileNotFoundException
+        return name
 
     @database_exception_handler
     async def delete(self, data: request_dto.DeleteFilesRequestDTO) -> None:

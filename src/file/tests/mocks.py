@@ -44,16 +44,12 @@ def create_cache() -> Cache:
 
 def create_file_repository() -> FileRepository:
     crud = AsyncMock(spec=FileRepository)
-    crud.file_info = AsyncMock(
-        return_value=response_dto.FileInfoResponseDTO(
-            FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
-        )
-    )
     crud.file_list = AsyncMock(
         return_value=(
             response_dto.FileInfoResponseDTO(FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP),
         )
     )
+    crud.file_name = AsyncMock(return_value=NAME)
     return crud
 
 

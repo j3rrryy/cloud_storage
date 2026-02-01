@@ -215,6 +215,8 @@ services:
     restart: unless-stopped
     expose:
       - 3100
+    env_file:
+      - ./.env
     volumes:
       - loki_data:/loki
       - ./loki.yml:/etc/loki/loki.yml:ro

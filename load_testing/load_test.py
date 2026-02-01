@@ -50,7 +50,7 @@ class CloudStorageUser(FastHttpUser):
         self._set_creds(self._unpack(response))
 
     @task(3)
-    def profile_info(self):
+    def profile(self):
         self.client.get(f"{URL_PREFIX}/auth/profile", headers=self.headers)
 
     @task(2)
@@ -60,14 +60,6 @@ class CloudStorageUser(FastHttpUser):
     @task(10)
     def list_files(self):
         self.client.get(f"{URL_PREFIX}/files", headers=self.headers)
-
-    @task(5)
-    def file_info(self):
-        files = self._get_files()
-        if not files:
-            return
-        first_id = files[0]["file_id"]
-        self.client.get(f"{URL_PREFIX}/files/{first_id}", headers=self.headers)
 
     @task(4)
     def delete_file(self):

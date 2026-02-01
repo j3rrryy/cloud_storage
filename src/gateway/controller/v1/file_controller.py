@@ -74,23 +74,6 @@ class FileController(Controller):
         await application_facade.abort_upload(access_token, dto)
 
     @get(
-        "/{file_id: uuid}",
-        status_code=HTTP_200_OK,
-        response_model=file_schemas.FileInfo,
-        media_type=MediaType.MESSAGEPACK,
-    )
-    async def file_info(
-        self,
-        file_id: UUID,
-        request: Request,
-        application_facade: ApplicationFacadeProtocol,
-    ) -> file_schemas.FileInfo:
-        access_token = validate_access_token(request)
-        dto = file_dto.FileDTO("", str(file_id))
-        file_info = await application_facade.file_info(access_token, dto)
-        return file_info.to_schema(file_schemas.FileInfo)
-
-    @get(
         "/",
         status_code=HTTP_200_OK,
         response_model=file_schemas.FileList,

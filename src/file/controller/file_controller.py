@@ -25,15 +25,10 @@ class FileController(FileServicer):
         await self._file_service.abort_upload(dto)
         return empty_pb2.Empty()
 
-    async def FileInfo(self, request, context):
-        dto = request_dto.FileRequestDTO.from_request(request)
-        info = await self._file_service.file_info(dto)
-        return info.to_response(pb2.FileInfoResponse)
-
     async def FileList(self, request, context):
         files = await self._file_service.file_list(request.user_id)
         return pb2.FileListResponse(
-            files=(file.to_response(pb2.FileInfoResponse) for file in files)
+            files=(file.to_response(pb2.FileInfo) for file in files)
         )
 
     async def Download(self, request, context):

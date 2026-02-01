@@ -54,21 +54,6 @@ async def test_abort_upload(file_controller):
 
 
 @pytest.mark.asyncio
-async def test_file_info(cache, file_controller):
-    cache.get.return_value = None
-    request = pb2.FileRequest(user_id=USER_ID, file_id=FILE_ID)
-
-    response = await file_controller.FileInfo(request, MagicMock())
-
-    assert response == pb2.FileInfoResponse(
-        file_id=FILE_ID,
-        name=NAME,
-        size=SIZE,
-        uploaded_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
-    )
-
-
-@pytest.mark.asyncio
 async def test_file_list(cache, file_controller):
     cache.get.return_value = None
     request = pb2.UserId(user_id=USER_ID)
@@ -77,7 +62,7 @@ async def test_file_list(cache, file_controller):
 
     assert response == pb2.FileListResponse(
         files=(
-            pb2.FileInfoResponse(
+            pb2.FileInfo(
                 file_id=FILE_ID,
                 name=NAME,
                 size=SIZE,

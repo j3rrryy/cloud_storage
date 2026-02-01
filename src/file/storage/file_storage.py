@@ -54,10 +54,8 @@ class FileStorage(FileStorageProtocol):
     async def abort_upload(self, file_id: str, upload_id: str) -> None:
         await self._s3_client.abort_multipart_upload(file_id, upload_id)
 
-    async def download(self, data: response_dto.FileInfoResponseDTO) -> str:
-        url = await self._s3_client.generate_download_presigned_url(
-            data.file_id, data.name
-        )
+    async def download(self, file_id: str, name: str) -> str:
+        url = await self._s3_client.generate_download_presigned_url(file_id, name)
         parsed = urlparse(url)
         return f"{parsed.path}?{parsed.query}"
 

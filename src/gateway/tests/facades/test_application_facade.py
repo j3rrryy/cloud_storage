@@ -179,18 +179,6 @@ async def test_abort_upload(application_facade):
 
 
 @pytest.mark.asyncio
-async def test_file_info(application_facade):
-    dto = file_dto.FileDTO(USER_ID, FILE_ID)
-
-    response = await application_facade.file_info(ACCESS_TOKEN, dto)
-
-    assert response.file_id == FILE_ID
-    assert response.name == NAME
-    assert response.size == SIZE
-    assert response.uploaded_at == TIMESTAMP
-
-
-@pytest.mark.asyncio
 async def test_file_list(application_facade):
     response = await application_facade.file_list(ACCESS_TOKEN)
 

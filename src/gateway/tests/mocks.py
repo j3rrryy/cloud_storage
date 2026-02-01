@@ -117,19 +117,11 @@ def create_file_stub_v1() -> FileStub:
     )
     stub.CompleteUpload = AsyncMock(return_value=Empty())
     stub.AbortUpload = AsyncMock(return_value=Empty())
-    stub.FileInfo = AsyncMock(
-        return_value=file_pb2.FileInfoResponse(
-            file_id=FILE_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP_MOCK
-        )
-    )
     stub.FileList = AsyncMock(
         return_value=file_pb2.FileListResponse(
             files=(
-                file_pb2.FileInfoResponse(
-                    file_id=FILE_ID,
-                    name=NAME,
-                    size=SIZE,
-                    uploaded_at=TIMESTAMP_MOCK,
+                file_pb2.FileInfo(
+                    file_id=FILE_ID, name=NAME, size=SIZE, uploaded_at=TIMESTAMP_MOCK
                 ),
             )
         )

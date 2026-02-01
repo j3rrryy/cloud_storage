@@ -87,59 +87,6 @@ async def test_complete_upload_exceptions(
 
 
 @pytest.mark.asyncio
-async def test_file_info(session, file, file_repository):
-    dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
-    session.get.return_value = file
-
-    info = await file_repository.file_info(dto)
-
-    assert info == response_dto.FileInfoResponseDTO(
-        FILE_ID, USER_ID, NAME, SIZE, TIMESTAMP
-    )
-    session.get.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_file_info_not_file(session, file_repository):
-    dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
-    session.get.return_value = None
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await file_repository.file_info(dto)
-
-    assert exc_info.value.status_code == StatusCode.NOT_FOUND
-    assert exc_info.value.details == "File not found"
-    session.get.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_file_info_not_belongs(session, file, file_repository):
-    dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
-    file.user_id += "0"
-    session.get.return_value = file
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await file_repository.file_info(dto)
-
-    assert exc_info.value.status_code == StatusCode.NOT_FOUND
-    assert exc_info.value.details == "File not found"
-    session.get.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_file_info_exception(session, file_repository):
-    dto = request_dto.FileRequestDTO(USER_ID, FILE_ID)
-    session.get.side_effect = Exception("Details")
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await file_repository.file_info(dto)
-
-    assert exc_info.value.status_code == StatusCode.INTERNAL
-    assert exc_info.value.details == "Internal database error: Details"
-    session.get.assert_awaited_once()
-
-
-@pytest.mark.asyncio
 async def test_file_list(session, file, file_repository):
     session.execute = AsyncMock(
         return_value=MagicMock(
@@ -163,6 +110,44 @@ async def test_file_list_exception(session, file_repository):
 
     with pytest.raises(BaseAppException) as exc_info:
         await file_repository.file_list(USER_ID)
+
+    assert exc_info.value.status_code == StatusCode.INTERNAL
+    assert exc_info.value.details == "Internal database error: Details"
+    session.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_file_name(session, file_repository):
+    session.execute = AsyncMock(
+        return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=NAME))
+    )
+
+    name = await file_repository.file_name(USER_ID, FILE_ID)
+
+    assert name == NAME
+    session.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_file_name_not_file(session, file_repository):
+    session.execute = AsyncMock(
+        return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
+    )
+
+    with pytest.raises(BaseAppException) as exc_info:
+        await file_repository.file_name(USER_ID, FILE_ID)
+
+    assert exc_info.value.status_code == StatusCode.NOT_FOUND
+    assert exc_info.value.details == "File not found"
+    session.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_file_name_exception(session, file_repository):
+    session.execute.side_effect = Exception("Details")
+
+    with pytest.raises(BaseAppException) as exc_info:
+        await file_repository.file_name(USER_ID, FILE_ID)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
     assert exc_info.value.details == "Internal database error: Details"

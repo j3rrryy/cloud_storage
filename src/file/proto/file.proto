@@ -9,7 +9,6 @@ service File {
     rpc InitiateUpload(InitiateUploadRequest) returns (InitiateUploadResponse);
     rpc CompleteUpload(CompleteUploadRequest) returns (google.protobuf.Empty);
     rpc AbortUpload(AbortUploadRequest) returns (google.protobuf.Empty);
-    rpc FileInfo(FileRequest) returns (FileInfoResponse);
     rpc FileList(UserId) returns (FileListResponse);
     rpc Download(FileRequest) returns (URL);
     rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
@@ -49,21 +48,21 @@ message AbortUploadRequest {
     string upload_id = 2;
 }
 
-message FileRequest {
-    string user_id = 1;
-    string file_id = 2;
-}
+message UserId { string user_id = 1; }
 
-message FileInfoResponse {
+message FileListResponse { repeated FileInfo files = 1; }
+
+message FileInfo {
     string file_id = 1;
     string name = 2;
     uint64 size = 3;
     google.protobuf.Timestamp uploaded_at = 4;
 }
 
-message UserId { string user_id = 1; }
-
-message FileListResponse { repeated FileInfoResponse files = 1; }
+message FileRequest {
+    string user_id = 1;
+    string file_id = 2;
+}
 
 message URL { string url = 1; }
 

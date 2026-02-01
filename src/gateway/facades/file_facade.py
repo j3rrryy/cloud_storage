@@ -17,9 +17,6 @@ class FileFacade(FileFacadeProtocol):
     async def abort_upload(self, data: file_dto.AbortUploadDTO) -> None:
         await self._file_service.abort_upload(data)
 
-    async def file_info(self, data: file_dto.FileDTO) -> file_dto.FileInfoDTO:
-        return await self._file_service.file_info(data)
-
     async def file_list(self, user_id: str) -> list[file_dto.FileInfoDTO]:
         return await self._file_service.file_list(user_id)
 

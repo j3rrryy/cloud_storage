@@ -15,10 +15,6 @@ class FileServiceProtocol(Protocol):
 
     async def abort_upload(self, data: request_dto.AbortUploadRequestDTO) -> None: ...
 
-    async def file_info(
-        self, data: request_dto.FileRequestDTO
-    ) -> response_dto.FileInfoResponseDTO: ...
-
     async def file_list(
         self, user_id: str
     ) -> list[response_dto.FileInfoResponseDTO]: ...

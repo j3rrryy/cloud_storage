@@ -49,15 +49,13 @@ class MinIOAdapter(S3ClientProtocol):
         )
 
     @storage_exception_handler
-    async def generate_download_presigned_url(
-        self, file_id: str, file_name: str
-    ) -> str:
+    async def generate_download_presigned_url(self, file_id: str, name: str) -> str:
         return await self._client.generate_presigned_url(
             "get_object",
             Params={
                 "Bucket": Settings.MINIO_S3_BUCKET,
                 "Key": file_id,
-                "ResponseContentDisposition": f'attachment; filename="{file_name}"',
+                "ResponseContentDisposition": f'attachment; filename="{name}"',
             },
             ExpiresIn=Settings.DOWNLOAD_PRESIGNED_URL_EXPIRATION_TIME,
         )

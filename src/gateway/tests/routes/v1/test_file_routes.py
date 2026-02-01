@@ -61,23 +61,6 @@ async def test_abort_upload(client):
 
 
 @pytest.mark.asyncio
-async def test_file_info(client):
-    response = await client.get(
-        f"{PREFIX}/{FILE_ID}",
-        headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
-    )
-
-    response_data = msgspec.msgpack.decode(response.content)
-    assert response.status_code == HTTP_200_OK
-    assert response_data == {
-        "file_id": FILE_ID,
-        "name": NAME,
-        "size": SIZE,
-        "uploaded_at": TIMESTAMP.isoformat(),
-    }
-
-
-@pytest.mark.asyncio
 async def test_file_list(client):
     response = await client.get(
         f"{PREFIX}", headers={"Authorization": f"Bearer {ACCESS_TOKEN}"}
