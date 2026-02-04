@@ -1,4 +1,6 @@
-from sqlalchemy import delete, exists, select
+from typing import cast
+
+from sqlalchemy import CursorResult, delete, exists, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -69,6 +71,7 @@ class AuthRepository(AuthRepositoryProtocol):
             result = await session.execute(
                 delete(TokenPair).where(TokenPair.access_token == access_token)
             )
+            result = cast(CursorResult, result)
             if not (result.rowcount or 0):
                 raise UnauthenticatedException("Token is invalid")
 
@@ -197,6 +200,7 @@ class AuthRepository(AuthRepositoryProtocol):
                 )
             )
             result = await session.execute(delete(User).where(User.user_id == user_id))
+            result = cast(CursorResult, result)
             if not (result.rowcount or 0):
                 raise UnauthenticatedException("Invalid credentials")
 

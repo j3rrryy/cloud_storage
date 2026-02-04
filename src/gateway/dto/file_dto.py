@@ -1,11 +1,18 @@
 import datetime
 from dataclasses import dataclass
-from typing import Type
+from typing import Type, cast
 
 from proto import file_pb2 as pb2
 from schemas import file_schemas
 
-from .base_dto import FromResponseMixin, ToRequestMixin, ToSchemaMixin
+from .base_dto import (
+    FromResponseMixin,
+    GrpcMessage,
+    Message,
+    MsgspecStruct,
+    ToRequestMixin,
+    ToSchemaMixin,
+)
 
 
 @dataclass(slots=True, frozen=True)
@@ -29,17 +36,16 @@ class InitiatedUploadDTO(FromResponseMixin, ToSchemaMixin):
 
     @classmethod
     def from_response(
-        cls: Type["InitiatedUploadDTO"], message: pb2.InitiateUploadResponse
+        cls: Type["InitiatedUploadDTO"], message: Message
     ) -> "InitiatedUploadDTO":
+        message = cast(pb2.InitiateUploadResponse, message)
         return cls(
             message.upload_id,
             message.part_size,
             [UploadPartDTO.from_response(part) for part in message.parts],
         )
 
-    def to_schema(
-        self, schema: type[file_schemas.InitiatedUpload]
-    ) -> file_schemas.InitiatedUpload:
+    def to_schema(self, schema: type[MsgspecStruct]) -> MsgspecStruct:
         return schema(
             self.upload_id,
             self.part_size,
@@ -59,9 +65,7 @@ class CompleteUploadDTO(ToRequestMixin):
     upload_id: str
     parts: list[CompletePartDTO]
 
-    def to_request(
-        self, message: type[pb2.CompleteUploadRequest]
-    ) -> pb2.CompleteUploadRequest:
+    def to_request(self, message: type[GrpcMessage]) -> GrpcMessage:
         return message(
             user_id=self.user_id,
             upload_id=self.upload_id,

@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass
-from typing import Type, cast
+from typing import Type
 
 from proto import file_pb2 as pb2
 
@@ -20,9 +20,8 @@ class InitiateUploadResponseDTO(BaseResponseDTO):
     part_size: int
     parts: list[UploadPartResponseDTO]
 
-    def to_response(self, message: Type[GrpcMessage]) -> pb2.InitiateUploadResponse:
-        message_ = cast(Type[pb2.InitiateUploadResponse], message)
-        return message_(
+    def to_response(self, message: Type[GrpcMessage]) -> GrpcMessage:
+        return message(
             upload_id=self.upload_id,
             part_size=self.part_size,
             parts=[part.to_response(pb2.UploadPart) for part in self.parts],

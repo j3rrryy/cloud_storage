@@ -16,8 +16,8 @@ class InitiateUploadRequestDTO(BaseRequestDTO):
     def from_request(
         cls: Type["InitiateUploadRequestDTO"], request: Message
     ) -> "InitiateUploadRequestDTO":
-        request_ = cast(pb2.InitiateUploadRequest, request)
-        return cls(request_.user_id, request_.name, int(request_.size))
+        request = cast(pb2.InitiateUploadRequest, request)
+        return cls(request.user_id, request.name, int(request.size))
 
 
 @dataclass(slots=True, frozen=True)
@@ -44,11 +44,11 @@ class CompleteUploadRequestDTO(BaseRequestDTO):
     def from_request(
         cls: Type["CompleteUploadRequestDTO"], request: Message
     ) -> "CompleteUploadRequestDTO":
-        request_ = cast(pb2.CompleteUploadRequest, request)
+        request = cast(pb2.CompleteUploadRequest, request)
         return cls(
-            request_.user_id,
-            request_.upload_id,
-            [CompletePartRequestDTO.from_request(part) for part in request_.parts],
+            request.user_id,
+            request.upload_id,
+            [CompletePartRequestDTO.from_request(part) for part in request.parts],
         )
 
 

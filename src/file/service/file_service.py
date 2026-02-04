@@ -8,7 +8,7 @@ from dto import response as response_dto
 from exceptions import FileNotFoundException, FileTooLargeException
 from protocols import FileRepositoryProtocol, FileServiceProtocol, FileStorageProtocol
 from settings import Settings
-from utils import file_list_key, file_name_key, file_upload_key
+from utils import user_file_list_key, user_file_name_key, user_file_upload_key
 
 
 class FileService(FileServiceProtocol):
@@ -34,32 +34,32 @@ class FileService(FileServiceProtocol):
         initiated_upload = request_dto.InitiatedUploadRequestDTO(
             upload.file_id, data.user_id, data.name, data.size
         )
-        upload_key = file_upload_key(data.user_id, upload.upload_id)
+        upload_key = user_file_upload_key(data.user_id, upload.upload_id)
         await self._cache.set(upload_key, initiated_upload, 24 * 3600)
         return upload
 
     async def complete_upload(self, data: request_dto.CompleteUploadRequestDTO) -> None:
-        upload_key = file_upload_key(data.user_id, data.upload_id)
+        upload_key = user_file_upload_key(data.user_id, data.upload_id)
         upload = await self._get_upload(upload_key)
         await self._file_storage.complete_upload(upload.file_id, data)
         await self._file_repository.complete_upload(upload)
-        await self._cache.delete_many(file_list_key(data.user_id), upload_key)
+        await self._cache.delete_many(user_file_list_key(data.user_id), upload_key)
 
     async def abort_upload(self, data: request_dto.AbortUploadRequestDTO) -> None:
-        upload_key = file_upload_key(data.user_id, data.upload_id)
+        upload_key = user_file_upload_key(data.user_id, data.upload_id)
         upload = await self._get_upload(upload_key)
         await self._file_storage.abort_upload(upload.file_id, data.upload_id)
         await self._cache.delete(upload_key)
 
     async def file_list(self, user_id: str) -> list[response_dto.FileInfoResponseDTO]:
-        list_key = file_list_key(user_id)
+        list_key = user_file_list_key(user_id)
         files = await self._get_cached(
             list_key, self._file_repository.file_list, user_id
         )
         return files
 
     async def download(self, data: request_dto.FileRequestDTO) -> str:
-        name_key = file_name_key(data.user_id, data.file_id)
+        name_key = user_file_name_key(data.user_id, data.file_id)
         name = await self._get_cached(
             name_key, self._file_repository.file_name, data.user_id, data.file_id
         )
@@ -94,7 +94,7 @@ class FileService(FileServiceProtocol):
         return value
 
     async def _invalidate_cache(self, user_id: str, file_ids: list[str]):
-        await self._cache.delete(file_list_key(user_id))
+        await self._cache.delete(user_file_list_key(user_id))
         if file_ids:
-            keys = (file_name_key(user_id, file_id) for file_id in file_ids)
+            keys = (user_file_name_key(user_id, file_id) for file_id in file_ids)
             await self._cache.delete_many(*keys)

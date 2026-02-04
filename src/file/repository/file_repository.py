@@ -1,4 +1,6 @@
-from sqlalchemy import delete, exists, select
+from typing import cast
+
+from sqlalchemy import CursorResult, delete, exists, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -75,6 +77,7 @@ class FileRepository(FileRepositoryProtocol):
                     File.user_id == data.user_id, File.file_id.in_(data.file_ids)
                 )
             )
+            result = cast(CursorResult, result)
             if (result.rowcount or 0) != len(data.file_ids):
                 raise FileNotFoundException
 
