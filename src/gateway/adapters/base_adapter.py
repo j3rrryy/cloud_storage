@@ -1,5 +1,4 @@
 from functools import wraps
-from typing import Awaitable, Callable, TypeVar
 
 from grpc import StatusCode, aio
 from litestar.exceptions import (
@@ -10,8 +9,6 @@ from litestar.exceptions import (
     ServiceUnavailableException,
     ValidationException,
 )
-
-T = TypeVar("T")
 
 
 class BaseRPCAdapter:
@@ -33,11 +30,9 @@ class BaseRPCAdapter:
     }
 
     @classmethod
-    def exception_handler(
-        cls, func: Callable[..., Awaitable[T]]
-    ) -> Callable[..., Awaitable[T]]:
+    def exception_handler(cls, func):
         @wraps(func)
-        async def wrapper(*args, **kwargs) -> T:
+        async def wrapper(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
             except aio.AioRpcError as exc:

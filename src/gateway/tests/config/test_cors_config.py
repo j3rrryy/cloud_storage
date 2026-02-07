@@ -9,7 +9,7 @@ def test_setup_cors():
 
     assert cors_config == CORSConfig(
         allow_origins=Settings.ALLOWED_ORIGINS,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD", "TRACE"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS", "HEAD"],
         allow_headers=["*"],
         allow_credentials=True,
     )
