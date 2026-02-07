@@ -6,7 +6,7 @@ dependencies = [
     "aiokafka[lz4]==0.13.0",
     "grpcio==1.76.0",
     "grpcio-tools==1.76.0",
-    "litestar[standard,prometheus]==2.19.0",
+    "litestar[standard,prometheus]==2.20.0",
 ]
 
 [dependency-groups]
