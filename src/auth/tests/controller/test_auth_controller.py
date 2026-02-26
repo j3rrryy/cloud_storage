@@ -14,6 +14,7 @@ from ..mocks import (
     BROWSER,
     CODE,
     CONFIRMATION_TOKEN,
+    COUNTRY_CODE,
     EMAIL,
     PASSWORD,
     REFRESH_TOKEN,
@@ -94,6 +95,7 @@ async def test_log_in(mock_generator, auth_controller):
         access_token=ACCESS_TOKEN,
         refresh_token=ACCESS_TOKEN,
         email=EMAIL,
+        country_code=COUNTRY_CODE,
         browser=BROWSER,
         email_confirmed=False,
     )
@@ -160,6 +162,7 @@ async def test_session_list(mock_validator, cache, auth_controller):
             pb2.SessionInfo(
                 session_id=SESSION_ID,
                 user_ip=USER_IP,
+                country_code=COUNTRY_CODE,
                 browser=BROWSER,
                 created_at=Timestamp(seconds=int(TIMESTAMP.timestamp())),
             ),

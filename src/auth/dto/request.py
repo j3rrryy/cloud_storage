@@ -36,6 +36,7 @@ class LogInDataRequestDTO(BaseRequestDTO):
     refresh_token: str
     user_id: str
     user_ip: str
+    country_code: str | None
     browser: str
 
 
@@ -53,6 +54,7 @@ class RefreshDataRequestDTO(BaseRequestDTO):
     old_refresh_token: str
     user_id: str
     user_ip: str
+    country_code: str | None
     browser: str
 
     def to_model(self, model: type[Model]) -> Model:
@@ -61,6 +63,7 @@ class RefreshDataRequestDTO(BaseRequestDTO):
             refresh_token=self.refresh_token,
             user_id=self.user_id,
             user_ip=self.user_ip,
+            country_code=self.country_code,
             browser=self.browser,
         )
 

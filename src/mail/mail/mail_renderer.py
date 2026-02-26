@@ -36,8 +36,14 @@ class MailRenderer:
 
     @classmethod
     def new_login(cls, dto: NewLoginMailDTO) -> multipart.MIMEMultipart:
+        country_info = (
+            f", <strong>{dto.country_code}</strong>" if dto.country_code else ""
+        )
         rendered_content = NEW_LOGIN_CONTENT.format(
-            username=dto.username, user_ip=dto.user_ip, browser=dto.browser
+            username=dto.username,
+            user_ip=dto.user_ip,
+            country_info=country_info,
+            browser=dto.browser,
         )
         return cls._render(
             dto.email, NEW_LOGIN_HEADER, rendered_content, NEW_LOGIN_FOOTER

@@ -34,7 +34,11 @@ class AuthFacade(AuthFacadeProtocol):
         login_data = await self._auth_service.log_in(data)
         if login_data.email_confirmed:
             new_login_mail = mail_dto.NewLoginMailDTO(
-                data.username, login_data.email, data.user_ip, login_data.browser
+                data.username,
+                login_data.email,
+                data.user_ip,
+                login_data.country_code,
+                login_data.browser,
             )
             await self._mail_service.new_login(new_login_mail)
         return login_data

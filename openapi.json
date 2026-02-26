@@ -1053,6 +1053,9 @@
             "examples": ["123e4567-e89b-12d3-a456-426614174000"]
           },
           "user_ip": { "type": "string", "maxLength": 45 },
+          "country_code": {
+            "oneOf": [{ "type": "string" }, { "type": "null" }]
+          },
           "browser": { "type": "string", "maxLength": 150 },
           "created_at": { "type": "string", "format": "date-time" }
         },

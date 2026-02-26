@@ -11,6 +11,9 @@ async def test_service_factory_initialize_success():
 
     with (
         patch.object(
+            service_factory._geo_ip_service_factory, "initialize"
+        ) as mock_geo_ip_service_init,
+        patch.object(
             service_factory._auth_repository_factory,
             "initialize",
             new_callable=AsyncMock,
@@ -21,6 +24,7 @@ async def test_service_factory_initialize_success():
     ):
         await service_factory.initialize()
 
+        mock_geo_ip_service_init.assert_called_once()
         mock_repository_init.assert_awaited_once()
         mock_cache_init.assert_awaited_once()
 
@@ -29,6 +33,7 @@ async def test_service_factory_initialize_success():
 async def test_service_factory_initialize_exception():
     service_factory = ServiceFactory()
     with (
+        patch.object(service_factory._geo_ip_service_factory, "initialize"),
         patch.object(
             service_factory._auth_repository_factory,
             "initialize",
@@ -58,11 +63,15 @@ async def test_service_factory_close():
         patch.object(
             service_factory._cache_factory, "close", new_callable=AsyncMock
         ) as mock_cache_close,
+        patch.object(
+            service_factory._geo_ip_service_factory, "close"
+        ) as mock_geo_ip_service_close,
     ):
         await service_factory.close()
 
         mock_repository_close.assert_awaited_once()
         mock_cache_close.assert_awaited_once()
+        mock_geo_ip_service_close.assert_called_once()
 
 
 def test_service_factory_get_auth_repository():
@@ -93,6 +102,21 @@ def test_service_factory_get_cache():
         mock_get.assert_called_once()
 
 
+def test_service_factory_get_geo_ip_service_factory():
+    service_factory = ServiceFactory()
+    mock_geo_ip_service = MagicMock()
+
+    with patch.object(
+        service_factory._geo_ip_service_factory,
+        "get_geo_ip_service",
+        return_value=mock_geo_ip_service,
+    ) as mock_get:
+        result = service_factory.get_geo_ip_service()
+
+        assert result == mock_geo_ip_service
+        mock_get.assert_called_once()
+
+
 def test_service_factory_get_auth_controller():
     service_factory = ServiceFactory()
     mock_auth_service = MagicMock()
@@ -101,6 +125,7 @@ def test_service_factory_get_auth_controller():
     with (
         patch.object(service_factory, "get_auth_repository"),
         patch.object(service_factory, "get_cache"),
+        patch.object(service_factory, "get_geo_ip_service"),
         patch("factories.service_factory.AuthService", return_value=mock_auth_service),
         patch(
             "factories.service_factory.AuthController",

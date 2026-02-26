@@ -8,7 +8,7 @@ from dto import (
 )
 from enums import MailType
 
-from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
+from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
 
 
 @pytest.mark.parametrize(
@@ -29,6 +29,7 @@ from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
                 "username": USERNAME,
                 "email": EMAIL,
                 "user_ip": USER_IP,
+                "country_code": COUNTRY_CODE,
                 "browser": BROWSER,
             },
             NewLoginMailDTO,

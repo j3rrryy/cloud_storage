@@ -8,8 +8,9 @@ from enums import MailType
 
 TOKEN = "eyJ0eXBlIjoyLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.1ukhU0OncZBofD_z3O5q5wrhoHaRm_RtAZAtqxI6CUY"
 USERNAME = "test_username"
-BROWSER = "Firefox 47.0, Windows 7"
 USER_IP = "127.0.0.1"
+COUNTRY_CODE = "US"
+BROWSER = "Firefox 47.0, Windows 7"
 EMAIL = "test@example.com"
 CODE = "123456"
 

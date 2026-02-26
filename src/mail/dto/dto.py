@@ -11,6 +11,7 @@ class EmailConfirmationMailDTO(BaseMailDTO):
 @dataclass(slots=True, frozen=True)
 class NewLoginMailDTO(BaseMailDTO):
     user_ip: str
+    country_code: str | None
     browser: str
 
 

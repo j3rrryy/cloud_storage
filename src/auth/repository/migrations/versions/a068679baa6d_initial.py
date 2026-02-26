@@ -38,6 +38,7 @@ def upgrade() -> None:
         sa.Column("access_token", sa.CHAR(length=64), nullable=False),
         sa.Column("refresh_token", sa.CHAR(length=64), nullable=False),
         sa.Column("user_ip", sa.String(length=45), nullable=False),
+        sa.Column("country_code", sa.String(length=2), nullable=True),
         sa.Column("browser", sa.String(length=150), nullable=False),
         sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.user_id"], ondelete="CASCADE"),

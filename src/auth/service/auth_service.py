@@ -7,7 +7,7 @@ from dto import request as request_dto
 from dto import response as response_dto
 from enums import ResetCodeStatus, TokenType
 from exceptions import EmailHasAlreadyBeenConfirmedException, UnauthenticatedException
-from protocols import AuthRepositoryProtocol, AuthServiceProtocol
+from protocols import AuthRepositoryProtocol, AuthServiceProtocol, GeoIPServiceProtocol
 from security import (
     compare_passwords,
     generate_code,
@@ -29,9 +29,15 @@ from utils import (
 
 
 class AuthService(AuthServiceProtocol):
-    def __init__(self, auth_repository: AuthRepositoryProtocol, cache: Cache):
+    def __init__(
+        self,
+        auth_repository: AuthRepositoryProtocol,
+        cache: Cache,
+        geo_ip_service: GeoIPServiceProtocol,
+    ):
         self._auth_repository = auth_repository
         self._cache = cache
+        self._geo_ip_service = geo_ip_service
 
     async def register(self, data: request_dto.RegisterRequestDTO) -> str:
         data = data.replace(password=get_password_hash(data.password))
@@ -81,6 +87,7 @@ class AuthService(AuthServiceProtocol):
         access_token = generate_jwt(profile.user_id, TokenType.ACCESS)
         refresh_token = generate_jwt(profile.user_id, TokenType.REFRESH)
         browser = convert_user_agent(data.user_agent)
+        country_code = await self._geo_ip_service.get_country_code(data.user_ip)
 
         hashed_access_token = get_jwt_hash(access_token)
         hashed_refresh_token = get_jwt_hash(refresh_token)
@@ -89,13 +96,19 @@ class AuthService(AuthServiceProtocol):
             hashed_refresh_token,
             profile.user_id,
             data.user_ip,
+            country_code,
             browser,
         )
 
         await self._auth_repository.log_in(dto)
         await self._cache.delete(user_session_list_key(profile.user_id))
         return response_dto.LogInResponseDTO(
-            access_token, refresh_token, profile.email, browser, profile.email_confirmed
+            access_token,
+            refresh_token,
+            profile.email,
+            country_code,
+            browser,
+            profile.email_confirmed,
         )
 
     async def log_out(self, access_token: str) -> None:
@@ -129,6 +142,7 @@ class AuthService(AuthServiceProtocol):
         access_token = generate_jwt(user_id, TokenType.ACCESS)
         refresh_token = generate_jwt(user_id, TokenType.REFRESH)
         browser = convert_user_agent(data.user_agent)
+        country_code = await self._geo_ip_service.get_country_code(data.user_ip)
 
         hashed_access_token = get_jwt_hash(access_token)
         hashed_refresh_token = get_jwt_hash(refresh_token)
@@ -139,6 +153,7 @@ class AuthService(AuthServiceProtocol):
             hashed_old_refresh_token,
             user_id,
             data.user_ip,
+            country_code,
             browser,
         )
 

@@ -11,6 +11,7 @@ class EmailConfirmationMailDTO(BaseMailDTO, FromResponseMixin, ToMsgpackMixin):
 @dataclass(slots=True, frozen=True)
 class NewLoginMailDTO(BaseMailDTO, ToMsgpackMixin):
     user_ip: str
+    country_code: str | None
     browser: str
 
 

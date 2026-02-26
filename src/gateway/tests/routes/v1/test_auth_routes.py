@@ -9,6 +9,7 @@ from ...mocks import (
     BROWSER,
     CODE,
     CONFIRMATION_TOKEN,
+    COUNTRY_CODE,
     EMAIL,
     PASSWORD,
     REFRESH_TOKEN,
@@ -169,6 +170,7 @@ async def test_session_list(client):
             {
                 "session_id": SESSION_ID,
                 "user_ip": USER_IP,
+                "country_code": COUNTRY_CODE,
                 "browser": BROWSER,
                 "created_at": TIMESTAMP.isoformat(),
             }

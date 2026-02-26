@@ -1,16 +1,19 @@
 import pytest
 from cashews import Cache
+from geoip2.database import Reader
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from controller import AuthController
 from proto import AuthServicer
-from protocols import AuthRepositoryProtocol, AuthServiceProtocol
+from protocols import AuthRepositoryProtocol, AuthServiceProtocol, GeoIPServiceProtocol
 from repository import AuthRepository, TokenPair, User
-from service import AuthService
+from service import AuthService, GeoIPService
 
 from .mocks import (
     create_auth_repository,
     create_cache,
+    create_geo_ip_service,
+    create_reader,
     create_session,
     create_sessionmaker,
     create_token_pair,
@@ -29,8 +32,8 @@ def sessionmaker(session) -> async_sessionmaker[AsyncSession]:
 
 
 @pytest.fixture
-def cache() -> Cache:
-    return create_cache()
+def reader() -> Reader:
+    return create_reader()
 
 
 @pytest.fixture
@@ -44,8 +47,25 @@ def mocked_auth_repository() -> AuthRepositoryProtocol:
 
 
 @pytest.fixture
-def auth_service(mocked_auth_repository, cache) -> AuthServiceProtocol:
-    return AuthService(mocked_auth_repository, cache)
+def cache() -> Cache:
+    return create_cache()
+
+
+@pytest.fixture
+def geo_ip_service(reader) -> GeoIPServiceProtocol:
+    return GeoIPService(reader)
+
+
+@pytest.fixture
+def mocked_geo_ip_service() -> GeoIPServiceProtocol:
+    return create_geo_ip_service()
+
+
+@pytest.fixture
+def auth_service(
+    mocked_auth_repository, cache, mocked_geo_ip_service
+) -> AuthServiceProtocol:
+    return AuthService(mocked_auth_repository, cache, mocked_geo_ip_service)
 
 
 @pytest.fixture

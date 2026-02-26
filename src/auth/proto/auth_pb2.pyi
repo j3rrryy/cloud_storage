@@ -100,15 +100,24 @@ class LogInRequest(_message.Message):
     ) -> None: ...
 
 class LogInResponse(_message.Message):
-    __slots__ = ("access_token", "refresh_token", "email", "browser", "email_confirmed")
+    __slots__ = (
+        "access_token",
+        "refresh_token",
+        "email",
+        "country_code",
+        "browser",
+        "email_confirmed",
+    )
     ACCESS_TOKEN_FIELD_NUMBER: _ClassVar[int]
     REFRESH_TOKEN_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
+    COUNTRY_CODE_FIELD_NUMBER: _ClassVar[int]
     BROWSER_FIELD_NUMBER: _ClassVar[int]
     EMAIL_CONFIRMED_FIELD_NUMBER: _ClassVar[int]
     access_token: str
     refresh_token: str
     email: str
+    country_code: str
     browser: str
     email_confirmed: bool
     def __init__(
@@ -116,6 +125,7 @@ class LogInResponse(_message.Message):
         access_token: _Optional[str] = ...,
         refresh_token: _Optional[str] = ...,
         email: _Optional[str] = ...,
+        country_code: _Optional[str] = ...,
         browser: _Optional[str] = ...,
         email_confirmed: bool = ...,
     ) -> None: ...
@@ -181,19 +191,22 @@ class Sessions(_message.Message):
     ) -> None: ...
 
 class SessionInfo(_message.Message):
-    __slots__ = ("session_id", "user_ip", "browser", "created_at")
+    __slots__ = ("session_id", "user_ip", "country_code", "browser", "created_at")
     SESSION_ID_FIELD_NUMBER: _ClassVar[int]
     USER_IP_FIELD_NUMBER: _ClassVar[int]
+    COUNTRY_CODE_FIELD_NUMBER: _ClassVar[int]
     BROWSER_FIELD_NUMBER: _ClassVar[int]
     CREATED_AT_FIELD_NUMBER: _ClassVar[int]
     session_id: str
     user_ip: str
+    country_code: str
     browser: str
     created_at: _timestamp_pb2.Timestamp
     def __init__(
         self,
         session_id: _Optional[str] = ...,
         user_ip: _Optional[str] = ...,
+        country_code: _Optional[str] = ...,
         browser: _Optional[str] = ...,
         created_at: _Optional[
             _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]

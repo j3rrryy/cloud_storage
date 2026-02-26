@@ -7,7 +7,7 @@ from dto import (
     PasswordResetMailDTO,
 )
 
-from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
+from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
 
 
 @pytest.mark.asyncio
@@ -15,7 +15,7 @@ from ..mocks import BROWSER, CODE, EMAIL, TOKEN, USER_IP, USERNAME
     "dto",
     [
         EmailConfirmationMailDTO(USERNAME, EMAIL, TOKEN),
-        NewLoginMailDTO(USERNAME, EMAIL, USER_IP, BROWSER),
+        NewLoginMailDTO(USERNAME, EMAIL, USER_IP, COUNTRY_CODE, BROWSER),
         PasswordResetMailDTO(USERNAME, EMAIL, CODE),
     ],
 )

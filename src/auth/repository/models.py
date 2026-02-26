@@ -41,6 +41,7 @@ class TokenPair(Base):
     access_token: Mapped[str] = mapped_column(sa.CHAR(64), unique=True, nullable=False)
     refresh_token: Mapped[str] = mapped_column(sa.CHAR(64), unique=True, nullable=False)
     user_ip: Mapped[str] = mapped_column(sa.String(45), nullable=False)
+    country_code: Mapped[str | None] = mapped_column(sa.String(2))
     browser: Mapped[str] = mapped_column(sa.String(150), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP, index=True, nullable=False, default=utc_now_naive

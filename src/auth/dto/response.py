@@ -23,6 +23,7 @@ class LogInResponseDTO(BaseResponseDTO):
     access_token: str
     refresh_token: str
     email: str
+    country_code: str | None
     browser: str
     email_confirmed: bool
 
@@ -40,6 +41,7 @@ class SessionInfoResponseDTO(BaseResponseDTO):
     access_token: str
     refresh_token: str
     user_ip: str
+    country_code: str | None
     browser: str
     created_at: datetime.datetime
 

@@ -12,6 +12,7 @@ from security import get_jwt_hash, get_password_hash
 from ..mocks import (
     ACCESS_TOKEN,
     BROWSER,
+    COUNTRY_CODE,
     EMAIL,
     PASSWORD,
     REFRESH_TOKEN,
@@ -142,6 +143,7 @@ async def test_log_in(auth_repository, session):
         get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
+        COUNTRY_CODE,
         BROWSER,
     )
 
@@ -170,6 +172,7 @@ async def test_log_in_exceptions(
         get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
+        COUNTRY_CODE,
         BROWSER,
     )
     session.add = MagicMock(side_effect=exception)
@@ -226,6 +229,7 @@ async def test_refresh(session, auth_repository):
         get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
+        COUNTRY_CODE,
         BROWSER,
     )
     session.execute = AsyncMock(
@@ -247,6 +251,7 @@ async def test_refresh_not_tokens(session, auth_repository):
         get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
+        COUNTRY_CODE,
         BROWSER,
     )
     session.execute = AsyncMock(
@@ -282,6 +287,7 @@ async def test_refresh_exceptions(
         get_jwt_hash(REFRESH_TOKEN),
         USER_ID,
         USER_IP,
+        COUNTRY_CODE,
         BROWSER,
     )
     session.add = MagicMock(side_effect=exception)
@@ -308,6 +314,7 @@ async def test_session_list(session, token_pair, auth_repository):
             ACCESS_TOKEN,
             REFRESH_TOKEN,
             USER_IP,
+            COUNTRY_CODE,
             BROWSER,
             TIMESTAMP,
         )

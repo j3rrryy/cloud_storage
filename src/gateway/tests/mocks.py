@@ -25,6 +25,7 @@ USER_IP = "127.0.0.1"
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
 )
+COUNTRY_CODE = "US"
 BROWSER = "Firefox 47.0, Windows 7"
 
 
@@ -57,6 +58,7 @@ def create_auth_stub_v1() -> AuthStub:
             access_token=ACCESS_TOKEN,
             refresh_token=REFRESH_TOKEN,
             email=EMAIL,
+            country_code=COUNTRY_CODE,
             browser=BROWSER,
             email_confirmed=True,
         )
@@ -79,6 +81,7 @@ def create_auth_stub_v1() -> AuthStub:
                 auth_pb2.SessionInfo(
                     session_id=SESSION_ID,
                     user_ip=USER_IP,
+                    country_code=COUNTRY_CODE,
                     browser=BROWSER,
                     created_at=TIMESTAMP_MOCK,
                 ),

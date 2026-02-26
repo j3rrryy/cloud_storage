@@ -63,8 +63,9 @@ message LogInResponse {
     string access_token = 1;
     string refresh_token = 2;
     string email = 3;
-    string browser = 4;
-    bool email_confirmed = 5;
+    string country_code = 4;
+    string browser = 5;
+    bool email_confirmed = 6;
 }
 
 message AccessToken { string access_token = 1; }
@@ -93,8 +94,9 @@ message Sessions { repeated SessionInfo sessions = 1; }
 message SessionInfo {
     string session_id = 1;
     string user_ip = 2;
-    string browser = 3;
-    google.protobuf.Timestamp created_at = 4;
+    string country_code = 3;
+    string browser = 4;
+    google.protobuf.Timestamp created_at = 5;
 }
 
 message RevokeSessionRequest {

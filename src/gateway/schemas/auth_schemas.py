@@ -63,6 +63,7 @@ class SessionId(Struct):
 class SessionInfo(Struct):
     session_id: Annotated[str, Meta(pattern=UUID4_REGEX, examples=UUID4_EXAMPLES)]
     user_ip: Annotated[str, Meta(max_length=45)]
+    country_code: str | None
     browser: Annotated[str, Meta(max_length=150)]
     created_at: datetime.datetime
 

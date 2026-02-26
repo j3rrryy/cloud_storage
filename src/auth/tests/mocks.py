@@ -2,11 +2,13 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 from cashews import Cache
+from geoip2.database import Reader
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from dto import response as response_dto
 from repository import AuthRepository, TokenPair, User
 from security import get_password_hash
+from service import GeoIPService
 
 ACCESS_TOKEN = "eyJ0eXBlIjowLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.fyxQuUSic9USlnl9vXYYIelRBTaxsdILiosQHVIOUlU"
 REFRESH_TOKEN = "eyJ0eXBlIjoxLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.Cz6F9m9TJP76hzcyst0xE9vp6RmXtGIhAXaNqJWrJL8"
@@ -24,6 +26,7 @@ USER_IP = "127.0.0.1"
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
 )
+COUNTRY_CODE = "US"
 BROWSER = "Firefox 47.0, Windows 7"
 
 
@@ -38,8 +41,8 @@ def create_sessionmaker(session) -> async_sessionmaker[AsyncSession]:
     return sessionmaker
 
 
-def create_cache() -> Cache:
-    return AsyncMock(spec=Cache)
+def create_reader() -> Reader:
+    return MagicMock(spec=Reader)
 
 
 def create_auth_repository() -> AuthRepository:
@@ -54,6 +57,7 @@ def create_auth_repository() -> AuthRepository:
                     ACCESS_TOKEN,
                     REFRESH_TOKEN,
                     USER_IP,
+                    COUNTRY_CODE,
                     BROWSER,
                     TIMESTAMP,
                 )
@@ -79,6 +83,16 @@ def create_auth_repository() -> AuthRepository:
     return crud
 
 
+def create_cache() -> Cache:
+    return AsyncMock(spec=Cache)
+
+
+def create_geo_ip_service() -> GeoIPService:
+    service = AsyncMock(spec=GeoIPService)
+    service.get_country_code = AsyncMock(return_value=COUNTRY_CODE)
+    return service
+
+
 def create_user() -> User:
     return User(
         user_id=USER_ID,
@@ -97,6 +111,7 @@ def create_token_pair() -> TokenPair:
         access_token=ACCESS_TOKEN,
         refresh_token=REFRESH_TOKEN,
         user_ip=USER_IP,
+        country_code=COUNTRY_CODE,
         browser=BROWSER,
         created_at=TIMESTAMP,
     )
