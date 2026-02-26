@@ -41,12 +41,10 @@ class AuthRepository(AuthRepositoryProtocol):
             user.email_confirmed = True
 
     @database_exception_handler
-    async def reset_password(
-        self, data: request_dto.ResetPasswordRequestDTO
-    ) -> list[str]:
+    async def update_password(self, user_id: str, new_password: str) -> list[str]:
         async with self._sessionmaker.begin() as session:
-            user = await self._get_user(data.user_id, session)
-            user.password = data.new_password
+            user = await self._get_user(user_id, session)
+            user.password = new_password
             deleted_access_tokens = list(
                 await session.scalars(
                     delete(TokenPair)
@@ -172,22 +170,6 @@ class AuthRepository(AuthRepositoryProtocol):
         except IntegrityError:
             raise EmailAddressIsAlreadyInUseException
         return user.username
-
-    @database_exception_handler
-    async def update_password(
-        self, data: request_dto.UpdatePasswordDataRequestDTO
-    ) -> list[str]:
-        async with self._sessionmaker.begin() as session:
-            user = await self._get_user(data.user_id, session)
-            user.password = data.new_password
-            deleted_access_tokens = list(
-                await session.scalars(
-                    delete(TokenPair)
-                    .where(TokenPair.user_id == user.user_id)
-                    .returning(TokenPair.access_token)
-                )
-            )
-        return deleted_access_tokens
 
     @database_exception_handler
     async def delete_profile(self, user_id: str) -> list[str]:

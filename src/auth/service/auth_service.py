@@ -66,8 +66,9 @@ class AuthService(AuthServiceProtocol):
         if not code or code != ResetCodeStatus.VALIDATED.value:
             raise UnauthenticatedException("Code is not validated")
 
-        data = data.replace(new_password=get_password_hash(data.new_password))
-        deleted_access_tokens = await self._auth_repository.reset_password(data)
+        deleted_access_tokens = await self._auth_repository.update_password(
+            data.user_id, get_password_hash(data.new_password)
+        )
         await self._invalidate_sessions_cache(data.user_id, *deleted_access_tokens)
         await self._cache.delete(reset_key)
 
@@ -188,10 +189,9 @@ class AuthService(AuthServiceProtocol):
         profile = await self._auth_repository.profile_by_user_id(user_id)
         compare_passwords(profile.password, data.old_password)
 
-        dto = request_dto.UpdatePasswordDataRequestDTO(
+        deleted_access_tokens = await self._auth_repository.update_password(
             user_id, get_password_hash(data.new_password)
         )
-        deleted_access_tokens = await self._auth_repository.update_password(dto)
         await self._invalidate_sessions_cache(user_id, *deleted_access_tokens)
 
     async def delete_profile(self, access_token: str) -> str:

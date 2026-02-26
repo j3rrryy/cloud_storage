@@ -97,13 +97,12 @@ async def test_confirm_email_exception(session, auth_repository):
 
 
 @pytest.mark.asyncio
-async def test_reset_password(session, user, auth_repository):
+async def test_update_password(session, user, auth_repository):
     new_password = get_password_hash(PASSWORD + "0")
-    dto = request_dto.ResetPasswordRequestDTO(USER_ID, new_password)
     session.get.return_value = user
     session.scalars = AsyncMock(return_value=[ACCESS_TOKEN])
 
-    deleted_access_tokens = await auth_repository.reset_password(dto)
+    deleted_access_tokens = await auth_repository.update_password(USER_ID, new_password)
 
     assert deleted_access_tokens == [ACCESS_TOKEN]
     assert user.password == new_password
@@ -112,12 +111,11 @@ async def test_reset_password(session, user, auth_repository):
 
 
 @pytest.mark.asyncio
-async def test_reset_password_not_user(session, auth_repository):
-    dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
+async def test_update_password_not_user(session, auth_repository):
     session.get.return_value = None
 
     with pytest.raises(BaseAppException) as exc_info:
-        await auth_repository.reset_password(dto)
+        await auth_repository.update_password(USER_ID, PASSWORD)
 
     assert exc_info.value.status_code == StatusCode.UNAUTHENTICATED
     assert exc_info.value.details == "Invalid credentials"
@@ -125,12 +123,11 @@ async def test_reset_password_not_user(session, auth_repository):
 
 
 @pytest.mark.asyncio
-async def test_reset_password_exception(session, auth_repository):
-    dto = request_dto.ResetPasswordRequestDTO(USER_ID, PASSWORD)
+async def test_update_password_exception(session, auth_repository):
     session.scalars.side_effect = Exception("Details")
 
     with pytest.raises(BaseAppException) as exc_info:
-        await auth_repository.reset_password(dto)
+        await auth_repository.update_password(USER_ID, PASSWORD)
 
     assert exc_info.value.status_code == StatusCode.INTERNAL
     assert exc_info.value.details == "Internal database error: Details"
@@ -588,48 +585,6 @@ async def test_update_email_exceptions(
     assert exc_info.value.status_code == expected_status
     assert exc_info.value.details == expected_message
     session.get.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_update_password(session, user, auth_repository):
-    new_password = get_password_hash(PASSWORD + "0")
-    dto = request_dto.UpdatePasswordDataRequestDTO(USER_ID, new_password)
-    session.get.return_value = user
-    session.scalars = AsyncMock(return_value=[ACCESS_TOKEN])
-
-    deleted_access_tokens = await auth_repository.update_password(dto)
-
-    assert deleted_access_tokens == [ACCESS_TOKEN]
-    assert user.password == new_password
-    session.get.assert_awaited_once()
-    session.scalars.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_update_password_not_user(session, auth_repository):
-    dto = request_dto.UpdatePasswordDataRequestDTO(USER_ID, PASSWORD)
-    session.get.return_value = None
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await auth_repository.update_password(dto)
-
-    assert exc_info.value.status_code == StatusCode.UNAUTHENTICATED
-    assert exc_info.value.details == "Invalid credentials"
-    session.get.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_update_password_exception(session, auth_repository):
-    dto = request_dto.UpdatePasswordDataRequestDTO(USER_ID, PASSWORD)
-    session.scalars.side_effect = Exception("Details")
-
-    with pytest.raises(BaseAppException) as exc_info:
-        await auth_repository.update_password(dto)
-
-    assert exc_info.value.status_code == StatusCode.INTERNAL
-    assert exc_info.value.details == "Internal database error: Details"
-    session.get.assert_awaited_once()
-    session.scalars.assert_awaited_once()
 
 
 @pytest.mark.asyncio
