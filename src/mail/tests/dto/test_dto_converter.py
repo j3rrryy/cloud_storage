@@ -8,7 +8,7 @@ from dto import (
 )
 from enums import MailType
 
-from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
+from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, LOCALE, TOKEN, USER_IP, USERNAME
 
 
 @pytest.mark.parametrize(
@@ -17,6 +17,7 @@ from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
         (
             MailType.EMAIL_CONFIRMATION.name,
             {
+                "locale": LOCALE,
                 "username": USERNAME,
                 "email": EMAIL,
                 "token": TOKEN,
@@ -26,6 +27,7 @@ from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
         (
             MailType.NEW_LOGIN.name,
             {
+                "locale": LOCALE,
                 "username": USERNAME,
                 "email": EMAIL,
                 "user_ip": USER_IP,
@@ -36,7 +38,7 @@ from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
         ),
         (
             MailType.PASSWORD_RESET.name,
-            {"username": USERNAME, "email": EMAIL, "code": CODE},
+            {"locale": LOCALE, "username": USERNAME, "email": EMAIL, "code": CODE},
             PasswordResetMailDTO,
         ),
     ],
@@ -52,9 +54,10 @@ def test_convert(topic, message, expected_dto_cls):
 def test_convert_unsupported_topic():
     topic = "unsupported_topic"
     message = {
-        "token": TOKEN,
-        "email": EMAIL,
+        "locale": LOCALE,
         "username": USERNAME,
+        "email": EMAIL,
+        "token": TOKEN,
     }
 
     with pytest.raises(ValueError, match=f"Unsupported mail type: {topic}"):

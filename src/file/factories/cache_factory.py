@@ -11,7 +11,7 @@ class CacheFactory:
 
     async def initialize(self) -> None:
         try:
-            await self._setup_cache()
+            self._setup_cache()
         except Exception:
             await self.close()
             raise
@@ -23,7 +23,7 @@ class CacheFactory:
             finally:
                 self._cache = None
 
-    async def _setup_cache(self) -> None:
+    def _setup_cache(self) -> None:
         self._cache = Cache()
         self._cache.setup(
             f"redis://{Settings.REDIS_USER}:{Settings.REDIS_PASSWORD}@"

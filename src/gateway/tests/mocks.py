@@ -19,6 +19,7 @@ USER_ID = "00e51a90-0f94-4ecb-8dd1-399ba409508e"
 USERNAME = "test_username"
 EMAIL = "test@example.com"
 PASSWORD = "p@ssw0rd"
+LOCALE = "ru"
 
 SESSION_ID = "13bcdea3-dd61-40fb-8f1f-f9546fd8ffc5"
 USER_IP = "127.0.0.1"

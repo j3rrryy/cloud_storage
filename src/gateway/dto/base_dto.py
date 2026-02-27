@@ -58,5 +58,6 @@ class ToMsgpackMixin(BaseDTO):
 
 @dataclass(slots=True, frozen=True)
 class BaseMailDTO:
+    locale: str | None
     username: str
     email: str

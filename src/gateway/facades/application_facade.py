@@ -9,14 +9,14 @@ class ApplicationFacade(ApplicationFacadeProtocol):
         self._auth_facade = auth_facade
         self._file_facade = file_facade
 
-    async def register(self, data: auth_dto.RegistrationDTO) -> None:
-        await self._auth_facade.register(data)
+    async def register(self, data: auth_dto.RegistrationDTO, locale: str) -> None:
+        await self._auth_facade.register(data, locale)
 
     async def confirm_email(self, token: str) -> None:
         await self._auth_facade.confirm_email(token)
 
-    async def request_reset_code(self, email: str) -> str:
-        return await self._auth_facade.request_reset_code(email)
+    async def request_reset_code(self, email: str, locale: str) -> str:
+        return await self._auth_facade.request_reset_code(email, locale)
 
     async def validate_reset_code(self, data: auth_dto.ResetCodeDTO) -> bool:
         return await self._auth_facade.validate_reset_code(data)
@@ -24,14 +24,18 @@ class ApplicationFacade(ApplicationFacadeProtocol):
     async def reset_password(self, data: auth_dto.ResetPasswordDTO) -> None:
         await self._auth_facade.reset_password(data)
 
-    async def log_in(self, data: auth_dto.LogInDTO) -> auth_dto.LogInDataDTO:
-        return await self._auth_facade.log_in(data)
+    async def log_in(
+        self, data: auth_dto.LogInDTO, locale: str
+    ) -> auth_dto.LogInDataDTO:
+        return await self._auth_facade.log_in(data, locale)
 
     async def log_out(self, access_token: str) -> None:
         await self._auth_facade.log_out(access_token)
 
-    async def resend_email_confirmation_mail(self, access_token: str) -> None:
-        await self._auth_facade.resend_email_confirmation_mail(access_token)
+    async def resend_email_confirmation_mail(
+        self, access_token: str, locale: str
+    ) -> None:
+        await self._auth_facade.resend_email_confirmation_mail(access_token, locale)
 
     async def auth(self, access_token: str) -> str:
         return await self._auth_facade.auth(access_token)
@@ -48,8 +52,8 @@ class ApplicationFacade(ApplicationFacadeProtocol):
     async def profile(self, access_token: str) -> auth_dto.ProfileDTO:
         return await self._auth_facade.profile(access_token)
 
-    async def update_email(self, data: auth_dto.UpdateEmailDTO) -> None:
-        await self._auth_facade.update_email(data)
+    async def update_email(self, data: auth_dto.UpdateEmailDTO, locale: str) -> None:
+        await self._auth_facade.update_email(data, locale)
 
     async def update_password(self, data: auth_dto.UpdatePasswordDTO) -> None:
         await self._auth_facade.update_password(data)

@@ -13,6 +13,7 @@ COUNTRY_CODE = "US"
 BROWSER = "Firefox 47.0, Windows 7"
 EMAIL = "test@example.com"
 CODE = "123456"
+LOCALE = "ru"
 
 
 def create_consumer() -> AIOKafkaConsumer:

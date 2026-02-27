@@ -1,6 +1,7 @@
 from typing import Any
 
 from enums import MailType
+from settings import Settings
 
 from .base_dto import BaseMailDTO
 from .dto import EmailConfirmationMailDTO, NewLoginMailDTO, PasswordResetMailDTO
@@ -18,6 +19,7 @@ class MessageToDTOConverter:
         try:
             mail_type = MailType[topic]
             dto_cls = cls._dto_classes[mail_type]
+            message["locale"] = message.get("locale", Settings.DEFAULT_LOCALE).lower()
             return dto_cls(**message)
         except KeyError:
             raise ValueError(f"Unsupported mail type: {topic}")

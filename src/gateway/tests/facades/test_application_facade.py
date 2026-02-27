@@ -11,6 +11,7 @@ from ..mocks import (
     EMAIL,
     ETAG,
     FILE_ID,
+    LOCALE,
     NAME,
     PASSWORD,
     REFRESH_TOKEN,
@@ -30,7 +31,7 @@ from ..mocks import (
 async def test_register(application_facade):
     dto = auth_dto.RegistrationDTO(USERNAME, EMAIL, PASSWORD)
 
-    await application_facade.register(dto)
+    await application_facade.register(dto, LOCALE)
 
 
 @pytest.mark.asyncio
@@ -40,7 +41,7 @@ async def test_confirm_email(application_facade):
 
 @pytest.mark.asyncio
 async def test_request_reset_code(application_facade):
-    response = await application_facade.request_reset_code(EMAIL)
+    response = await application_facade.request_reset_code(EMAIL, LOCALE)
 
     assert response == USER_ID
 
@@ -65,7 +66,7 @@ async def test_reset_password(application_facade):
 async def test_log_in(application_facade):
     dto = auth_dto.LogInDTO(USERNAME, PASSWORD, USER_IP, USER_AGENT)
 
-    response = await application_facade.log_in(dto)
+    response = await application_facade.log_in(dto, LOCALE)
 
     assert response.access_token == ACCESS_TOKEN
     assert response.refresh_token == REFRESH_TOKEN
@@ -82,7 +83,7 @@ async def test_log_out(application_facade):
 
 @pytest.mark.asyncio
 async def test_resend_email_confirmation_mail(application_facade):
-    await application_facade.resend_email_confirmation_mail(ACCESS_TOKEN)
+    await application_facade.resend_email_confirmation_mail(ACCESS_TOKEN, LOCALE)
 
 
 @pytest.mark.asyncio
@@ -135,7 +136,7 @@ async def test_profile(application_facade):
 async def test_update_email(application_facade):
     dto = auth_dto.UpdateEmailDTO(ACCESS_TOKEN, EMAIL)
 
-    await application_facade.update_email(dto)
+    await application_facade.update_email(dto, LOCALE)
 
 
 @pytest.mark.asyncio

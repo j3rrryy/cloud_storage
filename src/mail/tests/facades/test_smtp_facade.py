@@ -7,16 +7,16 @@ from dto import (
     PasswordResetMailDTO,
 )
 
-from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, TOKEN, USER_IP, USERNAME
+from ..mocks import BROWSER, CODE, COUNTRY_CODE, EMAIL, LOCALE, TOKEN, USER_IP, USERNAME
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "dto",
     [
-        EmailConfirmationMailDTO(USERNAME, EMAIL, TOKEN),
-        NewLoginMailDTO(USERNAME, EMAIL, USER_IP, COUNTRY_CODE, BROWSER),
-        PasswordResetMailDTO(USERNAME, EMAIL, CODE),
+        EmailConfirmationMailDTO(LOCALE, USERNAME, EMAIL, TOKEN),
+        NewLoginMailDTO(LOCALE, USERNAME, EMAIL, USER_IP, COUNTRY_CODE, BROWSER),
+        PasswordResetMailDTO(LOCALE, USERNAME, EMAIL, CODE),
     ],
 )
 async def test_send_mail(dto, smtp_facade, smtp):
@@ -30,7 +30,7 @@ async def test_send_mail_no_renderer_found(smtp_facade):
     class UnknownMailDTO(BaseMailDTO):
         pass
 
-    dto = UnknownMailDTO(USERNAME, EMAIL)
+    dto = UnknownMailDTO(LOCALE, USERNAME, EMAIL)
 
     with pytest.raises(
         ValueError, match=f"No renderer found for {UnknownMailDTO.__name__}"

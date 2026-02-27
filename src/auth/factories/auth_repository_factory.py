@@ -16,7 +16,7 @@ class AuthRepositoryFactory:
 
     async def initialize(self) -> None:
         try:
-            await self._setup_auth_repository()
+            self._setup_auth_repository()
         except Exception:
             await self.close()
             raise
@@ -29,7 +29,7 @@ class AuthRepositoryFactory:
                 self._engine = None
                 self._auth_repository = None
 
-    async def _setup_auth_repository(self) -> None:
+    def _setup_auth_repository(self) -> None:
         url = URL.create(
             Settings.POSTGRES_DRIVER,
             Settings.POSTGRES_USER,

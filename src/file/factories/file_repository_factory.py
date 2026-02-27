@@ -16,7 +16,7 @@ class FileRepositoryFactory:
 
     async def initialize(self) -> None:
         try:
-            await self._setup_file_repository()
+            self._setup_file_repository()
         except Exception:
             await self.close()
             raise
@@ -29,7 +29,7 @@ class FileRepositoryFactory:
                 self._engine = None
                 self._file_repository = None
 
-    async def _setup_file_repository(self) -> None:
+    def _setup_file_repository(self) -> None:
         url = URL.create(
             Settings.POSTGRES_DRIVER,
             Settings.POSTGRES_USER,

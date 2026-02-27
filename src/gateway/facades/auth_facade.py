@@ -9,17 +9,18 @@ class AuthFacade(AuthFacadeProtocol):
         self._auth_service = auth_service
         self._mail_service = mail_service
 
-    async def register(self, data: auth_dto.RegistrationDTO) -> None:
+    async def register(self, data: auth_dto.RegistrationDTO, locale: str) -> None:
         email_confirmation_mail = await self._auth_service.register(data)
+        email_confirmation_mail = email_confirmation_mail.replace(locale=locale)
         await self._mail_service.email_confirmation(email_confirmation_mail)
 
     async def confirm_email(self, token: str) -> None:
         await self._auth_service.confirm_email(token)
 
-    async def request_reset_code(self, email: str) -> str:
+    async def request_reset_code(self, email: str, locale: str) -> str:
         reset_info = await self._auth_service.request_reset_code(email)
         password_reset_mail = mail_dto.PasswordResetMailDTO(
-            reset_info.username, email, reset_info.code
+            locale, reset_info.username, email, reset_info.code
         )
         await self._mail_service.password_reset(password_reset_mail)
         return reset_info.user_id
@@ -30,10 +31,13 @@ class AuthFacade(AuthFacadeProtocol):
     async def reset_password(self, data: auth_dto.ResetPasswordDTO) -> None:
         await self._auth_service.reset_password(data)
 
-    async def log_in(self, data: auth_dto.LogInDTO) -> auth_dto.LogInDataDTO:
+    async def log_in(
+        self, data: auth_dto.LogInDTO, locale: str
+    ) -> auth_dto.LogInDataDTO:
         login_data = await self._auth_service.log_in(data)
         if login_data.email_confirmed:
             new_login_mail = mail_dto.NewLoginMailDTO(
+                locale,
                 data.username,
                 login_data.email,
                 data.user_ip,
@@ -46,10 +50,13 @@ class AuthFacade(AuthFacadeProtocol):
     async def log_out(self, access_token: str) -> None:
         await self._auth_service.log_out(access_token)
 
-    async def resend_email_confirmation_mail(self, access_token: str) -> None:
+    async def resend_email_confirmation_mail(
+        self, access_token: str, locale: str
+    ) -> None:
         email_confirmation_mail = (
             await self._auth_service.resend_email_confirmation_mail(access_token)
         )
+        email_confirmation_mail = email_confirmation_mail.replace(locale=locale)
         await self._mail_service.email_confirmation(email_confirmation_mail)
 
     async def auth(self, access_token: str) -> str:
@@ -67,8 +74,9 @@ class AuthFacade(AuthFacadeProtocol):
     async def profile(self, access_token: str) -> auth_dto.ProfileDTO:
         return await self._auth_service.profile(access_token)
 
-    async def update_email(self, data: auth_dto.UpdateEmailDTO) -> None:
+    async def update_email(self, data: auth_dto.UpdateEmailDTO, locale: str) -> None:
         email_confirmation_mail = await self._auth_service.update_email(data)
+        email_confirmation_mail = email_confirmation_mail.replace(locale=locale)
         await self._mail_service.email_confirmation(email_confirmation_mail)
 
     async def update_password(self, data: auth_dto.UpdatePasswordDTO) -> None:

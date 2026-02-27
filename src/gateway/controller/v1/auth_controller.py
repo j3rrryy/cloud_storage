@@ -3,12 +3,13 @@ from uuid import UUID
 
 from litestar import Controller, MediaType, Request, Router, delete, get, patch, post
 from litestar.enums import RequestEncodingType
-from litestar.params import Body
+from litestar.params import Body, Parameter
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from dto import auth_dto
 from protocols import ApplicationFacadeProtocol
 from schemas import auth_schemas
+from settings import Settings
 from validators import validate_access_token
 
 
@@ -22,9 +23,12 @@ class AuthController(Controller):
             auth_schemas.Registration, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
         application_facade: ApplicationFacadeProtocol,
+        locale: Annotated[
+            str, Parameter(header="Accept-Language")
+        ] = Settings.DEFAULT_LOCALE,
     ) -> None:
         dto = auth_dto.RegistrationDTO.from_schema(data)
-        await application_facade.register(dto)
+        await application_facade.register(dto, locale)
 
     @get("/confirm-email", status_code=HTTP_204_NO_CONTENT)
     async def confirm_email(
@@ -45,8 +49,11 @@ class AuthController(Controller):
             Body(media_type=RequestEncodingType.MESSAGEPACK),
         ],
         application_facade: ApplicationFacadeProtocol,
+        locale: Annotated[
+            str, Parameter(header="Accept-Language")
+        ] = Settings.DEFAULT_LOCALE,
     ) -> auth_schemas.UserId:
-        user_id = await application_facade.request_reset_code(data.email)
+        user_id = await application_facade.request_reset_code(data.email, locale)
         return auth_schemas.UserId(user_id)
 
     @post(
@@ -88,16 +95,19 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.LogIn, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        request: Request,
         application_facade: ApplicationFacadeProtocol,
+        x_forwarded_for: Annotated[
+            str, Parameter(header="X-Forwarded-For")
+        ] = "Unknown",
+        user_agent: Annotated[str, Parameter(header="User-Agent")] = "Unknown",
+        locale: Annotated[
+            str, Parameter(header="Accept-Language")
+        ] = Settings.DEFAULT_LOCALE,
     ) -> auth_schemas.Tokens:
         dto = auth_dto.LogInDTO(
-            data.username,
-            data.password,
-            request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
-            request.headers.get("User-Agent", "Unknown"),
+            data.username, data.password, x_forwarded_for.split(", ")[0], user_agent
         )
-        login_data = await application_facade.log_in(dto)
+        login_data = await application_facade.log_in(dto, locale)
         return login_data.to_schema(auth_schemas.Tokens)
 
     @post("/log-out", status_code=HTTP_204_NO_CONTENT)
@@ -109,10 +119,15 @@ class AuthController(Controller):
 
     @post("/resend-email-confirmation-mail", status_code=HTTP_204_NO_CONTENT)
     async def resend_email_confirmation_mail(
-        self, request: Request, application_facade: ApplicationFacadeProtocol
+        self,
+        request: Request,
+        application_facade: ApplicationFacadeProtocol,
+        locale: Annotated[
+            str, Parameter(header="Accept-Language")
+        ] = Settings.DEFAULT_LOCALE,
     ) -> None:
         access_token = validate_access_token(request)
-        await application_facade.resend_email_confirmation_mail(access_token)
+        await application_facade.resend_email_confirmation_mail(access_token, locale)
 
     @get(
         "/",
@@ -138,13 +153,14 @@ class AuthController(Controller):
         data: Annotated[
             auth_schemas.RefreshToken, Body(media_type=RequestEncodingType.MESSAGEPACK)
         ],
-        request: Request,
         application_facade: ApplicationFacadeProtocol,
+        x_forwarded_for: Annotated[
+            str, Parameter(header="X-Forwarded-For")
+        ] = "Unknown",
+        user_agent: Annotated[str, Parameter(header="User-Agent")] = "Unknown",
     ) -> auth_schemas.Tokens:
         dto = auth_dto.RefreshDTO(
-            data.refresh_token,
-            request.headers.get("X-Forwarded-For", "Unknown").split(", ")[0],
-            request.headers.get("User-Agent", "Unknown"),
+            data.refresh_token, x_forwarded_for.split(", ")[0], user_agent
         )
         tokens = await application_facade.refresh(dto)
         return tokens.to_schema(auth_schemas.Tokens)
@@ -196,10 +212,13 @@ class AuthController(Controller):
         ],
         request: Request,
         application_facade: ApplicationFacadeProtocol,
+        locale: Annotated[
+            str, Parameter(header="Accept-Language")
+        ] = Settings.DEFAULT_LOCALE,
     ) -> None:
         access_token = validate_access_token(request)
         dto = auth_dto.UpdateEmailDTO(access_token, data.new_email)
-        await application_facade.update_email(dto)
+        await application_facade.update_email(dto, locale)
 
     @patch("/profile/password", status_code=HTTP_204_NO_CONTENT)
     async def update_password(
