@@ -52,11 +52,9 @@
 
 ## :hammer_and_wrench: Getting started
 
-- Copy `.env` file from `examples/dev/` to `dev/` folder and fill it in
+- **(For dev/prod)** Copy `.env` file from `examples/<dev/prod>/` to `<dev/prod>/` folder and fill it in
 
-- **(For dev/prod)** Copy `redis.conf` file from `examples/` to `dev/` or `prod/` folder and fill it in
-
-- **(For prod)** Copy `.env` file from `examples/prod/` to `prod/` folder and fill it in
+- **(For dev/prod)** Copy `redis.conf` file from `examples/` to `<dev/prod>/` folder and fill it in
 
 - **(For prod)** Copy `nginx.conf` file from `examples/prod/` to `prod/` folder and fill it in
 
