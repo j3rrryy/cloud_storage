@@ -48,13 +48,14 @@
 
 ## :computer: Requirements
 
-- Docker
+- Docker **(dev)**
+- Kubernetes **(dev + prod)**
 
 ## :hammer_and_wrench: Getting started
 
-- **(For dev/prod)** Copy `.env` file from `examples/<dev/prod>/` to `<dev/prod>/` folder and fill it in
+- **(For dev)** Copy `.env` file from `examples/<dev/prod>/` to `<dev/prod>/` folder and fill it in
 
-- **(For dev/prod)** Copy `redis.conf` file from `examples/` to `<dev/prod>/` folder and fill it in
+- **(For dev)** Copy `redis.conf` file from `examples/` to `<dev/prod>/` folder and fill it in
 
 - **(For prod)** Copy `nginx.conf` file from `examples/prod/` to `prod/` folder and fill it in
 
@@ -67,40 +68,40 @@
   - Only API
 
     ```shell
-    docker compose -f docker-compose.dev.yml --profile api up --build -d
+    docker compose --profile api up --build -d
     ```
 
   - API + monitoring
 
     ```shell
-    docker compose -f docker-compose.dev.yml --profile all up --build -d
+    docker compose --profile all up --build -d
     ```
 
-- Run the **prod ver.** and get a SSL certificate
-
-  - Create the directory on the server
+  - Using Kubernetes
 
     ```shell
-    mkdir -p /cloud_storage/
+    helm install cloud-storage ./k8s -f ./k8s/values-dev.yaml --namespace cloud-storage --create-namespace
     ```
 
-  - Use SCP to copy the prod files to the server
+- Run the **prod ver.**
 
-    ```shell
-    scp -r ./prod/* <username>@<host>:/cloud_storage/
-    ```
-
-  - Run the deploy script
-
-    ```shell
-    bash deploy.sh
-    ```
+  ```shell
+  helm install cloud-storage ./k8s -f ./k8s/values-prod.yaml --namespace cloud-storage --create-namespace
+  ```
 
 ### :x: Stop
 
-```shell
-docker compose -f docker-compose.<dev/prod>.yml stop
-```
+- Using Docker
+
+  ```shell
+  docker compose stop
+  ```
+
+- Using Kubernetes
+
+  ```shell
+  helm uninstall cloud-storage --namespace cloud-storage
+  ```
 
 ### :chart_with_upwards_trend: Load testing
 
