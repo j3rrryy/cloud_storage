@@ -1,0 +1,239 @@
+environment: dev
+
+global:
+  image:
+    repository: ghcr.io/j3rrryy/cloud_storage
+    pullPolicy: Always
+
+monitoring:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  host: localhost
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: cloud-storage-tls
+
+gateway:
+  replicaCount: 1
+  image:
+    tag: gateway-latest
+  service:
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+auth:
+  replicaCount: 1
+  image:
+    tag: auth-latest
+  service:
+    grpcPort: 50051
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+file:
+  replicaCount: 1
+  image:
+    tag: file-latest
+  service:
+    grpcPort: 50051
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+mail:
+  replicaCount: 1
+  image:
+    tag: mail-latest
+  service:
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+authPostgres:
+  fullnameOverride: auth-postgres
+  enabled: true
+  architecture: standalone
+  primary:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+filePostgres:
+  fullnameOverride: file-postgres
+  enabled: true
+  architecture: standalone
+  primary:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+authRedis:
+  fullnameOverride: auth-redis
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+  master:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+fileRedis:
+  fullnameOverride: file-redis
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+  master:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+kafka:
+  enabled: true
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+  controller:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+
+minio:
+  enabled: true
+  mode: standalone
+  extraEnvVars:
+    - name: MINIO_COMPRESSION_ENABLE
+      value: "on"
+    - name: MINIO_COMPRESSION_EXTENSIONS
+      value: "*"
+    - name: MINIO_COMPRESSION_MIME_TYPES
+      value: "*"
+  provisioning:
+    enabled: true
+    buckets:
+      - name: s3-files
+      - name: loki
+    config:
+      - name: api
+        options:
+          stale_uploads_expiry: 24h
+  persistence:
+    size: 5Gi
+  service:
+    ports:
+      api: 9000
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+prometheus:
+  image: prom/prometheus:v3.5.0
+  storage: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+
+loki:
+  image: grafana/loki:3.5
+  storage: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+
+promtail:
+  image: grafana/promtail:3.5
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+grafana:
+  image: grafana/grafana:12.1.1
+  storage: 1Gi
+  service:
+    port: 3000
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+  env:
+    GF_SERVER_SERVE_FROM_SUB_PATH: "true"

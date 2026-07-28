@@ -51,15 +51,41 @@
 - Docker **(dev)**
 - Kubernetes **(dev + prod)**
 
+- **(For k8s)** Install NGINX Ingress Controller
+
+  ```shell
+  helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.allowSnippetAnnotations=true --set controller.config.annotations-risk-level=Critical
+  ```
+
+- **(For prod-k8s)** Install cert-manager and configure a ClusterIssuer
+
+  ```shell
+  helm install cert-manager jetstack/cert-manager --repo https://charts.jetstack.io --namespace cert-manager --create-namespace --set installCRDs=true
+  kubectl apply -f - <<EOF
+  apiVersion: cert-manager.io/v1
+  kind: ClusterIssuer
+  metadata:
+    name: letsencrypt-prod
+  spec:
+    acme:
+      server: https://acme-v02.api.letsencrypt.org/directory
+      email: <your_email>
+      privateKeySecretRef:
+        name: letsencrypt-prod
+      solvers:
+        - http01:
+            ingress:
+              class: nginx
+  EOF
+  ```
+
 ## :hammer_and_wrench: Getting started
 
-- **(For dev)** Copy `.env` file from `examples/<dev/prod>/` to `<dev/prod>/` folder and fill it in
+- **(For dev-docker)** Copy `.env` file from `examples/` to `docker/` folder and fill it in
 
-- **(For dev)** Copy `redis.conf` file from `examples/` to `<dev/prod>/` folder and fill it in
+- **(For dev-docker)** Copy `redis.conf` file from `examples/` to `docker/` folder and fill it in
 
-- **(For prod)** Copy `nginx.conf` file from `examples/prod/` to `prod/` folder and fill it in
-
-- **(For prod)** Copy `docker-compose.cert.yml` file from `examples/prod/` to `prod/` folder and fill it in
+- **(For dev-k8s/prod-k8s)** Copy `values-<dev/prod>.yaml` file from `examples/` to `k8s/` folder and fill it in
 
 ### :rocket: Start
 
@@ -80,13 +106,15 @@
   - Using Kubernetes
 
     ```shell
-    helm install cloud-storage ./k8s -f ./k8s/values-dev.yaml --namespace cloud-storage --create-namespace
+    helm dependency update ./k8s
+    helm upgrade --install cloud-storage ./k8s -f ./k8s/values-dev.yaml --namespace cloud-storage --create-namespace
     ```
 
 - Run the **prod ver.**
 
   ```shell
-  helm install cloud-storage ./k8s -f ./k8s/values-prod.yaml --namespace cloud-storage --create-namespace
+  helm dependency update ./k8s
+  helm upgrade --install cloud-storage ./k8s -f ./k8s/values-prod.yaml --namespace cloud-storage --create-namespace
   ```
 
 ### :x: Stop

@@ -34,6 +34,7 @@ jobs:
           docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-$TAG_WITHOUT_V
           docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
 
+  # TODO
   deploy:
     if: ${{ vars.DEPLOY == 'true' }}
     runs-on: ubuntu-latest

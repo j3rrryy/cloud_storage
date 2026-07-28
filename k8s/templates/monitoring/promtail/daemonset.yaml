@@ -1,0 +1,126 @@
+{{- if .Values.monitoring.enabled }}
+{{- $promtailName := include "cloud-storage.promtail.fullname" . -}}
+{{- $lokiName := include "cloud-storage.loki.fullname" . -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $promtailName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: promtail
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $promtailName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: promtail
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [pods, pods/log]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $promtailName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: promtail
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $promtailName }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $promtailName }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $promtailName }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: promtail
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+data:
+  promtail.yml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+    clients:
+      - url: http://{{ $lokiName }}:3100/loki/api/v1/push
+    positions:
+      filename: /tmp/positions.yml
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - {{ .Release.Namespace }}
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            target_label: app
+          - action: replace
+            replacement: /var/log/pods/*$1/*.log
+            separator: /
+            source_labels:
+              - __meta_kubernetes_pod_uid
+              - __meta_kubernetes_pod_container_name
+            target_label: __path__
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ $promtailName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: promtail
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: {{ $promtailName }}
+      containers:
+      - name: promtail
+        image: {{ .Values.promtail.image }}
+        args:
+        - -config.file=/etc/promtail/promtail.yml
+        ports:
+        - containerPort: 9080
+          name: http
+        volumeMounts:
+        - name: promtail-config
+          mountPath: /etc/promtail
+        - name: pods-logs
+          mountPath: /var/log/pods
+          readOnly: true
+        resources:
+          {{- toYaml .Values.promtail.resources | nindent 10 }}
+      volumes:
+      - name: promtail-config
+        configMap:
+          name: {{ $promtailName }}-config
+      - name: pods-logs
+        hostPath:
+          path: /var/log/pods
+          type: Directory
+{{- end }}

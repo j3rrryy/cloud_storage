@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cloud-storage.gateway.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: gateway
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+data:
+  {{- range $key, $val := .Values.gateway.env }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end }}
+  AUTH_SERVICE: {{ include "cloud-storage.auth.fullname" . }}:{{ .Values.auth.service.grpcPort }}
+  FILE_SERVICE: {{ include "cloud-storage.file.fullname" . }}:{{ .Values.file.service.grpcPort }}
+  KAFKA_SERVICE: {{ include "cloud-storage.kafka.fullname" . }}:9092

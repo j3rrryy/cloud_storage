@@ -1,0 +1,71 @@
+{{- if .Values.monitoring.enabled }}
+{{- $lokiName := include "cloud-storage.loki.fullname" . -}}
+{{- $minioName := include "cloud-storage.minio.fullname" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $lokiName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: loki
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ $lokiName }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      containers:
+      - name: loki
+        image: {{ .Values.loki.image }}
+        args:
+        - -config.file=/etc/loki/loki.yml
+        - -config.expand-env=true
+        ports:
+        - containerPort: 3100
+          name: http
+        env:
+        - name: MINIO_HOST
+          value: {{ $minioName }}
+        - name: MINIO_PORT
+          value: {{ .Values.minio.service.ports.api | quote }}
+        - name: MINIO_LOKI_BUCKET
+          value: {{ .Values.file.env.MINIO_LOKI_BUCKET | quote }}
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ $minioName }}
+              key: root-user
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ $minioName }}
+              key: root-password
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki
+        - name: loki-data
+          mountPath: /loki
+        resources:
+          {{- toYaml .Values.loki.resources | nindent 10 }}
+      volumes:
+      - name: loki-config
+        configMap:
+          name: {{ $lokiName }}-config
+  volumeClaimTemplates:
+  - metadata:
+      name: loki-data
+      labels:
+        {{- include "cloud-storage.labels" . | nindent 8 }}
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.loki.storage }}
+{{- end }}

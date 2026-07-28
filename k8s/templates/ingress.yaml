@@ -1,0 +1,67 @@
+{{- if .Values.ingress.enabled }}
+{{- $gatewayName := include "cloud-storage.gateway.fullname" . -}}
+{{- $grafanaName := include "cloud-storage.grafana.fullname" . -}}
+{{- $minioName := include "cloud-storage.minio.fullname" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 75m
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location /api/metrics { return 403; }
+      location /api/health { return 403; }
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      location /s3-files {
+        proxy_set_header Authorization "";
+        proxy_request_buffering off;
+        proxy_buffering off;
+      }
+    {{- if .Values.monitoring.enabled }}
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    {{- end }}
+    {{- range $key, $val := .Values.ingress.annotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+  - hosts:
+    - {{ .Values.ingress.host }}
+    secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $gatewayName }}
+            port:
+              number: {{ .Values.gateway.service.httpPort }}
+      {{- if .Values.monitoring.enabled }}
+      - path: /admin/grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $grafanaName }}
+            port:
+              number: {{ .Values.grafana.service.port }}
+      {{- end }}
+      {{- if .Values.minio.enabled }}
+      - path: /s3-files
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $minioName }}
+            port:
+              number: {{ .Values.minio.service.ports.api }}
+      {{- end }}
+{{- end }}

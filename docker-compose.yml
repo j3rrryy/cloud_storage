@@ -10,14 +10,12 @@ volumes:
   prometheus_data:
   grafana_data:
 
-
 networks:
   nginx:
   backend:
   auth:
   file:
   monitoring:
-
 
 services:
   nginx-api:
@@ -27,7 +25,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./dev/nginx.api.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx.api.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - nginx
     depends_on:
@@ -41,7 +39,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./dev/nginx.all.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx.all.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - nginx
     depends_on:
@@ -56,7 +54,7 @@ services:
     expose:
       - 8000
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - ./src/gateway/:/src/gateway/
     networks:
@@ -77,7 +75,7 @@ services:
       - 50051
       - 8000
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - ./src/auth/:/src/auth/
     networks:
@@ -93,7 +91,7 @@ services:
     profiles: [ "api", "all" ]
     restart: unless-stopped
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data/
     networks:
@@ -107,7 +105,7 @@ services:
     restart: unless-stopped
     volumes:
       - auth_redis_data:/data/
-      - ./dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - auth
     hostname: redis
@@ -123,7 +121,7 @@ services:
       - 50051
       - 8000
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - ./src/file/:/src/file/
     networks:
@@ -142,7 +140,7 @@ services:
     expose:
       - 9000
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     environment:
       MINIO_PROMETHEUS_AUTH_TYPE: public
       MINIO_COMPRESSION_ENABLE: on
@@ -161,9 +159,9 @@ services:
     image: minio/mc:RELEASE.2025-07-21T05-28-08Z
     profiles: [ "api", "all" ]
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
-      - ./dev/setup_minio.sh:/setup_minio.sh
+      - ./docker/setup_minio.sh:/setup_minio.sh
     networks:
       - file
     depends_on:
@@ -176,7 +174,7 @@ services:
     profiles: [ "api", "all" ]
     restart: unless-stopped
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - file_postgres_data:/var/lib/postgresql/data/
     networks:
@@ -190,7 +188,7 @@ services:
     restart: unless-stopped
     volumes:
       - file_redis_data:/data/
-      - ./dev/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - file
     hostname: redis
@@ -230,7 +228,7 @@ services:
     expose:
       - 8000
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - ./src/mail/:/src/mail/
     networks:
@@ -246,10 +244,10 @@ services:
     expose:
       - 3100
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     volumes:
       - loki_data:/loki
-      - ./dev/loki.yml:/etc/loki/loki.yml:ro
+      - ./docker/loki.yml:/etc/loki/loki.yml:ro
     networks:
       - monitoring
     depends_on:
@@ -265,7 +263,7 @@ services:
       - /var/log:/var/log:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./dev/promtail.yml:/etc/promtail/docker-config.yml:ro
+      - ./docker/promtail.yml:/etc/promtail/docker-config.yml:ro
     networks:
       - monitoring
     depends_on:
@@ -281,7 +279,7 @@ services:
       - 9090
     volumes:
       - prometheus_data:/prometheus
-      - ./dev/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - backend
       - monitoring
@@ -295,13 +293,13 @@ services:
     expose:
       - 3000
     env_file:
-      - ./dev/.env
+      - ./docker/.env
     environment:
       GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/admin/grafana"
       GF_SERVER_SERVE_FROM_SUB_PATH: true
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./dev/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./docker/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
     networks:
       - nginx
       - monitoring

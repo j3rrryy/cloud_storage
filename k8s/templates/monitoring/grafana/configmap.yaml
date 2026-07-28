@@ -1,0 +1,26 @@
+{{- if .Values.monitoring.enabled }}
+{{- $grafanaName := include "cloud-storage.grafana.fullname" . -}}
+{{- $prometheusName := include "cloud-storage.prometheus.fullname" . -}}
+{{- $lokiName := include "cloud-storage.loki.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $grafanaName }}-datasources
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: grafana
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+data:
+  datasources.yml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://{{ $prometheusName }}:9090
+        isDefault: true
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://{{ $lokiName }}:3100
+{{- end }}

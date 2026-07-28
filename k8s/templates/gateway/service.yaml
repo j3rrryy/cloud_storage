@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cloud-storage.gateway.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: gateway
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: gateway
+  ports:
+  - name: http
+    port: {{ .Values.gateway.service.httpPort }}
+    targetPort: http
+  type: ClusterIP

@@ -4,3 +4,33 @@ description: Cloud Storage app
 type: application
 version: 0.1.0
 appVersion: "1.5.3"
+
+dependencies:
+  - name: postgresql
+    alias: authPostgres
+    version: 16.7.27
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: authPostgres.enabled
+  - name: postgresql
+    alias: filePostgres
+    version: 16.7.27
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: filePostgres.enabled
+  - name: redis
+    alias: authRedis
+    version: 22.0.0
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: authRedis.enabled
+  - name: redis
+    alias: fileRedis
+    version: 22.0.0
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: fileRedis.enabled
+  - name: kafka
+    version: 30.1.8
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: kafka.enabled
+  - name: minio
+    version: 16.0.0
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: minio.enabled

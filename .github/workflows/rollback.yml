@@ -39,6 +39,7 @@ jobs:
           docker tag ghcr.io/${{ github.repository }}:${{ matrix.service }}-$PREVIOUS_TAG_WITHOUT_V ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
           docker push ghcr.io/${{ github.repository }}:${{ matrix.service }}-latest
 
+  # TODO
   rollback-deploy:
     if: ${{ vars.DEPLOY == 'true' }}
     runs-on: ubuntu-latest

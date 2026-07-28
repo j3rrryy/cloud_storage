@@ -1,0 +1,19 @@
+{{- if .Values.monitoring.enabled }}
+{{- $grafanaName := include "cloud-storage.grafana.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $grafanaName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: grafana
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: http
+    port: {{ .Values.grafana.service.port }}
+    targetPort: http
+  type: ClusterIP
+{{- end }}
