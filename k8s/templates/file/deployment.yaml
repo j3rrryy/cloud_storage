@@ -32,12 +32,12 @@ spec:
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-file-postgres
+              name: file-postgres
               key: password
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-file-redis
+              name: file-redis
               key: redis-password
         - name: MINIO_ROOT_USER
           valueFrom:

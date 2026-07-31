@@ -17,15 +17,21 @@ auth:
     REDIS_DB: "0"
     REDIS_USER: default
 
-authPostgres:
-  auth:
-    username: <username>
-    password: "<password>"
-    database: cloud_storage
+auth-postgres:
+  settings:
+    superuserPassword:
+      value: "<password>"
+  userDatabase:
+    name:
+      value: cloud_storage
+    user:
+      value: <username>
+    password:
+      value: "<password>"
 
-authRedis:
-  auth:
-    password: "<password>"
+auth-redis:
+  redisConfig: |
+    requirepass <password>
 
 file:
   env:
@@ -37,15 +43,21 @@ file:
     MAX_FILE_SIZE: "16106127360"
     UPLOAD_CHUNK_SIZE: "73400320"
 
-filePostgres:
-  auth:
-    username: <username>
-    password: "<password>"
-    database: cloud_storage
+file-postgres:
+  settings:
+    superuserPassword:
+      value: "<password>"
+  userDatabase:
+    name:
+      value: cloud_storage
+    user:
+      value: <username>
+    password:
+      value: "<password>"
 
-fileRedis:
-  auth:
-    password: "<password>"
+file-redis:
+  redisConfig: |
+    requirepass <password>
 
 mail:
   env:

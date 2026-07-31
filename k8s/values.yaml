@@ -1,6 +1,8 @@
 environment: dev
 
 global:
+  security:
+    allowInsecureImages: true
   image:
     repository: ghcr.io/j3rrryy/cloud_storage
     pullPolicy: Always
@@ -46,6 +48,37 @@ auth:
       memory: 256Mi
       cpu: 200m
 
+auth-postgres:
+  image:
+    repository: postgres
+    tag: 17.5-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  env:
+    - name: PGUSER
+      value: postgres
+
+auth-redis:
+  image:
+    repository: redis
+    tag: 8.2-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
 file:
   replicaCount: 1
   image:
@@ -53,6 +86,37 @@ file:
   service:
     grpcPort: 50051
     httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+file-postgres:
+  image:
+    repository: postgres
+    tag: 17.5-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  env:
+    - name: PGUSER
+      value: postgres
+
+file-redis:
+  image:
+    repository: redis
+    tag: 8.2-alpine
+  persistence:
+    size: 1Gi
   resources:
     requests:
       memory: 128Mi
@@ -75,71 +139,10 @@ mail:
       memory: 256Mi
       cpu: 200m
 
-authPostgres:
-  fullnameOverride: auth-postgres
-  enabled: true
-  architecture: standalone
-  primary:
-    persistence:
-      size: 1Gi
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 250m
-      limits:
-        memory: 512Mi
-        cpu: 500m
-
-filePostgres:
-  fullnameOverride: file-postgres
-  enabled: true
-  architecture: standalone
-  primary:
-    persistence:
-      size: 1Gi
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 250m
-      limits:
-        memory: 512Mi
-        cpu: 500m
-
-authRedis:
-  fullnameOverride: auth-redis
-  enabled: true
-  architecture: standalone
-  auth:
-    enabled: true
-  master:
-    persistence:
-      size: 1Gi
-    resources:
-      requests:
-        memory: 128Mi
-        cpu: 100m
-      limits:
-        memory: 256Mi
-        cpu: 200m
-
-fileRedis:
-  fullnameOverride: file-redis
-  enabled: true
-  architecture: standalone
-  auth:
-    enabled: true
-  master:
-    persistence:
-      size: 1Gi
-    resources:
-      requests:
-        memory: 128Mi
-        cpu: 100m
-      limits:
-        memory: 256Mi
-        cpu: 200m
-
 kafka:
+  image:
+    repository: bitnamilegacy/kafka
+    tag: 4.0.0-debian-12-r10
   enabled: true
   listeners:
     client:
@@ -160,6 +163,9 @@ kafka:
         cpu: 500m
 
 minio:
+  image:
+    repository: minio/minio
+    tag: RELEASE.2025-07-23T15-54-02Z
   enabled: true
   mode: standalone
   extraEnvVars:
