@@ -31,21 +31,21 @@ spec:
           name: http
         env:
         - name: MINIO_HOST
-          value: {{ $minioName }}
+          value: {{ include "cloud-storage.minio.fullname" . }}
         - name: MINIO_PORT
-          value: {{ .Values.minio.service.ports.api | quote }}
+          value: {{ .Values.minio.service.port | quote }}
         - name: MINIO_LOKI_BUCKET
           value: {{ .Values.file.env.MINIO_LOKI_BUCKET | quote }}
         - name: MINIO_ROOT_USER
           valueFrom:
             secretKeyRef:
-              name: {{ $minioName }}
-              key: root-user
+              name: {{ .Release.Name }}-minio
+              key: rootUser
         - name: MINIO_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ $minioName }}
-              key: root-password
+              name: {{ .Release.Name }}-minio
+              key: rootPassword
         volumeMounts:
         - name: loki-config
           mountPath: /etc/loki

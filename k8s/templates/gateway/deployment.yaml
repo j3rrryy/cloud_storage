@@ -26,17 +26,23 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ include "cloud-storage.gateway.fullname" . }}-config
+        startupProbe:
+          httpGet:
+            path: /api/health/live
+            port: http
+          failureThreshold: 30
+          periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /api/health/live
             port: http
-          initialDelaySeconds: 15
+          failureThreshold: 3
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /api/health/ready
             port: http
-          initialDelaySeconds: 5
+          failureThreshold: 3
           periodSeconds: 5
         resources:
           {{- toYaml .Values.gateway.resources | nindent 10 }}

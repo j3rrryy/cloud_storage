@@ -36,7 +36,7 @@ data:
       - job_name: minio
         metrics_path: /minio/v2/metrics/cluster
         static_configs:
-          - targets: ["{{ $minioName }}:{{ .Values.minio.service.ports.api }}"]
+          - targets: ["{{ $minioName }}:{{ .Values.minio.service.port }}"]
       - job_name: mail
         metrics_path: /metrics
         static_configs:

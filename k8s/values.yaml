@@ -30,8 +30,8 @@ gateway:
       memory: 128Mi
       cpu: 100m
     limits:
-      memory: 256Mi
-      cpu: 200m
+      memory: 512Mi
+      cpu: 500m
 
 auth:
   replicaCount: 1
@@ -45,8 +45,8 @@ auth:
       memory: 128Mi
       cpu: 100m
     limits:
-      memory: 256Mi
-      cpu: 200m
+      memory: 512Mi
+      cpu: 500m
 
 auth-postgres:
   image:
@@ -91,8 +91,8 @@ file:
       memory: 128Mi
       cpu: 100m
     limits:
-      memory: 256Mi
-      cpu: 200m
+      memory: 512Mi
+      cpu: 500m
 
 file-postgres:
   image:
@@ -136,14 +136,13 @@ mail:
       memory: 128Mi
       cpu: 100m
     limits:
-      memory: 256Mi
-      cpu: 200m
+      memory: 512Mi
+      cpu: 500m
 
 kafka:
   image:
     repository: bitnamilegacy/kafka
     tag: 4.0.0-debian-12-r10
-  enabled: true
   listeners:
     client:
       protocol: PLAINTEXT
@@ -166,29 +165,24 @@ minio:
   image:
     repository: minio/minio
     tag: RELEASE.2025-07-23T15-54-02Z
-  enabled: true
   mode: standalone
-  extraEnvVars:
-    - name: MINIO_COMPRESSION_ENABLE
-      value: "on"
-    - name: MINIO_COMPRESSION_EXTENSIONS
-      value: "*"
-    - name: MINIO_COMPRESSION_MIME_TYPES
-      value: "*"
-  provisioning:
-    enabled: true
-    buckets:
-      - name: s3-files
-      - name: loki
-    config:
-      - name: api
-        options:
-          stale_uploads_expiry: 24h
+  existingSecret: cloud-storage-minio
+  environment:
+    MINIO_COMPRESSION_ENABLE: "on"
+    MINIO_COMPRESSION_EXTENSIONS: "*"
+    MINIO_COMPRESSION_MIME_TYPES: "*"
+    MINIO_API_STALE_UPLOADS_EXPIRY: "24h"
+  buckets:
+    - name: s3-files
+      policy: none
+      purge: false
+    - name: loki
+      policy: none
+      purge: false
   persistence:
     size: 5Gi
   service:
-    ports:
-      api: 9000
+    port: 9000
   resources:
     requests:
       memory: 256Mi

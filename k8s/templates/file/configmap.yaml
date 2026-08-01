@@ -12,7 +12,7 @@ data:
   {{- end }}
   POSTGRES_HOST: {{ .Release.Name }}-file-postgres
   POSTGRES_PORT: "5432"
-  REDIS_HOST: {{ .Release.Name }}-file-redis-master
+  REDIS_HOST: {{ .Release.Name }}-file-redis
   REDIS_PORT: "6379"
   MINIO_HOST: {{ include "cloud-storage.minio.fullname" . }}
-  MINIO_PORT: {{ .Values.minio.service.ports.api | quote }}
+  MINIO_PORT: {{ .Values.minio.service.port | quote }}

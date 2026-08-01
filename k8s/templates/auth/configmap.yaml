@@ -12,5 +12,5 @@ data:
   {{- end }}
   POSTGRES_HOST: {{ .Release.Name }}-auth-postgres
   POSTGRES_PORT: "5432"
-  REDIS_HOST: {{ .Release.Name }}-auth-redis-master
+  REDIS_HOST: {{ .Release.Name }}-auth-redis
   REDIS_PORT: "6379"

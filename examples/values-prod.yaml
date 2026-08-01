@@ -18,8 +18,8 @@ gateway:
       memory: 256Mi
       cpu: 250m
     limits:
-      memory: 512Mi
-      cpu: 500m
+      memory: 1Gi
+      cpu: "1"
   env:
     APP_NAME: Cloud Storage
     VERSION: "1.5.3"
@@ -35,8 +35,8 @@ auth:
       memory: 256Mi
       cpu: 250m
     limits:
-      memory: 512Mi
-      cpu: 500m
+      memory: 1Gi
+      cpu: "1"
   env:
     APP_NAME: Cloud Storage
     VERSION: "1.5.3"
@@ -70,6 +70,9 @@ auth-postgres:
 auth-redis:
   redisConfig: |
     requirepass <password>
+    protected-mode no
+  auth:
+    password: "<password>"
   persistence:
     size: 5Gi
   resources:
@@ -87,8 +90,8 @@ file:
       memory: 256Mi
       cpu: 250m
     limits:
-      memory: 512Mi
-      cpu: 500m
+      memory: 1Gi
+      cpu: "1"
   env:
     POSTGRES_DB: cloud_storage
     POSTGRES_USER: <username>
@@ -122,6 +125,9 @@ file-postgres:
 file-redis:
   redisConfig: |
     requirepass <password>
+    protected-mode no
+  auth:
+    password: "<password>"
   persistence:
     size: 5Gi
   resources:
@@ -134,6 +140,13 @@ file-redis:
 
 mail:
   replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1"
   env:
     APP_NAME: Cloud Storage
     EMAIL_CONFIRMATION_URL: "https://<url>/api/v1/auth/confirm-email?token="
@@ -144,9 +157,8 @@ kafka:
       size: 10Gi
 
 minio:
-  auth:
-    rootUser: <username>
-    rootPassword: "<password>"
+  rootUser: <username>
+  rootPassword: "<password>"
   persistence:
     size: 50Gi
 

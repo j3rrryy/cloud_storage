@@ -62,6 +62,6 @@ spec:
           service:
             name: {{ $minioName }}
             port:
-              number: {{ .Values.minio.service.ports.api }}
+              number: {{ .Values.minio.service.port }}
       {{- end }}
 {{- end }}
