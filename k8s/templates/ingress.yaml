@@ -10,16 +10,26 @@ metadata:
   labels:
     {{- include "cloud-storage.labels" . | nindent 4 }}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: 75m
     nginx.ingress.kubernetes.io/server-snippet: |
       location /api/metrics { return 403; }
       location /api/health { return 403; }
-    nginx.ingress.kubernetes.io/configuration-snippet: |
       location /s3-files {
+        client_max_body_size 75M;
         proxy_set_header Authorization "";
         proxy_request_buffering off;
         proxy_buffering off;
+        proxy_redirect off;
+        proxy_pass http://{{ $minioName }}.{{ .Release.Namespace }}:{{ .Values.minio.service.port }};
       }
+      {{- if .Values.monitoring.enabled }}
+      location /admin/grafana {
+        proxy_set_header Host $http_host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_redirect off;
+        proxy_pass http://{{ $grafanaName }}.{{ .Release.Namespace }}:{{ .Values.grafana.service.port }};
+      }
+      {{- end }}
     {{- if .Values.monitoring.enabled }}
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
@@ -46,22 +56,4 @@ spec:
             name: {{ $gatewayName }}
             port:
               number: {{ .Values.gateway.service.httpPort }}
-      {{- if .Values.monitoring.enabled }}
-      - path: /admin/grafana
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $grafanaName }}
-            port:
-              number: {{ .Values.grafana.service.port }}
-      {{- end }}
-      {{- if .Values.minio.enabled }}
-      - path: /s3-files
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $minioName }}
-            port:
-              number: {{ .Values.minio.service.port }}
-      {{- end }}
 {{- end }}

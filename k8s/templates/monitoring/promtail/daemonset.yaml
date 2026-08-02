@@ -9,7 +9,9 @@ metadata:
   labels:
     app: promtail
     {{- include "cloud-storage.labels" . | nindent 4 }}
+
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -22,7 +24,9 @@ rules:
   - apiGroups: [""]
     resources: [pods, pods/log]
     verbs: [get, list, watch]
+
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -39,7 +43,9 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: {{ $promtailName }}
+
 ---
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -80,7 +86,9 @@ data:
               - __meta_kubernetes_pod_uid
               - __meta_kubernetes_pod_container_name
             target_label: __path__
+
 ---
+
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

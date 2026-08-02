@@ -27,7 +27,7 @@ spec:
           name: http
         env:
         - name: GF_SERVER_ROOT_URL
-          value: {{ printf "%s://%s/admin/grafana" (include "cloud-storage.ingress.scheme" .) .Values.ingress.host | quote }}
+          value: "%(protocol)s://%(domain)s/admin/grafana"
         {{- range $key, $val := .Values.grafana.env }}
         - name: {{ $key }}
           value: {{ $val | quote }}

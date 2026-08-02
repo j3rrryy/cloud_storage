@@ -179,6 +179,7 @@ minio:
     - name: loki
       policy: none
       purge: false
+  lokiBucket: loki
   persistence:
     size: 5Gi
   service:

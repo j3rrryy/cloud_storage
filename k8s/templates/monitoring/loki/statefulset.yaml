@@ -35,7 +35,7 @@ spec:
         - name: MINIO_PORT
           value: {{ .Values.minio.service.port | quote }}
         - name: MINIO_LOKI_BUCKET
-          value: {{ .Values.file.env.MINIO_LOKI_BUCKET | quote }}
+          value: {{ .Values.minio.lokiBucket | quote }}
         - name: MINIO_ROOT_USER
           valueFrom:
             secretKeyRef:
