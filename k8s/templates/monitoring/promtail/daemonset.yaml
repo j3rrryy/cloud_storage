@@ -107,6 +107,8 @@ spec:
         app: promtail
     spec:
       serviceAccountName: {{ $promtailName }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: promtail
         image: {{ .Values.promtail.image }}
