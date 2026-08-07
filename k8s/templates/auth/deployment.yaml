@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cloud-storage.auth.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: auth
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: "{{ .Values.global.image.repository }}:{{ .Values.auth.image.tag }}"
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.auth.service.grpcPort }}
+          name: grpc
+        - containerPort: {{ .Values.auth.service.httpPort }}
+          name: http
+        envFrom:
+        - configMapRef:
+            name: {{ include "cloud-storage.auth.fullname" . }}-config
+        {{- if .Values.secrets.auth }}
+        - secretRef:
+            name: {{ include "cloud-storage.auth.fullname" . }}-secret
+        {{- end }}
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: auth-postgres
+              key: password
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: auth-redis
+              key: password
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          failureThreshold: 3
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          failureThreshold: 3
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.auth.resources | nindent 10 }}

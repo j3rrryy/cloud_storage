@@ -1,0 +1,53 @@
+{{- if .Values.monitoring.enabled }}
+{{- $prometheusName := include "cloud-storage.prometheus.fullname" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $prometheusName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: prometheus
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ $prometheusName }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: {{ .Values.prometheus.image }}
+        args:
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --storage.tsdb.path=/prometheus
+        ports:
+        - containerPort: 9090
+          name: http
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+        - name: prometheus-data
+          mountPath: /prometheus
+        resources:
+          {{- toYaml .Values.prometheus.resources | nindent 10 }}
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: {{ $prometheusName }}-config
+  volumeClaimTemplates:
+  - metadata:
+      name: prometheus-data
+      labels:
+        {{- include "cloud-storage.labels" . | nindent 8 }}
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.prometheus.storage }}
+{{- end }}

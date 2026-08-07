@@ -1,0 +1,240 @@
+environment: dev
+
+global:
+  security:
+    allowInsecureImages: true
+  image:
+    repository: ghcr.io/j3rrryy/cloud_storage
+    pullPolicy: Always
+
+monitoring:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  host: localhost
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: cloud-storage-tls
+
+gateway:
+  replicaCount: 1
+  image:
+    tag: gateway-latest
+  service:
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+auth:
+  replicaCount: 1
+  image:
+    tag: auth-latest
+  service:
+    grpcPort: 50051
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+auth-postgres:
+  image:
+    repository: postgres
+    tag: 17.5-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  env:
+    - name: PGUSER
+      value: postgres
+
+auth-redis:
+  image:
+    repository: redis
+    tag: 8.2-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+file:
+  replicaCount: 1
+  image:
+    tag: file-latest
+  service:
+    grpcPort: 50051
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+file-postgres:
+  image:
+    repository: postgres
+    tag: 17.5-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  env:
+    - name: PGUSER
+      value: postgres
+
+file-redis:
+  image:
+    repository: redis
+    tag: 8.2-alpine
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+mail:
+  replicaCount: 1
+  image:
+    tag: mail-latest
+  service:
+    httpPort: 8000
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+kafka:
+  image:
+    repository: bitnamilegacy/kafka
+    tag: 4.0.0-debian-12-r10
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+  controller:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+
+minio:
+  image:
+    repository: minio/minio
+    tag: RELEASE.2025-07-23T15-54-02Z
+  mode: standalone
+  existingSecret: cloud-storage-minio
+  environment:
+    MINIO_COMPRESSION_ENABLE: "on"
+    MINIO_COMPRESSION_EXTENSIONS: "*"
+    MINIO_COMPRESSION_MIME_TYPES: "*"
+    MINIO_API_STALE_UPLOADS_EXPIRY: "24h"
+  buckets:
+    - name: s3-files
+      policy: none
+      purge: false
+    - name: loki
+      policy: none
+      purge: false
+  lokiBucket: loki
+  persistence:
+    size: 5Gi
+  service:
+    port: 9000
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+prometheus:
+  image: prom/prometheus:v3.5.0
+  storage: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+
+loki:
+  image: grafana/loki:3.5
+  storage: 1Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+
+promtail:
+  image: grafana/promtail:3.5
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+grafana:
+  image: grafana/grafana:12.1.1
+  storage: 1Gi
+  service:
+    port: 3000
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+  env:
+    GF_SERVER_SERVE_FROM_SUB_PATH: "true"

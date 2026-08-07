@@ -1,0 +1,52 @@
+{{- if .Values.monitoring.enabled }}
+{{- $prometheusName := include "cloud-storage.prometheus.fullname" . -}}
+{{- $gatewayName := include "cloud-storage.gateway.fullname" . -}}
+{{- $authName := include "cloud-storage.auth.fullname" . -}}
+{{- $fileName := include "cloud-storage.file.fullname" . -}}
+{{- $mailName := include "cloud-storage.mail.fullname" . -}}
+{{- $minioName := include "cloud-storage.minio.fullname" . -}}
+{{- $lokiName := include "cloud-storage.loki.fullname" . -}}
+{{- $promtailName := include "cloud-storage.promtail.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $prometheusName }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: prometheus
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      scrape_timeout: 10s
+    scrape_configs:
+      - job_name: gateway
+        metrics_path: /api/metrics
+        static_configs:
+          - targets: ["{{ $gatewayName }}:{{ .Values.gateway.service.httpPort }}"]
+      - job_name: auth
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["{{ $authName }}:{{ .Values.auth.service.httpPort }}"]
+      - job_name: file
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["{{ $fileName }}:{{ .Values.file.service.httpPort }}"]
+      - job_name: minio
+        metrics_path: /minio/v2/metrics/cluster
+        static_configs:
+          - targets: ["{{ $minioName }}:{{ .Values.minio.service.port }}"]
+      - job_name: mail
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["{{ $mailName }}:{{ .Values.mail.service.httpPort }}"]
+      - job_name: loki
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["{{ $lokiName }}:3100"]
+      - job_name: promtail
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["{{ $promtailName }}:9080"]
+{{- end }}

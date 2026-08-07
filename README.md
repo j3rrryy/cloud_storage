@@ -48,17 +48,44 @@
 
 ## :computer: Requirements
 
-- Docker
+- Docker **(dev)**
+- Kubernetes + Helm **(dev + prod)**
 
 ## :hammer_and_wrench: Getting started
 
-- **(For dev/prod)** Copy `.env` file from `examples/<dev/prod>/` to `<dev/prod>/` folder and fill it in
+- **(For dev-docker)** Copy `.env` file from `examples/` to `docker/` folder and fill it in
 
-- **(For dev/prod)** Copy `redis.conf` file from `examples/` to `<dev/prod>/` folder and fill it in
+- **(For dev-docker)** Copy `redis.conf` file from `examples/` to `docker/` folder and fill it in
 
-- **(For prod)** Copy `nginx.conf` file from `examples/prod/` to `prod/` folder and fill it in
+- **(For dev-k8s/prod-k8s)** Copy `values-<dev/prod>.yaml` file from `examples/` to `k8s/` folder and fill it in
 
-- **(For prod)** Copy `docker-compose.cert.yml` file from `examples/prod/` to `prod/` folder and fill it in
+- **(For k8s)** Install NGINX Ingress Controller
+
+  ```shell
+  helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.allowSnippetAnnotations=true --set controller.config.annotations-risk-level=Critical
+  ```
+
+- **(For prod-k8s)** Install cert-manager and configure a ClusterIssuer
+
+  ```shell
+  helm install cert-manager jetstack/cert-manager --repo https://charts.jetstack.io --namespace cert-manager --create-namespace --set installCRDs=true
+  kubectl apply -f - <<EOF
+  apiVersion: cert-manager.io/v1
+  kind: ClusterIssuer
+  metadata:
+    name: letsencrypt-prod
+  spec:
+    acme:
+      server: https://acme-v02.api.letsencrypt.org/directory
+      email: <your_email>
+      privateKeySecretRef:
+        name: letsencrypt-prod
+      solvers:
+        - http01:
+            ingress:
+              class: nginx
+  EOF
+  ```
 
 ### :rocket: Start
 
@@ -67,40 +94,42 @@
   - Only API
 
     ```shell
-    docker compose -f docker-compose.dev.yml --profile api up --build -d
+    docker compose --profile api up --build -d
     ```
 
   - API + monitoring
 
     ```shell
-    docker compose -f docker-compose.dev.yml --profile all up --build -d
+    docker compose --profile all up --build -d
     ```
 
-- Run the **prod ver.** and get a SSL certificate
-
-  - Create the directory on the server
+  - Using Kubernetes
 
     ```shell
-    mkdir -p /cloud_storage/
+    helm dependency update ./k8s
+    helm upgrade --install cloud-storage ./k8s -f ./k8s/values-dev.yaml --namespace cloud-storage --create-namespace
     ```
 
-  - Use SCP to copy the prod files to the server
+- Run the **prod ver.**
 
-    ```shell
-    scp -r ./prod/* <username>@<host>:/cloud_storage/
-    ```
-
-  - Run the deploy script
-
-    ```shell
-    bash deploy.sh
-    ```
+  ```shell
+  helm dependency update ./k8s
+  helm upgrade --install cloud-storage ./k8s -f ./k8s/values-prod.yaml --namespace cloud-storage --create-namespace
+  ```
 
 ### :x: Stop
 
-```shell
-docker compose -f docker-compose.<dev/prod>.yml stop
-```
+- Using Docker
+
+  ```shell
+  docker compose stop
+  ```
+
+- Using Kubernetes
+
+  ```shell
+  helm uninstall cloud-storage --namespace cloud-storage
+  ```
 
 ### :chart_with_upwards_trend: Load testing
 

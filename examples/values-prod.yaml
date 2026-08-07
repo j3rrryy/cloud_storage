@@ -1,0 +1,184 @@
+environment: prod
+
+monitoring:
+  enabled: true
+
+ingress:
+  host: <url>
+  tls:
+    enabled: true
+    secretName: cloud-storage-tls
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+gateway:
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1"
+  env:
+    APP_NAME: Cloud Storage
+    VERSION: "1.5.3"
+    DEBUG: "0"
+    ALLOWED_ORIGINS: "<origin:port>,<origin:port>"
+
+auth:
+  replicaCount: 2
+  image:
+    tag: auth-latest
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1"
+  env:
+    APP_NAME: Cloud Storage
+    VERSION: "1.5.3"
+    DEBUG: "0"
+    POSTGRES_DB: cloud_storage
+    POSTGRES_USER: <username>
+    REDIS_DB: "0"
+    REDIS_USER: default
+
+auth-postgres:
+  settings:
+    superuserPassword:
+      value: "<password>"
+  userDatabase:
+    name:
+      value: cloud_storage
+    user:
+      value: <username>
+    password:
+      value: "<password>"
+  persistence:
+    size: 10Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 500m
+    limits:
+      memory: 1Gi
+      cpu: "1"
+
+auth-redis:
+  redisConfig: |
+    requirepass <password>
+    protected-mode no
+  auth:
+    password: "<password>"
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+file:
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1"
+  env:
+    POSTGRES_DB: cloud_storage
+    POSTGRES_USER: <username>
+    REDIS_DB: "0"
+    REDIS_USER: default
+    MINIO_S3_BUCKET: s3-files
+    MAX_FILE_SIZE: "16106127360"
+    UPLOAD_CHUNK_SIZE: "73400320"
+
+file-postgres:
+  settings:
+    superuserPassword:
+      value: "<password>"
+  userDatabase:
+    name:
+      value: cloud_storage
+    user:
+      value: <username>
+    password:
+      value: "<password>"
+  persistence:
+    size: 20Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 500m
+    limits:
+      memory: 1Gi
+      cpu: "1"
+
+file-redis:
+  redisConfig: |
+    requirepass <password>
+    protected-mode no
+  auth:
+    password: "<password>"
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+mail:
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1"
+  env:
+    APP_NAME: Cloud Storage
+    EMAIL_CONFIRMATION_URL: "https://<url>/api/v1/auth/confirm-email?token="
+
+kafka:
+  controller:
+    persistence:
+      size: 10Gi
+
+minio:
+  rootUser: <username>
+  rootPassword: "<password>"
+  persistence:
+    size: 50Gi
+
+prometheus:
+  storage: 5Gi
+
+loki:
+  storage: 10Gi
+
+grafana:
+  storage: 5Gi
+
+secrets:
+  auth:
+    SECRET_KEY: "<Base64-encoded PEM EdDSA key>"
+  mail:
+    MAIL_USERNAME: "<username>"
+    MAIL_PASSWORD: "<password>"
+    MAIL_HOSTNAME: "<hostname>"
+    MAIL_PORT: "<port>"
+  grafana:
+    GF_SECURITY_ADMIN_USER: <username>
+    GF_SECURITY_ADMIN_PASSWORD: "<password>"

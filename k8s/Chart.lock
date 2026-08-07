@@ -1,0 +1,21 @@
+dependencies:
+- name: postgres
+  repository: https://groundhog2k.github.io/helm-charts
+  version: 1.5.7
+- name: postgres
+  repository: https://groundhog2k.github.io/helm-charts
+  version: 1.5.7
+- name: redis
+  repository: https://groundhog2k.github.io/helm-charts
+  version: 2.1.12
+- name: redis
+  repository: https://groundhog2k.github.io/helm-charts
+  version: 2.1.12
+- name: kafka
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 32.4.3
+- name: minio
+  repository: https://charts.min.io/
+  version: 5.4.0
+digest: sha256:fd224cb7ad7848c29af47b946b69267130ce78419816a1241addb99dae4d8518
+generated: "2026-07-31T22:16:09.085605+03:00"

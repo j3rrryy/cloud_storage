@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cloud-storage.mail.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: mail
+    {{- include "cloud-storage.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.mail.replicaCount }}
+  selector:
+    matchLabels:
+      app: mail
+  template:
+    metadata:
+      labels:
+        app: mail
+    spec:
+      containers:
+      - name: mail
+        image: "{{ .Values.global.image.repository }}:{{ .Values.mail.image.tag }}"
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.mail.service.httpPort }}
+          name: http
+        envFrom:
+        - configMapRef:
+            name: {{ include "cloud-storage.mail.fullname" . }}-config
+        {{- if .Values.secrets.mail }}
+        - secretRef:
+            name: {{ include "cloud-storage.mail.fullname" . }}-secret
+        {{- end }}
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          failureThreshold: 3
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          failureThreshold: 3
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.mail.resources | nindent 10 }}

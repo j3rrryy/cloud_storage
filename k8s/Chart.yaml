@@ -1,0 +1,36 @@
+apiVersion: v2
+name: cloud-storage
+description: Cloud Storage app
+type: application
+version: 0.1.0
+appVersion: "1.5.3"
+
+dependencies:
+  - name: postgres
+    alias: auth-postgres
+    version: 1.5.7
+    repository: https://groundhog2k.github.io/helm-charts
+    condition: auth-postgres.enabled
+  - name: postgres
+    alias: file-postgres
+    version: 1.5.7
+    repository: https://groundhog2k.github.io/helm-charts
+    condition: file-postgres.enabled
+  - name: redis
+    alias: auth-redis
+    version: 2.1.12
+    repository: https://groundhog2k.github.io/helm-charts
+    condition: auth-redis.enabled
+  - name: redis
+    alias: file-redis
+    version: 2.1.12
+    repository: https://groundhog2k.github.io/helm-charts
+    condition: file-redis.enabled
+  - name: kafka
+    version: 32.4.3
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: kafka.enabled
+  - name: minio
+    version: 5.4.0
+    repository: https://charts.min.io/
+    condition: minio.enabled
